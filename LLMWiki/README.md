@@ -1,8 +1,8 @@
-# DGD Ambassador Video Wiki
+﻿# DGD Ambassador Video Wiki
 
 Your complete playbook for making **educational short-form videos about Digital Gold (DGD)** using **free AI tools** — without breaking platform rules or the Foundation's communications discipline.
 
-> **Read this first:** Your job as an ambassador is to **educate, not sell.** You explain how Digital Gold and sound-money ideas work. You never tell people it's an investment, never predict the price, never promise anyone will make money. This isn't just good taste — it's the rule the Digital Gold Foundation operates under, and the rule that keeps platforms from removing your content. Start with [The Golden Rules](compliance/communications-discipline.md).
+> **Read this first:** Your job as an ambassador is to **educate, not sell.** You explain how Digital Gold and sound-money ideas work. You never tell people it's an investment, never predict the price, and always add disclosures where required.
 
 ## Start here (in order)
 
@@ -30,8 +30,16 @@ Full catalog: **[index.md](index.md)**.
 
 - **You teach ideas, not tickers.** Austrian economics, why money loses value, what "sound money" means, how DGD's design works. ([talking points](dgd/approved-talking-points.md))
 - **You disclose.** If you earn DGD recognition for posting, that's a material connection — label it, and label AI-generated media. ([FTC](compliance/ftc-disclosure.md) · [AI disclosure](compliance/ai-disclosure.md))
-- **You make it good.** A strong hook in the first second, clear value, captions, clean audio. Free AI tools do the heavy lifting. ([viral principles](craft/viral-principles.md))
+- **You make it good.** A strong hook in the first second, clear value, captions, clean audio. Free AI tools do the heavy lifting. ([viral principles](craft/viral-principles.md)) 
 - **You check before you post.** Every time. ([checklist](templates/pre-publish-checklist.md))
 
 ---
+
+### New & contributor guidance
+
+- New contributors: see the top-level [CONTRIBUTING.md](../CONTRIBUTING.md) for PR guidance, frontmatter checks, and local testing steps.
+- Example outputs: a human-reviewed example script and shot-list for the `dgd-video-studio` skill are available at `../example-output/` — use these as a QA baseline when editing `skills/dgd-video-studio`.
+
+---
+
 *Maintained by an LLM agent per [CLAUDE.md](CLAUDE.md). Tool prices and platform policies were verified June 2026 — re-check source links, they change often. Nothing here is financial, investment, legal, or tax advice.*
