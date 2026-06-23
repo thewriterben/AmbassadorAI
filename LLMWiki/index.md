@@ -4,14 +4,16 @@ Catalog of every page. Start at the [README](README.md). Agent: read this first 
 
 ## Core
 - [README.md](README.md) — human entry point; start-here guide for ambassadors.
+- [CONTRIBUTING.md](../CONTRIBUTING.md) — how to contribute, PR checklist, and local testing guidance.
 - [CLAUDE.md](CLAUDE.md) — schema & operating instructions for the LLM maintainer.
 - [index.md](index.md) — this catalog.
 - [log.md](log.md) — chronological record of wiki changes.
 - [DGD-Ambassador-Handbook.pdf](DGD-Ambassador-Handbook.pdf) — shareable, branded PDF summary of the wiki.
 
 ## The agent — `../skills/`
-- [DGD Video Studio](../skills/dgd-video-studio/SKILL.md) — ⭐ installable end-to-end agent that walks you from idea → trend → tool match → script/prompts → compliance gate. The front door to this wiki. Helper logic: `../skills/dgd-video-studio/reference/` (tool-matcher, compliance-gate, trend-application).
-- [How to Use Skills](../HOW-TO-USE-SKILLS.md) — using skills in Claude Cowork **and** with the Hermes Agent (same skill, both tools); install, invoke, bundle, schedule, and protect compliance-critical skills.
+- [DGD Video Studio](../skills/dgd-video-studio/SKILL.md) — ⭐ installable end-to-end agent that walks you from idea → trend → tool match → script/prompts → compliance gate. The front d[...]
+- [dgd-video-studio example outputs](../example-output/) — human-reviewed example script and shot list used as a QA baseline for the skill.
+- [How to Use Skills](../HOW-TO-USE-SKILLS.md) — using skills in Claude Cowork **and** with the Hermes Agent (same skill, both tools); install, invoke, bundle, schedule, and protect compliance-c[...]
 
 ## Digital Gold (subject knowledge) — `dgd/`
 - [dgd-overview.md](dgd/dgd-overview.md) — what DGD is, in plain language; the headline design facts.
