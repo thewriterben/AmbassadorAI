@@ -1,0 +1,21 @@
+﻿name: Skill frontmatter check
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+
+jobs:
+  frontmatter-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.x"
+
+      - name: Run SKILL.md frontmatter checker
+        run: |
+          python3 .github/scripts/check_skill_frontmatter.py
