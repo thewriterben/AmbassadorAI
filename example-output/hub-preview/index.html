@@ -70,6 +70,25 @@ aside.open{left:0}.menubtn{display:inline-block;position:fixed;top:12px;left:12p
 background:var(--gold);color:#1a1205;border:none;border-radius:8px;padding:8px 12px;font-weight:700}
 main{padding-top:60px}.kv{flex-direction:column;gap:2px}.kv b{min-width:0}}
 .noresult{color:var(--mute);padding:10px;font-size:13px;display:none}
+@media print{aside,.menubtn,#toast,.foot{display:none!important}main{padding:0}.content{max-width:none}body{background:#fff;color:#000}.doc h1,.doc h2,.doc h3{color:#000}.doc th{color:#000}}
+
+/* video wizard */
+.wizbar{height:6px;background:rgba(255,255,255,.08);border-radius:6px;overflow:hidden;margin:2px 0 6px}
+.wizbar-fill{height:100%;background:var(--gold);transition:width .3s}
+.wizstepno{color:var(--gold);font-size:12px;font-weight:700;margin-bottom:14px;text-transform:uppercase;letter-spacing:.05em}
+#wizApp label{display:block;font-size:12px;color:var(--mute);margin:12px 0 4px}
+#wizApp input[type=text],#wizApp textarea,#wizApp select{width:100%;background:rgba(0,0,0,.25);border:1px solid var(--line);color:var(--white);border-radius:9px;padding:10px;font-size:15px;font-family:inherit}
+#wizApp textarea{min-height:80px}
+.wchk,.wradio{display:block;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:9px;padding:10px 12px;margin:8px 0;font-size:14px;cursor:pointer}
+.wchk input,.wradio input{width:auto;margin-right:8px}
+.wnote{background:rgba(212,168,83,.08);border:1px solid rgba(212,168,83,.3);border-radius:10px;padding:12px 14px;margin:14px 0;font-size:14px;line-height:1.7}
+.wizfoot{display:flex;justify-content:space-between;align-items:center;margin-top:20px;gap:10px}
+.wbtn{background:var(--gold);color:#1a1205;border:none;border-radius:9px;padding:10px 20px;font-weight:700;cursor:pointer;font-size:14px}
+.wbtn.ghost{background:transparent;border:1px solid var(--gold);color:var(--gold)}
+.wbtn.big{font-size:16px;padding:12px 26px;margin-top:14px}
+.wizerr{display:none;color:var(--fail);font-size:13px;margin-top:10px}
+.wbadge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;vertical-align:middle}
+.wb-pass{background:rgba(95,185,142,.18);color:var(--pass)}.wb-warn{background:rgba(217,164,65,.18);color:var(--warn)}.wb-fail{background:rgba(226,105,107,.18);color:var(--fail)}
 </style></head><body>
 <button class="menubtn" onclick="document.querySelector('aside').classList.toggle('open')">☰ Menu</button>
 <div class="layout">
@@ -78,13 +97,16 @@ main{padding-top:60px}.kv{flex-direction:column;gap:2px}.kv b{min-width:0}}
   <input class="search" id="q" placeholder="Search topics…" autocomplete="off">
   <a class="navlink" data-doc="home" href="#home">Home</a>
   <div class="navgroup">Create</div>
+<a class="navlink" data-doc="wizard" href="#wizard">🎬 Video wizard (guided)</a>
 <a class="navlink" data-doc="generate" href="#generate">Idea &amp; prompt generator</a>
 <div class="navgroup">How it works</div>
 <a class="navlink" data-doc="how-it-works" href="#how-it-works">How it all works — start here</a>
-<a class="navlink" data-doc="your-first-video" href="#your-first-video">Make your first video</a>
+<a class="navlink" data-doc="the-pathway" href="#the-pathway">The complete pathway (every step)</a>
+<a class="navlink" data-doc="your-first-video" href="#your-first-video">Make your first video (quick)</a>
 <a class="navlink" data-doc="using-the-generator" href="#using-the-generator">Using the idea generator</a>
 <a class="navlink" data-doc="what-the-rules-mean" href="#what-the-rules-mean">The rules, in plain English</a>
 <a class="navlink" data-doc="disclosures-explained" href="#disclosures-explained">Disclosures, explained</a>
+<a class="navlink" data-doc="faq" href="#faq">FAQ — common questions</a>
 <div class="navgroup">Start here</div>
 <a class="navlink" data-doc="dgd-overview" href="#dgd-overview">What is Digital Gold?</a>
 <a class="navlink" data-doc="participation-pathways" href="#participation-pathways">Ways to take part</a>
@@ -113,6 +135,8 @@ main{padding-top:60px}.kv{flex-direction:column;gap:2px}.kv b{min-width:0}}
 <a class="navlink" data-doc="image-and-video-prompts" href="#image-and-video-prompts">Image & video prompts</a>
 <a class="navlink" data-doc="voiceover-prompts" href="#voiceover-prompts">Voiceover prompts</a>
 <div class="navgroup">Templates & series</div>
+<a class="navlink" data-doc="worked-example" href="#worked-example">A worked example (start to finish)</a>
+<a class="navlink" data-doc="pathway-checklist" href="#pathway-checklist">Pathway checklist (printable)</a>
 <a class="navlink" data-doc="video-brief-template" href="#video-brief-template">Video brief template</a>
 <a class="navlink" data-doc="pre-publish-checklist" href="#pre-publish-checklist">Pre-publish checklist</a>
 <a class="navlink" data-doc="content-engine" href="#content-engine">The content engine</a>
@@ -137,12 +161,15 @@ main{padding-top:60px}.kv{flex-direction:column;gap:2px}.kv b{min-width:0}}
       <h1>Make compliant, educational Digital&nbsp;Gold videos.</h1>
       <p class="lead">Everything an ambassador needs in one place — what you can say, how to
         make it land, the disclosure rules, ready-to-use templates, and a free AI toolkit.
-        New here? Start below, or spin up an idea with the generator.</p>
+        Brand new? <a href="#the-pathway"><strong>Follow the complete pathway</strong></a> — it
+        walks you from a blank page to a posted video, step by step. Or jump to any topic below.</p>
       <div class="prime"><strong>The one rule everything follows:</strong> DGD content is
         <em>educational, not promotional, and never financial advice.</em> Describe how the
         system is designed to work — never how someone will profit. When in doubt, read
         <a href="#communications-discipline">the communications discipline</a>.</div>
       <div class="cards">
+        <a class="hcard" href="#wizard"><b>🎬 Make a video (guided)</b><span>The wizard walks you through it and hands you a plan.</span></a>
+        <a class="hcard" href="#the-pathway"><b>▶ The complete pathway</b><span>Idea → posted video, every step.</span></a>
         <a class="hcard" href="#generate"><b>⚡ Generate an idea</b><span>Topic, hook, format, prompts — one click.</span></a>
         <a class="hcard" href="#how-it-works"><b>New here? Start here</b><span>How it all works, in 5 steps.</span></a>
         <a class="hcard" href="#approved-talking-points"><b>What can I say?</b><span>Approved, safe talking points.</span></a>
@@ -151,6 +178,7 @@ main{padding-top:60px}.kv{flex-direction:column;gap:2px}.kv b{min-width:0}}
         <a class="hcard" href="#pre-publish-checklist"><b>Before you post</b><span>The pre-publish checklist.</span></a>
       </div>
     </article>
+<article class="doc" id="wizard"><div class="crumb">Create</div><div id="wizApp"></div></article>
 <article class="doc gen" id="generate">
   <div class="crumb">Create</div>
   <h1>Idea &amp; prompt generator</h1>
@@ -194,6 +222,113 @@ little less each year?"</em> — in 30–60 seconds, in plain language. That's t
 <p>If a viewer never gets a single coin, your video should <strong>still</strong> be useful and honest.
 If it's only useful when someone "gets in," it's a pitch — rewrite it. Get that habit and
 everything else falls into place. (<a href="#what-the-rules-mean">more on this</a>)</p></article>
+<article class="doc" id="the-pathway"><div class="crumb">How it works</div><h1>The complete pathway: idea → posted video</h1>
+<p>This is the single, ordered path. Follow it top to bottom and you never have to wonder
+"what now?" Each step says <strong>what you're doing</strong>, the <strong>one resource to open</strong>, and what
+<strong>"done" looks like</strong>. We carry one running example the whole way — an episode called
+<em>"Why your money covers a little less each year"</em> — see its finished pieces in
+<a href="#worked-example">a worked example</a>, and keep the <a href="#pathway-checklist">printable checklist</a>
+next to you while you film.</p>
+<div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:20px 0;font-size:13px;line-height:1.9">
+<span style="background:rgba(212,168,83,.15);border:1px solid #d4a853;color:#f0d082;border-radius:20px;padding:5px 11px;font-weight:700">1 · Idea</span><span style="color:#d4a853">→</span>
+<span style="background:rgba(212,168,83,.15);border:1px solid #d4a853;color:#f0d082;border-radius:20px;padding:5px 11px;font-weight:700">2 · Brief</span><span style="color:#d4a853">→</span>
+<span style="background:rgba(212,168,83,.15);border:1px solid #d4a853;color:#f0d082;border-radius:20px;padding:5px 11px;font-weight:700">3 · Script</span><span style="color:#d4a853">→</span>
+<span style="background:rgba(212,168,83,.15);border:1px solid #d4a853;color:#f0d082;border-radius:20px;padding:5px 11px;font-weight:700">4 · Voice</span><span style="color:#d4a853">→</span>
+<span style="background:rgba(212,168,83,.15);border:1px solid #d4a853;color:#f0d082;border-radius:20px;padding:5px 11px;font-weight:700">5 · Visuals</span><span style="color:#d4a853">→</span>
+<span style="background:rgba(212,168,83,.15);border:1px solid #d4a853;color:#f0d082;border-radius:20px;padding:5px 11px;font-weight:700">6 · Assemble</span><span style="color:#d4a853">→</span>
+<span style="background:rgba(212,168,83,.15);border:1px solid #d4a853;color:#f0d082;border-radius:20px;padding:5px 11px;font-weight:700">7 · Disclose</span><span style="color:#d4a853">→</span>
+<span style="background:rgba(212,168,83,.15);border:1px solid #d4a853;color:#f0d082;border-radius:20px;padding:5px 11px;font-weight:700">8 · Post</span><span style="color:#d4a853">↻</span>
+<span style="background:rgba(95,185,142,.15);border:1px solid #5fb98e;color:#5fb98e;border-radius:20px;padding:5px 11px;font-weight:700">Learn</span>
+</div>
+
+<h2>Do these once (setup)</h2>
+<ul>
+<li>Choose your platform(s): X, TikTok, Instagram Reels, YouTube Shorts. → <a href="#platform-specs">platform specs</a></li>
+<li>Read the one rule: educational, not promotional. → <a href="#what-the-rules-mean">the rules in plain English</a></li>
+<li>Bookmark the free tools. → <a href="#toolkit-overview">the free AI toolkit</a></li>
+</ul>
+<p>Then, for <strong>every</strong> video, walk these eight steps. (First time: ~90 min. After that: much faster.)</p>
+<h2>Step 1 — Lock one idea · 5 min</h2>
+<ul>
+<li><strong>Do:</strong> choose one topic and the single thing a viewer should understand.</li>
+<li><strong>Open:</strong> the <strong>Idea generator</strong> (menu → Create) and regenerate until one lands — or pick from <a href="#six-pillars">the six pillars</a>.</li>
+<li><strong>Done when:</strong> you can finish this sentence — <em>"After 60 seconds, the viewer will understand ____."</em></li>
+<li><strong>Example:</strong> <em>"…that money covers a little less each year because more of it is created over time."</em><blockquote>
+<p>⚠ <strong>Common slip:</strong> cramming several ideas into one video. One idea per video — park the rest for next time.</p>
+</blockquote>
+</li>
+</ul>
+<h2>Step 2 — Fill the brief · 5 min</h2>
+<ul>
+<li><strong>Do:</strong> capture the plan so you don't lose it.</li>
+<li><strong>Open:</strong> <a href="#video-brief-template">the video brief template</a> — topic, takeaway, audience, hook, platform.</li>
+<li><strong>Done when:</strong> the brief's top section is filled. (See it filled in <a href="#worked-example">the worked example</a>.)<blockquote>
+<p>⚠ <strong>Common slip:</strong> skipping the brief and drifting off-topic mid-script. Two minutes here saves ten later.</p>
+</blockquote>
+</li>
+</ul>
+<h2>Step 3 — Write the script · 15 min</h2>
+<ul>
+<li><strong>Do:</strong> write spoken words + on-screen text as a 4-column table: Time | Spoken | On-screen | Visual.</li>
+<li><strong>Open:</strong> a <a href="#hooks-library">hook</a> for the first 3 seconds + a <a href="#story-structures">story structure</a> (Hook → Gap → Payoff → Loop). Paste the generator's <strong>script prompt</strong> into an AI chat for a first draft, then edit it.</li>
+<li><strong>Done when:</strong> it's ~110–150 words, one idea, jargon defined, and it ends with "follow to learn more."</li>
+<li><strong>Watch for:</strong> the <a href="#do-and-dont-language">do/don't words</a> — keep it about how the system works, never about what anyone earns.<blockquote>
+<p>⚠ <strong>Common slip:</strong> going too long, or letting a "you'll come out ahead" line creep in. Keep it ~60s and strictly about the mechanism.</p>
+</blockquote>
+</li>
+</ul>
+<h2>Step 4 — Get your voice · 10 min</h2>
+<ul>
+<li><strong>Do:</strong> record narration, or generate an AI voice.</li>
+<li><strong>Open:</strong> <a href="#voiceover-tts">voiceover / TTS</a>. Your real voice builds the most trust and needs no AI label; an AI voice must be labelled.</li>
+<li><strong>Done when:</strong> you have a clean audio track of the script.<blockquote>
+<p>⚠ <strong>Common slip:</strong> a rushed, robotic read — or forgetting to label a realistic AI voice. Slow down; breathe between sentences.</p>
+</blockquote>
+</li>
+</ul>
+<h2>Step 5 — Get your visuals · 15 min</h2>
+<ul>
+<li><strong>Do:</strong> gather b-roll clips + a title card. Keep visuals abstract (a gold coin, an eroding stack of notes, a glowing network).</li>
+<li><strong>Open:</strong> <a href="#video-generation">video generation</a> and <a href="#images-and-thumbnails">images &amp; thumbnails</a>. Use the generator's image/video prompts.</li>
+<li><strong>Done when:</strong> you have 4–6 short clips/images + a title card, all vertical 9:16.<blockquote>
+<p>⚠ <strong>Common slip:</strong> realistic fake people, or fake charts implying a payoff. Keep every visual abstract and honest.</p>
+</blockquote>
+</li>
+</ul>
+<h2>Step 6 — Assemble + caption · 20 min</h2>
+<ul>
+<li><strong>Do:</strong> cut it together and add burned-in captions (most people watch on mute).</li>
+<li><strong>Open:</strong> <a href="#captions-and-editing">captions &amp; editing</a> — CapCut is free. A full free pipeline is in <a href="#workflows">end-to-end workflows</a>.</li>
+<li><strong>Done when:</strong> a rough cut plays start to finish with captions on.<blockquote>
+<p>⚠ <strong>Common slip:</strong> no captions, or a static frame for 60 seconds. Caption everything; change the visual every couple of seconds.</p>
+</blockquote>
+</li>
+</ul>
+<h2>Step 7 — Add disclosures · 5 min</h2>
+<ul>
+<li><strong>Do:</strong> put the labels on screen in the first 3–5 seconds and in your caption.</li>
+<li><strong>Open:</strong> <a href="#disclosures-explained">disclosures explained</a>. Always "Not financial advice"; add #Ad if you're recognized for posting; add an AI label if you used realistic AI media.</li>
+<li><strong>Done when:</strong> all required labels are visible early and drafted in your caption.<blockquote>
+<p>⚠ <strong>Common slip:</strong> burying the disclosure at the end. It belongs in the first 3–5 seconds — on screen and at the front of the caption.</p>
+</blockquote>
+</li>
+</ul>
+<h2>Step 8 — Check, then post · 10 min</h2>
+<ul>
+<li><strong>Do:</strong> run the gut-check, then publish or schedule. Tailor the caption per platform.</li>
+<li><strong>Open:</strong> <a href="#pre-publish-checklist">the pre-publish checklist</a> and <a href="#platform-specs">platform specs</a>.</li>
+<li><strong>Done when:</strong> it's live (or scheduled), with disclosures and captions in place.<blockquote>
+<p>⚠ <strong>Common slip:</strong> posting the identical caption everywhere. Tailor it per platform and lead with the disclosure.</p>
+</blockquote>
+</li>
+</ul>
+<h2>After: learn and loop</h2>
+<p>Notice what landed — the hook, the topic, the length — and feed it into your next idea.
+To plan a whole run at once, use the <a href="#content-calendar-and-series">content calendar &amp; series</a>.</p>
+<hr />
+<h3>The pathway at a glance</h3>
+<p><strong>Idea → Brief → Script → Voice → Visuals → Assemble → Disclose → Check → Post → Learn.</strong>
+One idea, ~60 seconds, every label in place. Repeat.</p></article>
 <article class="doc" id="your-first-video"><div class="crumb">How it works</div><h1>Make your first video (step by step)</h1>
 <p>A complete first run, in plain English. Budget about an hour.</p>
 <h2>Step 1 — Pick one idea</h2>
@@ -314,6 +449,29 @@ real.) (<a href="#ai-disclosure">full details</a>)</p>
 <p>One thing to remember: the <strong>sponsorship</strong> label and the <strong>AI</strong> label are two different
 things — one doesn't cover the other. When both apply, use both. The
 <a href="#pre-publish-checklist">pre-publish checklist</a> will remind you.</p></article>
+<article class="doc" id="faq"><div class="crumb">How it works</div><h1>FAQ — common beginner questions</h1>
+<p><strong>Do I have to show my face?</strong>
+No. "Faceless" explainers with abstract b-roll work great. A real face builds extra trust, but it's optional. → <a href="#workflows">end-to-end workflows</a></p>
+<p><strong>I have no budget. Can I really do this for free?</strong>
+Yes — every step has a $0 tool. → <a href="#toolkit-overview">the free AI toolkit</a></p>
+<p><strong>Can I use an AI voice?</strong>
+Yes, but label it as AI if it sounds realistic. A real recorded voice needs no AI label and builds the most trust. → <a href="#disclosures-explained">disclosures explained</a></p>
+<p><strong>How long should videos be?</strong>
+Short — usually 30–60 seconds, one idea. → <a href="#platform-specs">platform specs</a></p>
+<p><strong>What am I actually allowed to say?</strong>
+Explain how the system is designed; never promise anyone will be financially better off. → <a href="#what-the-rules-mean">the rules in plain English</a> and <a href="#approved-talking-points">approved talking points</a></p>
+<p><strong>What's the difference between "safe harbor" and a "safe investment"?</strong>
+"Safe harbor" is a legal term — DGD is designed to qualify as a digital commodity, not a security. It does <strong>not</strong> mean a safe place for money, and you must never use it that way. → <a href="#positioning-safe-harbor">safe harbor</a></p>
+<p><strong>Do I need to disclose anything if no one pays me?</strong>
+You always add "Not financial advice." Add #Ad only if you're recognized or rewarded for posting. → <a href="#disclosures-explained">disclosures explained</a></p>
+<p><strong>Where do I get ideas when I'm stuck?</strong>
+The Idea generator (menu → Create), the <a href="#six-pillars">six pillars</a>, or <a href="#series-ideas">series ideas</a>. → <a href="#using-the-generator">using the generator</a></p>
+<p><strong>What if I'm not sure a line is okay?</strong>
+When a sentence hints the viewer will come out ahead, rewrite it to describe the mechanism instead. The do/don't list is your friend. → <a href="#do-and-dont-language">do / don't language</a></p>
+<p><strong>How often should I post?</strong>
+Sustainable beats sporadic — pick a rhythm you can keep (say, 3 a week) and plan ahead. → <a href="#content-calendar-and-series">content calendar &amp; series</a></p>
+<p><strong>What do I do after posting?</strong>
+Notice what landed and make the next one a little better. → <a href="#the-pathway">the complete pathway</a></p></article>
 <article class="doc" id="dgd-overview"><div class="crumb">Start here</div><h1>What Is Digital Gold (DGD)?</h1>
 <p>The subject you teach. A plain-language overview of Digital Gold for ambassadors, drawn from the White Paper.</p>
 <blockquote>
@@ -2173,6 +2331,130 @@ Narration: [PASTE]
 <ul>
 <li><a href="#voiceover-tts">Voiceover tools</a> · <a href="#script-prompts">Script prompts</a> · <a href="#captions-and-editing">Captions &amp; editing</a></li>
 </ul></article>
+<article class="doc" id="worked-example"><div class="crumb">Templates & series</div><h1>A worked example: one video, start to finish</h1>
+<p>Every artifact for a single finished episode, so you can see exactly what "done" looks like
+at each step of <a href="#the-pathway">the complete pathway</a>. Topic: <strong>why your money covers a
+little less each year.</strong></p>
+<h2>1. The brief</h2>
+<ul>
+<li><strong>Topic:</strong> Inflation &amp; debasement</li>
+<li><strong>Takeaway:</strong> money covers a little less each year because more is created over time</li>
+<li><strong>Audience:</strong> general public, new to this</li>
+<li><strong>Hook type:</strong> Contrarian Claim</li>
+<li><strong>Format:</strong> faceless explainer, vertical 9:16</li>
+<li><strong>Platforms:</strong> TikTok, Reels, Shorts, X</li>
+</ul>
+<h2>2. The script (4-column)</h2>
+<table>
+<thead>
+<tr>
+<th>Time</th>
+<th>Spoken</th>
+<th>On-screen text</th>
+<th>Visual</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0–3s</td>
+<td>"Your money covers a little less each year — and it's by design."</td>
+<td>NOT FINANCIAL ADVICE</td>
+<td>title card</td>
+</tr>
+<tr>
+<td>3–18s</td>
+<td>"Here's the mechanism: when more money is created than the goods it can be exchanged for, each unit holds a little less purchasing power."</td>
+<td>More money, same goods → less purchasing power</td>
+<td>eroding stack of notes</td>
+</tr>
+<tr>
+<td>18–35s</td>
+<td>"A printing press has no fixed limit, so the value of each note quietly slips. That's inflation, working exactly as the system is built."</td>
+<td>No fixed limit = quiet erosion</td>
+<td>banknote fraying to dust</td>
+</tr>
+<tr>
+<td>35–50s</td>
+<td>"Digital Gold takes the opposite route: fixed, transparent rules instead of a printer you can't see."</td>
+<td>Fixed, transparent rules</td>
+<td>glowing network, no center</td>
+</tr>
+<tr>
+<td>50–60s</td>
+<td>"Follow to learn how sound money is meant to work — the white paper has the full picture."</td>
+<td>Follow · read the white paper</td>
+<td>vault opening to soft light</td>
+</tr>
+</tbody>
+</table>
+<h2>3. The shot list</h2>
+<ol>
+<li>Title card (gold/navy) — <em>"Why your money covers less each year"</em></li>
+<li>Eroding stack of notes (b-roll)</li>
+<li>Single banknote fraying to dust (b-roll)</li>
+<li>Abstract glowing network, no center (b-roll)</li>
+<li>Vault door opening to soft light (b-roll)</li>
+<li>Lower-third strip: <em>"Not financial advice · Educational"</em></li>
+</ol>
+<h2>4. The captions</h2>
+<p><strong>X (≤280 characters):</strong></p>
+<blockquote>
+<p>Your money covers a little less each year — by design. More money, same goods, less purchasing power. Digital Gold uses fixed, transparent rules instead of a printer. Follow to see how sound money works.
+Not financial advice. Educational.</p>
+</blockquote>
+<p><strong>TikTok / Reels / Shorts:</strong> the same caption, plus
+<code>#soundmoney #economics #monetarypolicy #austrianeconomics #cryptoeducation</code></p>
+<h2>5. The disclosures</h2>
+<ul>
+<li><strong>On screen, 0–3s:</strong> "NOT FINANCIAL ADVICE" (add "#Ad" if you're recognized for posting; add "Made with AI" if you used a realistic AI voice).</li>
+<li><strong>Caption:</strong> lead with #Ad if sponsored; end with "Not financial advice. Educational."</li>
+<li><strong>Platform switches:</strong> branded-content toggle on if sponsored; AI label on if realistic AI media.</li>
+</ul>
+<p>That's the whole video, on paper. Copy the shape, swap the topic, and your next one writes
+itself. → back to <a href="#the-pathway">the pathway</a></p></article>
+<article class="doc" id="pathway-checklist"><div class="crumb">Templates & series</div><h1>Pathway checklist (print &amp; keep)</h1>
+<p>Open this page and press <strong>Ctrl/Cmd + P</strong> to print a clean one-pager (the sidebar drops
+away automatically). Keep it next to you while you film. It's the
+<a href="#the-pathway">complete pathway</a>, condensed to checkboxes.</p>
+<p><strong>Idea &amp; plan</strong></p>
+<ul>
+<li>[ ] One idea only — I can finish "after 60s the viewer will understand ___"</li>
+<li>[ ] Brief filled: topic, takeaway, audience, hook, platform</li>
+</ul>
+<p><strong>Script</strong></p>
+<ul>
+<li>[ ] 4 columns: Time | Spoken | On-screen | Visual</li>
+<li>[ ] ~110–150 words, one idea, jargon defined</li>
+<li>[ ] Hook in the first 3 seconds; ends with "follow to learn more"</li>
+<li>[ ] Framed as <em>how the system works</em>, never <em>what you'll earn</em></li>
+</ul>
+<p><strong>Voice &amp; visuals</strong></p>
+<ul>
+<li>[ ] Clean audio (real voice, or AI voice labelled)</li>
+<li>[ ] 4–6 abstract clips/images + a title card, all vertical 9:16</li>
+<li>[ ] No realistic fake people, no fake charts</li>
+</ul>
+<p><strong>Assemble</strong></p>
+<ul>
+<li>[ ] Captions burned in</li>
+<li>[ ] Visual changes roughly every 2 seconds</li>
+</ul>
+<p><strong>Disclosures — first 3–5 seconds + caption</strong></p>
+<ul>
+<li>[ ] "Not financial advice" — always</li>
+<li>[ ] "#Ad" / "Sponsored" — if recognized for posting</li>
+<li>[ ] AI label — if realistic AI media</li>
+</ul>
+<p><strong>Post</strong></p>
+<ul>
+<li>[ ] Pre-publish checklist passed</li>
+<li>[ ] Caption tailored per platform</li>
+<li>[ ] Posted / scheduled</li>
+</ul>
+<p><strong>After</strong></p>
+<ul>
+<li>[ ] Noted what landed, for next time</li>
+</ul></article>
 <article class="doc" id="video-brief-template"><div class="crumb">Templates & series</div><h1>Video Brief Template</h1>
 <p>Fill one of these before producing. Copy the block, paste into your notes, complete it. It keeps you fast and compliant.</p>
 <pre><code>─────────────────────────────────────────
@@ -3816,5 +4098,156 @@ function genPrompt(){ const t=pick(GEN.topics),a=pick(GEN.audiences);
     pb('Image prompt',img)+pb('Video prompt',vid)+pb('Voiceover',vo)+pb('Script prompt',sc)+
     `<button class="copy" onclick="copy(window._prompts)">Copy all</button>`;
 }
+
+/* ===== Video Wizard ===== */
+const DGDRULES = {"rules": [{"category": "investment", "severity": "FAIL", "pattern": "\\binvest(?:ment|ing|or|ors)?\\b", "fix": "Describe DGD as 'a monetary system designed to work like sound money,' not an investment."}, {"category": "investment", "severity": "FAIL", "pattern": "\\b(?:asset to hold|store of value)\\b", "fix": "Frame as a 'digital commodity / monetary design,' not a thing to hold for value."}, {"category": "investment", "severity": "FAIL", "pattern": "\\bstore (?:your )?(?:wealth|money|value)\\b", "fix": "Don't position DGD as where to store wealth; describe the mechanism instead."}, {"category": "investment", "severity": "FAIL", "pattern": "\\bhold (?:it )?(?:for )?(?:the )?long[- ]?term\\b", "fix": "Avoid hold-for-gain framing; explain how the design works."}, {"category": "investment", "severity": "FAIL", "pattern": "\\bportfolio\\b", "fix": "Drop portfolio framing; DGD content is educational, not allocation advice."}, {"category": "price_prediction", "severity": "FAIL", "pattern": "\\bto the moon\\b|\\bmoon(?:ing|shot)?\\b", "fix": "Replace with: 'price advances along a fixed curve as the network grows.'"}, {"category": "price_prediction", "severity": "FAIL", "pattern": "\\bpump(?:ing|s)?\\b", "fix": "No pump language; describe the distribution mechanism."}, {"category": "price_prediction", "severity": "FAIL", "pattern": "\\b\\d{2,}x\\b", "fix": "No multiplier claims (e.g. 100x). The curve is a mechanism, not a forecast."}, {"category": "price_prediction", "severity": "FAIL", "pattern": "\\bprice target\\b|\\bnext (?:bitcoin|ethereum|gem)\\b", "fix": "No targets or 'next X' framing; explain how the design differs."}, {"category": "price_prediction", "severity": "FAIL", "pattern": "\\bto \\$\\s?\\d", "fix": "A '$X' price target (incl. on thumbnails) is a forecast — remove it."}, {"category": "price_prediction", "severity": "FAIL", "pattern": "\\bundervalued\\b", "fix": "Avoid valuation-as-bargain framing; cite the WP valuation method instead."}, {"category": "return_promise", "severity": "FAIL", "pattern": "\\breturns?\\b|\\bROI\\b|\\bprofit(?:s|able)?\\b|\\bgains?\\b", "fix": "No returns/profit/gains. 'No one earns income from operating the network — fees are burned by design.'"}, {"category": "return_promise", "severity": "FAIL", "pattern": "\\bpassive income\\b|\\bmake money\\b|\\bmade \\$?\\d", "fix": "No income claims; explain validation/mechanics, not earnings."}, {"category": "return_promise", "severity": "FAIL", "pattern": "\\bfinancial freedom\\b|\\bretire\\b", "fix": "Replace with 'a design aimed at preserving purchasing power.'"}, {"category": "return_promise", "severity": "FAIL", "pattern": "\\bguaranteed\\b|\\brisk[- ]?free\\b", "fix": "Nothing is guaranteed; it's a reasoned design and the WP says so."}, {"category": "solicitation", "severity": "FAIL", "pattern": "\\bbuy\\s+(?:dgd|digital gold|\\$?\\d|it|in|now|the dip|some|more|coins?|tokens?|crypto|here|today|the bag)\\b", "fix": "Don't solicit buying DGD. 'Read the white paper / official channels in bio to learn more.'"}, {"category": "solicitation", "severity": "FAIL", "pattern": "\\b(?:where|how)\\s+to\\s+buy\\b|\\bgo\\s+buy\\b|\\blink\\s+to\\s+buy\\b", "fix": "Don't point people to buy. Point to the white paper / official channels instead."}, {"category": "solicitation", "severity": "WARN", "pattern": "\\bbuy(?:ing|s)?\\b", "fix": "'buy' as a plain verb (e.g. 'money buys less') is fine; confirm it isn't soliciting acquisition of DGD."}, {"category": "solicitation", "severity": "FAIL", "pattern": "\\bget in\\b|\\bdon'?t miss out\\b|\\blast chance\\b|\\bFOMO\\b", "fix": "No urgency/solicitation; 'if the idea interests you, the white paper explains it.'"}, {"category": "solicitation", "severity": "FAIL", "pattern": "\\bape in\\b|\\bload up\\b|\\bsecure your bag\\b|\\bget rich\\b", "fix": "No acquisition hype; keep it educational."}, {"category": "safe_drift", "severity": "FAIL", "pattern": "\\bsafe (?:investment|haven|bet|place)\\b", "fix": "'Safe harbor' is a LEGAL term (digital commodity, not a security) — never a safe-money claim."}, {"category": "safe_drift", "severity": "FAIL", "pattern": "\\bcan'?t lose\\b", "fix": "Safe harbor is about regulation, not your wallet."}, {"category": "safe_drift", "severity": "FAIL", "pattern": "\\bregulators? approved\\b", "fix": "It's 'designed to align' with the framework — a reasoned position, not an approval (WP §12.16)."}, {"category": "degen_contrast", "severity": "WARN", "pattern": "\\brekt\\b|\\bcasino\\b|\\bdegen\\b|\\bgambl(?:e|ing)\\b", "fix": "Degen lingo may HOOK/contrast, but must sell no play. Confirm it's contrast, not a pitch."}, {"category": "soft_hype", "severity": "WARN", "pattern": "\\bearly\\b|\\bcheap\\b|\\bdeal\\b|\\bget rich quick\\b", "fix": "Soft hype word — ensure it isn't implying the viewer profits."}, {"category": "dollar_figure", "severity": "WARN", "pattern": "\\$\\s?\\d[\\d,]*\\s?[kKmMbB]?\\b", "fix": "Dollar figure — make sure it's a fact/illustration, not a price target or earnings claim."}], "allowed": ["not financial advice", "sponsored"]};
+const NL = String.fromCharCode(10);
+const _RX = (DGDRULES.rules||[]).map(r=>({sev:r.severity,cat:r.category,fix:r.fix,rx:new RegExp(r.pattern,'gi')}));
+function lint(text){ const f=[]; const t=String(text||'');
+  _RX.forEach(r=>{ r.rx.lastIndex=0; let m; while((m=r.rx.exec(t))!==null){ f.push({sev:r.sev,cat:r.cat,term:m[0]}); if(m.index===r.rx.lastIndex) r.rx.lastIndex++; } });
+  const fail=f.some(x=>x.sev==='FAIL'), warn=f.some(x=>x.sev==='WARN');
+  return {findings:f, verdict: fail?'fail':(warn?'warn':'pass')}; }
+function att(x){ return esc(String(x)).replace(/"/g,'&quot;'); }
+function wbadge(v){ return '<span class="wbadge wb-'+v+'">'+v.toUpperCase()+'</span>'; }
+function capCase(x){ x=String(x||'').trim(); return x? x.charAt(0).toUpperCase()+x.slice(1):x; }
+
+const PLAT={tiktok:{name:'TikTok',max:5,budget:2200},instagram:{name:'Instagram Reels',max:5,budget:2200},youtube:{name:'YouTube Shorts',max:5,budget:5000},x:{name:'X',max:3,budget:280}};
+const SAFE=['soundmoney','economics','monetarypolicy','austrianeconomics','cryptoeducation'];
+const VIS={network:'abstract glowing network, no center',scarcity:'a gold coin with a fixed-supply grid','erosion':'banknotes eroding into dust','supply-chain':'a coin moving along a gold line of light','monetary-history':'classical columns, sepia and gold',vault:'a vault door opening to soft light'};
+const W={step:0,topic:null,takeaway:'',audience:GEN.audiences[0],format:GEN.formats[0],platforms:['tiktok','x'],hook:'',gap:'',payoff:'',loop:'Follow to learn how sound money works.',voice:'real',sponsored:false};
+const STEPS=['Welcome','Idea','Your point','Audience','Hook','Script','Voice','Disclosures','Visuals','Your plan'];
+
+function wizInit(){ wizRender(); }
+function wizGo(d){ if(d>0 && !wizValidate()) return; W.step=Math.max(0,Math.min(STEPS.length-1,W.step+d)); wizRender(); window.scrollTo(0,0); }
+function wizValidate(){ const s=W.step, e=document.getElementById('wizErr');
+  function err(m){ if(e){e.textContent=m;e.style.display='block';} return false; }
+  if(s===1 && !W.topic) return err('Pick a topic, or type your own.');
+  if(s===2 && W.takeaway.trim().length<6) return err('Write one sentence: what will the viewer understand?');
+  if(s===3 && !W.platforms.length) return err('Choose at least one platform.');
+  if(s===4 && !W.hook.trim()) return err('Pick a hook or write your own.');
+  if(s===5 && (W.gap.trim().length<6 || W.payoff.trim().length<6)) return err('Fill in the gap and the payoff.');
+  return true; }
+function wizBar(){ if(W.step===0) return '';
+  const pct=Math.round((W.step/(STEPS.length-1))*100);
+  return '<div class="wizbar"><div class="wizbar-fill" style="width:'+pct+'%"></div></div><div class="wizstepno">Step '+W.step+' of '+(STEPS.length-1)+' &middot; '+STEPS[W.step]+'</div>'; }
+function wizFoot(nextLabel){ return '<div id="wizErr" class="wizerr"></div><div class="wizfoot">'+
+  (W.step>0?'<button class="wbtn ghost" onclick="wizGo(-1)">&larr; Back</button>':'<span></span>')+
+  '<button class="wbtn" onclick="wizGo(1)">'+(nextLabel||'Next &rarr;')+'</button></div>'; }
+
+function wizTopicSel(v){ if(v==='') W.topic=null;
+  else if(v==='custom'){ const c=document.getElementById('wCustom'); const name=(c&&c.value)||'Your topic'; W.topic={custom:true,name:name,short:name,angle:'',motif:'network'}; }
+  else { W.topic=GEN.topics[+v]; } wizRender(); }
+function wizCustom(v){ W.topic={custom:true,name:v||'Your topic',short:v||'your topic',angle:'',motif:'network'}; }
+function wizSurprise(){ W.topic=pick(GEN.topics); wizRender(); }
+function wizPlat(el){ const k=el.value; if(el.checked){ if(!W.platforms.includes(k)) W.platforms.push(k); } else { W.platforms=W.platforms.filter(x=>x!==k); } }
+function wizHookCheck(){ const el=document.getElementById('wHookV'); if(!el) return; const r=lint(W.hook);
+  el.innerHTML = W.hook ? wbadge(r.verdict)+(r.verdict==='fail'?' &mdash; that wording breaks the rules, please rephrase':'') : ''; }
+function wizScriptCheck(){ const el=document.getElementById('wScriptV'); if(!el) return; const r=lint([W.hook,W.gap,W.payoff,W.loop].join(' '));
+  const bad=[...new Set(r.findings.filter(x=>x.sev==='FAIL').map(x=>x.term))];
+  el.innerHTML = wbadge(r.verdict)+(bad.length?' &mdash; remove: '+bad.join(', '):''); }
+function wizCopyScriptPrompt(){ const sc=pick(GEN.prompts.script).split('${angle}').join(W.takeaway||(W.topic&&W.topic.angle)||'').split('${audience}').join(W.audience); copy(sc); }
+
+function captionFor(p){ const cfg=PLAT[p]; let line=capCase(W.takeaway||'');
+  if(line && '.!?'.indexOf(line.charAt(line.length-1))<0) line+='.';
+  if(!line) line='Here is how the system is designed to work.';
+  line+=' Follow to learn how sound money works.';
+  const front=W.sponsored?('#Ad'+NL):''; const discl='Not financial advice. Educational.'+(W.voice==='ai'?' Made with AI.':'');
+  const tags=SAFE.slice(0,cfg.max).map(x=>'#'+x).join(' ');
+  let cap=front+line+NL+NL+discl+NL+tags;
+  if(cap.length>cfg.budget) cap=front+line+NL+NL+discl;
+  return cap.trim(); }
+
+function buildPlan(){ const t=W.topic||{name:'Untitled',motif:'network'}; const motif=t.motif||'network'; const vis=VIS[motif]||'abstract gold motif';
+  const onscreen0='NOT FINANCIAL ADVICE'+(W.sponsored?' &middot; #AD':'')+(W.voice==='ai'?' &middot; MADE WITH AI':'');
+  const rows=[['0-3s',W.hook,'NOT FINANCIAL ADVICE'+(W.sponsored?' / #AD':'')+(W.voice==='ai'?' / MADE WITH AI':''),'title card'],
+    ['3-20s',W.gap,'(key phrase)',vis],['20-45s',W.payoff,'(key phrase)',vis],
+    ['45-60s',W.loop,'Follow / read the white paper',motif==='vault'?'vault opening':'network awakening']];
+  const img=(GEN.prompts.image[motif]||[''])[0], vid=(GEN.prompts.video[motif]||[''])[0];
+  let md=[]; md.push('# Your DGD video plan - '+t.name,'');
+  md.push('## Brief','- Topic: '+t.name,'- Takeaway: '+W.takeaway,'- Audience: '+W.audience,'- Format: '+W.format,'- Platforms: '+W.platforms.map(x=>PLAT[x].name).join(', '),'');
+  md.push('## Script (film this)','| Time | Spoken | On-screen | Visual |','|---|---|---|---|');
+  rows.forEach(r=>md.push('| '+r.join(' | ')+' |')); md.push('');
+  md.push('## Shot list','1. Title card (gold/navy) with your headline','2-4. B-roll: '+vis,'5. Lower-third: Not financial advice / Educational','');
+  md.push('## Captions');
+  W.platforms.forEach(p=>{ md.push('### '+PLAT[p].name); md.push(captionFor(p)); md.push(''); });
+  md.push('## Disclosures (first 3-5s + caption)','- Not financial advice - always');
+  if(W.sponsored) md.push('- #Ad / Sponsored - yes (front of caption + branded-content toggle)');
+  if(W.voice==='ai') md.push('- Made with AI - yes (on-screen + platform AI toggle)');
+  md.push('');
+  md.push('## Prompts for your tools','Image: '+img,'Video: '+vid,'Voiceover: '+(W.voice==='ai'?GEN.prompts.voiceover[0]:'Record in your own voice - calm, clear, about 130 words per minute.'),'');
+  md.push('## What to do now',
+    '1. '+(W.voice==='ai'?'Generate the voiceover from the script above (free TTS).':'Record the voiceover in your own voice.'),
+    '2. Make the b-roll with the prompts above (free tools).','3. Make a title card with your headline.',
+    '4. Assemble in CapCut and burn in captions.','5. Put the disclosures on screen in the first 3-5 seconds.',
+    '6. Run the pre-publish checklist.','7. Post or schedule to: '+W.platforms.map(x=>PLAT[x].name).join(', ')+' using the caption(s) above.','',
+    'Educational, not financial advice. Mechanism, not forecast.');
+  const text=md.join(NL);
+  const checkText=[W.hook,W.gap,W.payoff,W.loop].concat(W.platforms.map(captionFor)).join(' ');
+  const lr=lint(checkText); const failTerms=[...new Set(lr.findings.filter(x=>x.sev==='FAIL').map(x=>x.term))];
+  return {md:text, html:'<pre style="white-space:pre-wrap;background:#06080e;border:1px solid var(--line);border-radius:10px;padding:14px;font-size:13px;overflow:auto">'+esc(text)+'</pre>', verdict:lr.verdict, failTerms:failTerms}; }
+function wizDownload(){ const b=new Blob([window._wizPlan||''],{type:'text/markdown'}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='dgd-video-plan.md'; a.click(); }
+
+function wizRender(){ const t=W.topic; let h='';
+  if(W.step===0){
+    h='<h1>Make a video, step by step</h1><p class="lead">Answer a few quick questions and you will walk out with a complete plan: your script, captions, shot list, disclosures, and exact next steps to film and post - all checked against the rules as you go. It never posts anything; it just builds your plan.</p><button class="wbtn big" onclick="wizGo(1)">Start &rarr;</button>';
+  } else if(W.step===1){
+    h=wizBar()+'<h1>Pick one idea</h1><p style="color:var(--mute)">One video, one idea. Choose a topic, hit Surprise me, or type your own.</p>'+
+      '<label>Topic</label><select onchange="wizTopicSel(this.value)"><option value="">- choose -</option>'+
+      GEN.topics.map((x,i)=>'<option value="'+i+'"'+(t&&!t.custom&&t.short===x.short?' selected':'')+'>'+att(x.name)+'</option>').join('')+
+      '<option value="custom"'+(t&&t.custom?' selected':'')+'>My own topic...</option></select>'+
+      '<label>...or type your own</label><input id="wCustom" type="text" value="'+(t&&t.custom?att(t.name):'')+'" oninput="wizCustom(this.value)" placeholder="e.g. why fixed rules matter">'+
+      '<button class="wbtn ghost" style="margin-top:12px" onclick="wizSurprise()">&#127922; Surprise me</button>'+
+      (t?'<div class="wnote"><b>'+esc(t.name)+'</b>'+(t.angle?' &mdash; '+esc(t.angle):'')+'</div>':'')+wizFoot();
+  } else if(W.step===2){
+    h=wizBar()+'<h1>What is the one thing they will get?</h1><p style="color:var(--mute)">Finish this sentence - it keeps your video focused.</p>'+
+      '<label>After 60 seconds, the viewer will understand...</label>'+
+      '<textarea oninput="W.takeaway=this.value" placeholder="'+att((t&&t.angle)||'how the system is designed to work')+'">'+esc(W.takeaway)+'</textarea>'+
+      '<p style="color:var(--mute);font-size:13px">This becomes the heart of your script and caption.</p>'+wizFoot();
+  } else if(W.step===3){
+    h=wizBar()+'<h1>Who is it for, and where?</h1>'+
+      '<label>Audience</label><select onchange="W.audience=this.value">'+GEN.audiences.map(a=>'<option'+(a===W.audience?' selected':'')+'>'+esc(a)+'</option>').join('')+'</select>'+
+      '<label>Format</label><select onchange="W.format=this.value">'+GEN.formats.map(f=>'<option'+(f===W.format?' selected':'')+'>'+esc(f)+'</option>').join('')+'</select>'+
+      '<label>Platforms</label>'+Object.keys(PLAT).map(k=>'<label class="wchk"><input type="checkbox" value="'+k+'" '+(W.platforms.includes(k)?'checked':'')+' onchange="wizPlat(this)"> '+PLAT[k].name+'</label>').join('')+wizFoot();
+  } else if(W.step===4){
+    const base=t||GEN.topics[0]; const opts=GEN.hooks.map(hk=>fillHook(hk.tpl,base));
+    const isCustom=opts.indexOf(W.hook)<0 && W.hook;
+    h=wizBar()+'<h1>Grab them in 3 seconds</h1><p style="color:var(--mute)">Pick a hook or write your own - we check it against the rules.</p>'+
+      opts.map(x=>'<label class="wradio"><input type="radio" name="whook" value="'+att(x)+'" '+(W.hook===x?'checked':'')+' onchange="W.hook=this.value;wizHookCheck()"> '+esc(x)+'</label>').join('')+
+      '<label>...or write your own</label><input type="text" value="'+(isCustom?att(W.hook):'')+'" oninput="W.hook=this.value;wizHookCheck()" placeholder="Your opening line">'+
+      '<div id="wHookV" style="margin-top:8px;font-size:13px"></div>'+wizFoot();
+  } else if(W.step===5){
+    h=wizBar()+'<h1>Write the script</h1><p style="color:var(--mute)">Keep it about 60 seconds, one idea, plain words. We check it live.</p>'+
+      '<div class="wnote"><b>Hook (0-3s):</b> '+esc(W.hook||'(set a hook in the previous step)')+'</div>'+
+      '<label>The gap (the question or misconception)</label><textarea oninput="W.gap=this.value;wizScriptCheck()" placeholder="Here is what most people get wrong...">'+esc(W.gap)+'</textarea>'+
+      '<label>The payoff (explain the mechanism - how the system is designed)</label><textarea oninput="W.payoff=this.value;wizScriptCheck()" placeholder="When more money is created than goods...">'+esc(W.payoff)+'</textarea>'+
+      '<label>The loop (your closing line + a soft call to follow)</label><textarea oninput="W.loop=this.value;wizScriptCheck()">'+esc(W.loop)+'</textarea>'+
+      '<div id="wScriptV" style="margin:8px 0;font-size:13px"></div>'+
+      '<button class="wbtn ghost" onclick="wizCopyScriptPrompt()">Copy an AI script prompt</button> <span style="color:var(--mute);font-size:13px">paste into any AI chat to draft faster</span>'+wizFoot();
+  } else if(W.step===6){
+    h=wizBar()+'<h1>Your voice</h1>'+
+      '<label class="wradio"><input type="radio" name="wvoice" value="real" '+(W.voice==='real'?'checked':'')+' onchange="W.voice=this.value;wizRender()"> My own recorded voice <span style="color:var(--mute)">(most trust, no AI label)</span></label>'+
+      '<label class="wradio"><input type="radio" name="wvoice" value="ai" '+(W.voice==='ai'?'checked':'')+' onchange="W.voice=this.value;wizRender()"> An AI voice <span style="color:var(--mute)">(fast, must be labelled)</span></label>'+
+      (W.voice==='ai'?'<div class="wnote">Because it is a realistic AI voice, your video needs an on-screen AI label.</div>':'')+wizFoot();
+  } else if(W.step===7){
+    h=wizBar()+'<h1>Disclosures</h1><p style="color:var(--mute)">These go on screen in the first 3-5 seconds and in your caption.</p>'+
+      '<label class="wchk"><input type="checkbox" '+(W.sponsored?'checked':'')+' onchange="W.sponsored=this.checked;wizRender()"> I am recognized or rewarded for posting this (adds #Ad)</label>'+
+      '<div class="wnote"><b>Your labels:</b><br>&bull; Not financial advice &mdash; always'+(W.sponsored?'<br>&bull; #Ad / Sponsored':'')+(W.voice==='ai'?'<br>&bull; Made with AI':'')+'</div>'+wizFoot();
+  } else if(W.step===8){
+    const motif=(t&&t.motif)||'network'; const img=(GEN.prompts.image[motif]||[''])[0], vid=(GEN.prompts.video[motif]||[''])[0];
+    h=wizBar()+'<h1>Your visuals</h1><p style="color:var(--mute)">Keep them abstract and on-brand (theme: '+motif+'). Copy these into your free image/video tools.</p>'+
+      '<div class="pb"><div class="pbh">Image prompt</div><pre>'+esc(img)+'</pre></div>'+
+      '<div class="pb"><div class="pbh">Video prompt</div><pre>'+esc(vid)+'</pre></div>'+wizFoot('See my plan &rarr;');
+  } else if(W.step===9){
+    const out=buildPlan(); window._wizPlan=out.md;
+    h=wizBar()+'<h1>Your video plan '+wbadge(out.verdict)+'</h1>'+
+      (out.verdict==='fail'?'<div class="wnote" style="border-color:var(--fail)">Some wording breaks the rules ('+out.failTerms.join(', ')+'). Go Back and rephrase before posting.</div>':'<p style="color:var(--mute)">Everything below is yours. Copy or download it, then follow the steps at the bottom to film and post.</p>')+
+      '<div style="margin:6px 0 4px"><button class="wbtn" onclick="copy(window._wizPlan)">Copy plan</button> <button class="wbtn ghost" onclick="wizDownload()">Download .md</button> <button class="wbtn ghost" onclick="W.step=0;wizRender()">Start over</button></div>'+
+      out.html+
+      '<div class="wizfoot"><button class="wbtn ghost" onclick="wizGo(-1)">&larr; Back</button><span></span></div>';
+  }
+  const app=document.getElementById('wizApp'); if(app) app.innerHTML=h;
+}
+wizInit();
+
 genIdea(); genHooks(); genPrompt(); route();
 </script></body></html>

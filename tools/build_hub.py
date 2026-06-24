@@ -28,10 +28,12 @@ import compliance_lint as CL  # noqa: E402
 SECTIONS = [
     ("How it works", [
         ("start/how-it-works.md", "How it all works \u2014 start here"),
-        ("start/your-first-video.md", "Make your first video"),
+        ("start/the-pathway.md", "The complete pathway (every step)"),
+        ("start/your-first-video.md", "Make your first video (quick)"),
         ("start/using-the-generator.md", "Using the idea generator"),
         ("start/what-the-rules-mean.md", "The rules, in plain English"),
         ("start/disclosures-explained.md", "Disclosures, explained"),
+        ("start/faq.md", "FAQ \u2014 common questions"),
     ]),
     ("Start here", [
         ("dgd/dgd-overview.md", "What is Digital Gold?"),
@@ -66,6 +68,8 @@ SECTIONS = [
         ("prompts/voiceover-prompts.md", "Voiceover prompts"),
     ]),
     ("Templates & series", [
+        ("templates/worked-example.md", "A worked example (start to finish)"),
+        ("templates/pathway-checklist.md", "Pathway checklist (printable)"),
         ("templates/video-brief-template.md", "Video brief template"),
         ("templates/pre-publish-checklist.md", "Pre-publish checklist"),
         ("templates/content-engine.md", "The content engine"),
@@ -246,6 +250,8 @@ GEN_PANE = """<article class="doc gen" id="generate">
   <div class="gcard"><div class="grow"><h3>✍️ Prompt set — image · video · voice · script</h3><button class="rg" onclick="genPrompt()">↻ Regenerate</button></div><div id="promptOut"></div></div>
 </article>"""
 
+WIZARD_PANE = '<article class="doc" id="wizard"><div class="crumb">Create</div><div id="wizApp"></div></article>'
+
 FRONTMATTER = re.compile(r"^---\s*\n.*?\n---\s*\n", re.S)
 DEAD_RE = re.compile(r'<a href="#" onclick="return false" class="dead">(.*?)</a>', re.S)
 
@@ -297,6 +303,7 @@ def build(out_dir):
     md = markdown.Markdown(extensions=["tables", "fenced_code", "sane_lists", "attr_list"])
 
     nav_html = ['<div class="navgroup">Create</div>',
+                '<a class="navlink" data-doc="wizard" href="#wizard">\U0001f3ac Video wizard (guided)</a>',
                 '<a class="navlink" data-doc="generate" href="#generate">Idea &amp; prompt generator</a>']
     docs_html = []
     for group, items in SECTIONS:
@@ -318,12 +325,15 @@ def build(out_dir):
       <h1>Make compliant, educational Digital&nbsp;Gold videos.</h1>
       <p class="lead">Everything an ambassador needs in one place — what you can say, how to
         make it land, the disclosure rules, ready-to-use templates, and a free AI toolkit.
-        New here? Start below, or spin up an idea with the generator.</p>
+        Brand new? <a href="#the-pathway"><strong>Follow the complete pathway</strong></a> — it
+        walks you from a blank page to a posted video, step by step. Or jump to any topic below.</p>
       <div class="prime"><strong>The one rule everything follows:</strong> DGD content is
         <em>educational, not promotional, and never financial advice.</em> Describe how the
         system is designed to work — never how someone will profit. When in doubt, read
         <a href="#communications-discipline">the communications discipline</a>.</div>
       <div class="cards">
+        <a class="hcard" href="#wizard"><b>🎬 Make a video (guided)</b><span>The wizard walks you through it and hands you a plan.</span></a>
+        <a class="hcard" href="#the-pathway"><b>▶ The complete pathway</b><span>Idea → posted video, every step.</span></a>
         <a class="hcard" href="#generate"><b>⚡ Generate an idea</b><span>Topic, hook, format, prompts — one click.</span></a>
         <a class="hcard" href="#how-it-works"><b>New here? Start here</b><span>How it all works, in 5 steps.</span></a>
         <a class="hcard" href="#approved-talking-points"><b>What can I say?</b><span>Approved, safe talking points.</span></a>
@@ -335,8 +345,9 @@ def build(out_dir):
 
     html = (TEMPLATE
             .replace("__NAV__", "\n".join(nav_html))
-            .replace("__DOCS__", home + "\n" + GEN_PANE + "\n" + "\n".join(docs_html))
+            .replace("__DOCS__", home + "\n" + WIZARD_PANE + "\n" + GEN_PANE + "\n" + "\n".join(docs_html))
             .replace("__GENDATA__", json.dumps(GEN, ensure_ascii=False))
+            .replace("__RULESDATA__", json.dumps({"rules": [{"category": c, "severity": sev, "pattern": pat, "fix": fix} for (c, sev, pat, fix) in CL.RULES], "allowed": ["not financial advice", "sponsored"]}, ensure_ascii=False))
             .replace("__BUILT__", dt.date.today().isoformat()))
     os.makedirs(out_dir, exist_ok=True)
     open(os.path.join(out_dir, "index.html"), "w", encoding="utf-8").write(html)
@@ -418,6 +429,25 @@ aside.open{left:0}.menubtn{display:inline-block;position:fixed;top:12px;left:12p
 background:var(--gold);color:#1a1205;border:none;border-radius:8px;padding:8px 12px;font-weight:700}
 main{padding-top:60px}.kv{flex-direction:column;gap:2px}.kv b{min-width:0}}
 .noresult{color:var(--mute);padding:10px;font-size:13px;display:none}
+@media print{aside,.menubtn,#toast,.foot{display:none!important}main{padding:0}.content{max-width:none}body{background:#fff;color:#000}.doc h1,.doc h2,.doc h3{color:#000}.doc th{color:#000}}
+
+/* video wizard */
+.wizbar{height:6px;background:rgba(255,255,255,.08);border-radius:6px;overflow:hidden;margin:2px 0 6px}
+.wizbar-fill{height:100%;background:var(--gold);transition:width .3s}
+.wizstepno{color:var(--gold);font-size:12px;font-weight:700;margin-bottom:14px;text-transform:uppercase;letter-spacing:.05em}
+#wizApp label{display:block;font-size:12px;color:var(--mute);margin:12px 0 4px}
+#wizApp input[type=text],#wizApp textarea,#wizApp select{width:100%;background:rgba(0,0,0,.25);border:1px solid var(--line);color:var(--white);border-radius:9px;padding:10px;font-size:15px;font-family:inherit}
+#wizApp textarea{min-height:80px}
+.wchk,.wradio{display:block;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:9px;padding:10px 12px;margin:8px 0;font-size:14px;cursor:pointer}
+.wchk input,.wradio input{width:auto;margin-right:8px}
+.wnote{background:rgba(212,168,83,.08);border:1px solid rgba(212,168,83,.3);border-radius:10px;padding:12px 14px;margin:14px 0;font-size:14px;line-height:1.7}
+.wizfoot{display:flex;justify-content:space-between;align-items:center;margin-top:20px;gap:10px}
+.wbtn{background:var(--gold);color:#1a1205;border:none;border-radius:9px;padding:10px 20px;font-weight:700;cursor:pointer;font-size:14px}
+.wbtn.ghost{background:transparent;border:1px solid var(--gold);color:var(--gold)}
+.wbtn.big{font-size:16px;padding:12px 26px;margin-top:14px}
+.wizerr{display:none;color:var(--fail);font-size:13px;margin-top:10px}
+.wbadge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;vertical-align:middle}
+.wb-pass{background:rgba(95,185,142,.18);color:var(--pass)}.wb-warn{background:rgba(217,164,65,.18);color:var(--warn)}.wb-fail{background:rgba(226,105,107,.18);color:var(--fail)}
 </style></head><body>
 <button class="menubtn" onclick="document.querySelector('aside').classList.toggle('open')">☰ Menu</button>
 <div class="layout">
@@ -493,6 +523,157 @@ function genPrompt(){ const t=pick(GEN.topics),a=pick(GEN.audiences);
     pb('Image prompt',img)+pb('Video prompt',vid)+pb('Voiceover',vo)+pb('Script prompt',sc)+
     `<button class="copy" onclick="copy(window._prompts)">Copy all</button>`;
 }
+
+/* ===== Video Wizard ===== */
+const DGDRULES = __RULESDATA__;
+const NL = String.fromCharCode(10);
+const _RX = (DGDRULES.rules||[]).map(r=>({sev:r.severity,cat:r.category,fix:r.fix,rx:new RegExp(r.pattern,'gi')}));
+function lint(text){ const f=[]; const t=String(text||'');
+  _RX.forEach(r=>{ r.rx.lastIndex=0; let m; while((m=r.rx.exec(t))!==null){ f.push({sev:r.sev,cat:r.cat,term:m[0]}); if(m.index===r.rx.lastIndex) r.rx.lastIndex++; } });
+  const fail=f.some(x=>x.sev==='FAIL'), warn=f.some(x=>x.sev==='WARN');
+  return {findings:f, verdict: fail?'fail':(warn?'warn':'pass')}; }
+function att(x){ return esc(String(x)).replace(/"/g,'&quot;'); }
+function wbadge(v){ return '<span class="wbadge wb-'+v+'">'+v.toUpperCase()+'</span>'; }
+function capCase(x){ x=String(x||'').trim(); return x? x.charAt(0).toUpperCase()+x.slice(1):x; }
+
+const PLAT={tiktok:{name:'TikTok',max:5,budget:2200},instagram:{name:'Instagram Reels',max:5,budget:2200},youtube:{name:'YouTube Shorts',max:5,budget:5000},x:{name:'X',max:3,budget:280}};
+const SAFE=['soundmoney','economics','monetarypolicy','austrianeconomics','cryptoeducation'];
+const VIS={network:'abstract glowing network, no center',scarcity:'a gold coin with a fixed-supply grid','erosion':'banknotes eroding into dust','supply-chain':'a coin moving along a gold line of light','monetary-history':'classical columns, sepia and gold',vault:'a vault door opening to soft light'};
+const W={step:0,topic:null,takeaway:'',audience:GEN.audiences[0],format:GEN.formats[0],platforms:['tiktok','x'],hook:'',gap:'',payoff:'',loop:'Follow to learn how sound money works.',voice:'real',sponsored:false};
+const STEPS=['Welcome','Idea','Your point','Audience','Hook','Script','Voice','Disclosures','Visuals','Your plan'];
+
+function wizInit(){ wizRender(); }
+function wizGo(d){ if(d>0 && !wizValidate()) return; W.step=Math.max(0,Math.min(STEPS.length-1,W.step+d)); wizRender(); window.scrollTo(0,0); }
+function wizValidate(){ const s=W.step, e=document.getElementById('wizErr');
+  function err(m){ if(e){e.textContent=m;e.style.display='block';} return false; }
+  if(s===1 && !W.topic) return err('Pick a topic, or type your own.');
+  if(s===2 && W.takeaway.trim().length<6) return err('Write one sentence: what will the viewer understand?');
+  if(s===3 && !W.platforms.length) return err('Choose at least one platform.');
+  if(s===4 && !W.hook.trim()) return err('Pick a hook or write your own.');
+  if(s===5 && (W.gap.trim().length<6 || W.payoff.trim().length<6)) return err('Fill in the gap and the payoff.');
+  return true; }
+function wizBar(){ if(W.step===0) return '';
+  const pct=Math.round((W.step/(STEPS.length-1))*100);
+  return '<div class="wizbar"><div class="wizbar-fill" style="width:'+pct+'%"></div></div><div class="wizstepno">Step '+W.step+' of '+(STEPS.length-1)+' &middot; '+STEPS[W.step]+'</div>'; }
+function wizFoot(nextLabel){ return '<div id="wizErr" class="wizerr"></div><div class="wizfoot">'+
+  (W.step>0?'<button class="wbtn ghost" onclick="wizGo(-1)">&larr; Back</button>':'<span></span>')+
+  '<button class="wbtn" onclick="wizGo(1)">'+(nextLabel||'Next &rarr;')+'</button></div>'; }
+
+function wizTopicSel(v){ if(v==='') W.topic=null;
+  else if(v==='custom'){ const c=document.getElementById('wCustom'); const name=(c&&c.value)||'Your topic'; W.topic={custom:true,name:name,short:name,angle:'',motif:'network'}; }
+  else { W.topic=GEN.topics[+v]; } wizRender(); }
+function wizCustom(v){ W.topic={custom:true,name:v||'Your topic',short:v||'your topic',angle:'',motif:'network'}; }
+function wizSurprise(){ W.topic=pick(GEN.topics); wizRender(); }
+function wizPlat(el){ const k=el.value; if(el.checked){ if(!W.platforms.includes(k)) W.platforms.push(k); } else { W.platforms=W.platforms.filter(x=>x!==k); } }
+function wizHookCheck(){ const el=document.getElementById('wHookV'); if(!el) return; const r=lint(W.hook);
+  el.innerHTML = W.hook ? wbadge(r.verdict)+(r.verdict==='fail'?' &mdash; that wording breaks the rules, please rephrase':'') : ''; }
+function wizScriptCheck(){ const el=document.getElementById('wScriptV'); if(!el) return; const r=lint([W.hook,W.gap,W.payoff,W.loop].join(' '));
+  const bad=[...new Set(r.findings.filter(x=>x.sev==='FAIL').map(x=>x.term))];
+  el.innerHTML = wbadge(r.verdict)+(bad.length?' &mdash; remove: '+bad.join(', '):''); }
+function wizCopyScriptPrompt(){ const sc=pick(GEN.prompts.script).split('${angle}').join(W.takeaway||(W.topic&&W.topic.angle)||'').split('${audience}').join(W.audience); copy(sc); }
+
+function captionFor(p){ const cfg=PLAT[p]; let line=capCase(W.takeaway||'');
+  if(line && '.!?'.indexOf(line.charAt(line.length-1))<0) line+='.';
+  if(!line) line='Here is how the system is designed to work.';
+  line+=' Follow to learn how sound money works.';
+  const front=W.sponsored?('#Ad'+NL):''; const discl='Not financial advice. Educational.'+(W.voice==='ai'?' Made with AI.':'');
+  const tags=SAFE.slice(0,cfg.max).map(x=>'#'+x).join(' ');
+  let cap=front+line+NL+NL+discl+NL+tags;
+  if(cap.length>cfg.budget) cap=front+line+NL+NL+discl;
+  return cap.trim(); }
+
+function buildPlan(){ const t=W.topic||{name:'Untitled',motif:'network'}; const motif=t.motif||'network'; const vis=VIS[motif]||'abstract gold motif';
+  const onscreen0='NOT FINANCIAL ADVICE'+(W.sponsored?' &middot; #AD':'')+(W.voice==='ai'?' &middot; MADE WITH AI':'');
+  const rows=[['0-3s',W.hook,'NOT FINANCIAL ADVICE'+(W.sponsored?' / #AD':'')+(W.voice==='ai'?' / MADE WITH AI':''),'title card'],
+    ['3-20s',W.gap,'(key phrase)',vis],['20-45s',W.payoff,'(key phrase)',vis],
+    ['45-60s',W.loop,'Follow / read the white paper',motif==='vault'?'vault opening':'network awakening']];
+  const img=(GEN.prompts.image[motif]||[''])[0], vid=(GEN.prompts.video[motif]||[''])[0];
+  let md=[]; md.push('# Your DGD video plan - '+t.name,'');
+  md.push('## Brief','- Topic: '+t.name,'- Takeaway: '+W.takeaway,'- Audience: '+W.audience,'- Format: '+W.format,'- Platforms: '+W.platforms.map(x=>PLAT[x].name).join(', '),'');
+  md.push('## Script (film this)','| Time | Spoken | On-screen | Visual |','|---|---|---|---|');
+  rows.forEach(r=>md.push('| '+r.join(' | ')+' |')); md.push('');
+  md.push('## Shot list','1. Title card (gold/navy) with your headline','2-4. B-roll: '+vis,'5. Lower-third: Not financial advice / Educational','');
+  md.push('## Captions');
+  W.platforms.forEach(p=>{ md.push('### '+PLAT[p].name); md.push(captionFor(p)); md.push(''); });
+  md.push('## Disclosures (first 3-5s + caption)','- Not financial advice - always');
+  if(W.sponsored) md.push('- #Ad / Sponsored - yes (front of caption + branded-content toggle)');
+  if(W.voice==='ai') md.push('- Made with AI - yes (on-screen + platform AI toggle)');
+  md.push('');
+  md.push('## Prompts for your tools','Image: '+img,'Video: '+vid,'Voiceover: '+(W.voice==='ai'?GEN.prompts.voiceover[0]:'Record in your own voice - calm, clear, about 130 words per minute.'),'');
+  md.push('## What to do now',
+    '1. '+(W.voice==='ai'?'Generate the voiceover from the script above (free TTS).':'Record the voiceover in your own voice.'),
+    '2. Make the b-roll with the prompts above (free tools).','3. Make a title card with your headline.',
+    '4. Assemble in CapCut and burn in captions.','5. Put the disclosures on screen in the first 3-5 seconds.',
+    '6. Run the pre-publish checklist.','7. Post or schedule to: '+W.platforms.map(x=>PLAT[x].name).join(', ')+' using the caption(s) above.','',
+    'Educational, not financial advice. Mechanism, not forecast.');
+  const text=md.join(NL);
+  const checkText=[W.hook,W.gap,W.payoff,W.loop].concat(W.platforms.map(captionFor)).join(' ');
+  const lr=lint(checkText); const failTerms=[...new Set(lr.findings.filter(x=>x.sev==='FAIL').map(x=>x.term))];
+  return {md:text, html:'<pre style="white-space:pre-wrap;background:#06080e;border:1px solid var(--line);border-radius:10px;padding:14px;font-size:13px;overflow:auto">'+esc(text)+'</pre>', verdict:lr.verdict, failTerms:failTerms}; }
+function wizDownload(){ const b=new Blob([window._wizPlan||''],{type:'text/markdown'}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='dgd-video-plan.md'; a.click(); }
+
+function wizRender(){ const t=W.topic; let h='';
+  if(W.step===0){
+    h='<h1>Make a video, step by step</h1><p class="lead">Answer a few quick questions and you will walk out with a complete plan: your script, captions, shot list, disclosures, and exact next steps to film and post - all checked against the rules as you go. It never posts anything; it just builds your plan.</p><button class="wbtn big" onclick="wizGo(1)">Start &rarr;</button>';
+  } else if(W.step===1){
+    h=wizBar()+'<h1>Pick one idea</h1><p style="color:var(--mute)">One video, one idea. Choose a topic, hit Surprise me, or type your own.</p>'+
+      '<label>Topic</label><select onchange="wizTopicSel(this.value)"><option value="">- choose -</option>'+
+      GEN.topics.map((x,i)=>'<option value="'+i+'"'+(t&&!t.custom&&t.short===x.short?' selected':'')+'>'+att(x.name)+'</option>').join('')+
+      '<option value="custom"'+(t&&t.custom?' selected':'')+'>My own topic...</option></select>'+
+      '<label>...or type your own</label><input id="wCustom" type="text" value="'+(t&&t.custom?att(t.name):'')+'" oninput="wizCustom(this.value)" placeholder="e.g. why fixed rules matter">'+
+      '<button class="wbtn ghost" style="margin-top:12px" onclick="wizSurprise()">&#127922; Surprise me</button>'+
+      (t?'<div class="wnote"><b>'+esc(t.name)+'</b>'+(t.angle?' &mdash; '+esc(t.angle):'')+'</div>':'')+wizFoot();
+  } else if(W.step===2){
+    h=wizBar()+'<h1>What is the one thing they will get?</h1><p style="color:var(--mute)">Finish this sentence - it keeps your video focused.</p>'+
+      '<label>After 60 seconds, the viewer will understand...</label>'+
+      '<textarea oninput="W.takeaway=this.value" placeholder="'+att((t&&t.angle)||'how the system is designed to work')+'">'+esc(W.takeaway)+'</textarea>'+
+      '<p style="color:var(--mute);font-size:13px">This becomes the heart of your script and caption.</p>'+wizFoot();
+  } else if(W.step===3){
+    h=wizBar()+'<h1>Who is it for, and where?</h1>'+
+      '<label>Audience</label><select onchange="W.audience=this.value">'+GEN.audiences.map(a=>'<option'+(a===W.audience?' selected':'')+'>'+esc(a)+'</option>').join('')+'</select>'+
+      '<label>Format</label><select onchange="W.format=this.value">'+GEN.formats.map(f=>'<option'+(f===W.format?' selected':'')+'>'+esc(f)+'</option>').join('')+'</select>'+
+      '<label>Platforms</label>'+Object.keys(PLAT).map(k=>'<label class="wchk"><input type="checkbox" value="'+k+'" '+(W.platforms.includes(k)?'checked':'')+' onchange="wizPlat(this)"> '+PLAT[k].name+'</label>').join('')+wizFoot();
+  } else if(W.step===4){
+    const base=t||GEN.topics[0]; const opts=GEN.hooks.map(hk=>fillHook(hk.tpl,base));
+    const isCustom=opts.indexOf(W.hook)<0 && W.hook;
+    h=wizBar()+'<h1>Grab them in 3 seconds</h1><p style="color:var(--mute)">Pick a hook or write your own - we check it against the rules.</p>'+
+      opts.map(x=>'<label class="wradio"><input type="radio" name="whook" value="'+att(x)+'" '+(W.hook===x?'checked':'')+' onchange="W.hook=this.value;wizHookCheck()"> '+esc(x)+'</label>').join('')+
+      '<label>...or write your own</label><input type="text" value="'+(isCustom?att(W.hook):'')+'" oninput="W.hook=this.value;wizHookCheck()" placeholder="Your opening line">'+
+      '<div id="wHookV" style="margin-top:8px;font-size:13px"></div>'+wizFoot();
+  } else if(W.step===5){
+    h=wizBar()+'<h1>Write the script</h1><p style="color:var(--mute)">Keep it about 60 seconds, one idea, plain words. We check it live.</p>'+
+      '<div class="wnote"><b>Hook (0-3s):</b> '+esc(W.hook||'(set a hook in the previous step)')+'</div>'+
+      '<label>The gap (the question or misconception)</label><textarea oninput="W.gap=this.value;wizScriptCheck()" placeholder="Here is what most people get wrong...">'+esc(W.gap)+'</textarea>'+
+      '<label>The payoff (explain the mechanism - how the system is designed)</label><textarea oninput="W.payoff=this.value;wizScriptCheck()" placeholder="When more money is created than goods...">'+esc(W.payoff)+'</textarea>'+
+      '<label>The loop (your closing line + a soft call to follow)</label><textarea oninput="W.loop=this.value;wizScriptCheck()">'+esc(W.loop)+'</textarea>'+
+      '<div id="wScriptV" style="margin:8px 0;font-size:13px"></div>'+
+      '<button class="wbtn ghost" onclick="wizCopyScriptPrompt()">Copy an AI script prompt</button> <span style="color:var(--mute);font-size:13px">paste into any AI chat to draft faster</span>'+wizFoot();
+  } else if(W.step===6){
+    h=wizBar()+'<h1>Your voice</h1>'+
+      '<label class="wradio"><input type="radio" name="wvoice" value="real" '+(W.voice==='real'?'checked':'')+' onchange="W.voice=this.value;wizRender()"> My own recorded voice <span style="color:var(--mute)">(most trust, no AI label)</span></label>'+
+      '<label class="wradio"><input type="radio" name="wvoice" value="ai" '+(W.voice==='ai'?'checked':'')+' onchange="W.voice=this.value;wizRender()"> An AI voice <span style="color:var(--mute)">(fast, must be labelled)</span></label>'+
+      (W.voice==='ai'?'<div class="wnote">Because it is a realistic AI voice, your video needs an on-screen AI label.</div>':'')+wizFoot();
+  } else if(W.step===7){
+    h=wizBar()+'<h1>Disclosures</h1><p style="color:var(--mute)">These go on screen in the first 3-5 seconds and in your caption.</p>'+
+      '<label class="wchk"><input type="checkbox" '+(W.sponsored?'checked':'')+' onchange="W.sponsored=this.checked;wizRender()"> I am recognized or rewarded for posting this (adds #Ad)</label>'+
+      '<div class="wnote"><b>Your labels:</b><br>&bull; Not financial advice &mdash; always'+(W.sponsored?'<br>&bull; #Ad / Sponsored':'')+(W.voice==='ai'?'<br>&bull; Made with AI':'')+'</div>'+wizFoot();
+  } else if(W.step===8){
+    const motif=(t&&t.motif)||'network'; const img=(GEN.prompts.image[motif]||[''])[0], vid=(GEN.prompts.video[motif]||[''])[0];
+    h=wizBar()+'<h1>Your visuals</h1><p style="color:var(--mute)">Keep them abstract and on-brand (theme: '+motif+'). Copy these into your free image/video tools.</p>'+
+      '<div class="pb"><div class="pbh">Image prompt</div><pre>'+esc(img)+'</pre></div>'+
+      '<div class="pb"><div class="pbh">Video prompt</div><pre>'+esc(vid)+'</pre></div>'+wizFoot('See my plan &rarr;');
+  } else if(W.step===9){
+    const out=buildPlan(); window._wizPlan=out.md;
+    h=wizBar()+'<h1>Your video plan '+wbadge(out.verdict)+'</h1>'+
+      (out.verdict==='fail'?'<div class="wnote" style="border-color:var(--fail)">Some wording breaks the rules ('+out.failTerms.join(', ')+'). Go Back and rephrase before posting.</div>':'<p style="color:var(--mute)">Everything below is yours. Copy or download it, then follow the steps at the bottom to film and post.</p>')+
+      '<div style="margin:6px 0 4px"><button class="wbtn" onclick="copy(window._wizPlan)">Copy plan</button> <button class="wbtn ghost" onclick="wizDownload()">Download .md</button> <button class="wbtn ghost" onclick="W.step=0;wizRender()">Start over</button></div>'+
+      out.html+
+      '<div class="wizfoot"><button class="wbtn ghost" onclick="wizGo(-1)">&larr; Back</button><span></span></div>';
+  }
+  const app=document.getElementById('wizApp'); if(app) app.innerHTML=h;
+}
+wizInit();
+
 genIdea(); genHooks(); genPrompt(); route();
 </script></body></html>"""
 
