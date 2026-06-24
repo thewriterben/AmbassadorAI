@@ -41,6 +41,7 @@ ABSOLUTE RULES — never violate, in any field (spoken, on-screen text, captions
 - Degen lingo (rekt, casino) may be used ONLY to hook attention and contrast DGD as the anti-speculation coin — never to imply gains.
 - Describe HOW THE SYSTEM IS DESIGNED TO WORK, never how someone profits. Mechanism, not forecast.
 - Define jargon on first use. Tone: calm, curious, clear — explainer, not hype.
+- Prefer phrasings like 'purchases less' or 'covers less' over 'buys less' — the word 'buy' reads as solicitation.
 - Do not invent figures. If a number is needed, write [WP: figure] for the ambassador to source from the white paper.
 - End with a soft call to action: "follow to learn more" or "read the white paper" — never "buy".
 
