@@ -10,8 +10,9 @@ A thin router so the agent (and you) drive every stage from a single command:
   dgd publish  …    -> Stage-6 publish package + gate               (dgd_publish.py)
   dgd perf     …    -> performance ledger: record / sync / report / show / dashboard
   dgd dashboard …   -> shortcut for `perf dashboard`
-  dgd site      …   -> build the deployable static control-panel site  (build_site.py)
+  dgd site      …   -> build the public Ambassador Resource Hub (static)  (build_hub.py)
   dgd serve     …   -> run the LOCAL control-panel server (runs the tools)  (dgd_web.py)
+  dgd ai        …   -> true AI generation (script/ideas/hooks/caption), gated  (dgd_ai.py)
   dgd doctor        -> health check: tools present, rails passing, deps, Postiz status
   dgd help          -> this overview
 
@@ -32,6 +33,7 @@ ROUTES = {
     "evals":     "run_compliance_evals.py",
     "publish":   "dgd_publish.py",
     "perf":      "dgd_performance.py",
+    "ai":        "dgd_ai.py",
 }
 
 
@@ -75,6 +77,11 @@ def doctor():
     check("postiz CLI on PATH", shutil.which("postiz") is not None,
           "dry-run works without it", required=False)
 
+    print("AI generation:")
+    check("LLM key (ANTHROPIC_API_KEY / OPENAI_API_KEY)",
+          bool(os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("OPENAI_API_KEY")),
+          "needed only for `dgd ai` / the AI tab", required=False)
+
     print("\n" + ("ALL GREEN — pipeline ready." if ok else
                   "Some checks failed (see ✗). Dry-run features still work."))
     return 0 if ok else 1
@@ -90,7 +97,7 @@ def main(argv):
     if cmd == "dashboard":
         return run("dgd_performance.py", ["dashboard", *rest])
     if cmd == "site":
-        return run("build_site.py", rest)
+        return run("build_hub.py", rest)
     if cmd == "serve":
         return run("dgd_web.py", rest)
     if cmd in ROUTES:

@@ -31,23 +31,18 @@ python3 tools/dgd.py perf report                                  # evidence rep
 python3 tools/dgd.py dashboard --out dashboard.html               # visual ledger
 ```
 
-For a **public, web-accessible** version, build the deployable static control panel:
+Two web front-ends:
 
 ```bash
-python3 tools/dgd.py site --no-ledger     # -> site/  (host on GitHub Pages / Netlify / any static host)
+python3 tools/dgd.py site      # -> site/  public Ambassador Resource Hub (static, deploy to GitHub Pages)
+python3 tools/dgd.py serve     # -> http://127.0.0.1:8000  local creator cockpit — runs the tools + true AI generation; never posts
 ```
 
-It's a single-page app (Performance · Lint · Publish · Assets) whose linter and caption
-logic are baked from the Python tools, so the browser behaves like the CLI. A GitHub Pages
-workflow (`.github/workflows/pages.yml`) deploys it on push.
-
-Or run the **local server** to actually execute the tools from the browser (render PNGs,
-build gated publish packages, live ledger):
-
-```bash
-python3 tools/dgd.py serve     # -> http://127.0.0.1:8000 (local only; never posts)
-```
-
+The **hub** is an audience-facing docs site built from the wiki (talking points, hooks,
+do/don't language, compliance, templates, toolkit) plus a client-side **idea & prompt
+generator** (compliance-safe, lint-checked at build) — no internal tooling. The **local
+server** is the ambassador's private workspace (lint, asset render, gated publish, live
+ledger). A GitHub Pages workflow (`.github/workflows/pages.yml`) deploys the hub on push.
 See `skills/dgd-video-studio/reference/web-dashboard.md`.
 
 | Tool | Stage | What it does |
@@ -58,8 +53,9 @@ See `skills/dgd-video-studio/reference/web-dashboard.md`.
 | `dgd_publish.py` | 6 | Tailors compliant per-platform captions, gates each, emits a Postiz `--json` campaign + `publish.sh`. |
 | `dgd_performance.py` | C/D | Records post metrics to a ledger, writes evidence reports + an HTML dashboard. |
 | `dgd.py` | — | Umbrella router + `doctor` health check. |
-| `build_site.py` | — | Bakes the deployable static web control panel (`dgd site`). |
+| `build_hub.py` | — | Builds the public hub from the wiki + the idea/prompt generator (`dgd site`). |
 | `dgd_web.py` | — | Local control-panel **server** that runs the tools (`dgd serve`). |
+| `dgd_ai.py` | — | True AI generation (script/ideas/hooks/caption), compliance-gated (`dgd ai`). |
 
 Every text-bearing tool enforces the same communications discipline; nothing publishable
 escapes the compliance gate.

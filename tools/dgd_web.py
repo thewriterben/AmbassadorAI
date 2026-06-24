@@ -41,6 +41,7 @@ sys.path.insert(0, HERE)
 import compliance_lint as CL          # noqa: E402
 import dgd_assets as ASSETS           # noqa: E402
 import dgd_performance as PERF        # noqa: E402
+import dgd_ai as AI                   # noqa: E402
 
 WORK = os.path.join(ROOT, ".dgd_web_work")
 
@@ -110,6 +111,7 @@ img.preview{max-width:300px;border-radius:10px;border:1px solid rgba(255,255,255
 <button data-tab="lint">Lint</button>
 <button data-tab="assets">Assets</button>
 <button data-tab="publish">Publish</button>
+<button data-tab="ai">AI generate</button>
 </nav>
 <main>
 <section id="perf" class="active"><div class="card"><h3>Performance (live ledger)</h3>
@@ -137,6 +139,13 @@ img.preview{max-width:300px;border-radius:10px;border:1px solid rgba(255,255,255
 <div class="row"><div><label class="chk"><input type="checkbox" id="pSpon"> Sponsored (#Ad)</label>
 <label class="chk"><input type="checkbox" id="pAI"> AI media</label></div></div>
 <button class="act" onclick="buildPublish()">Build &amp; gate</button><span id="pV"></span><div id="pOut"></div></div></section>
+
+<section id="ai"><div class="card"><h3>AI generation (compliance-gated)</h3>
+<p class="muted">A real model drafts; the linter gates it fail-closed with an auto-retry. Needs <code>ANTHROPIC_API_KEY</code> or <code>OPENAI_API_KEY</code> in the environment.</p>
+<div class="row"><div><label>What to make</label><select id="aiKind"><option value="script">Script (4-column)</option><option value="ideas">5 video ideas</option><option value="hooks">8 hooks</option><option value="caption">Caption</option></select></div>
+<div><label>Audience</label><input type="text" id="aiAud" value="the general public"></div></div>
+<label>Brief / topic</label><textarea id="aiBrief">why money quietly loses value</textarea>
+<button class="act" onclick="aiGen()">Generate</button><span id="aiV"></span><div id="aiOut"></div></div></section>
 </main>
 <div class="foot">Runs locally on your machine. Engagement is a craft signal, kept educational
 and never promotional. This app builds packages and assets; it never posts — run
@@ -151,6 +160,16 @@ const badge=v=>'<span class="badge b-'+v+'">'+v.toUpperCase()+'</span>';
 const findings=f=>f.length?f.map(x=>'<div class="finding'+(x.severity==='WARN'?' warn':'')+'"><b>['+x.severity+']</b> '+
  (x.line?('L'+x.line+' '):'')+x.category+": '"+x.term+"'<div class=fix>"+x.fix+'</div></div>').join(''):'<p style="color:#969eb2">Clean.</p>';
 async function api(path,body){const r=await fetch(path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});return r.json();}
+function copy(t){navigator.clipboard&&navigator.clipboard.writeText(t);}
+async function aiGen(){ $('aiOut').innerHTML='Generating… (a few seconds)'; $('aiV').innerHTML='';
+ const d=await api('/api/ai',{kind:$('aiKind').value,brief:$('aiBrief').value,audience:$('aiAud').value});
+ if(d.error){$('aiOut').innerHTML='<p class="muted">'+d.error+'</p>';return;}
+ window._ai=d.text;
+ $('aiV').innerHTML=' '+badge(d.verdict)+' <span style="color:#9aa3b8;font-size:12px">'+d.provider+' · '+d.attempts+' attempt(s)</span>';
+ let h='<pre>'+d.text.replace(/</g,'&lt;')+'</pre>';
+ if(d.verdict==='fail'){ h+='<p class="muted">Still failed the rails after retry — do not publish as-is.</p>'+findings(d.findings); }
+ else { h+='<button class="act ghost" onclick="copy(window._ai)">Copy</button>'; }
+ $('aiOut').innerHTML=h; }
 // lint
 async function runLint(){const t=$('lintIn').value;if(!t){$('lintV').innerHTML='';$('lintOut').innerHTML='';return;}
  const d=await api('/api/lint',{text:t,requireDisclosure:$('lintDiscl').checked});
@@ -261,6 +280,13 @@ class Handler(BaseHTTPRequestHandler):
                     if os.path.exists(os.path.join(out, f)):
                         links.append({"name": f, "href": f"/work/{ep}/publish/{f}"})
             return self._send(200, {"verdict": verdict, "out": (r["out"] + r["err"]).strip(), "links": links})
+        if u.path == "/api/ai":
+            try:
+                return self._send(200, AI.generate(b.get("kind", "script"),
+                                                    b.get("brief", ""),
+                                                    b.get("audience", "the general public")))
+            except Exception as e:  # noqa: BLE001
+                return self._send(200, {"error": str(e)})
         if u.path == "/api/perf/report":
             r = _run([os.path.join(HERE, "dgd_performance.py"), "report"])
             return self._send(200, {"out": (r["out"] + r["err"]).strip()})
