@@ -54,9 +54,49 @@ GOLD_HI   = (240, 208, 130)
 WHITE     = (244, 244, 240)
 MUTE      = (150, 158, 178)
 
-SERIF_BOLD = "/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf"
-SANS       = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
-SANS_BOLD  = "/usr/share/fonts/truetype/liberation2/LiberationSans-Bold.ttf"
+def _winfont(name):
+    return os.path.join(os.environ.get("WINDIR", r"C:\\Windows"), "Fonts", name)
+
+# Per-role font candidates across Linux / Windows / macOS, in preference order.
+_FONT_CANDIDATES = {
+    "serif_bold": [
+        "/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf",
+        "/usr/share/fonts/truetype/liberation/LiberationSerif-Bold.ttf",
+        "/usr/share/fonts/truetype/liberation2/LiberationSerif-Bold.ttf",
+        _winfont("georgiab.ttf"), _winfont("timesbd.ttf"),
+        "/System/Library/Fonts/Supplemental/Georgia Bold.ttf",
+        "/System/Library/Fonts/Supplemental/Times New Roman Bold.ttf",
+        "/Library/Fonts/Georgia Bold.ttf",
+    ],
+    "sans": [
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+        "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
+        "/usr/share/fonts/truetype/liberation2/LiberationSans-Regular.ttf",
+        _winfont("arial.ttf"), _winfont("segoeui.ttf"),
+        "/System/Library/Fonts/Supplemental/Arial.ttf",
+        "/Library/Fonts/Arial.ttf", "/System/Library/Fonts/Helvetica.ttc",
+    ],
+    "sans_bold": [
+        "/usr/share/fonts/truetype/liberation2/LiberationSans-Bold.ttf",
+        "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+        _winfont("arialbd.ttf"), _winfont("segoeuib.ttf"),
+        "/System/Library/Fonts/Supplemental/Arial Bold.ttf",
+        "/Library/Fonts/Arial Bold.ttf",
+    ],
+}
+
+
+def _resolve(role):
+    for path in _FONT_CANDIDATES[role]:
+        if path and os.path.exists(path):
+            return path
+    return None  # _font() falls back to Pillow's bundled scalable font
+
+
+SERIF_BOLD = _resolve("serif_bold")
+SANS       = _resolve("sans")
+SANS_BOLD  = _resolve("sans_bold")
 
 BANNED = [
     r"\binvest(ment|ing|or)?\b", r"\bROI\b", r"\breturns?\b", r"\bprofit",
@@ -85,7 +125,16 @@ def compliance_scan(*texts):
 
 
 def _font(path, size):
-    return ImageFont.truetype(path, size)
+    """Load a TrueType font; fall back to Pillow's bundled scalable font anywhere."""
+    if path:
+        try:
+            return ImageFont.truetype(path, size)
+        except Exception:
+            pass
+    try:
+        return ImageFont.load_default(size=size)   # Pillow >= 10.1 -> scalable DejaVu
+    except TypeError:
+        return ImageFont.load_default()            # very old Pillow -> bitmap
 
 
 def gradient_bg(w, h, top=NAVY, bottom=CHARCOAL):

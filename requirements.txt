@@ -1,0 +1,8 @@
+# Dependencies for the DGD Video Studio toolchain.
+# Everything not listed here is Python standard library.
+#
+#   pip install -r requirements.txt
+#
+Pillow>=10.1      # asset rendering: dgd_assets + the title/kit endpoints in dgd_web
+                  # (load_default(size=...) fallback needs Pillow >= 10.1)
+markdown>=3.4     # building the public Ambassador Resource Hub: build_hub
