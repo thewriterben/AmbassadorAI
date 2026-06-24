@@ -201,4 +201,4 @@ you'll profit."*
 - Craft: `craft/viral-principles.md` · `craft/hooks-library.md` · `craft/positioning-and-audiences.md`
 - Templates: `templates/video-brief-template.md` · `templates/pre-publish-checklist.md`
 - Trends: `trends/index.md` (scheduled radar) · `daily/index.md` (daily drops) · `trends/performance/index.md` (post-performance evidence)
-- Helper logic in this skill: `reference/tool-matcher.md` · `reference/compliance-gate.md` · `reference/trend-application.md` · `reference/asset-generation.md` · `reference/publishing.md`
+- Helper logic in this skill: `reference/tool-matcher.md` · `reference/compliance-gate.md` · `reference/trend-application.md` · `reference/asset-generation.md` · `reference/publishing.md` · `reference/web-dashboard.md`

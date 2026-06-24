@@ -31,6 +31,25 @@ python3 tools/dgd.py perf report                                  # evidence rep
 python3 tools/dgd.py dashboard --out dashboard.html               # visual ledger
 ```
 
+For a **public, web-accessible** version, build the deployable static control panel:
+
+```bash
+python3 tools/dgd.py site --no-ledger     # -> site/  (host on GitHub Pages / Netlify / any static host)
+```
+
+It's a single-page app (Performance · Lint · Publish · Assets) whose linter and caption
+logic are baked from the Python tools, so the browser behaves like the CLI. A GitHub Pages
+workflow (`.github/workflows/pages.yml`) deploys it on push.
+
+Or run the **local server** to actually execute the tools from the browser (render PNGs,
+build gated publish packages, live ledger):
+
+```bash
+python3 tools/dgd.py serve     # -> http://127.0.0.1:8000 (local only; never posts)
+```
+
+See `skills/dgd-video-studio/reference/web-dashboard.md`.
+
 | Tool | Stage | What it does |
 |---|---|---|
 | `dgd_assets.py` | 5 | Renders on-brand title cards, thumbnails, disclosure overlays, abstract b-roll motifs; `kit` builds a whole set + contact sheet. |
@@ -39,6 +58,8 @@ python3 tools/dgd.py dashboard --out dashboard.html               # visual ledge
 | `dgd_publish.py` | 6 | Tailors compliant per-platform captions, gates each, emits a Postiz `--json` campaign + `publish.sh`. |
 | `dgd_performance.py` | C/D | Records post metrics to a ledger, writes evidence reports + an HTML dashboard. |
 | `dgd.py` | — | Umbrella router + `doctor` health check. |
+| `build_site.py` | — | Bakes the deployable static web control panel (`dgd site`). |
+| `dgd_web.py` | — | Local control-panel **server** that runs the tools (`dgd serve`). |
 
 Every text-bearing tool enforces the same communications discipline; nothing publishable
 escapes the compliance gate.

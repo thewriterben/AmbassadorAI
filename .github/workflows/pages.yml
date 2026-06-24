@@ -1,0 +1,34 @@
+name: Deploy DGD control-panel site
+on:
+  push:
+    branches: [ main ]
+    paths: [ "tools/**", "example-output/asset-pack/**", ".github/workflows/pages.yml" ]
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: true
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.x"
+      - name: Install Pillow (asset gallery build dep)
+        run: pip install Pillow
+      - name: Build static site (public build omits the performance ledger)
+        run: python3 tools/build_site.py --out site --no-ledger
+      - uses: actions/configure-pages@v4
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deploy
+        uses: actions/deploy-pages@v4

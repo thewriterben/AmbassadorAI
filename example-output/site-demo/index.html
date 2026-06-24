@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DGD Video Studio — Control Panel</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+  :root{--navy:#10172a;--char:#0a0c12;--gold:#d4a853;--goldhi:#f0d082;
+        --white:#f4f4f0;--mute:#969eb2;--fail:#e2696b;--warn:#d9a441;--pass:#5fb98e;}
+  *{box-sizing:border-box}
+  body{margin:0;background:linear-gradient(180deg,var(--navy),var(--char));color:var(--white);
+       font-family:'Segoe UI',system-ui,Arial,sans-serif;min-height:100vh}
+  header{padding:22px 28px 0}
+  .sub{color:var(--gold);font-weight:600;letter-spacing:.05em;font-size:12px;text-transform:uppercase}
+  h1{font-family:Georgia,'Times New Roman',serif;margin:2px 0 0;font-size:28px}
+  .built{color:var(--mute);font-size:12px}
+  nav{display:flex;gap:8px;padding:16px 28px 0;flex-wrap:wrap}
+  nav button{background:rgba(255,255,255,.04);color:var(--white);border:1px solid rgba(212,168,83,.3);
+             border-radius:9px;padding:9px 16px;font-size:14px;cursor:pointer}
+  nav button.active{background:var(--gold);color:#1a1205;border-color:var(--gold);font-weight:700}
+  main{padding:22px 28px 60px;max-width:1100px}
+  section{display:none} section.active{display:block}
+  .card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:14px;
+        padding:18px;margin-bottom:18px}
+  .card h3{margin:0 0 12px;font-size:14px;color:var(--gold);font-weight:700}
+  label{display:block;font-size:12px;color:var(--mute);margin:10px 0 4px}
+  input[type=text],textarea,select{width:100%;background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.14);
+       color:var(--white);border-radius:9px;padding:10px;font-size:14px;font-family:inherit}
+  textarea{min-height:120px;resize:vertical}
+  .row{display:flex;gap:16px;flex-wrap:wrap} .row>*{flex:1;min-width:220px}
+  .chk{display:flex;gap:8px;align-items:center;color:var(--white);font-size:14px;margin-top:10px}
+  .chk input{width:auto}
+  button.act{background:var(--gold);color:#1a1205;border:none;border-radius:9px;padding:10px 18px;
+             font-weight:700;cursor:pointer;margin-top:14px}
+  button.ghost{background:transparent;border:1px solid var(--gold);color:var(--gold)}
+  .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700}
+  .b-pass{background:rgba(95,185,142,.18);color:var(--pass)} .b-warn{background:rgba(217,164,65,.18);color:var(--warn)}
+  .b-fail{background:rgba(226,105,107,.18);color:var(--fail)}
+  .finding{border-left:3px solid var(--fail);padding:6px 10px;margin:8px 0;background:rgba(226,105,107,.06);font-size:13px}
+  .finding.warn{border-color:var(--warn);background:rgba(217,164,65,.06)}
+  .finding .fix{color:var(--mute);font-size:12px;margin-top:2px}
+  .kpis{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+  .kpi{background:rgba(255,255,255,.04);border:1px solid rgba(212,168,83,.25);border-radius:12px;padding:14px 20px;min-width:130px}
+  .kpi .n{font-size:26px;font-weight:700;color:var(--goldhi)} .kpi .l{color:var(--mute);font-size:11px;margin-top:3px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{padding:7px 9px;text-align:left;border-bottom:1px solid rgba(255,255,255,.07)}
+  th{color:var(--mute);cursor:pointer} td.n,th.n{text-align:right}
+  .gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+  .gallery figure{margin:0;background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.08);border-radius:10px;overflow:hidden}
+  .gallery img{width:100%;display:block;background:#0b0e16}
+  .gallery figcaption{font-size:11px;color:var(--mute);padding:6px 8px;text-align:center}
+  pre{background:rgba(0,0,0,.35);border-radius:9px;padding:12px;overflow:auto;font-size:12px;color:#cfe}
+  .foot{color:var(--mute);font-size:12px;border-top:1px solid rgba(255,255,255,.08);padding:14px 28px;max-width:1100px}
+  .muted{color:var(--mute)} a{color:var(--gold)}
+</style></head>
+<body>
+<header>
+  <div class="sub">Digital Gold · Educational</div>
+  <h1>DGD Video Studio — Control Panel</h1>
+  <div class="built" id="built"></div>
+</header>
+<nav>
+  <button data-tab="perf" class="active">Performance</button>
+  <button data-tab="lint">Lint a caption</button>
+  <button data-tab="publish">Publish builder</button>
+  <button data-tab="assets">Assets</button>
+</nav>
+<main>
+  <section id="perf" class="active"></section>
+
+  <section id="lint">
+    <div class="card">
+      <h3>Compliance linter — live</h3>
+      <p class="muted">Same rules as <code>tools/compliance_lint.py</code> (baked from the Python source).
+        Paste a script, caption, hook, or hashtags. <span id="lintVerdict"></span></p>
+      <textarea id="lintIn" placeholder="Type or paste content to check…"></textarea>
+      <label class="chk"><input type="checkbox" id="lintDiscl"> require a “not financial advice” line</label>
+      <div id="lintOut"></div>
+    </div>
+  </section>
+
+  <section id="publish">
+    <div class="card">
+      <h3>Publish package builder</h3>
+      <p class="muted">Tailors a compliant caption per platform, gates each, and lets you download a
+        Postiz <code>campaign.json</code> + captions. Scheduling still runs locally via <code>publish.sh</code>.</p>
+      <label>Base caption</label>
+      <textarea id="pCap" placeholder="Money loses value quietly. Here's the mechanism, in 60s."></textarea>
+      <div class="row">
+        <div><label>YouTube title</label><input type="text" id="pTitle" placeholder="Why money loses value — explained in 60s"></div>
+        <div><label>Hashtags (comma-sep, no #)</label><input type="text" id="pTags" placeholder="(defaults to approved set)"></div>
+      </div>
+      <div class="row">
+        <div>
+          <label>Platforms</label>
+          <label class="chk"><input type="checkbox" class="pPlat" value="x" checked> X</label>
+          <label class="chk"><input type="checkbox" class="pPlat" value="tiktok" checked> TikTok</label>
+          <label class="chk"><input type="checkbox" class="pPlat" value="instagram" checked> Instagram</label>
+          <label class="chk"><input type="checkbox" class="pPlat" value="youtube" checked> YouTube</label>
+        </div>
+        <div>
+          <label>Disclosure</label>
+          <label class="chk"><input type="checkbox" id="pSpon"> Sponsored (FTC #Ad)</label>
+          <label class="chk"><input type="checkbox" id="pAI"> Realistic AI media</label>
+        </div>
+      </div>
+      <button class="act" onclick="buildPublish()">Build &amp; gate</button>
+      <span id="pVerdict"></span>
+      <div id="pOut"></div>
+    </div>
+  </section>
+
+  <section id="assets">
+    <div class="card">
+      <h3>Live title-card preview</h3>
+      <p class="muted">Quick in-browser mockup (gated by the linter). For final PNGs and motif b-roll use
+        <code>tools/dgd_assets.py</code>.</p>
+      <div class="row">
+        <div><label>Headline</label><input type="text" id="aHead" value="Why your money quietly loses value"></div>
+        <div><label>Kicker</label><input type="text" id="aKick" value="Sound Money - Ep. 1"></div>
+      </div>
+      <label>Subtitle</label><input type="text" id="aSub" value="A two-minute explainer.">
+      <button class="act" onclick="drawCard()">Render</button>
+      <button class="act ghost" onclick="downloadCard()">Download PNG</button>
+      <span id="aVerdict"></span>
+      <div style="margin-top:14px"><canvas id="aCanvas" width="360" height="640" style="border-radius:10px;max-width:100%"></canvas></div>
+    </div>
+    <div class="card"><h3>Asset gallery</h3><div id="gallery" class="gallery"></div></div>
+  </section>
+</main>
+<div class="foot">
+  Educational, not financial advice. Engagement is a craft signal, kept educational and never
+  promotional. Built from the DGD toolchain (<code>tools/build_site.py</code>); the compliance
+  rails run client-side from the same rules as <code>compliance_lint.py</code>.
+</div>
+
+<script>
+window.DGD = {"built": "2026-06-24", "rules": [{"category": "investment", "severity": "FAIL", "pattern": "\\binvest(?:ment|ing|or|ors)?\\b", "fix": "Describe DGD as 'a monetary system designed to work like sound money,' not an investment."}, {"category": "investment", "severity": "FAIL", "pattern": "\\b(?:asset to hold|store of value)\\b", "fix": "Frame as a 'digital commodity / monetary design,' not a thing to hold for value."}, {"category": "investment", "severity": "FAIL", "pattern": "\\bstore (?:your )?(?:wealth|money|value)\\b", "fix": "Don't position DGD as where to store wealth; describe the mechanism instead."}, {"category": "investment", "severity": "FAIL", "pattern": "\\bhold (?:it )?(?:for )?(?:the )?long[- ]?term\\b", "fix": "Avoid hold-for-gain framing; explain how the design works."}, {"category": "investment", "severity": "FAIL", "pattern": "\\bportfolio\\b", "fix": "Drop portfolio framing; DGD content is educational, not allocation advice."}, {"category": "price_prediction", "severity": "FAIL", "pattern": "\\bto the moon\\b|\\bmoon(?:ing|shot)?\\b", "fix": "Replace with: 'price advances along a fixed curve as the network grows.'"}, {"category": "price_prediction", "severity": "FAIL", "pattern": "\\bpump(?:ing|s)?\\b", "fix": "No pump language; describe the distribution mechanism."}, {"category": "price_prediction", "severity": "FAIL", "pattern": "\\b\\d{2,}x\\b", "fix": "No multiplier claims (e.g. 100x). The curve is a mechanism, not a forecast."}, {"category": "price_prediction", "severity": "FAIL", "pattern": "\\bprice target\\b|\\bnext (?:bitcoin|ethereum|gem)\\b", "fix": "No targets or 'next X' framing; explain how the design differs."}, {"category": "price_prediction", "severity": "FAIL", "pattern": "\\bto \\$\\s?\\d", "fix": "A '$X' price target (incl. on thumbnails) is a forecast — remove it."}, {"category": "price_prediction", "severity": "FAIL", "pattern": "\\bundervalued\\b", "fix": "Avoid valuation-as-bargain framing; cite the WP valuation method instead."}, {"category": "return_promise", "severity": "FAIL", "pattern": "\\breturns?\\b|\\bROI\\b|\\bprofit(?:s|able)?\\b|\\bgains?\\b", "fix": "No returns/profit/gains. 'No one earns income from operating the network — fees are burned by design.'"}, {"category": "return_promise", "severity": "FAIL", "pattern": "\\bpassive income\\b|\\bmake money\\b|\\bmade \\$?\\d", "fix": "No income claims; explain validation/mechanics, not earnings."}, {"category": "return_promise", "severity": "FAIL", "pattern": "\\bfinancial freedom\\b|\\bretire\\b", "fix": "Replace with 'a design aimed at preserving purchasing power.'"}, {"category": "return_promise", "severity": "FAIL", "pattern": "\\bguaranteed\\b|\\brisk[- ]?free\\b", "fix": "Nothing is guaranteed; it's a reasoned design and the WP says so."}, {"category": "solicitation", "severity": "FAIL", "pattern": "\\bbuy(?:ing|s)?\\b", "fix": "Don't solicit buying. 'Read the white paper / official channels in bio to learn more.'"}, {"category": "solicitation", "severity": "FAIL", "pattern": "\\bget in\\b|\\bdon'?t miss out\\b|\\blast chance\\b|\\bFOMO\\b", "fix": "No urgency/solicitation; 'if the idea interests you, the white paper explains it.'"}, {"category": "solicitation", "severity": "FAIL", "pattern": "\\bape in\\b|\\bload up\\b|\\bsecure your bag\\b|\\bget rich\\b", "fix": "No acquisition hype; keep it educational."}, {"category": "safe_drift", "severity": "FAIL", "pattern": "\\bsafe (?:investment|haven|bet|place)\\b", "fix": "'Safe harbor' is a LEGAL term (digital commodity, not a security) — never a safe-money claim."}, {"category": "safe_drift", "severity": "FAIL", "pattern": "\\bcan'?t lose\\b", "fix": "Safe harbor is about regulation, not your wallet."}, {"category": "safe_drift", "severity": "FAIL", "pattern": "\\bregulators? approved\\b", "fix": "It's 'designed to align' with the framework — a reasoned position, not an approval (WP §12.16)."}, {"category": "degen_contrast", "severity": "WARN", "pattern": "\\brekt\\b|\\bcasino\\b|\\bdegen\\b|\\bgambl(?:e|ing)\\b", "fix": "Degen lingo may HOOK/contrast, but must sell no play. Confirm it's contrast, not a pitch."}, {"category": "soft_hype", "severity": "WARN", "pattern": "\\bearly\\b|\\bcheap\\b|\\bdeal\\b|\\bget rich quick\\b", "fix": "Soft hype word — ensure it isn't implying the viewer profits."}, {"category": "dollar_figure", "severity": "WARN", "pattern": "\\$\\s?\\d[\\d,]*\\s?[kKmMbB]?\\b", "fix": "Dollar figure — make sure it's a fact/illustration, not a price target or earnings claim."}], "allowed": ["not financial advice", "sponsored"], "platforms": {"x": {"ident": "twitter", "maxTags": 3, "budget": 280}, "tiktok": {"ident": "tiktok", "maxTags": 5, "budget": 2200}, "instagram": {"ident": "instagram", "maxTags": 5, "budget": 2200}, "youtube": {"ident": "youtube", "maxTags": 5, "budget": 5000}}, "safeTags": ["soundmoney", "economics", "monetarypolicy", "austrianeconomics", "cryptoeducation", "fintecheducation"], "assets": ["01_title.png", "02_thumb.png", "03_disclosure.png", "04_lower_third.png", "05_motif_network.png", "06_motif_scarcity.png", "07_motif_erosion.png", "08_motif_supply.png", "09_motif_history.png", "10_motif_vault.png"], "ledger": {"totals": {"impressions": 152000, "avg_er": 0.07116881934095048, "fy": 10.498799470110946}, "by_hook": [{"key": "List Tease", "posts": 1, "impressions": 48000, "er": 0.0825, "fy": 11.25}, {"key": "Contrarian Claim", "posts": 2, "impressions": 73000, "er": 0.0794877049180328, "fy": 11.960382513661202}, {"key": "Mistake Warning", "posts": 1, "impressions": 22000, "er": 0.0715909090909091, "fy": 9.545454545454547}, {"key": "Question Hook", "posts": 1, "impressions": 9000, "er": 0.042777777777777776, "fy": 7.777777777777778}], "by_topic": [{"key": "scarcity", "posts": 1, "impressions": 48000, "er": 0.0825, "fy": 11.25}, {"key": "inflation", "posts": 2, "impressions": 73000, "er": 0.0794877049180328, "fy": 11.960382513661202}, {"key": "debasement", "posts": 1, "impressions": 22000, "er": 0.0715909090909091, "fy": 9.545454545454547}, {"key": "decentralization", "posts": 1, "impressions": 9000, "er": 0.042777777777777776, "fy": 7.777777777777778}], "by_platform": [{"key": "tiktok", "posts": 2, "impressions": 109000, "er": 0.09198770491803279, "fy": 13.00204918032787}, {"key": "instagram", "posts": 1, "impressions": 22000, "er": 0.0715909090909091, "fy": 9.545454545454547}, {"key": "x", "posts": 1, "impressions": 12000, "er": 0.0575, "fy": 9.166666666666666}, {"key": "youtube", "posts": 1, "impressions": 9000, "er": 0.042777777777777776, "fy": 7.777777777777778}], "posts": [{"post_id": "x_001", "platform": "x", "hook": "Contrarian Claim", "topic": "inflation", "impressions": 12000, "er": 0.0575, "fy": 9.2}, {"post_id": "tt_002", "platform": "tiktok", "hook": "List Tease", "topic": "scarcity", "impressions": 48000, "er": 0.0825, "fy": 11.2}, {"post_id": "ig_003", "platform": "instagram", "hook": "Mistake Warning", "topic": "debasement", "impressions": 22000, "er": 0.0716, "fy": 9.5}, {"post_id": "yt_004", "platform": "youtube", "hook": "Question Hook", "topic": "decentralization", "impressions": 9000, "er": 0.0428, "fy": 7.8}, {"post_id": "tt_005", "platform": "tiktok", "hook": "Contrarian Claim", "topic": "inflation", "impressions": 61000, "er": 0.1015, "fy": 14.8}]}};
+const D = window.DGD || {};
+document.getElementById('built').textContent = 'Built ' + (D.built||'') + ' · static build';
+
+// ---- tabs ----
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('main section').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active'); document.getElementById(b.dataset.tab).classList.add('active');
+});
+
+// ---- client linter (rules baked from compliance_lint.py) ----
+const RULES = (D.rules||[]).map(r=>({cat:r.category,sev:r.severity,fix:r.fix,rx:new RegExp(r.pattern,'gi')}));
+const ALLOWED = new Set(D.allowed||['not financial advice','sponsored']);
+function lint(text, wantDiscl){
+  const findings=[]; const lines=String(text||'').split('\n');
+  lines.forEach((line,i)=>{
+    if(ALLOWED.has(line.trim().toLowerCase())) return;
+    RULES.forEach(r=>{ r.rx.lastIndex=0; let m;
+      while((m=r.rx.exec(line))!==null){ findings.push({sev:r.sev,cat:r.cat,term:m[0],fix:r.fix,line:i+1});
+        if(m.index===r.rx.lastIndex) r.rx.lastIndex++; } });
+  });
+  if(wantDiscl && !/not financial advice/i.test(text||''))
+    findings.push({sev:'WARN',cat:'disclosure',term:'(none)',fix:"Add a 'not financial advice' line.",line:0});
+  const fail=findings.some(f=>f.sev==='FAIL'), warn=findings.some(f=>f.sev==='WARN');
+  return {findings, verdict: fail?'fail':(warn?'warn':'pass')};
+}
+function badge(v){return '<span class="badge b-'+v+'">'+v.toUpperCase()+'</span>';}
+function renderFindings(res){
+  if(res.verdict==='pass') return '<p class="muted">Clean — no banned framing detected.</p>';
+  return res.findings.map(f=>'<div class="finding'+(f.sev==='WARN'?' warn':'')+'">'+
+    '<b>['+f.sev+']</b> '+(f.line?('L'+f.line+' '):'')+f.cat+": '"+f.term+"'<div class=fix>"+f.fix+'</div></div>').join('');
+}
+const lintIn=document.getElementById('lintIn'), lintDiscl=document.getElementById('lintDiscl');
+function runLint(){ const res=lint(lintIn.value, lintDiscl.checked);
+  document.getElementById('lintVerdict').innerHTML=lintIn.value?badge(res.verdict):'';
+  document.getElementById('lintOut').innerHTML=lintIn.value?renderFindings(res):''; }
+lintIn.addEventListener('input',runLint); lintDiscl.addEventListener('change',runLint);
+
+// ---- publish builder (ports dgd_publish.py logic) ----
+const PLAT=D.platforms||{x:{ident:'twitter',maxTags:3,budget:280},tiktok:{ident:'tiktok',maxTags:5,budget:2200},
+  instagram:{ident:'instagram',maxTags:5,budget:2200},youtube:{ident:'youtube',maxTags:5,budget:5000}};
+const SAFE=D.safeTags||['soundmoney','economics','monetarypolicy','austrianeconomics','cryptoeducation','fintecheducation'];
+function buildCaption(p, base, tags, spon, ai){
+  const cfg=PLAT[p]; const front=spon?'#Ad\n':''; let discl='Not financial advice. Educational.'+(ai?' Made with AI.':'');
+  const tagline=tags.slice(0,cfg.maxTags).map(t=>'#'+t).join(' ');
+  let cap=(front+base.trim()+'\n\n'+discl+'\n'+tagline).trim(); let warn=null;
+  if(cfg.budget && cap.length>cfg.budget){ cap=(front+base.trim()+'\n\n'+discl).trim();
+    if(cap.length>cfg.budget) warn=p+': caption '+cap.length+' chars > '+cfg.budget+' — shorten the base.'; }
+  return {cap,warn};
+}
+function settings(p,title,tags,ai){ if(p==='youtube')return{title:title||'Sound money, explained',type:'public',tags:tags.slice(0,5).map(t=>({value:t,label:t}))};
+  if(p==='tiktok')return{privacy:'PUBLIC_TO_EVERYONE',duet:true,stitch:true};
+  if(p==='instagram')return{post_type:'post'}; if(p==='x')return{who_can_reply_post:'everyone'}; return{};}
+function dl(name,text,type){ const b=new Blob([text],{type:type||'text/plain'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=name; a.click(); }
+function buildPublish(){
+  const base=document.getElementById('pCap').value.trim(); const title=document.getElementById('pTitle').value.trim();
+  const tagsRaw=document.getElementById('pTags').value.trim();
+  const tags=tagsRaw?tagsRaw.split(',').map(t=>t.trim().replace(/^#/,'')):SAFE;
+  const spon=document.getElementById('pSpon').checked, ai=document.getElementById('pAI').checked;
+  const plats=[...document.querySelectorAll('.pPlat:checked')].map(c=>c.value);
+  if(!base||!plats.length){document.getElementById('pOut').innerHTML='<p class="muted">Enter a caption and pick a platform.</p>';return;}
+  let html='', anyFail=false, warns=[], campaign={integrations:plats.map(p=>'<'+PLAT[p].ident+'-id>'),posts:[]};
+  const titleRes=title?lint(title):null; if(titleRes&&titleRes.verdict==='fail')anyFail=true;
+  plats.forEach(p=>{ const {cap,warn}=buildCaption(p,base,tags,spon,ai); if(warn)warns.push(warn);
+    const res=lint(cap,true); if(res.verdict==='fail')anyFail=true;
+    campaign.posts.push({provider:PLAT[p].ident,post:[{content:cap,image:['<your-video>']}],settings:settings(p,title,tags,ai)});
+    html+='<div class="card" style="background:rgba(0,0,0,.2)"><b>'+p.toUpperCase()+'</b> '+badge(res.verdict)+
+      '<pre>'+cap.replace(/</g,'&lt;')+'</pre>'+(res.verdict!=='pass'?renderFindings(res):'')+'</div>'; });
+  let head = anyFail? '<p>'+badge('fail')+' Publish blocked — reframe (mechanism, not forecast) and rebuild.</p>'
+                    : '<p>'+badge('pass')+' Gate passed. Download the package, then schedule locally with <code>publish.sh</code>.</p>';
+  if(!anyFail){ const ts=new Date().toISOString().slice(0,16);
+    head+='<button class="act" onclick=\'dl("campaign.json",JSON.stringify(window._camp,null,2),"application/json")\'>Download campaign.json</button> '+
+          '<button class="act ghost" onclick=\'dl("captions.txt",window._caps)\'>Download captions.txt</button>';
+    window._camp=campaign; window._caps=campaign.posts.map(p=>'===== '+p.provider.toUpperCase()+' =====\n'+p.post[0].content).join('\n\n'); }
+  if(warns.length) head+='<p class="muted">WARN: '+warns.join(' · ')+'</p>';
+  document.getElementById('pVerdict').innerHTML=''; document.getElementById('pOut').innerHTML=head+html;
+}
+
+// ---- assets: live title card on canvas + gallery ----
+function drawCard(){
+  const head=document.getElementById('aHead').value, kick=document.getElementById('aKick').value, sub=document.getElementById('aSub').value;
+  const res=lint(head+'\n'+kick+'\n'+sub);
+  document.getElementById('aVerdict').innerHTML=badge(res.verdict)+(res.verdict==='fail'?' — fix before using':'');
+  const c=document.getElementById('aCanvas'), x=c.getContext('2d'), W=c.width, H=c.height;
+  const g=x.createLinearGradient(0,0,0,H); g.addColorStop(0,'#10172a'); g.addColorStop(1,'#0a0c12');
+  x.fillStyle=g; x.fillRect(0,0,W,H);
+  x.fillStyle='#d4a853'; x.font='bold 13px Arial'; x.fillText((kick||'').toUpperCase(),34,210);
+  x.fillStyle='#f4f4f0'; x.font='bold 30px Georgia,serif';
+  const words=(head||'').split(' '); let line='',y=250; const max=W-68;
+  words.forEach(w=>{ if(x.measureText(line+' '+w).width>max){x.fillText(line,34,y);line=w;y+=36;} else line=(line?line+' ':'')+w; });
+  x.fillText(line,34,y);
+  x.fillStyle='#969eb2'; x.font='15px Arial'; x.fillText(sub||'',34,y+44);
+  x.fillStyle='#d4a853'; x.font='bold 12px Arial'; x.fillText('DIGITAL GOLD - EDUCATIONAL',34,H-30);
+  x.strokeStyle='#d4a853'; x.lineWidth=2; x.strokeRect(70,40,W-140,34);
+  x.fillStyle='#f0d082'; x.font='bold 11px Arial'; x.textAlign='center';
+  x.fillText('SPONSORED  -  NOT FINANCIAL ADVICE',W/2,62); x.textAlign='left';
+}
+function downloadCard(){ const c=document.getElementById('aCanvas'); const a=document.createElement('a');
+  a.href=c.toDataURL('image/png'); a.download='title_preview.png'; a.click(); }
+(function gallery(){ const g=document.getElementById('gallery'); if(!D.assets||!D.assets.length){
+    g.innerHTML='<p class="muted">No assets baked in. Run <code>build_site.py --assets-dir …</code>.</p>';return; }
+  g.innerHTML=D.assets.map(a=>'<figure><img loading="lazy" src="assets/'+a+'" alt="'+a+'"><figcaption>'+a+'</figcaption></figure>').join(''); })();
+
+// ---- performance ----
+(function perf(){ const el=document.getElementById('perf'); const L=D.ledger;
+  if(!L||!L.posts||!L.posts.length){ el.innerHTML='<div class="card"><h3>Performance</h3><p class="muted">No ledger data baked into this build (built with --no-ledger, or the ledger is empty). Record posts and rebuild.</p></div>'; return; }
+  const pct=n=>(n*100).toFixed(1)+'%', fmt=n=>n.toLocaleString();
+  el.innerHTML='<div class="kpis">'+
+    '<div class="kpi"><div class="n">'+L.posts.length+'</div><div class="l">posts</div></div>'+
+    '<div class="kpi"><div class="n">'+fmt(L.totals.impressions)+'</div><div class="l">impressions</div></div>'+
+    '<div class="kpi"><div class="n">'+pct(L.totals.avg_er)+'</div><div class="l">avg engagement</div></div>'+
+    '<div class="kpi"><div class="n">'+L.totals.fy.toFixed(1)+'</div><div class="l">avg follows / 1k</div></div></div>'+
+    '<div class="card"><h3>Avg engagement by hook</h3><canvas id="ch_h"></canvas></div>'+
+    '<div class="card"><h3>By topic</h3><canvas id="ch_t"></canvas></div>'+
+    '<div class="card"><h3>By platform</h3><canvas id="ch_p"></canvas></div>'+
+    '<div class="card"><h3>Posts</h3><table id="ptbl"><thead><tr><th data-k="post_id">post</th><th data-k="platform">platform</th>'+
+    '<th data-k="hook">hook</th><th data-k="topic">topic</th><th class="n" data-k="impressions">impr.</th>'+
+    '<th class="n" data-k="er">eng.</th><th class="n" data-k="fy">f/1k</th></tr></thead><tbody></tbody></table></div>';
+  function bar(id,rows){ if(!window.Chart)return; new Chart(document.getElementById(id),{type:'bar',
+    data:{labels:rows.map(r=>r.key),datasets:[{data:rows.map(r=>+(r.er*100).toFixed(1)),backgroundColor:'#d4a853',borderRadius:5}]},
+    options:{plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#969eb2'},grid:{display:false}},
+      y:{ticks:{color:'#969eb2',callback:v=>v+'%'},grid:{color:'rgba(255,255,255,.08)'}}}}}); }
+  bar('ch_h',L.by_hook); bar('ch_t',L.by_topic); bar('ch_p',L.by_platform);
+  const tb=document.querySelector('#ptbl tbody'); let dir=-1,last='er';
+  const render=k=>{ L.posts.sort((a,b)=>{const x=a[k],y=b[k];return (typeof x==='number'?x-y:(''+x).localeCompare(y))*dir;});
+    tb.innerHTML=L.posts.map(p=>'<tr><td>'+p.post_id+'</td><td>'+p.platform+'</td><td>'+(p.hook||'')+'</td><td>'+(p.topic||'')+
+      '</td><td class=n>'+fmt(p.impressions)+'</td><td class=n>'+pct(p.er)+'</td><td class=n>'+p.fy.toFixed(1)+'</td></tr>').join(''); };
+  document.querySelectorAll('#ptbl th').forEach(th=>th.onclick=()=>{const k=th.dataset.k;dir=(k===last)?-dir:-1;last=k;render(k);});
+  render('er');
+})();
+</script>
+</body></html>

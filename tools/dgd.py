@@ -10,6 +10,8 @@ A thin router so the agent (and you) drive every stage from a single command:
   dgd publish  …    -> Stage-6 publish package + gate               (dgd_publish.py)
   dgd perf     …    -> performance ledger: record / sync / report / show / dashboard
   dgd dashboard …   -> shortcut for `perf dashboard`
+  dgd site      …   -> build the deployable static control-panel site  (build_site.py)
+  dgd serve     …   -> run the LOCAL control-panel server (runs the tools)  (dgd_web.py)
   dgd doctor        -> health check: tools present, rails passing, deps, Postiz status
   dgd help          -> this overview
 
@@ -87,6 +89,10 @@ def main(argv):
         return doctor()
     if cmd == "dashboard":
         return run("dgd_performance.py", ["dashboard", *rest])
+    if cmd == "site":
+        return run("build_site.py", rest)
+    if cmd == "serve":
+        return run("dgd_web.py", rest)
     if cmd in ROUTES:
         return run(ROUTES[cmd], rest)
     sys.stderr.write(f"unknown command '{cmd}'. Try: dgd help\n")
