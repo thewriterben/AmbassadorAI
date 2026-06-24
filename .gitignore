@@ -2,3 +2,4 @@ __pycache__/
 .dgd_web_work/
 site/
 *.pyc
+raw/

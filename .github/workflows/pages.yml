@@ -27,6 +27,8 @@ jobs:
       - name: Build static site (public build omits the performance ledger)
         run: python3 tools/build_site.py --out site --no-ledger
       - uses: actions/configure-pages@v4
+        with:
+          enablement: true
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site
