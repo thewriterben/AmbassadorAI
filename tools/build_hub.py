@@ -26,6 +26,13 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import compliance_lint as CL  # noqa: E402
 
 SECTIONS = [
+    ("How it works", [
+        ("start/how-it-works.md", "How it all works \u2014 start here"),
+        ("start/your-first-video.md", "Make your first video"),
+        ("start/using-the-generator.md", "Using the idea generator"),
+        ("start/what-the-rules-mean.md", "The rules, in plain English"),
+        ("start/disclosures-explained.md", "Disclosures, explained"),
+    ]),
     ("Start here", [
         ("dgd/dgd-overview.md", "What is Digital Gold?"),
         ("dgd/participation-pathways.md", "Ways to take part"),
@@ -318,7 +325,7 @@ def build(out_dir):
         <a href="#communications-discipline">the communications discipline</a>.</div>
       <div class="cards">
         <a class="hcard" href="#generate"><b>⚡ Generate an idea</b><span>Topic, hook, format, prompts — one click.</span></a>
-        <a class="hcard" href="#dgd-overview"><b>New here?</b><span>What Digital Gold is, in plain terms.</span></a>
+        <a class="hcard" href="#how-it-works"><b>New here? Start here</b><span>How it all works, in 5 steps.</span></a>
         <a class="hcard" href="#approved-talking-points"><b>What can I say?</b><span>Approved, safe talking points.</span></a>
         <a class="hcard" href="#hooks-library"><b>Stop the scroll</b><span>Hooks that work, compliantly.</span></a>
         <a class="hcard" href="#do-and-dont-language"><b>Do / Don’t</b><span>The phrase cheat-sheet.</span></a>
