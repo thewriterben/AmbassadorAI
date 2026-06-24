@@ -76,10 +76,11 @@ installed — registering them there is what turns them into a reusable `/comman
 3. **Ask what's available:** "what skills do I have?" lists them.
 
 ### 2.3 Scheduled skills
-Claude can run a skill-like task on a schedule. You already have three:
-`dgd-daily-content-drop` (6 AM daily), `dgd-weekly-verification` (Mon), and
-`dgd-ai-video-trend-radar` (Fri 7 AM). Manage them with "list my scheduled tasks" or
-"change my daily drop to 7am."
+Claude can run a skill-like task on a schedule. You already have four:
+`dgd-daily-content-drop` (6 AM daily), `dgd-weekly-verification` (Mon),
+`dgd-ai-video-trend-radar` (Fri 7 AM), and `dgd-weekly-performance-report` (Mon 8 AM —
+regenerates the performance report and messages the leading hook/topic/platform).
+Manage them with "list my scheduled tasks" or "change my daily drop to 7am."
 
 ### 2.4 Good habits
 - Keep the **canonical copy** of every skill in `AmbassadorAI\skills\` (your source of truth).

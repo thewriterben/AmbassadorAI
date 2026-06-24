@@ -8,6 +8,7 @@ Auto-generated every morning at 6:00 AM by the [content engine](../templates/con
 Newest first. The daily task prepends each new entry below.
 
 <!-- DROP-LINKS -->
+- [2026-06-24](2026-06-24.md) — TikTok-audio-SEO trend, ByteDance Seedance 2.0 spotlight, Fed-hold/inflation-target angle, 3 idea sets (rate hold, 21M cap, anti-degen), price-prediction rail reminder.
 - [2026-06-23](2026-06-23.md) — "show the payoff first" hook trend, Kling AI 3.0 (1080p no-watermark) spotlight, "cooled to 4.2%" CPI angle, 3 idea sets, FTC double-disclosure reminder.
 - [2026-06-19](2026-06-19.md) — "authentic explainer beats hard sell" trend, Luma Dream Machine spotlight, money-supply/QE debasement angle, 3 idea sets, rewrite-reflex reminder.
 - [2026-06-18](2026-06-18.md) — longer-video distribution bonus, Choppity captions spotlight, "shrinking ruler" CPI angle, 3 idea sets, captions-are-on-screen-text reminder.

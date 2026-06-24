@@ -15,7 +15,8 @@ Skim the newest report → pick a trend with a DGD topic tie-in → take it into
 [workflow](../tools/workflows.md) → finish at the [pre-publish checklist](../templates/pre-publish-checklist.md).
 
 Related: [daily content drops](../daily/index.md) (lighter, daily) ·
-[weekly verification](../maintenance/index.md) (tool/policy fact-checks).
+[weekly verification](../maintenance/index.md) (tool/policy fact-checks) ·
+[performance reports](performance/index.md) (what your own posts are actually doing).
 
 ## Latest reports
 Newest first. The trend-radar task prepends each new entry below.

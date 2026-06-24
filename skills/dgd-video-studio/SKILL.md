@@ -73,6 +73,8 @@ For the latest tool/trend state, check the freshest files in `LLMWiki/trends/`,
 `LLMWiki/daily/`, and `LLMWiki/maintenance/` before relying on memory — free tiers and
 platform rules change monthly.
 
+The runnable toolchain lives in `tools/`, driven by one entry point: `python3 tools/dgd.py <assets|lint|evals|publish|perf|dashboard|doctor>`. Run `tools/dgd.py doctor` to confirm everything is wired before a session.
+
 ---
 
 ## 2. The walkthrough — your default operating loop
@@ -100,18 +102,26 @@ facts. Always name a primary pick **and** a backup, with the free-tier caveat.
 [On-screen text] | [Suggested visual]` — using the compliance-locked prompts in
 `prompts/script-prompts.md`. Keep it to one idea, conversational, jargon defined.
 
-**Stage 5 — Visual & voice prompts.** Produce copy-paste prompts for their chosen tools
-from `prompts/image-and-video-prompts.md` and `prompts/voiceover-prompts.md`. Keep visuals
-**abstract/illustrative** (gold, eroding cash, supply-chain flow, network) — never
-realistic fake people/events. Hold the gold + navy editorial style.
+**Stage 5 — Visual & voice prompts (and assets).** You can now **produce assets here**,
+not just prompts. Offer both paths: (a) generate the title card, thumbnail, abstract
+b-roll motifs, and the disclosure overlay **immediately** with `tools/dgd_assets.py`
+(see `reference/asset-generation.md`) — instant, on-brand, text always crisp, compliance
+rail built in; and/or (b) emit copy-paste prompts from `prompts/image-and-video-prompts.md`
+and `prompts/voiceover-prompts.md` for **photoreal** b-roll (Veo/Kling/Pika) the tool can't
+draw. Keep visuals **abstract/illustrative** (gold, eroding cash, supply-chain flow,
+network) — never realistic fake people/events. Hold the gold + navy editorial style.
 
 **Stage 6 — Assembly & disclosure.** Walk the edit/caption/music steps from the chosen
 `tools/workflows.md` pipeline. Specify the **two separate labels** when applicable:
 sponsorship (FTC) **and** AI-generated — both on-screen in the first 3–5s, not buried.
+Generate the reusable `disclosure`/`lower` overlay PNGs with `tools/dgd_assets.py`. If you built the asset set with `kit`, drop the numbered files straight onto the CapCut template using the **kit-filename -> timeline map** in `reference/asset-generation.md` (`01` cover, `03`/`04` disclosure overlays in the first 3-5s, `05-10` motif b-roll). When the cut is done, build the **publish package** with `tools/dgd_publish.py` (see `reference/publishing.md`): it tailors a compliant caption per platform, front-loads FTC + AI + not-financial-advice disclosure, **lint-gates every caption fail-closed**, and emits a Postiz `--json` campaign + a runnable `publish.sh` to schedule X / TikTok / Reels / Shorts. It never posts by itself — review `captions.txt`, then run the script with `POSTIZ_API_KEY` set.
 
-**Stage 7 — Compliance gate (mandatory, never skip).** Run the produced content against
+**Stage 7 — Compliance gate (mandatory, never skip).** First run the **automated linter**
+on every text surface — `python3 tools/compliance_lint.py <file> --require-disclosure`
+(exit 2 = FAIL, fix and re-run). Then run the produced content against
 `reference/compliance-gate.md` and `templates/pre-publish-checklist.md`. If any compliance
 box fails, **do not green-light** — fix and re-run. End by handing the user the checklist.
+(The linter is the mechanical floor; the human checks are the ceiling.)
 
 You may enter the loop at any stage (e.g., "just give me a script") — but if you produce
 any publishable content, you **must** finish with Stage 7.
@@ -139,11 +149,13 @@ Be a creative partner: series planning (`templates/content-calendar-and-series.m
 positioning for an audience (`craft/positioning-and-audiences.md`), fixing a weak hook,
 diagnosing a retention drop-off, repurposing one script across four platforms, thumbnail/
 first-frame advice. Always tie suggestions back to a wiki page so the user can go deeper.
+**When performance data exists, ground these in it:** run `tools/dgd_performance.py report` and read the newest `trends/performance/PERF-*.md` to recommend the hook/topic/platform that's actually winning (by engagement + follows/1k), not a guess.
 
 ### D. Learn the latest AI video trends, themes & styles
 The dedicated **scheduled trend radar** writes compliance-filtered reports into
 `LLMWiki/trends/` (newest first in `trends/index.md`). To answer a trend question:
-1. Read the newest `trends/*.md` and the latest `daily/*.md` first.
+1. Read the newest `trends/*.md`, the latest `daily/*.md`, and the newest
+   `trends/performance/PERF-*.md` (what your *own* posts are actually doing) first.
 2. If they're stale or the user wants live intel, run a few `WebSearch` queries (see
    `reference/trend-application.md` for what to search and how).
 3. **Filter every trend through the prime directive** before recommending it — translate
@@ -174,6 +186,7 @@ Before showing the user any script, caption, hook, or prompt, confirm:
 - [ ] FTC + AI disclosure needs are flagged where relevant.
 - [ ] Visuals are abstract/illustrative — no realistic fake people or events.
 - [ ] You ended any publishable deliverable by pointing to the pre-publish checklist.
+- [ ] You ran `tools/compliance_lint.py` over every text surface and it returned no FAIL.
 
 When in doubt, frame as *"here's how the system is designed to work"* — never *"here's how
 you'll profit."*
@@ -187,5 +200,5 @@ you'll profit."*
 - Prompts: `prompts/script-prompts.md` · `prompts/image-and-video-prompts.md` · `prompts/voiceover-prompts.md`
 - Craft: `craft/viral-principles.md` · `craft/hooks-library.md` · `craft/positioning-and-audiences.md`
 - Templates: `templates/video-brief-template.md` · `templates/pre-publish-checklist.md`
-- Trends: `trends/index.md` (scheduled radar) · `daily/index.md` (daily drops)
-- Helper logic in this skill: `reference/tool-matcher.md` · `reference/compliance-gate.md` · `reference/trend-application.md`
+- Trends: `trends/index.md` (scheduled radar) · `daily/index.md` (daily drops) · `trends/performance/index.md` (post-performance evidence)
+- Helper logic in this skill: `reference/tool-matcher.md` · `reference/compliance-gate.md` · `reference/trend-application.md` · `reference/asset-generation.md` · `reference/publishing.md`

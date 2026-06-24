@@ -15,6 +15,34 @@ This README is written for Claude users and explains how to install, run, and ex
 
 ---
 
+## The toolchain — one command
+
+The agent's stages are backed by runnable tools in `tools/`, all driven from a single
+entry point, `tools/dgd.py`:
+
+```bash
+python3 tools/dgd.py doctor                      # health check (tools, rails, deps)
+python3 tools/dgd.py assets kit --headline "…" --outdir raw/ep1   # Stage 5 assets
+python3 tools/dgd.py lint script.md --require-disclosure          # Stage 7 linter
+python3 tools/dgd.py evals                        # red-team rails regression (21 cases)
+python3 tools/dgd.py publish --caption "…" --media v.mp4 --schedule … --outdir raw/ep1/publish
+python3 tools/dgd.py perf sync --dir raw/ep1/publish              # auto-record metrics
+python3 tools/dgd.py perf report                                  # evidence report
+python3 tools/dgd.py dashboard --out dashboard.html               # visual ledger
+```
+
+| Tool | Stage | What it does |
+|---|---|---|
+| `dgd_assets.py` | 5 | Renders on-brand title cards, thumbnails, disclosure overlays, abstract b-roll motifs; `kit` builds a whole set + contact sheet. |
+| `compliance_lint.py` | 7 | Deterministic, fail-closed scan for banned investment/price/return/solicitation framing. |
+| `run_compliance_evals.py` | 7 | 21-case red-team suite proving the rails hold (also runs in CI). |
+| `dgd_publish.py` | 6 | Tailors compliant per-platform captions, gates each, emits a Postiz `--json` campaign + `publish.sh`. |
+| `dgd_performance.py` | C/D | Records post metrics to a ledger, writes evidence reports + an HTML dashboard. |
+| `dgd.py` | — | Umbrella router + `doctor` health check. |
+
+Every text-bearing tool enforces the same communications discipline; nothing publishable
+escapes the compliance gate.
+
 ## What this repository contains
 
 Top-level structure (important files and directories):

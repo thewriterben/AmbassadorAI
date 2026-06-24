@@ -5,6 +5,25 @@ and hashtag set **before** green-lighting. It is a fast pre-filter; the authorit
 fuller list is `../../LLMWiki/templates/pre-publish-checklist.md`, and the rules behind it
 are `../../LLMWiki/compliance/communications-discipline.md` and `do-and-dont-language.md`.
 
+## 0. Run the automated linter first (mechanical pre-filter)
+
+Before the human checks below, run every text surface through the deterministic linter
+— it encodes Section A as code so a banned word can't slip through reviewer fatigue:
+
+```bash
+python3 tools/compliance_lint.py path/to/script.md --require-disclosure
+# or pipe a caption/hook:  echo "$CAPTION" | python3 tools/compliance_lint.py -
+```
+
+Exit **2 = FAIL** (banned investment/price/return/solicitation/"safe"-drift framing) —
+do not green-light; apply the printed rewrite and re-run. Exit **1 = WARN** (degen-
+contrast lingo, bare dollar figures, missing "not financial advice") — a human must
+confirm each. Exit **0 = clean**. The linter is necessary but not sufficient; still run
+the structural and disclosure checks below. Rules live in
+`../../LLMWiki/compliance/do-and-dont-language.md`; the regression guard is
+`tools/run_compliance_evals.py` (21 red-team cases — run it whenever the rules, the
+linter, or the runtime model change).
+
 ## A. Banned-word / banned-framing scan (auto-fail any hit)
 
 Scan ALL text surfaces (spoken, on-screen, caption, hashtags, title, thumbnail) for:

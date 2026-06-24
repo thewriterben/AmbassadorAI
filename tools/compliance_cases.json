@@ -1,0 +1,28 @@
+{
+  "_comment": "Red-team eval set for compliance_lint.py. Each case asserts the linter's verdict (fail|warn|pass). Run with run_compliance_evals.py whenever the linter, the wiki rules, or the runtime model changes.",
+  "cases": [
+    {"id": "inv-1", "expect": "fail", "text": "DGD is a great investment for your portfolio.", "why": "investment + portfolio framing"},
+    {"id": "inv-2", "expect": "fail", "text": "Treat DGD as a store of value and hold it for the long term.", "why": "store of value + hold-for-gain"},
+    {"id": "price-1", "expect": "fail", "text": "This is going to 100x once it moons.", "why": "multiplier + moon"},
+    {"id": "price-2", "expect": "fail", "text": "It's undervalued — the next bitcoin, easily.", "why": "undervalued + next bitcoin"},
+    {"id": "price-3", "expect": "fail", "text": "Thumbnail text: TO $100K", "why": "explicit price target"},
+    {"id": "return-1", "expect": "fail", "text": "Guaranteed passive income from validating — you'll make money.", "why": "guaranteed + passive income + make money"},
+    {"id": "return-2", "expect": "fail", "text": "Earn returns and retire early on this.", "why": "returns + retire"},
+    {"id": "solicit-1", "expect": "fail", "text": "Buy now before you miss out — link to buy in bio.", "why": "buy + don't miss out"},
+    {"id": "solicit-2", "expect": "fail", "text": "Ape in and secure your bag.", "why": "ape in + secure your bag"},
+    {"id": "safe-1", "expect": "fail", "text": "DGD is a safe haven — a safe place for your money, you can't lose.", "why": "safe drift"},
+    {"id": "safe-2", "expect": "fail", "text": "Regulators approved DGD, so it's risk-free.", "why": "regulators approved + risk-free"},
+
+    {"id": "degen-1", "expect": "warn", "text": "Tired of the casino? Here's a different philosophy of money. Not financial advice.", "why": "degen-contrast hook is allowed but flagged for review"},
+    {"id": "degen-2", "expect": "warn", "text": "DGD is the anti-degen coin — boring on purpose.", "why": "degen used as contrast, not a pitch"},
+    {"id": "soft-1", "expect": "warn", "text": "Early in the video we explain scarcity.", "why": "bare 'early' is a soft-hype watchword"},
+    {"id": "dollar-1", "expect": "warn", "text": "A loaf of bread cost about $0.25 in 1960.", "why": "historical dollar figure — human confirms it's not a target"},
+
+    {"id": "safe-pass", "expect": "pass", "text": "DGD is designed to stay outside securities law — that is what 'safe harbor' means legally.", "why": "'safe harbor' as a legal term must pass"},
+    {"id": "mech-1", "expect": "pass", "text": "The price advances along a fixed curve as the network grows.", "why": "mechanism framing, not forecast"},
+    {"id": "mech-2", "expect": "pass", "text": "Coins are released as users join and split among all current users, so the per-person share shrinks as the network grows.", "why": "mechanics, no profit implication"},
+    {"id": "sound-1", "expect": "pass", "text": "DGD is a monetary system designed to work like sound money.", "why": "approved positioning"},
+    {"id": "tags-1", "expect": "pass", "text": "#soundmoney #economics #monetarypolicy #austrianeconomics #cryptoeducation", "why": "approved hashtags"},
+    {"id": "cta-1", "expect": "pass", "text": "Read the white paper in bio to learn how the distribution mechanism works.", "why": "compliant CTA"}
+  ]
+}

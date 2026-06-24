@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DGD Performance Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+  :root{ --navy:#10172a; --char:#0a0c12; --gold:#d4a853; --goldhi:#f0d082;
+         --white:#f4f4f0; --mute:#969eb2; }
+  *{box-sizing:border-box} body{margin:0;background:linear-gradient(180deg,var(--navy),var(--char));
+    color:var(--white);font-family:'Segoe UI',system-ui,Arial,sans-serif;padding:28px;min-height:100vh}
+  h1{font-family:Georgia,'Times New Roman',serif;color:var(--white);margin:0 0 2px;font-size:30px}
+  .sub{color:var(--gold);font-weight:600;letter-spacing:.04em;font-size:13px;text-transform:uppercase}
+  .kpis{display:flex;gap:16px;flex-wrap:wrap;margin:22px 0}
+  .kpi{background:rgba(255,255,255,.04);border:1px solid rgba(212,168,83,.25);border-radius:14px;
+       padding:16px 22px;min-width:150px}
+  .kpi .n{font-size:30px;font-weight:700;color:var(--goldhi)} .kpi .l{color:var(--mute);font-size:12px;margin-top:4px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px;margin-bottom:18px}
+  .card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:16px}
+  .card h3{margin:0 0 10px;font-size:14px;color:var(--gold);font-weight:600}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{padding:8px 10px;text-align:left;border-bottom:1px solid rgba(255,255,255,.07)}
+  th{color:var(--mute);font-weight:600;cursor:pointer;user-select:none} td.n,th.n{text-align:right}
+  tr:hover td{background:rgba(212,168,83,.06)}
+  .foot{color:var(--mute);font-size:12px;margin-top:22px;border-top:1px solid rgba(255,255,255,.08);padding-top:12px}
+  .empty{color:var(--mute);padding:40px;text-align:center}
+</style></head>
+<body>
+  <div class="sub">Digital Gold · Educational</div>
+  <h1>Performance Dashboard</h1>
+  <div id="gen" class="sub" style="color:var(--mute);font-weight:400"></div>
+  <div id="app"></div>
+  <div class="foot">Engagement is a craft signal for choosing hooks and topics —
+    kept educational, never promotional. Source: local post ledger.</div>
+<script>
+const DATA = {"generated": "2026-06-24", "totals": {"impressions": 152000, "avg_er": 0.07116881934095048, "fy": 10.498799470110946}, "by_hook": [{"key": "List Tease", "posts": 1, "impressions": 48000, "er": 0.0825, "fy": 11.25}, {"key": "Contrarian Claim", "posts": 2, "impressions": 73000, "er": 0.0794877049180328, "fy": 11.960382513661202}, {"key": "Mistake Warning", "posts": 1, "impressions": 22000, "er": 0.0715909090909091, "fy": 9.545454545454547}, {"key": "Question Hook", "posts": 1, "impressions": 9000, "er": 0.042777777777777776, "fy": 7.777777777777778}], "by_topic": [{"key": "scarcity", "posts": 1, "impressions": 48000, "er": 0.0825, "fy": 11.25}, {"key": "inflation", "posts": 2, "impressions": 73000, "er": 0.0794877049180328, "fy": 11.960382513661202}, {"key": "debasement", "posts": 1, "impressions": 22000, "er": 0.0715909090909091, "fy": 9.545454545454547}, {"key": "decentralization", "posts": 1, "impressions": 9000, "er": 0.042777777777777776, "fy": 7.777777777777778}], "by_platform": [{"key": "tiktok", "posts": 2, "impressions": 109000, "er": 0.09198770491803279, "fy": 13.00204918032787}, {"key": "instagram", "posts": 1, "impressions": 22000, "er": 0.0715909090909091, "fy": 9.545454545454547}, {"key": "x", "posts": 1, "impressions": 12000, "er": 0.0575, "fy": 9.166666666666666}, {"key": "youtube", "posts": 1, "impressions": 9000, "er": 0.042777777777777776, "fy": 7.777777777777778}], "posts": [{"post_id": "x_001", "platform": "x", "hook": "Contrarian Claim", "topic": "inflation", "impressions": 12000, "er": 0.0575, "fy": 9.2}, {"post_id": "tt_002", "platform": "tiktok", "hook": "List Tease", "topic": "scarcity", "impressions": 48000, "er": 0.0825, "fy": 11.2}, {"post_id": "ig_003", "platform": "instagram", "hook": "Mistake Warning", "topic": "debasement", "impressions": 22000, "er": 0.0716, "fy": 9.5}, {"post_id": "yt_004", "platform": "youtube", "hook": "Question Hook", "topic": "decentralization", "impressions": 9000, "er": 0.0428, "fy": 7.8}, {"post_id": "tt_005", "platform": "tiktok", "hook": "Contrarian Claim", "topic": "inflation", "impressions": 61000, "er": 0.1015, "fy": 14.8}]};
+const fmt = n => n.toLocaleString();
+const pct = n => (n*100).toFixed(1)+'%';
+document.getElementById('gen').textContent = 'Generated ' + DATA.generated + ' · ' + DATA.posts.length + ' posts';
+const app = document.getElementById('app');
+if(!DATA.posts.length){ app.innerHTML='<div class="empty">Ledger is empty. Record posts, then rebuild.</div>'; }
+else{
+  app.innerHTML = `
+    <div class="kpis">
+      <div class="kpi"><div class="n">${DATA.posts.length}</div><div class="l">posts</div></div>
+      <div class="kpi"><div class="n">${fmt(DATA.totals.impressions)}</div><div class="l">impressions</div></div>
+      <div class="kpi"><div class="n">${pct(DATA.totals.avg_er)}</div><div class="l">avg engagement</div></div>
+      <div class="kpi"><div class="n">${DATA.totals.fy.toFixed(1)}</div><div class="l">avg follows / 1k</div></div>
+    </div>
+    <div class="grid">
+      <div class="card"><h3>Avg engagement by hook</h3><canvas id="c_hook"></canvas></div>
+      <div class="card"><h3>Avg engagement by topic</h3><canvas id="c_topic"></canvas></div>
+      <div class="card"><h3>Avg engagement by platform</h3><canvas id="c_plat"></canvas></div>
+    </div>
+    <div class="card"><h3>Posts (click a header to sort)</h3>
+      <table id="tbl"><thead><tr>
+        <th data-k="post_id">post</th><th data-k="platform">platform</th>
+        <th data-k="hook">hook</th><th data-k="topic">topic</th>
+        <th class="n" data-k="impressions">impressions</th>
+        <th class="n" data-k="er">engagement</th><th class="n" data-k="fy">follows/1k</th>
+      </tr></thead><tbody></tbody></table></div>`;
+  const GOLD='#d4a853', GRID='rgba(255,255,255,.08)';
+  const bar = (id,rows)=> new Chart(document.getElementById(id),{type:'bar',
+    data:{labels:rows.map(r=>r.key),datasets:[{data:rows.map(r=>+(r.er*100).toFixed(1)),
+      backgroundColor:GOLD,borderRadius:5}]},
+    options:{plugins:{legend:{display:false}},scales:{
+      x:{ticks:{color:'#969eb2'},grid:{display:false}},
+      y:{ticks:{color:'#969eb2',callback:v=>v+'%'},grid:{color:GRID}}}}});
+  bar('c_hook',DATA.by_hook); bar('c_topic',DATA.by_topic); bar('c_plat',DATA.by_platform);
+  const tb=document.querySelector('#tbl tbody'); let dir=1,last='er';
+  const render=k=>{ DATA.posts.sort((a,b)=>{const x=a[k],y=b[k];
+      return (typeof x==='number'? x-y : (''+x).localeCompare(y))*dir;});
+    tb.innerHTML=DATA.posts.map(p=>`<tr><td>${p.post_id}</td><td>${p.platform}</td>
+      <td>${p.hook||''}</td><td>${p.topic||''}</td><td class="n">${fmt(p.impressions)}</td>
+      <td class="n">${pct(p.er)}</td><td class="n">${p.fy.toFixed(1)}</td></tr>`).join(''); };
+  document.querySelectorAll('#tbl th').forEach(th=>th.onclick=()=>{const k=th.dataset.k;
+    dir = (k===last)? -dir : 1; last=k; render(k);});
+  render('er');
+}
+</script></body></html>

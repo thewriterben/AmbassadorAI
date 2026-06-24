@@ -49,3 +49,5 @@ Append-only. Format: `## [YYYY-MM-DD] <type> | <summary>`. Newest at bottom. Qui
 - Re-verified free-tier tools and platform policies; ~8 facts changed, all toward stricter disclosure / tighter free tiers. Biggest: **Veo free export now carries a visible "Made with Veo" watermark** (use Google Vids for clean export); **TikTok & YouTube now auto-detect and auto-label AI content**. Updated 4 tool pages + 2 compliance pages; full report in `maintenance/2026-06-23-verification.md`.
 
 ## [2026-06-23] agent | Built DGD Video Studio skill (../skills/dgd-video-studio/) — end-to-end video walkthrough agent; added trends/ folder + dgd-ai-video-trend-radar scheduled task (Fri 7AM); registered both in index.md.
+
+## [2026-06-24] daily | content drop generated
