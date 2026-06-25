@@ -3,3 +3,5 @@ __pycache__/
 site/
 *.pyc
 raw/
+example-output/hub-preview/
+.pytest_cache/

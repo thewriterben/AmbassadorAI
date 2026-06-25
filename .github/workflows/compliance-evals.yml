@@ -16,6 +16,11 @@ jobs:
         with:
           python-version: "3.x"
 
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+
       - name: Run DGD compliance eval suite (red-team rails guard)
-        run: |
-          python3 tools/run_compliance_evals.py --verbose
+        run: python3 tools/run_compliance_evals.py --verbose
+
+      - name: Run unit tests
+        run: pytest -q

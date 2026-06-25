@@ -22,6 +22,8 @@ entry point, `tools/dgd.py`:
 
 **First-time setup:** `pip install -r requirements.txt` (Pillow for asset rendering, markdown for the public hub). Everything else is Python stdlib — the AI, linter, publish, performance, and server tools need no install.
 
+**Run the tests:** `pip install -r requirements-dev.txt` then `pytest -q` (regression tests for the linter, publish/caption logic, performance math, the AI compliance gate, and assets).
+
 ```bash
 python3 tools/dgd.py doctor                      # health check (tools, rails, deps)
 python3 tools/dgd.py assets kit --headline "…" --outdir raw/ep1   # Stage 5 assets
