@@ -1,8 +1,7 @@
-name: Deploy DGD control-panel site
+name: Deploy DGD Ambassador Hub
 on:
   push:
     branches: [ main ]
-    paths: [ "tools/**", "example-output/asset-pack/**", ".github/workflows/pages.yml" ]
   workflow_dispatch:
 permissions:
   contents: read
