@@ -28,6 +28,7 @@ import compliance_lint as CL  # noqa: E402
 SECTIONS = [
     ("How it works", [
         ("start/how-it-works.md", "How it all works \u2014 start here"),
+        ("start/the-wizard.md", "The video wizard (what you get)"),
         ("start/the-pathway.md", "The complete pathway (every step)"),
         ("start/your-first-video.md", "Make your first video (quick)"),
         ("start/using-the-generator.md", "Using the idea generator"),
@@ -495,6 +496,7 @@ function copy(text){ navigator.clipboard.writeText(text).then(()=>{ const el=doc
 function genIdea(){ const t=pick(GEN.topics),h=pick(GEN.hooks),a=pick(GEN.audiences),f=pick(GEN.formats),p=pick(GEN.platforms);
   const hook=fillHook(h.tpl,t);
   window._idea=`Topic: ${t.name}\nAngle: ${t.angle}\nHook (${h.name}): ${hook}\nAudience: ${a}\nFormat: ${f}\nPlatform: ${p}\nB-roll motif: ${t.motif}\n\nKeep it educational — mechanism, not forecast. End with a soft "follow / read the white paper."`;
+  window._ideaObj={topic:t,hook:hook,audience:a,format:f};
   document.getElementById('ideaOut').innerHTML=
     `<div class="kv"><b>Topic</b><span>${t.name}</span></div>
      <div class="kv"><b>Angle</b><span>${t.angle}</span></div>
@@ -503,7 +505,7 @@ function genIdea(){ const t=pick(GEN.topics),h=pick(GEN.hooks),a=pick(GEN.audien
      <div class="kv"><b>Format</b><span>${f}</span></div>
      <div class="kv"><b>Platform</b><span>${p}</span></div>
      <div class="kv"><b>B-roll motif</b><span>${t.motif}</span></div>
-     <button class="copy" onclick="copy(window._idea)">Copy brief</button>`;
+     <button class="copy" onclick="copy(window._idea)">Copy brief</button> <button class="copy" onclick="sendToWizard()">Use in wizard \u2192</button>`;
 }
 function genHooks(){ const t=pick(GEN.topics);
   const items=GEN.hooks.map(h=>({n:h.name,txt:fillHook(h.tpl,t)}));
@@ -542,7 +544,11 @@ const VIS={network:'abstract glowing network, no center',scarcity:'a gold coin w
 const W={step:0,topic:null,takeaway:'',audience:GEN.audiences[0],format:GEN.formats[0],platforms:['tiktok','x'],hook:'',gap:'',payoff:'',loop:'Follow to learn how sound money works.',voice:'real',sponsored:false};
 const STEPS=['Welcome','Idea','Your point','Audience','Hook','Script','Voice','Disclosures','Visuals','Your plan'];
 
-function wizInit(){ wizRender(); }
+function wizSave(){ try{ localStorage.setItem("dgdwiz", JSON.stringify(W)); }catch(e){} }
+function wizLoad(){ try{ const r=localStorage.getItem("dgdwiz"); if(r){ Object.assign(W, JSON.parse(r)); } }catch(e){} }
+function wizReset(){ try{ localStorage.removeItem("dgdwiz"); }catch(e){} W.step=0;W.topic=null;W.takeaway="";W.platforms=["tiktok","x"];W.hook="";W.gap="";W.payoff="";W.loop="Follow to learn how sound money works.";W.voice="real";W.sponsored=false; wizRender(); }
+function sendToWizard(){ const o=window._ideaObj; if(!o) return; W.topic=o.topic; W.hook=o.hook; if(GEN.audiences.indexOf(o.audience)>=0)W.audience=o.audience; if(GEN.formats.indexOf(o.format)>=0)W.format=o.format; W.step=2; wizSave(); wizRender(); location.hash="#wizard"; }
+function wizInit(){ wizLoad(); wizRender(); }
 function wizGo(d){ if(d>0 && !wizValidate()) return; W.step=Math.max(0,Math.min(STEPS.length-1,W.step+d)); wizRender(); window.scrollTo(0,0); }
 function wizValidate(){ const s=W.step, e=document.getElementById('wizErr');
   function err(m){ if(e){e.textContent=m;e.style.display='block';} return false; }
@@ -562,7 +568,7 @@ function wizFoot(nextLabel){ return '<div id="wizErr" class="wizerr"></div><div 
 function wizTopicSel(v){ if(v==='') W.topic=null;
   else if(v==='custom'){ const c=document.getElementById('wCustom'); const name=(c&&c.value)||'Your topic'; W.topic={custom:true,name:name,short:name,angle:'',motif:'network'}; }
   else { W.topic=GEN.topics[+v]; } wizRender(); }
-function wizCustom(v){ W.topic={custom:true,name:v||'Your topic',short:v||'your topic',angle:'',motif:'network'}; }
+function wizCustom(v){ W.topic={custom:true,name:v||'Your topic',short:v||'your topic',angle:'',motif:'network'}; wizSave(); }
 function wizSurprise(){ W.topic=pick(GEN.topics); wizRender(); }
 function wizPlat(el){ const k=el.value; if(el.checked){ if(!W.platforms.includes(k)) W.platforms.push(k); } else { W.platforms=W.platforms.filter(x=>x!==k); } }
 function wizHookCheck(){ const el=document.getElementById('wHookV'); if(!el) return; const r=lint(W.hook);
@@ -626,7 +632,7 @@ function wizRender(){ const t=W.topic; let h='';
   } else if(W.step===2){
     h=wizBar()+'<h1>What is the one thing they will get?</h1><p style="color:var(--mute)">Finish this sentence - it keeps your video focused.</p>'+
       '<label>After 60 seconds, the viewer will understand...</label>'+
-      '<textarea oninput="W.takeaway=this.value" placeholder="'+att((t&&t.angle)||'how the system is designed to work')+'">'+esc(W.takeaway)+'</textarea>'+
+      '<textarea oninput="W.takeaway=this.value;wizSave()" placeholder="'+att((t&&t.angle)||'how the system is designed to work')+'">'+esc(W.takeaway)+'</textarea>'+
       '<p style="color:var(--mute);font-size:13px">This becomes the heart of your script and caption.</p>'+wizFoot();
   } else if(W.step===3){
     h=wizBar()+'<h1>Who is it for, and where?</h1>'+
@@ -637,15 +643,15 @@ function wizRender(){ const t=W.topic; let h='';
     const base=t||GEN.topics[0]; const opts=GEN.hooks.map(hk=>fillHook(hk.tpl,base));
     const isCustom=opts.indexOf(W.hook)<0 && W.hook;
     h=wizBar()+'<h1>Grab them in 3 seconds</h1><p style="color:var(--mute)">Pick a hook or write your own - we check it against the rules.</p>'+
-      opts.map(x=>'<label class="wradio"><input type="radio" name="whook" value="'+att(x)+'" '+(W.hook===x?'checked':'')+' onchange="W.hook=this.value;wizHookCheck()"> '+esc(x)+'</label>').join('')+
-      '<label>...or write your own</label><input type="text" value="'+(isCustom?att(W.hook):'')+'" oninput="W.hook=this.value;wizHookCheck()" placeholder="Your opening line">'+
+      opts.map(x=>'<label class="wradio"><input type="radio" name="whook" value="'+att(x)+'" '+(W.hook===x?'checked':'')+' onchange="W.hook=this.value;wizHookCheck();wizSave()"> '+esc(x)+'</label>').join('')+
+      '<label>...or write your own</label><input type="text" value="'+(isCustom?att(W.hook):'')+'" oninput="W.hook=this.value;wizHookCheck();wizSave()" placeholder="Your opening line">'+
       '<div id="wHookV" style="margin-top:8px;font-size:13px"></div>'+wizFoot();
   } else if(W.step===5){
     h=wizBar()+'<h1>Write the script</h1><p style="color:var(--mute)">Keep it about 60 seconds, one idea, plain words. We check it live.</p>'+
       '<div class="wnote"><b>Hook (0-3s):</b> '+esc(W.hook||'(set a hook in the previous step)')+'</div>'+
-      '<label>The gap (the question or misconception)</label><textarea oninput="W.gap=this.value;wizScriptCheck()" placeholder="Here is what most people get wrong...">'+esc(W.gap)+'</textarea>'+
-      '<label>The payoff (explain the mechanism - how the system is designed)</label><textarea oninput="W.payoff=this.value;wizScriptCheck()" placeholder="When more money is created than goods...">'+esc(W.payoff)+'</textarea>'+
-      '<label>The loop (your closing line + a soft call to follow)</label><textarea oninput="W.loop=this.value;wizScriptCheck()">'+esc(W.loop)+'</textarea>'+
+      '<label>The gap (the question or misconception)</label><textarea oninput="W.gap=this.value;wizScriptCheck();wizSave()" placeholder="Here is what most people get wrong...">'+esc(W.gap)+'</textarea>'+
+      '<label>The payoff (explain the mechanism - how the system is designed)</label><textarea oninput="W.payoff=this.value;wizScriptCheck();wizSave()" placeholder="When more money is created than goods...">'+esc(W.payoff)+'</textarea>'+
+      '<label>The loop (your closing line + a soft call to follow)</label><textarea oninput="W.loop=this.value;wizScriptCheck();wizSave()">'+esc(W.loop)+'</textarea>'+
       '<div id="wScriptV" style="margin:8px 0;font-size:13px"></div>'+
       '<button class="wbtn ghost" onclick="wizCopyScriptPrompt()">Copy an AI script prompt</button> <span style="color:var(--mute);font-size:13px">paste into any AI chat to draft faster</span>'+wizFoot();
   } else if(W.step===6){
@@ -666,11 +672,11 @@ function wizRender(){ const t=W.topic; let h='';
     const out=buildPlan(); window._wizPlan=out.md;
     h=wizBar()+'<h1>Your video plan '+wbadge(out.verdict)+'</h1>'+
       (out.verdict==='fail'?'<div class="wnote" style="border-color:var(--fail)">Some wording breaks the rules ('+out.failTerms.join(', ')+'). Go Back and rephrase before posting.</div>':'<p style="color:var(--mute)">Everything below is yours. Copy or download it, then follow the steps at the bottom to film and post.</p>')+
-      '<div style="margin:6px 0 4px"><button class="wbtn" onclick="copy(window._wizPlan)">Copy plan</button> <button class="wbtn ghost" onclick="wizDownload()">Download .md</button> <button class="wbtn ghost" onclick="W.step=0;wizRender()">Start over</button></div>'+
+      '<div style="margin:6px 0 4px"><button class="wbtn" onclick="copy(window._wizPlan)">Copy plan</button> <button class="wbtn ghost" onclick="wizDownload()">Download .md</button> <button class="wbtn ghost" onclick="wizReset()">Start over</button></div>'+
       out.html+
       '<div class="wizfoot"><button class="wbtn ghost" onclick="wizGo(-1)">&larr; Back</button><span></span></div>';
   }
-  const app=document.getElementById('wizApp'); if(app) app.innerHTML=h;
+  const app=document.getElementById('wizApp'); if(app) app.innerHTML=h; wizSave();
 }
 wizInit();
 
