@@ -1,6 +1,6 @@
 ---
 tags: [compliance, platforms, tos]
-updated: 2026-06-23
+updated: 2026-06-29
 verified: 2026-06
 ---
 
@@ -59,6 +59,8 @@ What each platform allows and forbids around **crypto/financial content**, **bra
 ## X (Twitter)
 
 **Crypto/financial:** Native crypto audience; educational content thrives. The Foundation's own channel is **@DigitalGoldTalk**. **2026 update — "Smart Cashtags" have now launched:** a `$TICKER` in your post can render **live price charts and direct links to outside exchanges/brokerages** right in the timeline. (X states it is *not* a broker and doesn't execute trades itself.) This makes price-talk discipline **more** important, not less — your educational post may appear directly beside live price data and a trade button, so never pair it with anything that reads as a buy signal, price prediction, or return promise.
+
+**2026 update — X reversed its crypto-promotion ban, which RAISES the stakes for us (not lowers them):** In **March 2026 X lifted its 2024 ban** and now permits **paid crypto promotional content under its Paid Partnership framework** — but only where local law allows. **Crypto promotion is still banned outright in the EU, UK, and Australia.** This changes nothing about how DGD ambassadors operate: the Foundation's [communications discipline](communications-discipline.md) forbids promotional / investment framing **everywhere**, and in the EU/UK/AU paid crypto promotion is prohibited by the platform regardless of how it's framed. The only lane that is safe in **every** region is still **education, not promotion**. Use the Paid Partnership label to disclose your material connection — never as a license to promote DGD as something to buy or profit from. If you (or your audience) are in the EU/UK/AU, treat anything that looks like crypto *promotion* as off-limits, full stop.
 
 **Branded content:** X has added **paid partnership labels** — use them.
 

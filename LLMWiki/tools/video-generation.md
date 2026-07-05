@@ -1,6 +1,6 @@
 ---
 tags: [tools, video-generation, ai-video]
-updated: 2026-06-23
+updated: 2026-06-29
 verified: 2026-06
 ---
 
@@ -15,14 +15,14 @@ Generate b-roll, scenes, and motion from text or images. **Realistic AI video mu
 | **Google Veo (via Gemini app / Google Flow / Google Vids)** | Current model **Veo 3.1**; ~50 daily credits in Flow (≈10–12 clips/day on Veo 3.1 Lite); 720p; 8-sec clips | **Yes in Google Flow now** — visible "Made with Veo" on free *and* Pro tiers (removed only on Ultra). **Google Vids exports are watermark-free.** | Yes (native) | Top quality. **Changed Jun 2026:** free Flow exports are no longer watermark-free — route through **Google Vids** for a clean export, or crop/cover. All Veo output also carries invisible SynthID. |
 | **Kling AI** (klingai.com) | ~66 daily credits (3–5 clips), reset 24h | Yes on free | Some models | Very powerful; generous daily refresh |
 | **Hailuo AI** (MiniMax) | Daily free credits (~2–3 clips/day, 768p) | Yes on free | Some | Fast generations |
-| **Pika** (pika.art) | Free starter credits | No watermark on free | — | Good for stylized motion; **free plan runs the older Pika 1.x model** (latest requires paid) |
-| **Pixverse** | ~90 credits/day | No watermark on free | — | Refreshes daily; one of the few clean free exports |
+| **Pika** (pika.art) | ~80 credits/mo, 480p | **Yes on free now** (small semi-transparent Pika logo — *changed 2026*) | — | Good for stylized motion; **free plan runs the older Pika model, caps at 480p, and now watermarks** (clean export requires paid) |
+| **Pixverse** | ~90 starter + ~60 daily credits | **Yes on free now** (corner watermark + lower res — *changed 2026*) | — | Refreshes daily, but free exports are **no longer watermark-free** |
 | **Vheer / Wan Video** | Unlimited image→video, no sign-up | Varies | — | Fastest free entry; quality varies |
 | **Runway** (free tier) | Limited credits | Yes on free | — | Strong editor features |
 
 ## Picking a tool
 - **Have a Google account and want top quality?** Use **Veo 3.1**, but be aware the **free Google Flow export now carries a visible "Made with Veo" watermark.** Generate via **Google Vids** for a watermark-free export, or crop/cover the mark before cross-posting.
-- **Want watermark-free stylized clips with no fuss?** **Pika** or **Pixverse** still export clean on free.
+- **Want a watermark-free export?** This is now **rare on free tiers** — **Pika and Pixverse both started watermarking free exports in 2026** (they used to be clean). Your cleanest free routes are now **Google Vids** (for Veo output) and **Vheer / Wan** (quality varies); otherwise plan to **crop or cover** the mark before cross-posting, or upgrade.
 - **Need volume / daily output?** **Kling** or **Hailuo** daily credits (mind the watermark — crop or cover, or upgrade).
 - **Just need quick image-to-motion b-roll?** **Vheer / Wan**.
 

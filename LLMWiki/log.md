@@ -52,3 +52,21 @@ Append-only. Format: `## [YYYY-MM-DD] <type> | <summary>`. Newest at bottom. Qui
 
 ## [2026-06-24] daily | content drop generated
 ## [2026-06-25] daily | content drop generated
+## [2026-06-29] daily | content drop generated
+
+## [2026-06-29] trend-radar | AI video trend report generated
+
+## [2026-06-29] verify | weekly tool & policy check
+- Re-verified free-tier tools and platform policies; 2 facts changed. Biggest: **X reversed its 2024 crypto-promotion ban (March 2026)** — paid crypto promo now allowed under Paid Partnership in most regions but **banned in EU/UK/AU**; strengthened the X policy page (DGD discipline unchanged: education, not promotion). Also: **Pika & Pixverse now watermark free exports** (clean free AI-video routes narrowed to Google Vids + Vheer/Wan). Updated 1 tool page + 1 compliance page; full report in `maintenance/2026-06-29-verification.md`.
+
+## [2026-06-30] daily | content drop generated
+
+## [2026-07-01] daily | content drop generated
+
+## [2026-07-02] daily | content drop generated
+
+## [2026-07-03] daily | content drop generated
+
+## [2026-07-03] trend-radar | AI video trend report generated
+## [2026-07-04] daily | content drop generated
+## [2026-07-05] daily | content drop generated
