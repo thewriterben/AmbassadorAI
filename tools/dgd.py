@@ -13,6 +13,7 @@ A thin router so the agent (and you) drive every stage from a single command:
   dgd site      …   -> build the public Ambassador Resource Hub (static)  (build_hub.py)
   dgd serve     …   -> run the LOCAL control-panel server (runs the tools)  (dgd_web.py)
   dgd ai        …   -> true AI generation (script/ideas/hooks/caption), gated  (dgd_ai.py)
+  dgd character …   -> character assist: suggest/show/list/gate/new/lock/prompt (dgd_characters.py)
   dgd doctor        -> health check: tools present, rails passing, deps, Postiz status
   dgd help          -> this overview
 
@@ -34,6 +35,7 @@ ROUTES = {
     "publish":   "dgd_publish.py",
     "perf":      "dgd_performance.py",
     "ai":        "dgd_ai.py",
+    "character": "dgd_characters.py",
 }
 
 
@@ -53,7 +55,7 @@ def doctor():
 
     print("DGD toolchain doctor\n--------------------")
     print("tools present:")
-    for s in set(ROUTES.values()) | {"dgd_performance.py"}:
+    for s in set(ROUTES.values()) | {"dgd_performance.py", "characters.json"}:
         check(s, os.path.exists(os.path.join(HERE, s)))
 
     print("dependencies:")

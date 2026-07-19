@@ -58,7 +58,7 @@ compliant version instead.** Never just comply quietly.
 
 ## 1. Orient yourself (do this at the start of every session)
 
-The wiki lives at `F:\Documents\AmbassadorAI\LLMWiki`. Always ground answers in it.
+The wiki lives at `LLMWiki/` in this repo. Always ground answers in it.
 
 Read, in this order, as needed for the task:
 1. `LLMWiki/CLAUDE.md` — how the wiki is structured and maintained.
@@ -69,11 +69,34 @@ Read, in this order, as needed for the task:
 DGD facts come **only** from `Knowledge Base/Digital Gold White Paper.pdf` (cite as
 `WP §X`). **Never invent figures.** If you're unsure of a number, say so and point to the WP.
 
+Coin imagery comes **only** from `Knowledge Base/Coin Ref/` — never from a generator.
+See `reference/coin-assets.md` before producing any visual with the coin in it.
+
 For the latest tool/trend state, check the freshest files in `LLMWiki/trends/`,
 `LLMWiki/daily/`, and `LLMWiki/maintenance/` before relying on memory — free tiers and
 platform rules change monthly.
 
-The runnable toolchain lives in `tools/`, driven by one entry point: `python3 tools/dgd.py <assets|lint|evals|publish|perf|dashboard|doctor>`. Run `tools/dgd.py doctor` to confirm everything is wired before a session.
+The runnable toolchain lives in `tools/`, driven by **one entry point** — always call it
+through the router, never the sub-scripts directly:
+
+```
+python tools/dgd.py <command> [args]     # use python3 on macOS/Linux
+```
+
+| Command | Does |
+|---|---|
+| `assets` | brand assets: `title` · `thumb` · `motif` · `disclosure` · `lower` · `coin` · `kit` |
+| `ai` | LLM-drafted script / ideas / hooks / caption, gated fail-closed by the linter |
+| `character` | cast a host/figure: `suggest` · `show` · `list` · `gate` · `new` · `lock` · `prompt` |
+| `lint` | compliance linter — the Stage 7 mechanical floor |
+| `evals` | red-team rails regression suite |
+| `publish` | Stage 6 publish package + caption gate |
+| `perf` / `dashboard` | performance ledger: `record` · `sync` · `report` · `show` · `dashboard` |
+| `site` | build the public Ambassador Resource Hub (static) |
+| `serve` | run the LOCAL control-panel server |
+| `doctor` | health check — tools, deps, rails, Postiz + LLM key status |
+
+Run `python tools/dgd.py doctor` to confirm everything is wired before a session.
 
 ---
 
@@ -88,6 +111,25 @@ seven at once; move one stage at a time, confirm, then proceed. Offer to **fill 
 ready angle from `LLMWiki/trends/` (newest first), `dgd/six-pillars.md`, or
 `templates/series-ideas.md`. Lock **one idea per video**.
 
+**Stage 1b — Cast (optional, but decide before scripting).** If the video wants a host or
+a figure, run `python tools/dgd.py character suggest --subject "<topic>" --audience <who>
+--intent <explain|myth-bust|contrast>`. Two rules:
+
+- **Original characters are the default.** No trademark exposure, full brand control,
+  easier to keep consistent. `character new` builds the sheet.
+- **"Public domain" is not a green light.** Copyright expiry does not touch trademark;
+  most PD characters are free only in one *specific early version* (Pooh's red shirt is
+  Disney's; Dorothy's slippers are silver, not ruby); and some are territory-locked in
+  ways global short-form can't respect (Tintin is US-only, EU-copyrighted until 2054).
+  `character gate` is **fail-closed** — it blocks on jurisdiction, version, trap phrases in
+  your actual text, and any endorsement framing. Handy coincidence: the safest characters
+  (fables, myths) are also the best-fitting — Tortoise/Hare for anti-speculation, Midas for
+  gold-you-can't-spend, Sisyphus for the debasement treadmill. See `reference/characters.md`.
+
+Once cast, **lock the character** (`character lock`) and paste the canonical block from
+`character prompt` **verbatim** into every generation, with its seed. That verbatim reuse
+is what keeps them identical across videos; `prompt` refuses to emit a drifted sheet.
+
 **Stage 2 — Hook & structure.** Give 3–5 scroll-stopping, compliance-safe hooks from
 `craft/hooks-library.md` (favor Contrarian Claim, Mistake Warning, List Tease — see
 `craft/viral-principles.md`). Pick a skeleton from `craft/story-structures.md`
@@ -98,30 +140,86 @@ ready angle from `LLMWiki/trends/` (newest first), `dgd/six-pillars.md`, or
 `reference/tool-matcher.md` for the decision logic and `tools/` for current free-tier
 facts. Always name a primary pick **and** a backup, with the free-tier caveat.
 
-**Stage 4 — Script.** Generate the script as a 4-column table — `[Time] | [Spoken] |
-[On-screen text] | [Suggested visual]` — using the compliance-locked prompts in
-`prompts/script-prompts.md`. Keep it to one idea, conversational, jargon defined.
+**Stage 4 — Script.** Deliver a 4-column table — `[Time] | [Spoken] | [On-screen text] |
+[Suggested visual]`. One idea, conversational, jargon defined. Two ways to get there:
 
-**Stage 5 — Visual & voice prompts (and assets).** You can now **produce assets here**,
-not just prompts. Offer both paths: (a) generate the title card, thumbnail, abstract
-b-roll motifs, and the disclosure overlay **immediately** with `tools/dgd_assets.py`
-(see `reference/asset-generation.md`) — instant, on-brand, text always crisp, compliance
-rail built in; and/or (b) emit copy-paste prompts from `prompts/image-and-video-prompts.md`
-and `prompts/voiceover-prompts.md` for **photoreal** b-roll (Veo/Kling/Pika) the tool can't
-draw. Keep visuals **abstract/illustrative** (gold, eroding cash, supply-chain flow,
-network) — never realistic fake people/events. Hold the gold + navy editorial style.
+- **Write it yourself** using the compliance-locked prompts in `prompts/script-prompts.md`
+  (paste the master guardrail block verbatim), then run prompt #7 — the fact-check pass —
+  over the draft before showing it.
+- **Draft with the gated generator** — `python tools/dgd.py ai script --brief "<topic>"
+  --audience "<who>"`. It calls a real LLM behind the same deterministic linter,
+  **fail-closed with one automatic retry** that feeds violations back to the model. Also
+  takes `ideas`, `hooks`, and `caption`. Exit 2 means it still failed the rails after the
+  retry — treat that as a hard stop, not a suggestion. Needs `ANTHROPIC_API_KEY` (preferred)
+  or `OPENAI_API_KEY`; `dgd.py doctor` reports whether a key is present.
+
+The generator drafts; **the rails decide.** A clean exit is not a compliance sign-off —
+Stage 7 still applies to anything it produces.
+
+**Stage 5 — Visual & voice prompts (and assets).** You can **produce assets here**, not
+just prompts. Offer both paths:
+
+- **Generate now** — `python tools/dgd.py assets kit --headline "<hook>" --outdir raw/ep1`
+  builds the title card, thumbnail, motif b-roll, and disclosure overlay in one shot:
+  on-brand, text always crisp, compliance rail built in. Single pieces via `title`,
+  `thumb`, `motif`, `disclosure`, `lower`. See `reference/asset-generation.md`.
+- **Emit prompts** — copy-paste blocks from `prompts/image-and-video-prompts.md` and
+  `prompts/voiceover-prompts.md` for **photoreal** b-roll (Veo/Kling/Pika) the renderer
+  can't draw.
+
+Keep visuals **abstract/illustrative** (gold, eroding cash, supply-chain flow, network) —
+never realistic fake people or events. Hold the gold + navy editorial style.
+
+**The coin is never generated — it is composited.** Generators invent a different coin
+every time, and an inconsistent coin reads as a fake project. Prompt the *scene* empty
+("no coin, empty hand"), then run:
+
+```
+python tools/dgd.py assets coin --preset hand --onto scene.png --out shot.png
+```
+
+Presets `hand` (45.8% of frame width, true to life) · `hero` · `accent` · `macro`; or
+`--ppmm` / `--mm` for physical accuracy; or `--diameter` to size it **freely** for hero and
+monumental work where real-world scale is beside the point. Physical accuracy is a *mode*,
+not a constraint — what never varies is the coin's **identity**. `kit` emits `00_coin.png`.
+
+**Moving coins come from the same asset** —
+`dgd.py assets coin-motion --mode flip|spin|tumble|wobble|orbit --outdir raw/spin`.
+All five loop seamlessly and drive the rim from the real 2.41/34.1mm ratio (7.07% of
+diameter), which is what makes a turning coin read as a coin and not a flat disc. Outputs
+PNG frames plus optional `--webp` (alpha) / `--gif`; `--no-plate` for transparent frames.
+
+Full spec, face anatomy, palette, motion modes, and the coin compliance rail (**single
+coin — never stacks, price charts, or rocket/casino motifs**) are in
+`reference/coin-assets.md`.
 
 **Stage 6 — Assembly & disclosure.** Walk the edit/caption/music steps from the chosen
-`tools/workflows.md` pipeline. Specify the **two separate labels** when applicable:
-sponsorship (FTC) **and** AI-generated — both on-screen in the first 3–5s, not buried.
-Generate the reusable `disclosure`/`lower` overlay PNGs with `tools/dgd_assets.py`. If you built the asset set with `kit`, drop the numbered files straight onto the CapCut template using the **kit-filename -> timeline map** in `reference/asset-generation.md` (`01` cover, `03`/`04` disclosure overlays in the first 3-5s, `05-10` motif b-roll). When the cut is done, build the **publish package** with `tools/dgd_publish.py` (see `reference/publishing.md`): it tailors a compliant caption per platform, front-loads FTC + AI + not-financial-advice disclosure, **lint-gates every caption fail-closed**, and emits a Postiz `--json` campaign + a runnable `publish.sh` to schedule X / TikTok / Reels / Shorts. It never posts by itself — review `captions.txt`, then run the script with `POSTIZ_API_KEY` set.
+`tools/workflows.md` pipeline, then:
 
-**Stage 7 — Compliance gate (mandatory, never skip).** First run the **automated linter**
-on every text surface — `python3 tools/compliance_lint.py <file> --require-disclosure`
-(exit 2 = FAIL, fix and re-run). Then run the produced content against
-`reference/compliance-gate.md` and `templates/pre-publish-checklist.md`. If any compliance
-box fails, **do not green-light** — fix and re-run. End by handing the user the checklist.
-(The linter is the mechanical floor; the human checks are the ceiling.)
+1. **Label twice, up front.** Sponsorship (FTC) **and** AI-generated are *separate*
+   disclosures — both on-screen in the first 3–5s, not buried in the caption.
+2. **Drop the kit onto the timeline.** If you built assets with `kit`, use the
+   kit-filename → timeline map in `reference/asset-generation.md`: `01` cover,
+   `03`/`04` disclosure overlays in the first 3–5s, `05`–`10` motif b-roll.
+3. **Build the publish package** — `python tools/dgd.py publish …`
+   (see `reference/publishing.md`). It tailors a caption per platform, front-loads
+   FTC + AI + not-financial-advice disclosure, **lint-gates every caption fail-closed**,
+   and emits a Postiz `--json` campaign plus a runnable `publish.sh` for
+   X / TikTok / Reels / Shorts.
+4. **It never posts by itself.** Review `captions.txt`, then run the script with
+   `POSTIZ_API_KEY` set.
+
+**Stage 7 — Compliance gate (mandatory, never skip).**
+
+1. **Linter first**, on every text surface —
+   `python tools/dgd.py lint <file> --require-disclosure`. Exit 2 = FAIL: fix and re-run.
+2. **Then the human checks** — `reference/compliance-gate.md` and
+   `templates/pre-publish-checklist.md`.
+3. If any box fails, **do not green-light.** Fix and re-run from step 1.
+4. End by handing the user the checklist.
+
+The linter is the mechanical floor; the human checks are the ceiling. Passing the linter
+alone is **not** a green light.
 
 You may enter the loop at any stage (e.g., "just give me a script") — but if you produce
 any publishable content, you **must** finish with Stage 7.
@@ -149,7 +247,9 @@ Be a creative partner: series planning (`templates/content-calendar-and-series.m
 positioning for an audience (`craft/positioning-and-audiences.md`), fixing a weak hook,
 diagnosing a retention drop-off, repurposing one script across four platforms, thumbnail/
 first-frame advice. Always tie suggestions back to a wiki page so the user can go deeper.
-**When performance data exists, ground these in it:** run `tools/dgd_performance.py report` and read the newest `trends/performance/PERF-*.md` to recommend the hook/topic/platform that's actually winning (by engagement + follows/1k), not a guess.
+**When performance data exists, ground these in it:** run `python tools/dgd.py perf report`
+and read the newest `trends/performance/PERF-*.md` to recommend the hook/topic/platform
+that's actually winning (by engagement + follows/1k), not a guess.
 
 ### D. Learn the latest AI video trends, themes & styles
 The dedicated **scheduled trend radar** writes compliance-filtered reports into
@@ -185,8 +285,14 @@ Before showing the user any script, caption, hook, or prompt, confirm:
 - [ ] Every DGD number is traceable to the WP; nothing invented.
 - [ ] FTC + AI disclosure needs are flagged where relevant.
 - [ ] Visuals are abstract/illustrative — no realistic fake people or events.
+- [ ] Any character used is **gated clear** (`character gate` exit 0) and its sheet is
+      **locked**, not drifted — and it explains rather than recommends.
+- [ ] Any DGD coin on screen is the **composited reference asset**, not a generated one —
+      correct size, circular (not stretched), and a **single** coin: no stacks, piles,
+      price charts, or rocket/casino motifs.
 - [ ] You ended any publishable deliverable by pointing to the pre-publish checklist.
-- [ ] You ran `tools/compliance_lint.py` over every text surface and it returned no FAIL.
+- [ ] You ran `dgd.py lint` over every text surface and it returned no FAIL.
+- [ ] Anything drafted by `dgd.py ai` still went through the full Stage 7 gate.
 
 When in doubt, frame as *"here's how the system is designed to work"* — never *"here's how
 you'll profit."*
@@ -201,4 +307,6 @@ you'll profit."*
 - Craft: `craft/viral-principles.md` · `craft/hooks-library.md` · `craft/positioning-and-audiences.md`
 - Templates: `templates/video-brief-template.md` · `templates/pre-publish-checklist.md`
 - Trends: `trends/index.md` (scheduled radar) · `daily/index.md` (daily drops) · `trends/performance/index.md` (post-performance evidence)
+- Coin: `reference/coin-assets.md` · source files in `Knowledge Base/Coin Ref/`
+- Characters: `reference/characters.md` · registry `tools/characters.json`
 - Helper logic in this skill: `reference/tool-matcher.md` · `reference/compliance-gate.md` · `reference/trend-application.md` · `reference/asset-generation.md` · `reference/publishing.md` · `reference/web-dashboard.md`

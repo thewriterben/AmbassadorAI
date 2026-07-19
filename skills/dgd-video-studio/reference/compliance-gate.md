@@ -11,8 +11,8 @@ Before the human checks below, run every text surface through the deterministic 
 — it encodes Section A as code so a banned word can't slip through reviewer fatigue:
 
 ```bash
-python3 tools/compliance_lint.py path/to/script.md --require-disclosure
-# or pipe a caption/hook:  echo "$CAPTION" | python3 tools/compliance_lint.py -
+python tools/dgd.py lint path/to/script.md --require-disclosure
+# or pipe a caption/hook:  echo "$CAPTION" | python tools/dgd.py lint -
 ```
 
 Exit **2 = FAIL** (banned investment/price/return/solicitation/"safe"-drift framing) —

@@ -31,7 +31,7 @@ to schedule for real the moment `POSTIZ_API_KEY` is set.
 ## Run it
 
 ```bash
-python3 tools/dgd_publish.py \
+python tools/dgd.py publish \
   --caption "Money loses value quietly. Here's the mechanism, in 60s." \
   --title "Why money loses value - sound money explained in 60s" \
   --media raw/ep1/video.mp4 --thumb raw/ep1/02_thumb.png \
@@ -55,7 +55,7 @@ used — abstract motif b-roll from `dgd_assets.py` does **not** by itself requi
   identical rules, so a post can't go out with framing a script would have been stopped for.
 - **Performance loop (auto).** Pass `--hook/--topic/--pillar/--format` to `dgd_publish.py`
   and it writes `post_meta.json`; the generated `publish.sh` logs each returned post-id to
-  `published.tsv`. Then `python3 tools/dgd_performance.py sync --dir <publishdir>` pulls
+  `published.tsv`. Then `python tools/dgd.py perf sync --dir <publishdir>` pulls
   `postiz analytics:post` for every post and records it to the ledger with the right hook/
   topic attached — no manual entry. `report` turns the ledger into evidence in
   `../../LLMWiki/trends/performance/` that Jobs C & D read to pick winning hooks/topics.
