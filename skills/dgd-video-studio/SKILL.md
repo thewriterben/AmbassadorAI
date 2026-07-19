@@ -1,5 +1,13 @@
 ---
 name: dgd-video-studio
+version: 1.1.0
+tags:
+  - video
+  - short-form
+  - ai-video
+  - digital-gold
+  - compliance
+  - ambassador
 description: >-
   Advanced end-to-end agent that walks a Digital Gold (DGD) ambassador through
   creating an educational short-form video with free AI tools — from idea and
