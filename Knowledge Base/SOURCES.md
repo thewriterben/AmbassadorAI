@@ -16,19 +16,26 @@ superseded 1,000-level model; this one describes the continuous model the site a
 | Pages | 58 | 58 |
 | Latest date in the **body** | March 17, 2026 | March 17, 2026 |
 | Creation **metadata** | 2026-06-16 (Pages / macOS Quartz) | not obtained |
+| Provenance | current | **digitalgoldx.com-era, pre-.co migration** |
 
-**Which one is chronologically newer is NOT established.** Both bodies terminate at the same event
-(the 17 March 2026 SEC/CFTC Joint Interpretive Release), both are 58 pages, and no creation
-metadata was ever retrieved for the site's copy. Do not repeat the claim that one is "newer" —
-an earlier version of this note asserted it by comparing this copy's *file metadata* against the
-site copy's *body content*, which is not a like-for-like comparison.
+**Provenance — confirmed 2026-07-19.** The site's copy is a **`digitalgoldx.com`-era document**
+that survived the domain migration. The 1,000-level structure and the $40 minimum match the
+specification as published on digitalgoldx.com *before* the digitalgold.co launch; the old site is
+gone and the domain now redirects to .co. The file was carried across to the new host and never
+refreshed.
+
+*(An earlier version of this note claimed the site's copy was "older" on the basis of comparing
+this copy's file metadata against the site copy's body content — not a like-for-like comparison,
+and unsupported at the time. The conclusion happened to be right; the reasoning was not. It is now
+established on provenance, not on dates.)*
 
 **What IS established** is which copy matches shipped behaviour:
 
 1. The live site describes the **continuous** model — "continuous-N model", each signup advances
    the curve and triggers a distribution. That is this folder's copy, not the site's PDF.
-2. The levels system was **eliminated** in favour of per-validation distribution (per the project).
-   Continuous is therefore the current direction, and the levels paper the superseded one.
+2. Observed live on 2026-07-19: the account count advanced 3,210 -> 3,211 and the price moved
+   $9.84630 -> $9.84909 within one session. **A single account moved the price** — the continuous
+   mechanic executing. The 1,000-level model cannot produce that.
 3. This copy's figures reconcile with the site's live numbers: 11,712,952 of per-signup releases +
    the 2,000,000 staking lock = the 13,712,952 shown as "Community Distribution & Staked Treasury",
    and 5,000,000 + 2,287,048 = the 7,287,048 initial circulating supply.

@@ -76,10 +76,10 @@ Read, in this order, as needed for the task:
 
 DGD facts come **only** from `Knowledge Base/Digital Gold White Paper.pdf` (cite as
 `WP §X`). **Never invent figures.** If you're unsure of a number, say so and point to the WP.
-Read `Knowledge Base/SOURCES.md` first — the PDF published on digitalgold.co describes the
-**superseded 1,000-level model**, while the repo's copy describes the **continuous** model the site
-actually runs. Which document is chronologically newer is not established; go by the model, not by
-dates or filenames.
+Read `Knowledge Base/SOURCES.md` first — the PDF published on digitalgold.co is a
+**pre-migration (digitalgoldx.com-era) document** describing the superseded 1,000-level model. The
+repo's copy describes the **continuous** model the site actually runs. Go by the model, not by
+filenames.
 
 **Live product facts** (current price, account count, the $20–$500 validation range, what's shipped
 vs. "coming") come from **digitalgold.co**, not the WP — see `LLMWiki/dgd/platform-and-tools.md`.

@@ -27,11 +27,14 @@ repo's copy describes the **continuous** model the site actually runs, and recon
 site's live figures. Recorded in `Knowledge Base/SOURCES.md` so nobody "updates" the repo by
 overwriting it with the site's version.
 
-**Correction:** this was first written as "the site's PDF is older." That is not established —
-both bodies end at the same date (17 March 2026), both are 58 pages, and no creation metadata was
-retrieved for the site's copy. The original claim compared the repo copy's *file metadata* to the
-site copy's *body content*. The distinction that holds is **which model is shipped**, not which
-document is newer.
+**Provenance, confirmed:** the site's PDF is a **digitalgoldx.com-era document** that survived
+the domain migration — the 1,000-level structure and $40 minimum match the pre-.co specification,
+and digitalgoldx.com now redirects to digitalgold.co. Reported to the web team; see
+`REPORT-2026-07-19-whitepaper-discrepancy.md`.
+
+*(This was first written as "the site's PDF is older" on the basis of comparing the repo copy's
+file metadata against the site copy's body content — not a like-for-like comparison, and
+unsupported at the time. Right conclusion, wrong reasoning; it now rests on provenance.)*
 
 The repo's WP still says "all current users" and describes funded-account gating only as a
 hypothetical (§5.6). The wiki follows the **site** for shipped behaviour. Flagged as the first
