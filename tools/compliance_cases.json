@@ -106,8 +106,8 @@
     {
       "id": "mech-2",
       "expect": "pass",
-      "text": "Coins are released as users join and split among all current users, so the per-person share shrinks as the network grows.",
-      "why": "mechanics, no profit implication"
+      "text": "Coins are released as accounts join and split equally across funded accounts, so the per-account share shrinks as the network grows.",
+      "why": "mechanics, current model (funded accounts), no profit implication"
     },
     {
       "id": "sound-1",
@@ -138,6 +138,60 @@
       "expect": "fail",
       "text": "Buy DGD now before you miss out.",
       "why": "real solicitation still FAILs"
+    },
+    {
+      "id": "mlm-1",
+      "expect": "fail",
+      "text": "Build your team and earn from your downline as they validate.",
+      "why": "downline + team-building"
+    },
+    {
+      "id": "mlm-2",
+      "expect": "fail",
+      "text": "DGD uses a multi-level structure to reward promoters.",
+      "why": "multi-level framing"
+    },
+    {
+      "id": "mlm-3",
+      "expect": "fail",
+      "text": "You earn DGD for every signup you bring in.",
+      "why": "per-recruit earnings"
+    },
+    {
+      "id": "mlm-4",
+      "expect": "fail",
+      "text": "Reach a higher tier to unlock a bigger share of each release.",
+      "why": "tiers do not exist"
+    },
+    {
+      "id": "mlm-5",
+      "expect": "fail",
+      "text": "Enjoy residual income from commissions on your network.",
+      "why": "residuals/commissions"
+    },
+    {
+      "id": "dist-1",
+      "expect": "fail",
+      "text": "Each release is split among all current users of the network.",
+      "why": "stale model - funded accounts only"
+    },
+    {
+      "id": "dist-2",
+      "expect": "fail",
+      "text": "A bigger balance gets you a larger share of every release.",
+      "why": "false - balance lasts longer, not larger"
+    },
+    {
+      "id": "dist-3",
+      "expect": "pass",
+      "text": "Releases are split equally across accounts holding an active validation balance, and unclaimed shares return to the treasury. Not financial advice.",
+      "why": "accurate current model"
+    },
+    {
+      "id": "dist-4",
+      "expect": "pass",
+      "text": "Inviting someone is single-level and one-time; it never changes the amount anyone receives from a release. Not financial advice.",
+      "why": "accurate referral description"
     }
   ]
 }

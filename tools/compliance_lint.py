@@ -58,7 +58,8 @@ RULES = [
     ("price_prediction", "FAIL", r"\bundervalued\b",
      "Avoid valuation-as-bargain framing; cite the WP valuation method instead."),
     # ---- FAIL: return / profit promise --------------------------------------
-    ("return_promise", "FAIL", r"\breturns?\b|\bROI\b|\bprofit(?:s|able)?\b|\bgains?\b",
+    ("return_promise", "FAIL",
+     r"\breturns?\b(?!\s+to\s+(?:the\s+)?(?:treasury|foundation))|\bROI\b|\bprofit(?:s|able)?\b|\bgains?\b",
      "No returns/profit/gains. 'No one earns income from operating the network — fees are burned by design.'"),
     ("return_promise", "FAIL", r"\bpassive income\b|\bmake money\b|\bmade \$?\d",
      "No income claims; explain validation/mechanics, not earnings."),
@@ -85,7 +86,37 @@ RULES = [
      "Safe harbor is about regulation, not your wallet."),
     ("safe_drift", "FAIL", r"\bregulators? approved\b",
      "It's 'designed to align' with the framework — a reasoned position, not an approval (WP §12.16)."),
+    # ---- FAIL: MLM / recruiting framing -------------------------------------
+    # The live model is pay-in (USDC/USDT) -> receive coins on each release, and
+    # referrals are single-level with a one-time bonus. That combination makes
+    # network-marketing language both INACCURATE and legally dangerous: it invites
+    # exactly the reading the Foundation's structure is built to avoid.
+    ("mlm_framing", "FAIL", r"\bdown[- ]?line\b|\bup[- ]?line\b|\bmatrix\b",
+     "There are no downlines. Inviting is single-level with a one-time bonus (WP §10.1)."),
+    ("mlm_framing", "FAIL", r"\bmulti[- ]?level\b|\bMLM\b|\bnetwork marketing\b",
+     "DGD is not multi-level. Say: 'inviting is single-level and doesn't change what anyone earns.'"),
+    ("mlm_framing", "FAIL", r"\b(?:build|grow|your)\s+(?:your\s+)?team\b|\bget people under you\b",
+     "Recruiting-for-income framing. The referral bonus never changes release amounts."),
+    ("mlm_framing", "FAIL", r"\bresidual income\b|\boverride(?:s)?\b|\bcommission(?:s)?\b",
+     "No residuals, overrides or commissions exist in the model."),
+    ("mlm_framing", "FAIL", r"\b(?:tier|rank|level)\s+(?:up|bonus|system)\b|\bhigher tier\b",
+     "There are no tiers, ranks or levels — the distribution curve is continuous (WP §5.1)."),
+    ("mlm_framing", "FAIL",
+     r"\bearn\b[^.]{0,40}\b(?:per|every|each)\s+(?:signup|sign-up|referral|person|recruit)\b",
+     "Per-recruit earnings framing. Releases go to funded accounts equally, not per referral."),
+    # ---- FAIL: misstating who receives a release ----------------------------
+    ("distribution_error", "FAIL",
+     r"\bsplit\b[^.]{0,30}\ball\s+(?:current\s+)?(?:users|accounts|members)\b",
+     "Releases go to accounts with an ACTIVE VALIDATION BALANCE, not to all users."),
+    ("distribution_error", "FAIL",
+     r"\b(?:everyone|all users|all accounts)\s+(?:gets?|receives?|earns?)\b[^.]{0,25}\brelease",
+     "Unfunded accounts receive nothing. Unclaimed shares return to treasury, not to others."),
+    ("distribution_error", "FAIL",
+     r"\bbigger\s+(?:balance|wallet|stake)\b[^.]{0,30}\b(?:more|bigger|larger)\b",
+     "A bigger balance lasts LONGER; it never earns a larger share of a release."),
     # ---- WARN: review needed ------------------------------------------------
+    ("mlm_framing", "WARN", r"\brefer(?:ral|ring)?\b|\binvite\b",
+     "Referral mention — confirm you say it's single-level, one-time, and doesn't change release amounts."),
     ("degen_contrast", "WARN", r"\brekt\b|\bcasino\b|\bdegen\b|\bgambl(?:e|ing)\b",
      "Degen lingo may HOOK/contrast, but must sell no play. Confirm it's contrast, not a pitch."),
     ("soft_hype", "WARN", r"\bearly\b|\bcheap\b|\bdeal\b|\bget rich quick\b",

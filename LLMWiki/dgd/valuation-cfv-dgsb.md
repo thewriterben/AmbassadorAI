@@ -1,7 +1,7 @@
 ---
 tags: [dgd, subject, valuation]
-updated: 2026-06-16
-source: Digital Gold White Paper §3–4
+updated: 2026-07-19
+source: Digital Gold White Paper §3–4, §11 · digitalgold.co (verified 2026-07-19)
 ---
 
 # Valuation: The CFV Formula & the DGSB Benchmark
@@ -45,6 +45,27 @@ This mirrors how gold worked historically: gold didn't change to flatter the cur
 - **"Why every altcoin is basically a bet on Bitcoin."** (structural dependency, WP §1)
 - **"How do you measure what a coin is *really* worth? Four numbers."** (the CFV metrics)
 - **"They froze Bitcoin's best day into a permanent yardstick."** (the DGSB snapshot)
+
+## After distribution ends: monthly recalculation
+
+The curve is only the **distribution phase**. Once 19,000,000 coins are circulating and releases
+stop, the price stops being set by the curve and starts being set by the **full CFV calculation
+applied to DGD's own measured metrics**, recalculated and published **monthly** (WP §11).
+
+This is the part most explainers miss, and it's the most honest thing in the framework:
+
+> **The framework does not guarantee price appreciation.** If DGD's adoption, transactions,
+> transaction value or developer activity deteriorate, the CFV produces a **lower** Fair Coin
+> Price, and the published price **declines accordingly** (WP §11.2).
+
+The same logic caps the headline number. **$100,000 at 80 million accounts is a conditional
+maximum, not a destination** — it only arises if *all four* metrics scale proportionally with
+adoption. Adoption alone gets you a Composite Score of 0.70, not 1.0. If the other three lag, the
+Fair Coin Price at the target is **lower** than $100,000 (WP §4.3).
+
+Saying "$100k is where this ends up" is both non-compliant *and* factually wrong. Saying "the
+formula produces $100,000 only if every input scales together, and it can produce less" is
+accurate, safe, and far more interesting.
 
 ## Hard line for ambassadors
 

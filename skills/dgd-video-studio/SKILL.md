@@ -76,6 +76,14 @@ Read, in this order, as needed for the task:
 
 DGD facts come **only** from `Knowledge Base/Digital Gold White Paper.pdf` (cite as
 `WP §X`). **Never invent figures.** If you're unsure of a number, say so and point to the WP.
+Read `Knowledge Base/SOURCES.md` first — the PDF published on digitalgold.co is **older** than the
+repo's copy, and the two describe different distribution models.
+
+**Live product facts** (current price, account count, the $20–$500 validation range, what's shipped
+vs. "coming") come from **digitalgold.co**, not the WP — see `LLMWiki/dgd/platform-and-tools.md`.
+Where the site and the WP conflict, the **site wins for shipped behaviour**. The live model splits
+each release across accounts with an **active validation balance** — *not* all users, which is what
+the WP still says. Never state a live price or account count from memory.
 
 Coin imagery comes **only** from `Knowledge Base/Coin Ref/` — never from a generator.
 See `reference/coin-assets.md` before producing any visual with the coin in it.

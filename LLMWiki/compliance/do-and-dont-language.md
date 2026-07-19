@@ -54,7 +54,7 @@ money, currency, monetary design, sound money, purchasing power, scarcity, circu
 Whenever a sentence implies **the viewer will be financially better off**, stop and rewrite it to describe **how the system works** instead. Same facts, different frame.
 
 - Before: "Coins are released as users join, so getting in early means more coins." ❌
-- After: "Coins are released as users join and split among all current users, so the per-person share shrinks as the network grows." ✅ (mechanics, no profit implication)
+- After: "Coins are released as accounts join and split equally across funded accounts, so the per-account share shrinks as the network grows." ✅ (mechanics, no profit implication)
 
 ## Visual & on-screen text counts too
 The rules apply to **captions, on-screen text, thumbnails, hashtags, and AI voiceover** — not just what you say out loud. A clean script with a "🚀 TO $100K" thumbnail still violates the discipline.

@@ -19,9 +19,9 @@ Plain-language definitions. Use these to keep your videos accurate. Pull a singl
 | **Fair Coin Price** | The price output of the CFV formula for a given coin. |
 | **Composite Score** | The weighted blend of the four CFV metrics for a coin (WP §10.3). |
 | **The four metrics** | Adoption (70%), Annual Transactions (10%), Annual Transaction Value (10%), Active Developers (10%) (WP §3.2). |
-| **PoP — Proof-of-Participation** | DGD's distribution model: coins released continuously as the network grows, split among all current users (WP §5). |
-| **`N`** | The current total number of users — the single variable that drives DGD's price and supply (WP §5). |
-| **Validation** | Acquiring DGD by pre-loading funds and claiming your per-user share as the network grows (WP §10.1). |
+| **PoP — Proof of Participation** | DGD's distribution model: coins released continuously as the network grows, split equally across accounts holding an **active validation balance** (WP §5; live model per digitalgold.co, 2026-07). Unclaimed shares return to treasury, they are not reallocated. |
+| **`N`** | The count of confirmed network accounts — the single variable that drives DGD's price and supply (WP §5). There are no discrete levels or tiers; the curve is continuous. |
+| **Validation** | Acquiring DGD by funding a DigitalGoldX account (ERC-20 USDC/USDT, $20 min / $500 current cap) and receiving an equal share of each release while that balance lasts (WP §10.1). |
 | **DigitalGoldX** | The web account/platform that serves as the interface for validation (WP §5). |
 | **QT wallet** | The wallet only the participant controls, where validated coins are delivered (WP §5). |
 | **Single-price architecture** | No fluctuating bid/ask; one stable price, enforced via cooperating-venue agreements, so the coin can circulate (WP §8). |

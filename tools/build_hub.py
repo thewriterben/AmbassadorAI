@@ -45,6 +45,7 @@ SECTIONS = [
         ("dgd/six-pillars.md", "The six pillars"),
         ("dgd/positioning-safe-harbor.md", "“Safe harbor” — the legal term"),
         ("dgd/supply-and-distribution.md", "Supply & distribution"),
+        ("dgd/platform-and-tools.md", "Platform, tools & specs"),
         ("dgd/valuation-cfv-dgsb.md", "Valuation (CFV / DGSB)"),
         ("dgd/glossary.md", "Glossary"),
     ]),

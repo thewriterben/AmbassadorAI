@@ -19,7 +19,8 @@ Catalog of every page. Start at the [README](README.md). Agent: read this first 
 - [dgd-overview.md](dgd/dgd-overview.md) — what DGD is, in plain language; the headline design facts.
 - [six-pillars.md](dgd/six-pillars.md) — the Six Pillars of Perfect Money; one topic per pillar.
 - [valuation-cfv-dgsb.md](dgd/valuation-cfv-dgsb.md) — the CFV formula & the frozen DGSB benchmark.
-- [supply-and-distribution.md](dgd/supply-and-distribution.md) — Proof-of-Participation, the N-driven curve, single-price circulation.
+- [supply-and-distribution.md](dgd/supply-and-distribution.md) — Proof of Participation, the N-driven curve, who receives releases, single-price circulation.
+- [platform-and-tools.md](dgd/platform-and-tools.md) — digitalgold.co: live Stats calculator, Explorer, wallet, protocol specs, ecosystem.
 - [participation-pathways.md](dgd/participation-pathways.md) — the four pathways; where ambassadors fit (Promotional).
 - [positioning-safe-harbor.md](dgd/positioning-safe-harbor.md) — "DGD as a safe harbor coin": the legal digital-commodity classification (and the trap).
 - [glossary.md](dgd/glossary.md) — every key term, defined simply.
