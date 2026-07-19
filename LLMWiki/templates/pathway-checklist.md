@@ -6,7 +6,7 @@ tags: [templates, beginner, checklist]
 
 Open this page and press **Ctrl/Cmd + P** to print a clean one-pager (the sidebar drops
 away automatically). Keep it next to you while you film. It's the
-[complete pathway](the-pathway.md), condensed to checkboxes.
+[complete pathway](../start/the-pathway.md), condensed to checkboxes.
 
 **Idea & plan**
 

@@ -17,14 +17,14 @@ and put it in the caption, every single time. It's the easiest one — never ski
 If you receive any recognition or reward for making the content, the FTC requires you to
 disclose it clearly. Put **#Ad** or **"Sponsored"** at the **front** of your caption (not
 buried at the bottom), say it in the video, and flip the platform's "paid partnership /
-branded content" switch. ([full details](ftc-disclosure.md))
+branded content" switch. ([full details](../compliance/ftc-disclosure.md))
 
 ## 3. An AI label — if the media is realistic AI
 
 If you used a **realistic** AI voice, AI avatar, or AI video of something that looks real,
 label it as AI — both with the platform's AI toggle and a note on screen. (Abstract,
 obviously-illustrated visuals like a glowing network don't need this — they're clearly not
-real.) ([full details](ai-disclosure.md))
+real.) ([full details](../compliance/ai-disclosure.md))
 
 ## Where to put them
 
@@ -34,4 +34,4 @@ real.) ([full details](ai-disclosure.md))
 
 One thing to remember: the **sponsorship** label and the **AI** label are two different
 things — one doesn't cover the other. When both apply, use both. The
-[pre-publish checklist](pre-publish-checklist.md) will remind you.
+[pre-publish checklist](../templates/pre-publish-checklist.md) will remind you.

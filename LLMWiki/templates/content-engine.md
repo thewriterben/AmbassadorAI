@@ -1,11 +1,13 @@
 ---
 tags: [templates, automation, content-engine, system]
-updated: 2026-06-16
+updated: 2026-07-19
 ---
 
 # The Content Engine — Daily Drops & Weekly Maintenance
 
-Two automated routines keep the wiki fresh and feed ambassadors a constant stream of quality, compliant ideas. Both run automatically (while the Claude app is open; if it's closed when due, they run on next launch).
+Two routines keep the wiki fresh and feed ambassadors a constant stream of quality, compliant ideas. They run as **Claude scheduled tasks** — while the app is open; if it's closed when due, they run on next launch.
+
+> **⚠️ Status checked 2026-07-19: neither task is configured on this machine.** `list_scheduled_tasks` returns nothing, so the daily drops stopped on **2026-07-05**, the trend radar on **2026-07-03**, and the weekly verification on **2026-06-29**. They are opt-in, not automatic — see *Setting them up* below.
 
 ## 1. Daily Content Drop — every day, 6:00 AM
 
@@ -38,8 +40,16 @@ The weekly pass keeps the **reference** accurate; the daily drop keeps the **ins
 - All DGD facts traceable to the white paper.
 - Flag disclosure (FTC) and AI-label needs.
 
+## Setting them up
+They do not exist until you create them. Ask Claude:
+
+- *"Set up the DGD daily content drop for 6am"* → `dgd-daily-content-drop`
+- *"Set up the DGD weekly verification for Monday morning"* → `dgd-weekly-verification`
+- *"Set up the DGD AI-video trend radar weekly"* → `dgd-ai-video-trend-radar`
+- *"Set up the DGD weekly performance report"* → `dgd-weekly-performance`
+
 ## Managing the schedule
-Ask Claude to "list my scheduled tasks" to see them, or "change my daily content drop to 7am" to adjust. Task IDs: `dgd-daily-content-drop` and `dgd-weekly-verification`.
+Ask Claude to "list my scheduled tasks" to see them, or "change my daily content drop to 7am" to adjust. **If the list comes back empty, they were never created or have been removed** — recreate them with the prompts above.
 
 ## Connects to
 - [Daily drops index](../daily/index.md) · [Maintenance log](../maintenance/) · [Series ideas](series-ideas.md) · [Prompt library](../prompts/script-prompts.md)

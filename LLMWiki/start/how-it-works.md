@@ -20,18 +20,18 @@ little less each year?"* — in 30–60 seconds, in plain language. That's the w
 Making one video looks like this:
 
 1. **Pick one idea.** One video = one idea. Stuck? Open the **Idea generator** in the menu and hit Regenerate. → [using the generator](using-the-generator.md)
-2. **Write the script.** A short spoken explainer. Grab attention in the first 3 seconds with a [hook that works](hooks-library.md), and keep it tight with a [story structure](story-structures.md).
-3. **Make the visuals.** Film yourself, or go faceless with simple b-roll. The [free toolkit](toolkit-overview.md) lists $0 tools for every step.
+2. **Write the script.** A short spoken explainer. Grab attention in the first 3 seconds with a [hook that works](../craft/hooks-library.md), and keep it tight with a [story structure](../craft/story-structures.md).
+3. **Make the visuals.** Film yourself, or go faceless with simple b-roll. The [free toolkit](../tools/toolkit-overview.md) lists $0 tools for every step.
 4. **Add the disclosures.** Three little labels keep you safe. → [disclosures explained](disclosures-explained.md)
-5. **Post and learn.** Put it out, see what lands, make the next one sharper. → [end-to-end workflows](workflows.md)
+5. **Post and learn.** Put it out, see what lands, make the next one sharper. → [end-to-end workflows](../tools/workflows.md)
 
 → Want the hand-held version of all five? Read [make your first video](your-first-video.md).
 
 ## Where everything lives
 
 - **How it works** — this section (plain-English how-to).
-- **What Digital Gold is** — the substance you'll explain: the [six pillars](six-pillars.md), the [approved talking points](approved-talking-points.md).
-- **Make it land** — the craft: [hooks](hooks-library.md), [viral principles](viral-principles.md), [platform specs](platform-specs.md).
+- **What Digital Gold is** — the substance you'll explain: the [six pillars](../dgd/six-pillars.md), the [approved talking points](../dgd/approved-talking-points.md).
+- **Make it land** — the craft: [hooks](../craft/hooks-library.md), [viral principles](../craft/viral-principles.md), [platform specs](../craft/platform-specs.md).
 - **Stay compliant** — the rules and disclosures, simplified here and in full in that section.
 - **Templates & series** — fill-in-the-blank briefs, checklists, and a content calendar.
 - **Free AI toolkit** — the $0 tools for script, voice, visuals, captions, and music.

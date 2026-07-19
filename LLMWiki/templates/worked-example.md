@@ -5,7 +5,7 @@ tags: [templates, beginner, example]
 # A worked example: one video, start to finish
 
 Every artifact for a single finished episode, so you can see exactly what "done" looks like
-at each step of [the complete pathway](the-pathway.md). Topic: **why your money covers a
+at each step of [the complete pathway](../start/the-pathway.md). Topic: **why your money covers a
 little less each year.**
 
 ## 1. The brief
@@ -49,4 +49,4 @@ little less each year.**
 - **Platform switches:** branded-content toggle on if sponsored; AI label on if realistic AI media.
 
 That's the whole video, on paper. Copy the shape, swap the topic, and your next one writes
-itself. → back to [the pathway](the-pathway.md)
+itself. → back to [the pathway](../start/the-pathway.md)

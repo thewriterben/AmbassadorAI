@@ -30,20 +30,20 @@ Same fact, safe framing:
 - ❌ "Get in early — more coins for you."
 - ✅ "Coins are released as accounts join and split equally across every **funded** account, so each account's share gets smaller as the network grows."
 
-The full cheat-sheet is [do / don't language](do-and-dont-language.md).
+The full cheat-sheet is [do / don't language](../compliance/do-and-dont-language.md).
 
 ## The "safe harbor" trap (important)
 
 You'll see the phrase **"safe harbor."** It's a **legal** term — it means DGD is designed
 to qualify as a digital commodity, *not* a security. It does **not** mean "a safe place for
-your money," and you must never use it that way. ([more](positioning-safe-harbor.md))
+your money," and you must never use it that way. ([more](../dgd/positioning-safe-harbor.md))
 
 ## Words to skip, words that are safe
 
 - **Skip:** invest, returns, profit, gains, "buy now", moon, 100x, "get in early."
 - **Safe:** money, sound money, purchasing power, scarcity, monetary design, mechanics, educational.
 
-Full list: [do / don't language](do-and-dont-language.md).
+Full list: [do / don't language](../compliance/do-and-dont-language.md).
 
 That's really it. Teach how it works, add your disclosures, and you'll stay well inside the
 lines.

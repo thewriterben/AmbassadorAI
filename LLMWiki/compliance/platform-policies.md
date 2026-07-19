@@ -16,6 +16,8 @@ What each platform allows and forbids around **crypto/financial content**, **bra
 4. **No investment promises, ever** — also a platform rule, not just the Foundation's.
 5. **2026 tightening (read this):** disclosure rules got *stricter*, not looser, this year. TikTok and YouTube now run **automatic AI detection** (C2PA / provenance), Meta made **AI-disclosure in advertising mandatory globally**, and the **EU AI Act's transparency rules become fully applicable on 2 August 2026**, requiring machine-readable AI labels across platforms operating in the EU. Treat front-loaded, belt-and-suspenders disclosure as the default for every post.
 
+> ⏳ **Dated claim — review by 2026-08-02.** The EU AI Act transparency obligations become fully applicable on that date; this paragraph goes materially out of date the moment it passes. Re-verify before relying on it (checked 2026-07-19).
+
 ---
 
 ## TikTok

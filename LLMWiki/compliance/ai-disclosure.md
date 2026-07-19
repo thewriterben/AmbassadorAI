@@ -39,6 +39,8 @@ X has a **"Made with AI"** label and a **"Manipulated Media"** tag. **In 2026 X 
 ### EU AI Act (applies across platforms)
 The EU AI Act's transparency rules require AI-generated content to be labeled in a **machine-readable, detectable** way and become **fully applicable on 2 August 2026**. Any platform operating in the EU must have compliant labeling in place — another reason to disclose by default rather than rely on a single platform toggle.
 
+> ⏳ **Dated claim — review by 2026-08-02.** The EU AI Act transparency obligations become fully applicable on that date; this paragraph goes materially out of date the moment it passes. Re-verify before relying on it (checked 2026-07-19).
+
 ## Belt-and-suspenders best practice
 
 Beyond the platform toggle, **add a tiny on-screen note** ("AI-generated visuals" / "AI voice") for any realistic synthetic media. It protects you across every platform when you cross-post, and it builds audience trust.

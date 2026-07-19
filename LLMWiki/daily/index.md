@@ -1,6 +1,10 @@
 # Daily Content Drops
 
-Auto-generated every morning at 6:00 AM by the [content engine](../templates/content-engine.md). Newest at the top. Each drop is a ready-to-use, compliance-safe content brief for DGD ambassadors.
+Generated each morning at 6:00 AM by the [content engine](../templates/content-engine.md) **when the scheduled task is set up**. Last drop: **2026-07-05**.
+
+> **⚠️ Automation status (checked 2026-07-19): NOT RUNNING.** `list_scheduled_tasks` returns no tasks on this machine, so nothing is generating these on a schedule. The cadence below describes what the task does *when it is set up* — see [the content engine](../templates/content-engine.md) to create it. Ask Claude to "set up the DGD daily content drop" (or trend radar / weekly verification).
+
+ Newest at the top. Each drop is a ready-to-use, compliance-safe content brief for DGD ambassadors.
 
 > Skim with coffee → pick one idea → run a [workflow](../tools/workflows.md) → [pre-publish checklist](../templates/pre-publish-checklist.md).
 

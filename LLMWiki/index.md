@@ -10,6 +10,16 @@ Catalog of every page. Start at the [README](README.md). Agent: read this first 
 - [log.md](log.md) — chronological record of wiki changes.
 - [DGD-Ambassador-Handbook.pdf](DGD-Ambassador-Handbook.pdf) — shareable, branded PDF summary of the wiki.
 
+## Start here (beginners) — `start/`
+- [how-it-works.md](start/how-it-works.md) — the whole system in one page; read first if you're new.
+- [the-pathway.md](start/the-pathway.md) — the complete pathway, every step.
+- [your-first-video.md](start/your-first-video.md) — the quick path to one finished video.
+- [the-wizard.md](start/the-wizard.md) — what the guided video wizard produces.
+- [using-the-generator.md](start/using-the-generator.md) — how to drive the idea generator.
+- [what-the-rules-mean.md](start/what-the-rules-mean.md) — ⭐ the compliance rules in plain English.
+- [disclosures-explained.md](start/disclosures-explained.md) — FTC + AI labels, explained simply.
+- [faq.md](start/faq.md) — common questions.
+
 ## The agent — `../skills/`
 - [DGD Video Studio](../skills/dgd-video-studio/SKILL.md) — ⭐ installable end-to-end agent that walks you from idea → trend → tool match → script/prompts → compliance gate. The front d[...]
 - [dgd-video-studio example outputs](../example-output/) — human-reviewed example script and shot list used as a QA baseline for the skill.
@@ -57,6 +67,8 @@ Catalog of every page. Start at the [README](README.md). Agent: read this first 
 - [voiceover-prompts.md](prompts/voiceover-prompts.md) — voice direction & phonetics.
 
 ## Templates — `templates/`
+- [worked-example.md](templates/worked-example.md) — one video start to finish, as a worked example.
+- [pathway-checklist.md](templates/pathway-checklist.md) — printable pathway checklist.
 - [pre-publish-checklist.md](templates/pre-publish-checklist.md) — ⭐ run before every post.
 - [video-brief-template.md](templates/video-brief-template.md) — fill before producing.
 - [content-calendar-and-series.md](templates/content-calendar-and-series.md) — weekly/monthly planning.
