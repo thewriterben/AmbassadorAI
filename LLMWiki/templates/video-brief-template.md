@@ -36,7 +36,8 @@ CTA (educational only):     [follow to learn more / read the white paper]
 VISUALS
 Style:                      gold + navy, editorial, no hype imagery
 B-roll / images needed:     [list]
-AI tools:                   [Veo / Kling / Bing / Firefly...]
+AI tools:                   [Veo / Kling / Gemini-Imagen / Leonardo...]
+                            (commercial-safe only - see tools/toolkit-overview.md)
 Title card text:
 
 AUDIO

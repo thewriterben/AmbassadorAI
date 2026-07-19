@@ -3,3 +3,7 @@
 #   pytest -q
 -r requirements.txt
 pytest>=7
+# handbook PDF build (tools/build_handbook.py)
+weasyprint>=60
+markdown
+

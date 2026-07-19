@@ -49,13 +49,17 @@ RULES = [
      "Replace with: 'price advances along a fixed curve as the network grows.'"),
     ("price_prediction", "FAIL", r"\bpump(?:ing|s)?\b",
      "No pump language; describe the distribution mechanism."),
-    ("price_prediction", "FAIL", r"\b\d+(?:\.\d+)?\s?x\b(?!\s*(?:speed|faster|slower|zoom|resolution))",
+    ("price_prediction", "FAIL",
+     r"(?<![\d,.])\d+(?:\.\d+)?\s?x\b(?!\s*(?:speed|faster|slower|zoom|resolution))",
      "No multiplier claims (2x, 5x, 100x). The curve is a mechanism, not a forecast."),
     ("price_prediction", "FAIL", r"\b(?:double|triple|quadruple)\s+(?:your|their|his|her)\s+money\b",
      "No multiplier claims. Describe the mechanism, never an outcome."),
     ("price_prediction", "FAIL", r"\bprice target\b|\bnext (?:bitcoin|ethereum|gem)\b",
      "No targets or 'next X' framing; explain how the design differs."),
-    ("price_prediction", "FAIL", r"\bto \$\s?\d",
+    # Economy-scale sums (billions/trillions) are factual macro figures, not coin
+    # price targets - "from $3 billion to $21 trillion" must not read as a forecast.
+    ("price_prediction", "FAIL",
+     r"\bto \$\s?\d(?![\d,.]*\s*(?:billion|trillion|bn|tn)\b)",
      "A '$X' price target (incl. on thumbnails) is a forecast — remove it."),
     ("price_prediction", "FAIL", r"\bundervalued\b",
      "Avoid valuation-as-bargain framing; cite the WP valuation method instead."),
@@ -127,8 +131,12 @@ RULES = [
     ("distribution_error", "FAIL",
      r"\b(?:everyone|all users|all accounts)\s+(?:gets?|receives?|earns?)\b[^.]{0,25}\brelease",
      "Unfunded accounts receive nothing. Unclaimed shares return to treasury, not to others."),
+    # Negation-aware: "a bigger balance DOESN'T get you a bigger share" is the
+    # correct teaching sentence and must not be flagged as the error it corrects.
     ("distribution_error", "FAIL",
-     r"\bbigger\s+(?:balance|wallet|stake)\b[^.]{0,30}\b(?:more|bigger|larger)\b",
+     r"\bbigger\s+(?:balance|wallet|stake)\b"
+     r"(?![^.]{0,40}\b(?:doesn'?t|does not|don'?t|won'?t|will not|never|isn'?t|is not|no|not)\b)"
+     r"[^.]{0,30}\b(?:more|bigger|larger)\b",
      "A bigger balance lasts LONGER; it never earns a larger share of a release."),
     # ---- WARN: review needed ------------------------------------------------
     ("mlm_framing", "WARN", r"\brefer(?:ral|ring)?\b|\binvite\b",

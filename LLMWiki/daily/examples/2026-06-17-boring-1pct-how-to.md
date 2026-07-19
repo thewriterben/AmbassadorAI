@@ -36,7 +36,10 @@ The voiceover (VO) is your backbone: you'll match every picture to it. Make it f
 
 1. Open the script package and copy the entire **Spoken (VO)** column — all six lines, in order, into one block of text.
 2. **Easiest option (Edge):** open Microsoft Edge → paste the text into a blank page or Word Online → select it → right-click → **Read aloud** → click **Voice options** and pick a calm voice (try "Guy" or "Aria"). Slow the speed slightly. To save the audio, use a free screen/audio recorder, or…
-3. **Better-sounding option (ElevenLabs):** go to elevenlabs.io → sign up free → paste the script → choose a calm, dry voice → set stability ~50% → **Generate** → **Download** the MP3.
+3. **Better-sounding option (ElevenLabs)** — ⚠️ **the free tier has no commercial licence and
+   requires "elevenlabs.io" in your title. Ambassador content is rewarded, so it counts as
+   commercial. Use your own voice or Edge unless you have a paid plan.**
+   If you do have a paid plan: go to elevenlabs.io → sign up free → paste the script → choose a calm, dry voice → set stability ~50% → **Generate** → **Download** the MP3.
 4. **Delivery direction (paste this as guidance / pick a matching voice):** *calm, dry, slightly amused — like a smart friend cutting through noise, not a hype narrator. Unhurried.*
 5. Save the file as `vo.mp3`. Play it once — it should run ~35–40 seconds. If it's rushed, lower the speed and regenerate.
 

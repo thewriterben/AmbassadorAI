@@ -8,7 +8,7 @@ Catalog of every page. Start at the [README](README.md). Agent: read this first 
 - [CLAUDE.md](CLAUDE.md) — schema & operating instructions for the LLM maintainer.
 - [index.md](index.md) — this catalog.
 - [log.md](log.md) — chronological record of wiki changes.
-- [DGD-Ambassador-Handbook.pdf](DGD-Ambassador-Handbook.pdf) — shareable, branded PDF summary of the wiki.
+- [DGD-Ambassador-Handbook.pdf](DGD-Ambassador-Handbook.pdf) — shareable, branded PDF handbook, **built from this wiki** by `tools/build_handbook.py` (compliance-gated at build time). Regenerate it whenever the substance changes — it is the one artifact that leaves the repo.
 
 ## Start here (beginners) — `start/`
 - [how-it-works.md](start/how-it-works.md) — the whole system in one page; read first if you're new.

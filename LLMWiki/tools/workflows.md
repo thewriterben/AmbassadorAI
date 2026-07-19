@@ -1,6 +1,6 @@
 ---
 tags: [tools, workflow, end-to-end]
-updated: 2026-06-16
+updated: 2026-07-19
 verified: 2026-06
 ---
 
@@ -14,8 +14,11 @@ Three complete, $0 pipelines from idea to posted video. Pick the one that fits y
 **Time: ~1–2 hours · Best for: TikTok, Reels, Shorts, X**
 
 1. **Script** — [ChatGPT/Claude/Gemini](ideation-and-scripting.md) with a compliance-locked prompt from the [prompt library](../prompts/script-prompts.md). Fact-check vs [dgd/](../dgd/dgd-overview.md).
-2. **Voice** — [ElevenLabs free or Edge Read Aloud](voiceover-tts.md). Label as AI if synthetic.
-3. **Visuals** — abstract b-roll from [Veo/Kling](video-generation.md) + title cards from [Bing/Firefly](images-and-thumbnails.md). Gold, inflation, supply-chain themes.
+2. **Voice** — [your own voice or Edge Read Aloud](voiceover-tts.md). Label as AI if synthetic.
+   **Not ElevenLabs free** — no commercial licence, and it requires "elevenlabs.io" in your title.
+3. **Visuals** — abstract b-roll from [Veo/Kling](video-generation.md) + title cards from
+   [Gemini/Imagen or Leonardo](images-and-thumbnails.md) (**not Bing free** — personal use only).
+   Gold, inflation, supply-chain themes. Title cards are better rendered with `dgd.py assets title`.
 4. **Edit + captions** — [CapCut](captions-and-editing.md): assemble, auto-caption, proofread, add disclosure overlays.
 5. **Music** — [YouTube Audio Library / Pixabay](music-and-sound.md), ducked under voice.
 6. **Compliance pass** — [pre-publish checklist](../templates/pre-publish-checklist.md).

@@ -109,6 +109,7 @@ python tools/dgd.py <command> [args]     # use python3 on macOS/Linux
 | `publish` | Stage 6 publish package + caption gate |
 | `perf` / `dashboard` | performance ledger: `record` · `sync` · `report` · `show` · `dashboard` |
 | `site` | build the public Ambassador Resource Hub (static) |
+| `handbook` | rebuild the shareable Ambassador Handbook PDF (compliance-gated) |
 | `serve` | run the LOCAL control-panel server |
 | `doctor` | health check — tools, deps, rails, Postiz + LLM key status |
 

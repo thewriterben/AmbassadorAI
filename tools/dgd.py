@@ -11,6 +11,7 @@ A thin router so the agent (and you) drive every stage from a single command:
   dgd perf     …    -> performance ledger: record / sync / report / show / dashboard
   dgd dashboard …   -> shortcut for `perf dashboard`
   dgd site      …   -> build the public Ambassador Resource Hub (static)  (build_hub.py)
+  dgd handbook  …   -> rebuild the shareable Ambassador Handbook PDF   (build_handbook.py)
   dgd serve     …   -> run the LOCAL control-panel server (runs the tools)  (dgd_web.py)
   dgd ai        …   -> true AI generation (script/ideas/hooks/caption), gated  (dgd_ai.py)
   dgd character …   -> character assist: suggest/show/list/gate/new/lock/prompt (dgd_characters.py)
@@ -118,6 +119,8 @@ def main(argv):
         return run("dgd_performance.py", ["dashboard", *rest])
     if cmd == "site":
         return run("build_hub.py", rest)
+    if cmd == "handbook":
+        return run("build_handbook.py", rest)
     if cmd == "serve":
         return run("dgd_web.py", rest)
     if cmd in ROUTES:
