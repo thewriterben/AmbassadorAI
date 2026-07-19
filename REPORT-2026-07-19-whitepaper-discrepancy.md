@@ -11,7 +11,8 @@ carried across during the domain migration and never refreshed. It describes the
 1,000-level distribution and a $40 minimum; the site around it, and the running protocol, use the
 continuous per-account model with a $20 minimum.
 
-Three findings below, with **three different owners** — actionable independently.
+Four findings below — actionable independently, but **Findings 1 and 2 should be fixed
+together**, because fixing 1 alone leaves a contradiction standing.
 
 ---
 
@@ -140,17 +141,66 @@ demonstrably the one described in the continuous-model document, not the hosted 
 
 ## Suggested fix
 
-1. **Replace the hosted PDF** with the continuous-model version.
+1. **Replace the hosted PDF** with the continuous-model version — **but see Finding 2 first.**
+   That swap alone does *not* fully resolve the mismatch: the continuous-model paper still
+   contradicts the site on *who receives a release*.
 2. **Audit for other assets carried over in the same migration.** The white paper reached the new
    host as a file copy rather than a redirect, so anything else migrated that way is a candidate
    for the same staleness — other PDFs, downloadable one-pagers, media kits, embedded diagrams,
    cached OG images. This file was only caught because someone read it closely.
-3. **Add a version string and revision date to the document itself** — see Finding 3. Had the file
+3. **Add a version string and revision date to the document itself** — see Finding 4. Had the file
    carried `v2.0 (2026-03)` in its header, the migration gap would have been obvious at a glance.
 
 ---
 
-# Finding 2 — arithmetic error in the white paper
+# Finding 2 — the CURRENT white paper also contradicts the site, on who receives a release
+
+**Owner:** whoever maintains the white paper text
+**Status:** verified
+**Severity:** High — this is the single fact a participant most needs to be right about.
+
+**This is not fixed by swapping the hosted file.** The continuous-model paper — the one that
+should replace it — still describes the *old* recipient rule.
+
+| | Says who receives a release |
+|---|---|
+| digitalgold.co (live) | "allocated equally across **funded accounts**" · "accounts with an **active validation balance**" |
+| Continuous-model white paper | "split equally among **all current users**" |
+
+Verbatim from the continuous-model paper:
+
+> "…the protocol advances the price along a fixed curve and releases a small number of coins from
+> the treasury, **split equally among all current users**."
+
+The paper explicitly treats funded-only distribution as a change that **has not been made**:
+
+> "…under the assumption that **every user holds a balance and validates**. **If the design were
+> later changed to exclude zero-balance users**, the only change would be the divisor: each release
+> would be split among the count of eligible users instead of all users, with the unclaimed
+> remainder…"
+
+The site indicates that change **is now live**. The paper has not been revised to match.
+
+## Why this matters more than the levels discrepancy
+
+Under the paper's wording, an unfunded account still receives coins. Under the live model it
+receives nothing. A reader relying on the white paper would also reasonably infer that unclaimed
+shares inflate everyone else's — the paper's own §5.6 says the remainder is handled differently.
+That is a materially wrong expectation about whether and when someone gets paid.
+
+## Suggested fix
+
+Revise §5.1 / §5.6 and the Abstract to state the shipped rule directly: releases are split across
+accounts holding an active validation balance, and unclaimed shares return to the treasury rather
+than being redistributed.
+
+**If the site is the thing that's wrong here — i.e. distribution really does still go to all
+users — that is more urgent than everything else in this report**, because ambassador material and
+the AmbassadorAI wiki have already been updated to follow the site.
+
+---
+
+# Finding 3 — arithmetic error in the white paper
 
 **Owner:** whoever maintains the white paper text
 **Status:** verified; present in *both* versions
@@ -180,7 +230,7 @@ explaining the divergence from the source document.)*
 
 ---
 
-# Finding 3 — root cause: the documents are not distinguishable
+# Finding 4 — root cause: the documents are not distinguishable
 
 **Owner:** web / document
 **Severity:** Low individually, but this is why Finding 1 was difficult to diagnose.
