@@ -50,7 +50,7 @@ RULES = [
     ("price_prediction", "FAIL", r"\bpump(?:ing|s)?\b",
      "No pump language; describe the distribution mechanism."),
     ("price_prediction", "FAIL",
-     r"(?<![\d,.])\d+(?:\.\d+)?\s?x\b(?!\s*(?:speed|faster|slower|zoom|resolution))",
+     r"(?<![\d,.])\d+(?:\.\d+)?x\b(?!\s*(?:speed|faster|slower|zoom|resolution))",
      "No multiplier claims (2x, 5x, 100x). The curve is a mechanism, not a forecast."),
     ("price_prediction", "FAIL", r"\b(?:double|triple|quadruple)\s+(?:your|their|his|her)\s+money\b",
      "No multiplier claims. Describe the mechanism, never an outcome."),
@@ -153,14 +153,92 @@ COMPILED = [(c, sev, re.compile(p, re.IGNORECASE), fix) for c, sev, p, fix in RU
 DISCLOSURE_RE = re.compile(r"not financial advice", re.IGNORECASE)
 
 
-def lint_text(text, want_disclosure=False):
-    """Return {'findings': [...], 'verdict': 'pass'|'warn'|'fail'}."""
-    findings = []
+# --------------------------------------------------------- doc context ------
+# The wiki's own rules pages QUOTE banned language in order to ban it, so the
+# linter fails them - 9 of 11 compliance/craft pages. That noise trains reviewers
+# to ignore FAIL output, which is how real defects have slipped through.
+#
+# These patterns identify a line as INSTRUCTION ABOUT the rules rather than a
+# breach of them. They are deliberately narrow, and they are only consulted when
+# doc_context=True - which is NEVER the default, and never used when linting a
+# script, caption or any other publishable surface. A false negative here would
+# be far worse than the noise it removes, so the bar is:
+#
+#   the negation must attach to a SPEECH VERB ("never SAY x", "don't WRITE x").
+#   A bare negation is not enough - "Don't miss out, buy DGD now" contains
+#   "Don't" and is a violation, not a lesson.
+INSTRUCTIONAL = [
+    r"[❌✅🚫⛔]",                                    # do/don't markers
+    r"^\s*>",                                        # blockquote - quoting a rule
+    r"^\s*#{1,6}\s",                                 # heading, e.g. "### Never call it an investment"
+    r"\b(?:never|not?|don'?t|do not|avoid|stop|refuse)\s+"
+    r"(?:\w+\s+){0,3}?"
+    r"(?:say|saying|said|write|writing|use|using|call|calling|claim|claiming|"
+    r"promise|promising|imply|implying|frame|framing|characteri[sz]e|project|"
+    r"market|marketing|pitch|pitching|sell|selling|position|positioning|"
+    r"advertise|promote|promoting|"
+    r"tip into|pivot to|post|posting|describe|describing)\b",
+    r"\b(?:instead of|rather than|replace\b.{0,40}\bwith)\b",
+    r"\b(?:banned|prohibited|forbidden|off[- ]limits|violat\w+|non-?compliant)\b",
+    r"\bwords? to avoid\b|\bdo\s*/\s*don'?t\b|\bnever\b.{0,20}\b(?:list|words)\b",
+    r"\bno\s+[\"“‘']",                     # No "to the moon", No "returns"
+    r"\bcompliance[- ]safe\b|\bslang for\b",         # meta / definitional
+]
+INSTRUCTIONAL_RE = [re.compile(p, re.IGNORECASE) for p in INSTRUCTIONAL]
+
+# A do/don't table declares itself in its HEADER row. Script tables
+# ("| Time | Spoken | On-screen text | Visual |") do not match this, so their
+# rows keep the full strict treatment.
+# A heading that declares the section enumerates banned language.
+BAN_HEADING_RE = re.compile(
+    r"\b(?:words?\s+to\s+avoid|banned|never\s+use|forbidden|avoid\s+entirely|"
+    r"don'?t\s+say|red\s+flags?)\b", re.IGNORECASE)
+
+DONT_TABLE_HEADER_RE = re.compile(
+    r"^\s*\|.*(?:[❌✅]|\bdon'?t say\b|\bsay instead\b|\bavoid\b|\binstead\b|"
+    r"\bbanned\b|\brewrite\b|\bnever say\b).*\|", re.IGNORECASE)
+
+
+def is_instructional(line):
+    """True if the line teaches the rule rather than breaking it."""
+    return any(rx.search(line) for rx in INSTRUCTIONAL_RE)
+
+
+def lint_text(text, want_disclosure=False, doc_context=False):
+    """Return {'findings': [...], 'verdict': 'pass'|'warn'|'fail', 'suppressed': N}.
+
+    doc_context=True downgrades findings on instructional lines to INFO. Use it
+    ONLY when linting the wiki's own rules documentation. Never for scripts,
+    captions, hooks, titles, hashtags or anything that ships.
+    """
+    findings, suppressed = [], 0
+    in_dont_table = False
+    under_ban_heading = False
     for ln_no, line in enumerate(text.splitlines(), start=1):
+        # A do/don't table's ROWS are instruction, but only because its HEADER
+        # says so. Script tables are also tables - "| Time | Spoken | ... |" -
+        # so a bare "is this a table row?" test would exempt real scripts.
+        if doc_context:
+            if not line.strip().startswith("|"):
+                in_dont_table = False
+            elif DONT_TABLE_HEADER_RE.search(line):
+                in_dont_table = True
+            # A bare list of banned words sits under a heading that says so.
+            if line.strip().startswith("#"):
+                under_ban_heading = bool(BAN_HEADING_RE.search(line))
+            elif not line.strip():
+                under_ban_heading = under_ban_heading and True
+        teaching = doc_context and (is_instructional(line) or under_ban_heading or
+                                    (in_dont_table and line.strip().startswith("|")))
         for cat, sev, rx, fix in COMPILED:
             for m in rx.finditer(line):
+                if teaching and sev == "FAIL":
+                    suppressed += 1
+                    sev_out = "INFO"
+                else:
+                    sev_out = sev
                 findings.append({
-                    "line": ln_no, "col": m.start() + 1, "severity": sev,
+                    "line": ln_no, "col": m.start() + 1, "severity": sev_out,
                     "category": cat, "term": m.group(0),
                     "snippet": line.strip()[:120], "fix": fix,
                 })
@@ -173,7 +251,7 @@ def lint_text(text, want_disclosure=False):
     has_fail = any(f["severity"] == "FAIL" for f in findings)
     has_warn = any(f["severity"] == "WARN" for f in findings)
     verdict = "fail" if has_fail else ("warn" if has_warn else "pass")
-    return {"findings": findings, "verdict": verdict}
+    return {"findings": findings, "verdict": verdict, "suppressed": suppressed}
 
 
 def _report(result, source):
@@ -201,6 +279,10 @@ def main():
                     help="WARN if no 'not financial advice' line is present")
     ap.add_argument("--strict", action="store_true", help="treat WARN as failure")
     ap.add_argument("--json", action="store_true")
+    ap.add_argument("--doc-context", action="store_true",
+                    help="linting the RULES DOCUMENTATION, not publishable content: "
+                         "downgrade findings on instructional lines ('never say X') to "
+                         "INFO. Never use this on a script, caption or hashtag.")
     a = ap.parse_args()
 
     if a.text is not None:
@@ -210,7 +292,8 @@ def main():
     else:
         text, source = open(a.path, encoding="utf-8").read(), a.path
 
-    result = lint_text(text, want_disclosure=a.require_disclosure)
+    result = lint_text(text, want_disclosure=a.require_disclosure,
+                       doc_context=a.doc_context)
     if a.json:
         print(json.dumps({"source": source, **result}, indent=2))
     else:

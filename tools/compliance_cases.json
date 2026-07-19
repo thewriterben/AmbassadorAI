@@ -252,6 +252,74 @@
       "expect": "pass",
       "text": "The commission was appointed to review the filing. Not financial advice.",
       "why": "'commission' in an innocent sense must not fail"
+    },
+    {
+      "id": "doc-1",
+      "expect": "warn",
+      "doc_context": true,
+      "text": "Never say \"buy DGD now\". Not financial advice.",
+      "why": "instruction: FAIL suppressed, 'buy' WARN correctly remains"
+    },
+    {
+      "id": "doc-2",
+      "expect": "pass",
+      "doc_context": true,
+      "text": "### 3. Never promise returns or profit",
+      "why": "rule heading"
+    },
+    {
+      "id": "doc-3",
+      "expect": "pass",
+      "doc_context": true,
+      "text": "| ❌ Don't say | ✅ Say instead |\n|---|---|\n| \"DGD is a great investment\" | \"DGD is a monetary system\" |",
+      "why": "do/don't table row inherits its header"
+    },
+    {
+      "id": "doc-4",
+      "expect": "warn",
+      "doc_context": true,
+      "text": "Do not market DGD as a degen play. Not financial advice.",
+      "why": "instruction: FAIL suppressed, 'degen' WARN correctly remains"
+    },
+    {
+      "id": "doc-5",
+      "expect": "fail",
+      "doc_context": true,
+      "text": "Don't miss out - buy DGD now!",
+      "why": "contains 'Don't' but is a violation"
+    },
+    {
+      "id": "doc-6",
+      "expect": "fail",
+      "doc_context": true,
+      "text": "- [ ] This will 100x your money.",
+      "why": "checkbox syntax must not excuse a claim"
+    },
+    {
+      "id": "doc-7",
+      "expect": "fail",
+      "doc_context": true,
+      "text": "| Time | Spoken | On-screen text | Visual |\n|---|---|---|---|\n| 0-1s | \"DGD is a great investment.\" | BUY NOW | coin |",
+      "why": "SCRIPT table is not a do/don't table"
+    },
+    {
+      "id": "doc-8",
+      "expect": "fail",
+      "doc_context": true,
+      "text": "Market DGD as a guaranteed return.",
+      "why": "instruction TO violate is still a violation"
+    },
+    {
+      "id": "doc-9",
+      "expect": "fail",
+      "text": "Never say \"buy DGD now\".",
+      "why": "doc mode OFF: scripts get the strict gate"
+    },
+    {
+      "id": "fp-1",
+      "expect": "pass",
+      "text": "In March 2026 X lifted its crypto-promotion ban. Not financial advice.",
+      "why": "'2026 X' is a year + the platform, not a multiplier"
     }
   ]
 }

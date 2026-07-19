@@ -21,7 +21,8 @@ def test_lint_matches_eval_cases():
     import compliance_lint as CL
     cases = json.load(open(os.path.join(TOOLS, "compliance_cases.json"), encoding="utf-8"))["cases"]
     for c in cases:
-        assert CL.lint_text(c["text"])["verdict"] == c["expect"], c["id"]
+        got = CL.lint_text(c["text"], doc_context=c.get("doc_context", False))["verdict"]
+        assert got == c["expect"], c["id"]
 
 
 # ---------------------------------------------------------------- dgd_publish

@@ -12,6 +12,9 @@ Before the human checks below, run every text surface through the deterministic 
 
 ```bash
 python tools/dgd.py lint path/to/script.md --require-disclosure
+# NEVER add --doc-context to a script, caption, hook or hashtag. It exists only for
+# linting the wiki's own RULES pages, where a line like 'never say "buy DGD now"'
+# is instruction rather than a breach. On publishable content the gate stays strict.
 # or pipe a caption/hook:  echo "$CAPTION" | python tools/dgd.py lint -
 ```
 

@@ -34,7 +34,7 @@ def main():
     cases = data["cases"]
     passed, failures = 0, []
     for c in cases:
-        got = lint_text(c["text"])["verdict"]
+        got = lint_text(c["text"], doc_context=c.get("doc_context", False))["verdict"]
         ok = got == c["expect"]
         if ok:
             passed += 1
