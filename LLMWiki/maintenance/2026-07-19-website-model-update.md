@@ -22,10 +22,16 @@ Triggered by the digitalgold.co upgrade. Verified against the live site on 2026-
 
 ## Source conflict found
 
-The white paper published on digitalgold.co is **older** than the repo's copy — it still describes
-the superseded 1,000-level model. The repo copy (2026-06-16) is the continuous-model paper and
-reconciles with the site's live figures. Recorded in `Knowledge Base/SOURCES.md` so nobody
-"updates" the repo by overwriting it with the site's version.
+The white paper published on digitalgold.co describes the **superseded 1,000-level model**; the
+repo's copy describes the **continuous** model the site actually runs, and reconciles with the
+site's live figures. Recorded in `Knowledge Base/SOURCES.md` so nobody "updates" the repo by
+overwriting it with the site's version.
+
+**Correction:** this was first written as "the site's PDF is older." That is not established —
+both bodies end at the same date (17 March 2026), both are 58 pages, and no creation metadata was
+retrieved for the site's copy. The original claim compared the repo copy's *file metadata* to the
+site copy's *body content*. The distinction that holds is **which model is shipped**, not which
+document is newer.
 
 The repo's WP still says "all current users" and describes funded-account gating only as a
 hypothetical (§5.6). The wiki follows the **site** for shipped behaviour. Flagged as the first
