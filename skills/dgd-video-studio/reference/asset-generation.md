@@ -20,10 +20,12 @@ unusable — see `tool-matcher.md` Step 3).
 | `disclosure` | transparent "SPONSORED · NOT FINANCIAL ADVICE" overlay PNG | The reusable compliance overlay the workflows ask you to keep on hand |
 | `lower` | transparent lower-third caption strip | Persistent disclosure / context strip |
 | `contact-sheet` | one labelled preview image of a whole asset folder | Show the ambassador every asset at a glance |
+| `coin` | the **reference** DGD coin composited at a correct, consistent scale | Any still with the coin in it — the coin is never generated. See `coin-assets.md` |
+| `coin-motion` | a seamlessly-looping motion cycle: `spin` · `flip` · `tumble` · `wobble` · `orbit` | Turning-coin b-roll, stings, transitions. PNG frames + optional WebP/GIF |
 
 **Motif themes** (abstract/illustrative only, mapped to the approved visual table in
 `tool-matcher.md` Step 4 and `prompts/image-and-video-prompts.md`):
-`network` (decentralization, no center) · `scarcity` (fixed-supply grid + single coin) ·
+`network` (decentralization, no center) · `scarcity` (engraved fixed-supply grid) ·
 `erosion` (a stack debasing into dust — illustrative, no people) ·
 `supply-chain` (store → truck → factory → mine, gold line of light) ·
 `monetary-history` (classical temple, antiquity) · `vault` (vault door ajar to golden light).
@@ -33,32 +35,37 @@ unusable — see `tool-matcher.md` Step 3).
 From the repo root (the sandbox has Python 3 + Pillow preinstalled):
 
 ```bash
-python3 tools/dgd_assets.py title \
+python tools/dgd.py assets title \
   --headline "Why your money quietly loses value" \
   --kicker "Sound Money - Ep. 1" \
   --subtitle "A two-minute explainer on how inflation works." \
   --out raw/cover.png
 
-python3 tools/dgd_assets.py thumb --headline "The 1% rule nobody explains" \
+python tools/dgd.py assets thumb --headline "The 1% rule nobody explains" \
   --kicker "Digital Gold" --out raw/thumb.png
 
-python3 tools/dgd_assets.py motif --theme network   --out raw/broll_network.png
-python3 tools/dgd_assets.py motif --theme erosion    --out raw/broll_erosion.png
-python3 tools/dgd_assets.py disclosure --out raw/disclosure_overlay.png
-python3 tools/dgd_assets.py lower --text "Not financial advice - Educational" --out raw/lt.png
+python tools/dgd.py assets motif --theme network   --out raw/broll_network.png
+python tools/dgd.py assets motif --theme erosion    --out raw/broll_erosion.png
+python tools/dgd.py assets disclosure --out raw/disclosure_overlay.png
+python tools/dgd.py assets lower --text "Not financial advice - Educational" --out raw/lt.png
 ```
 
 **One command for a whole episode** — renders the title, thumbnail, both disclosure
 overlays, and the motif b-roll set into one folder:
 
 ```bash
-python3 tools/dgd_assets.py kit \
+python tools/dgd.py assets kit \
   --headline "Why your money quietly loses value" \
   --kicker "Sound Money - Ep. 1" \
   --subtitle "A two-minute explainer on how inflation works." \
   --outdir raw/ep1
 # optional: --themes "monetary-history,vault" picks specific b-roll
 ```
+
+The kit also emits **`00_coin.png`** — the reference coin on a navy plate — so every
+asset set ships with a correct, consistent coin. It sorts before `01`, leaving the
+existing timeline map below untouched. If the reference asset is missing the kit prints
+a skip notice and continues rather than failing.
 
 Save outputs into the ambassador's **`/raw` asset folder** (the reuse convention from
 `tools/workflows.md`). `--seed N` re-rolls the dust/motif layout for variety while

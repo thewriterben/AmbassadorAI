@@ -15,6 +15,8 @@ Commands
   motif       abstract 9:16 b-roll background, compliance-safe themes:
               network | scarcity | erosion | supply-chain |
               monetary-history | vault
+  coin        composite the REFERENCE DGD coin at a correct, consistent scale
+  coin-motion seamlessly-looping coin motion: spin | flip | tumble | wobble | orbit
 
 Design notes
 ------------
@@ -27,6 +29,10 @@ Design notes
   mandatory per the compliance gate; the rail is baked into the toolchain.
 * All user text passes a fail-closed compliance pre-scan (banned investment/price/
   return framing aborts the render with exit code 2).
+* The coin is NEVER generated - stills and motion both render from the reference
+  asset, so the coin is identical everywhere. Motion drives the rim from the real
+  2.41mm/34.1mm ratio (7.07% of diameter); that ratio is what makes a turning coin
+  read as a coin rather than a flat disc. See reference/coin-assets.md.
 
 Usage
 -----
@@ -38,6 +44,9 @@ Usage
   python3 dgd_assets.py motif --theme vault --out broll_vault.png
   python3 dgd_assets.py kit --headline "Why money loses value" \
       --kicker "Sound Money - Ep. 1" --outdir raw/ep1
+  python3 dgd_assets.py coin --preset hero --out coin_hero.png
+  python3 dgd_assets.py coin --preset hand --onto plate.png --out shot.png
+  python3 dgd_assets.py coin-motion --mode flip --frames 48 --outdir raw/flip --webp f.webp
 """
 import argparse
 import math
@@ -45,7 +54,7 @@ import os
 import random
 import re
 import sys
-from PIL import Image, ImageDraw, ImageFont, ImageFilter
+from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageOps
 
 NAVY      = (16, 23, 42)
 CHARCOAL  = (10, 12, 18)
@@ -53,6 +62,31 @@ GOLD      = (212, 168, 83)
 GOLD_HI   = (240, 208, 130)
 WHITE     = (244, 244, 240)
 MUTE      = (150, 158, 178)
+
+# ---------------------------------------------------------------- coin -----
+# The DGD coin is NEVER generated - it is composited from the reference asset.
+# Generators invent a different coin every time; an inconsistent coin reads as a
+# fake project. See skills/dgd-video-studio/reference/coin-assets.md.
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+COIN_REF = os.path.join(ROOT, "Knowledge Base", "Coin Ref", "nbgdgd.png")
+COIN_MM = 34.1          # $20 Saint-Gaudens Double Eagle diameter - the spec size
+COIN_THICKNESS_MM = 2.41
+COIN_THICKNESS_RATIO = COIN_THICKNESS_MM / COIN_MM   # 7.07% of the diameter
+
+# Physical realism is a MODE, not a constraint. Presets below anchor the coin to
+# its real 34.1mm size for in-hand and product shots; --diameter sizes it freely
+# for hero, monumental and abstract treatments where real-world scale is beside
+# the point. What must stay constant in every mode is the coin's IDENTITY -
+# the face, the legend, the ring count - and, when it turns, the rim ratio.
+
+# Coin width as a fraction of frame width, measured from the hand reference
+# (dgdhandref.jpg: 440px rim in a 960px frame = 45.8%).
+COIN_PRESETS = {
+    "hand":   0.458,    # true-to-life, matches the hand reference
+    "hero":   0.55,     # title card / product shot
+    "accent": 0.15,     # corner mark, lower-third
+    "macro":  0.85,     # detail shot, rings legible
+}
 
 def _winfont(name):
     return os.path.join(os.environ.get("WINDIR", r"C:\\Windows"), "Fonts", name)
@@ -138,16 +172,16 @@ def _font(path, size):
 
 
 def gradient_bg(w, h, top=NAVY, bottom=CHARCOAL):
-    base = Image.new("RGB", (w, h), top)
-    px = base.load()
+    # Build one column, then stretch it. The old per-pixel loop cost ~w*h Python
+    # writes per call, which made multi-frame renders unusable.
+    col = Image.new("RGB", (1, h))
+    px = col.load()
     for y in range(h):
         t = (y / max(1, h - 1)) ** 1.15
-        r = int(top[0] + (bottom[0] - top[0]) * t)
-        g = int(top[1] + (bottom[1] - top[1]) * t)
-        b = int(top[2] + (bottom[2] - top[2]) * t)
-        for x in range(w):
-            px[x, y] = (r, g, b)
-    return base
+        px[0, y] = (int(top[0] + (bottom[0] - top[0]) * t),
+                    int(top[1] + (bottom[1] - top[1]) * t),
+                    int(top[2] + (bottom[2] - top[2]) * t))
+    return col.resize((w, h), Image.NEAREST)
 
 
 def add_gold_dust(img, density=0.00018, seed=7):
@@ -421,6 +455,300 @@ def make_motif(theme, w=1080, h=1920, seed=7):
     return vignette(img, strength=0.40).convert("RGB")
 
 
+def load_coin(size_px):
+    """Load the reference coin as a true circle at the requested pixel diameter.
+
+    The source asset is 1920x1905 - 0.8% wider than tall - so a naive paste
+    renders a subtle ellipse (an 8px error at 1080px, visible on the rim).
+    Squaring the canvas first forces a real circle.
+    """
+    if not os.path.exists(COIN_REF):
+        raise SystemExit(
+            f"COIN REFERENCE MISSING: {COIN_REF}\n"
+            "The DGD coin must be composited from the reference asset, never generated.\n"
+            "Restore 'Knowledge Base/Coin Ref/nbgdgd.png' (transparent-background coin)."
+        )
+    im = Image.open(COIN_REF).convert("RGBA")
+    n = max(im.size)
+    if im.size[0] != im.size[1]:
+        im = im.resize((n, n), Image.LANCZOS)      # de-squash to a true circle
+    return im.resize((int(size_px), int(size_px)), Image.LANCZOS)
+
+
+def _tint(img, f):
+    """Multiply RGB brightness by f, preserving alpha."""
+    r, g, b, a = img.split()
+    lut = [max(0, min(255, int(i * f))) for i in range(256)]
+    return Image.merge("RGBA", (r.point(lut), g.point(lut), b.point(lut), a))
+
+
+def _rim_band(w, h, seed=3):
+    """The coin's rim, seen edge-on: a shaded gold band with fine striations.
+
+    Colours sampled from the Saint-Gaudens edge reference (sggp2.jpg), which
+    runs from deep shadow (60,42,8) to catchlight (232,200,120).
+    """
+    band = Image.new("RGBA", (max(1, w), max(1, h)), (0, 0, 0, 0))
+    d = ImageDraw.Draw(band)
+    rnd = random.Random(seed)
+    for x in range(max(1, w)):
+        t = x / max(1, w - 1)
+        # cylindrical falloff: bright through the middle, dark at both extremes
+        curve = math.sin(math.pi * t) ** 0.55
+        jitter = 1.0 + (rnd.random() - 0.5) * 0.20          # lettering / reeding
+        f = max(0.0, min(1.0, curve * jitter))
+        col = (int(60 + (232 - 60) * f),
+               int(42 + (200 - 42) * f),
+               int(8 + (120 - 8) * f), 255)
+        d.line([(x, 0), (x, h)], fill=col)
+    return band
+
+
+def render_coin_pose(diameter, angle=0.0, axis="flip", spin=0.0,
+                     thickness_ratio=COIN_THICKNESS_RATIO, back=None,
+                     back_mode="same"):
+    """Render the coin at an arbitrary rotation, with a correctly-scaled rim.
+
+    axis:
+      'spin'   - in-plane rotation. A coin spinning flat-on, like a record.
+      'flip'   - rotation about the HORIZONTAL axis; the face foreshortens
+                 vertically and the rim appears above or below it.
+      'tumble' - rotation about the VERTICAL axis; foreshortens horizontally.
+
+    The rim thickness is driven by the real 2.41mm / 34.1mm ratio (7.07% of the
+    diameter), which is what makes a turning coin read as a coin instead of a
+    flat disc. Override with thickness_ratio for stylised or oversized renders.
+
+    Only one face exists in the reference set, so the reverse is approximated:
+      back_mode='same'   (default) the reverse reads upright, exactly like the
+                         obverse - what a medal-aligned two-sided coin looks
+                         like, and it keeps the legend readable through a flip.
+      back_mode='mirror' the strict mirror. Physically what a single-sided disc
+                         would do, but it renders the legend upside down, which
+                         viewers read as a rendering bug.
+    Pass back=<path> once a true reverse asset exists - it beats both.
+    """
+    D = max(2, int(diameter))
+    th = math.radians(angle)
+    c, s = math.cos(th), math.sin(th)
+
+    front = load_coin(D)
+    if spin:
+        front = front.rotate(-spin, resample=Image.BICUBIC)
+
+    if axis == "spin":
+        return front.rotate(-angle, resample=Image.BICUBIC)
+
+    # Work in "flip" space; tumble is the same maths on a transposed canvas.
+    transposed = (axis == "tumble")
+    if transposed:
+        front = front.transpose(Image.ROTATE_90)
+
+    if back:
+        rear = Image.open(back).convert("RGBA").resize((D, D), Image.LANCZOS)
+        if transposed:
+            rear = rear.transpose(Image.ROTATE_90)
+    elif back_mode == "mirror":
+        rear = ImageOps.flip(front)
+    else:
+        rear = front
+    face_src = front if c >= 0 else rear
+
+    face_h = int(round(D * abs(c)))                   # foreshortened face
+    rim_h = int(round(D * thickness_ratio * abs(s)))  # visible rim
+    if face_h < 1 and rim_h < 1:
+        face_h = 1                                    # degenerate: keep 1px alive
+    H = max(1, face_h + rim_h)
+    out = Image.new("RGBA", (D, H), (0, 0, 0, 0))
+
+    if rim_h > 0:
+        # Silhouette: two ellipses (face at each end of the extrusion) joined by
+        # the rim. Union is a capsule; the face then sits on one end of it.
+        mask = Image.new("L", (D, H), 0)
+        md = ImageDraw.Draw(mask)
+        eh = max(1, face_h)                 # exactly edge-on: face has no height
+        md.ellipse([0, 0, D - 1, eh - 1], fill=255)
+        md.ellipse([0, rim_h, D - 1, eh + rim_h - 1], fill=255)
+        md.rectangle([0, eh // 2, D - 1, eh // 2 + rim_h], fill=255)
+        rim = _rim_band(D, H)
+        rim.putalpha(mask)
+        out.alpha_composite(rim)
+
+    if face_h >= 1:
+        face = face_src.resize((D, face_h), Image.LANCZOS)
+        # sin(2t) > 0 -> the far side is the top, so the rim shows below the face
+        face_y = 0 if math.sin(2 * th) > 0 else rim_h
+        out.alpha_composite(face, (0, face_y))
+
+    # Light falls off as the face turns away from the viewer.
+    out = _tint(out, 0.74 + 0.26 * abs(c))
+    if transposed:
+        out = out.transpose(Image.ROTATE_270)
+    return out
+
+
+def coin_diameter_px(frame_w, preset="hero", mm=None, ppmm=None):
+    """Resolve a coin diameter in px from either a preset or physical scale."""
+    if mm is not None and ppmm is not None:
+        raise SystemExit("use --mm or --ppmm, not both")
+    if ppmm is not None:
+        return COIN_MM * ppmm                       # scene scale: px per mm
+    if mm is not None:
+        # caller states how wide the frame is in mm; coin keeps its true size
+        return frame_w * (COIN_MM / mm)
+    if preset not in COIN_PRESETS:
+        raise SystemExit(f"unknown preset '{preset}'. "
+                         f"choose from: {', '.join(COIN_PRESETS)}")
+    return frame_w * COIN_PRESETS[preset]
+
+
+def make_coin(preset="hero", w=1080, h=1920, onto=None, plate=True,
+              shadow=True, mm=None, ppmm=None, cx=None, cy=None, seed=7,
+              diameter=None, angle=0.0, axis="flip", spin=0.0,
+              thickness_ratio=None, back=None, back_mode="same"):
+    """Composite the reference coin onto a plate, a supplied scene, or nothing.
+
+    Renders exactly ONE coin. Stacks, piles and heaps are wealth-accumulation
+    imagery and are out of bounds per the compliance rail - so there is
+    deliberately no --count option.
+    """
+    if onto:
+        base = Image.open(onto).convert("RGBA")
+        w, h = base.size
+    elif plate:
+        base = gradient_bg(w, h).convert("RGBA")
+        base = add_gold_dust(base, seed=seed)
+        base = vignette(base, strength=0.45)
+    else:
+        base = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+
+    # --diameter sizes the coin freely (hero / monumental / abstract work);
+    # presets and --mm/--ppmm anchor it to its real 34.1mm size.
+    d = int(diameter) if diameter else int(round(coin_diameter_px(w, preset, mm, ppmm)))
+    if d < 100:
+        sys.stderr.write(
+            f"note: coin is {d}px across - below ~100px the rings and legend "
+            "stop reading as a coin.\n")
+    if not diameter and d > max(w, h) * 3:
+        raise SystemExit(f"coin would be {d}px in a {w}x{h} frame - check --mm/--ppmm")
+
+    if angle or spin:
+        coin = render_coin_pose(d, angle, axis, spin=spin, back=back,
+                                back_mode=back_mode,
+                                thickness_ratio=(COIN_THICKNESS_RATIO
+                                                 if thickness_ratio is None
+                                                 else thickness_ratio))
+    else:
+        coin = load_coin(d)
+    cw, ch = coin.size
+    x = int((cx if cx is not None else w / 2) - cw / 2)
+    y = int((cy if cy is not None else h / 2) - ch / 2)
+
+    if shadow:
+        # contact shadow - an unshadowed coin floats off the plate
+        sh = Image.new("RGBA", base.size, (0, 0, 0, 0))
+        sd = ImageDraw.Draw(sh)
+        off = max(2, int(cw * 0.035))
+        sd.ellipse([x + off, y + off * 1.6, x + cw + off, y + ch + off * 1.6],
+                   fill=(0, 0, 0, 110))
+        sh = sh.filter(ImageFilter.GaussianBlur(max(3, int(cw * 0.045))))
+        base.alpha_composite(sh)
+
+    base.alpha_composite(coin, (x, y))
+    return base
+
+
+MOTION_MODES = ("spin", "flip", "tumble", "orbit", "wobble")
+
+
+def make_coin_motion(mode="flip", frames=48, w=1080, h=1920, diameter=None,
+                     preset="hero", plate=True, turns=1.0, thickness_ratio=None,
+                     back=None, back_mode="same", seed=7):
+    """Render a looping motion cycle of the coin as a list of RGBA frames.
+
+    Every mode returns a SEAMLESS loop - frame N continues into frame 0 - so the
+    sequence can be looped in the edit without a visible seam.
+
+      spin    in-plane rotation, face always toward camera
+      flip    end over end, about the horizontal axis
+      tumble  about the vertical axis
+      wobble  a settling coin: tilts back and forth without going fully over
+      orbit   travels an elliptical path with perspective scaling, while turning
+    """
+    if mode not in MOTION_MODES:
+        raise SystemExit(f"unknown mode '{mode}'. choose from: {', '.join(MOTION_MODES)}")
+    tr = COIN_THICKNESS_RATIO if thickness_ratio is None else thickness_ratio
+    D = int(diameter) if diameter else int(round(coin_diameter_px(w, preset)))
+    if mode == "orbit":
+        D = int(D * 0.62)                     # leave room for the path
+
+    # The plate is identical in every frame - build it once, then copy.
+    if plate:
+        plate_img = gradient_bg(w, h).convert("RGBA")
+        plate_img = add_gold_dust(plate_img, seed=seed)
+        plate_img = vignette(plate_img, strength=0.45)
+    else:
+        plate_img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+
+    out = []
+    for i in range(frames):
+        t = i / frames                        # 0..1, exclusive of 1 -> seamless
+        base = plate_img.copy()
+
+        ang = 360.0 * turns * t
+        cx, cy, scale, spin = w / 2, h / 2, 1.0, 0.0
+
+        if mode == "spin":
+            coin = render_coin_pose(D, ang, "spin", thickness_ratio=tr, back=back,
+                                     back_mode=back_mode)
+        elif mode in ("flip", "tumble"):
+            coin = render_coin_pose(D, ang, mode, thickness_ratio=tr, back=back,
+                                    back_mode=back_mode)
+        elif mode == "wobble":
+            # a coin settling: decaying tilt, never passing edge-on
+            coin = render_coin_pose(D, 62.0 * math.sin(2 * math.pi * t), "flip",
+                                    spin=18.0 * math.sin(4 * math.pi * t),
+                                    thickness_ratio=tr, back=back,
+                                    back_mode=back_mode)
+        else:  # orbit
+            phase = 2 * math.pi * t
+            cx = w / 2 + math.sin(phase) * (w * 0.26)
+            cy = h / 2 + math.cos(phase) * (h * 0.055)
+            scale = 0.80 + 0.20 * (1 + math.cos(phase)) / 2   # nearer = larger
+            coin = render_coin_pose(int(D * scale), ang, "tumble",
+                                    thickness_ratio=tr, back=back,
+                                    back_mode=back_mode)
+
+        cw, ch = coin.size
+        base.alpha_composite(coin, (int(cx - cw / 2), int(cy - ch / 2)))
+        out.append(base)
+    return out
+
+
+def save_motion(frames, outdir, gif=None, webp=None, fps=24, flatten=CHARCOAL):
+    """Write PNG frames, plus optional animated GIF / WebP."""
+    os.makedirs(outdir, exist_ok=True)
+    for i, f in enumerate(frames):
+        f.save(os.path.join(outdir, f"frame_{i:03d}.png"))
+    print(f"wrote {len(frames)} frames to {outdir}  ({frames[0].size[0]}x{frames[0].size[1]})")
+
+    dur = int(round(1000.0 / max(1, fps)))
+    if webp:
+        frames[0].save(webp, save_all=True, append_images=frames[1:],
+                       duration=dur, loop=0, lossless=False, quality=88)
+        print(f"wrote {webp}  ({fps}fps, alpha preserved)")
+    if gif:
+        # GIF has no partial alpha - flatten onto a solid plate first.
+        flat = []
+        for f in frames:
+            bg = Image.new("RGBA", f.size, flatten + (255,))
+            bg.alpha_composite(f)
+            flat.append(bg.convert("P", palette=Image.ADAPTIVE, colors=200))
+        flat[0].save(gif, save_all=True, append_images=flat[1:],
+                     duration=dur, loop=0, optimize=True)
+        print(f"wrote {gif}  ({fps}fps, flattened - GIF cannot hold alpha)")
+
+
 def make_contact_sheet(indir, out, cols=4, title=None):
     """Composite every asset PNG in a folder into one labelled preview image."""
     files = sorted(f for f in os.listdir(indir)
@@ -465,6 +793,12 @@ def make_kit(outdir, headline, kicker=None, subtitle=None, themes=None, seed=7):
         img.save(path)
         written.append(name)
         print(f"wrote {path}  ({img.size[0]}x{img.size[1]})")
+
+    # 00 sorts first so the existing 01-10 timeline map is undisturbed.
+    try:
+        save(make_coin(preset="hero", seed=seed), "00_coin.png")
+    except SystemExit as e:
+        print(f"skipping coin: {e}")
 
     save(make_title(headline, kicker, subtitle, seed=seed), "01_title.png")
     save(make_thumb(headline, kicker, seed=seed + 4), "02_thumb.png")
@@ -518,6 +852,56 @@ def main():
     kt.add_argument("--seed", type=int, default=7)
     kt.add_argument("--outdir", required=True)
 
+    cn = sub.add_parser("coin", help="composite the reference DGD coin (never generated)")
+    cn.add_argument("--preset", default="hero", choices=list(COIN_PRESETS),
+                    help="coin width as a share of frame width (default: hero)")
+    cn.add_argument("--onto", help="composite onto this image instead of a plate")
+    cn.add_argument("--no-plate", action="store_true",
+                    help="transparent background instead of a navy plate")
+    cn.add_argument("--no-shadow", action="store_true")
+    cn.add_argument("--mm", type=float,
+                    help="frame width in mm; coin holds its true 34.1mm size")
+    cn.add_argument("--ppmm", type=float, help="scene scale in pixels per mm")
+    cn.add_argument("--cx", type=int, help="coin centre x (default: centred)")
+    cn.add_argument("--cy", type=int, help="coin centre y (default: centred)")
+    cn.add_argument("--diameter", type=int,
+                    help="coin width in px - free sizing, ignores physical scale")
+    cn.add_argument("--angle", type=float, default=0.0,
+                    help="rotate the coin (degrees); rim appears as it turns")
+    cn.add_argument("--axis", default="flip", choices=("flip", "tumble", "spin"))
+    cn.add_argument("--spin", type=float, default=0.0,
+                    help="extra in-plane rotation, degrees")
+    cn.add_argument("--thickness", type=float,
+                    help=f"rim as a share of diameter (default {COIN_THICKNESS_RATIO:.4f} = true)")
+    cn.add_argument("--back", help="true reverse-face asset, if one exists")
+    cn.add_argument("--back-mode", default="same", choices=("same", "mirror"),
+                    help="how to fake the reverse when --back is absent")
+    cn.add_argument("--width", type=int, default=1080)
+    cn.add_argument("--height", type=int, default=1920)
+    cn.add_argument("--seed", type=int, default=7)
+    cn.add_argument("--out", required=True)
+
+    cm = sub.add_parser("coin-motion",
+                        help="looping motion cycle: spin / flip / tumble / orbit / wobble")
+    cm.add_argument("--mode", default="flip", choices=MOTION_MODES)
+    cm.add_argument("--frames", type=int, default=48)
+    cm.add_argument("--fps", type=int, default=24)
+    cm.add_argument("--turns", type=float, default=1.0,
+                    help="full rotations across the loop (default 1)")
+    cm.add_argument("--preset", default="hero", choices=list(COIN_PRESETS))
+    cm.add_argument("--diameter", type=int, help="free sizing in px")
+    cm.add_argument("--thickness", type=float, help="rim as a share of diameter")
+    cm.add_argument("--back", help="true reverse-face asset, if one exists")
+    cm.add_argument("--back-mode", default="same", choices=("same", "mirror"))
+    cm.add_argument("--no-plate", action="store_true",
+                    help="transparent frames, for compositing over your own footage")
+    cm.add_argument("--width", type=int, default=1080)
+    cm.add_argument("--height", type=int, default=1920)
+    cm.add_argument("--gif", help="also write an animated GIF (flattened)")
+    cm.add_argument("--webp", help="also write an animated WebP (keeps alpha)")
+    cm.add_argument("--seed", type=int, default=7)
+    cm.add_argument("--outdir", required=True)
+
     cs = sub.add_parser("contact-sheet")
     cs.add_argument("--indir", required=True)
     cs.add_argument("--cols", type=int, default=4)
@@ -544,6 +928,15 @@ def main():
         print(f"wrote {make_contact_sheet(a.indir, a.out, cols=a.cols, title=a.title)}")
         return
 
+    if a.cmd == "coin-motion":
+        frames = make_coin_motion(
+            mode=a.mode, frames=a.frames, w=a.width, h=a.height,
+            diameter=a.diameter, preset=a.preset, plate=not a.no_plate,
+            turns=a.turns, thickness_ratio=a.thickness, back=a.back,
+            back_mode=a.back_mode, seed=a.seed)
+        save_motion(frames, a.outdir, gif=a.gif, webp=a.webp, fps=a.fps)
+        return
+
     if a.cmd == "title":
         img = make_title(a.headline, a.kicker, a.subtitle,
                          disclosure=not a.no_disclosure, seed=a.seed)
@@ -555,6 +948,13 @@ def main():
         img = make_lower_third(a.text)
     elif a.cmd == "motif":
         img = make_motif(a.theme, seed=a.seed)
+    elif a.cmd == "coin":
+        img = make_coin(preset=a.preset, w=a.width, h=a.height, onto=a.onto,
+                        plate=not a.no_plate, shadow=not a.no_shadow,
+                        mm=a.mm, ppmm=a.ppmm, cx=a.cx, cy=a.cy, seed=a.seed,
+                        diameter=a.diameter, angle=a.angle, axis=a.axis,
+                        spin=a.spin, thickness_ratio=a.thickness, back=a.back,
+                        back_mode=a.back_mode)
     img.save(a.out)
     print(f"wrote {a.out}  ({img.size[0]}x{img.size[1]})")
 

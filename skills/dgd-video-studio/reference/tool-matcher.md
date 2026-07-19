@@ -57,6 +57,9 @@ Suggest abstract/illustrative b-roll that's both on-theme and low-compliance-ris
 | Circulation | Isometric supply chain: store → truck → factory → mine, gold line of light |
 | Monetary history | Vintage-engraving busts, printing presses, old market floors |
 
+> **If the shot contains the DGD coin itself**, none of the above applies — generate the
+> scene *empty* and composite the real asset in. See `coin-assets.md`.
+
 Never generate realistic fake people/events or fake news/charts implying gains.
 
 ## Step 5 — State the caveats every time

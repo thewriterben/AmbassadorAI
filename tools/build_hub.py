@@ -193,7 +193,7 @@ GEN = {
     "prompts": {
         "image": {
             "scarcity": [
-                "A single gleaming gold coin on dark marble, dramatic rim light, a faint engraved grid suggesting a fixed supply limit, premium editorial product photography, gold and charcoal palette, vertical 9:16, no text",
+                "An empty polished dark marble plinth in dramatic rim light, a faint engraved grid across the surface suggesting a fixed supply limit, premium editorial product photography, gold and charcoal palette, vertical 9:16, no coin, no currency, nothing on the plinth, no text  [then composite the real coin: dgd.py assets coin --preset hero --onto <this image>]",
                 "A precise grid of identical gold tokens with one space deliberately left empty, top-down, dark slate background, soft directional light, minimalist editorial, gold and charcoal, vertical 9:16, no text"],
             "erosion": [
                 "A stack of paper banknotes slowly dissolving into fine dust at the edges, dark moody background, conceptual finance illustration, amber light, vertical 9:16, no text",
@@ -205,7 +205,7 @@ GEN = {
                 "A classical engraving aesthetic of abstract statue busts and columns in a softly lit gallery, sepia and gold tones, editorial, vertical 9:16, no text",
                 "A weathered stone ledger wall with abstract engraved tally marks fading left to right, museum lighting, sepia and gold, editorial still life, vertical 9:16, no text"],
             "supply-chain": [
-                "Minimalist isometric scene: a glowing coin passing along a chain of simple icons - shop, truck, factory, raw materials - connected by a flowing gold line of light, dark background, vertical 9:16, no text",
+                "Minimalist isometric scene: a single glowing point of light travelling along a chain of simple icons - shop, truck, factory, raw materials - connected by a flowing gold line, dark background, vertical 9:16, no coin, no currency, no text",
                 "A continuous looping gold ribbon weaving through simple geometric shapes representing a shop, a truck and a workshop, dark studio backdrop, isometric, premium, vertical 9:16, no text"],
             "vault": [
                 "Slow reveal of a sleek modern vault door opening to a soft golden glow, minimal, premium, no logos, vertical 9:16, no text",
@@ -213,7 +213,7 @@ GEN = {
         },
         "video": {
             "scarcity": [
-                "Slow cinematic push-in on a single gold coin rotating on dark marble, dust particles drifting in a shaft of warm light, shallow depth of field, premium, 9:16",
+                "Slow cinematic push-in across empty dark marble, dust particles drifting through a shaft of warm light, shallow depth of field, premium, 9:16, no coin, no currency  [the coin is composited in afterwards - never generated]",
                 "Macro slow pan across a tight grid of gold tokens with one slot empty, dust drifting in a warm beam, shallow focus, premium, 9:16"],
             "erosion": [
                 "A tall stack of banknotes slowly crumbling to dust from the top down, slow motion, moody dark studio, amber backlight, conceptual, 9:16",
@@ -540,7 +540,7 @@ function capCase(x){ x=String(x||'').trim(); return x? x.charAt(0).toUpperCase()
 
 const PLAT={tiktok:{name:'TikTok',max:5,budget:2200},instagram:{name:'Instagram Reels',max:5,budget:2200},youtube:{name:'YouTube Shorts',max:5,budget:5000},x:{name:'X',max:3,budget:280}};
 const SAFE=['soundmoney','economics','monetarypolicy','austrianeconomics','cryptoeducation'];
-const VIS={network:'abstract glowing network, no center',scarcity:'a gold coin with a fixed-supply grid','erosion':'banknotes eroding into dust','supply-chain':'a coin moving along a gold line of light','monetary-history':'classical columns, sepia and gold',vault:'a vault door opening to soft light'};
+const VIS={network:'abstract glowing network, no center',scarcity:'an engraved fixed-supply grid on dark marble','erosion':'banknotes eroding into dust','supply-chain':'a point of light moving along a gold line','monetary-history':'classical columns, sepia and gold',vault:'a vault door opening to soft light'};
 const W={step:0,topic:null,takeaway:'',audience:GEN.audiences[0],format:GEN.formats[0],platforms:['tiktok','x'],hook:'',gap:'',payoff:'',loop:'Follow to learn how sound money works.',voice:'real',sponsored:false};
 const STEPS=['Welcome','Idea','Your point','Audience','Hook','Script','Voice','Disclosures','Visuals','Your plan'];
 
