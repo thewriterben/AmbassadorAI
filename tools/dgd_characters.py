@@ -409,12 +409,32 @@ def main(argv=None):
             sys.stderr.write("REFUSING: sheet has drifted from its lock. "
                              "Run `character lock <sheet>` first.\n")
             return 2
+        # Gate the SHOT/STYLE text before it can reach a generator. --shot is
+        # free text and is exactly where "buy DGD now, guaranteed 100x" lands.
+        traps, endorse = scan_text(a.shot, a.style)
+        if traps or endorse:
+            sys.stderr.write("BLOCKED - shot/style contains protected or endorsing elements:\n")
+            for why, _ in traps + endorse:
+                sys.stderr.write(f"  [BLOCK] {why}\n")
+            return 2
         block = build_prompt(sheet, a.shot, a.style)
+        if CL is None:
+            sys.stderr.write("REFUSING: compliance_lint unavailable, cannot gate the prompt.\n")
+            return 2
+        res = CL.lint_text(block)
+        if res["verdict"] == "fail":
+            sys.stderr.write("BLOCKED - the prompt breaks the communications discipline:\n")
+            for f in res["findings"]:
+                if f["severity"] == "FAIL":
+                    sys.stderr.write(f"  [FAIL] {f['category']}: '{f['term']}'\n")
+                    sys.stderr.write(f"         {f['fix']}\n")
+            return 2
         print(block)
-        if CL:
-            res = CL.lint_text(block) if hasattr(CL, "lint_text") else None
-            if res:
-                print("\n(compliance linter clean)" if not res else "")
+        warns = [f for f in res["findings"] if f["severity"] == "WARN"]
+        if warns:
+            sys.stderr.write("\n(warnings - review before generating)\n")
+            for f in warns:
+                sys.stderr.write(f"  [WARN] {f['category']}: '{f['term']}'\n")
         return 0
 
     return 2

@@ -42,7 +42,7 @@ A complete 8-episode educational series you can produce today. Every line is **c
 |---|---|---|---|
 | 0–1s | "Saving money is quietly making you poorer." | SAVING ≠ SAFE | Banknote stack |
 | 1–6s | "Rule 1 of real money: scarcity. Supply has to be limited by clear rules." | RULE 1: SCARCITY | Intro card |
-| 6–28s | "Here's the problem. The US money supply went from about 3 billion dollars in 1913 to over 21 trillion — roughly a 7,000% increase (WP §2.2). More units chasing the same goods means each one buys less. Code can fix this — a fixed cap that can't be raised. Bitcoin proved it with 21 million. Digital Gold uses the same 21-million cap by design (WP §2.2)." | 7,000% ↑ · 21,000,000 CAP | Coins multiplying, then a hard cap line |
+| 6–28s | "Here's the problem. The US money supply went from about 3 billion dollars in 1913 to over 21 trillion — roughly a 7,000-fold increase (WP §2.2). More units chasing the same goods means each one buys less. Code can fix this — a fixed cap that can't be raised. Bitcoin proved it with 21 million. Digital Gold uses the same 21-million cap by design (WP §2.2)." | 7,000x ↑ · 21,000,000 CAP | Coins multiplying, then a hard cap line |
 | 28–35s | "Scarcity is rule one. Tomorrow: why a *stable* price matters even more. Follow." | RULE 2 NEXT → | Outro |
 
 **Compliance note:** state the 21M cap as a *design fact*. Do **not** add "so it'll go up." → [do & don't](../compliance/do-and-dont-language.md)

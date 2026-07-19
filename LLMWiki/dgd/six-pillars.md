@@ -22,7 +22,10 @@ The backbone of most educational DGD videos. Synthesized from Menger, Mises, and
 ## Pillar-by-pillar (with teachable hooks)
 
 ### 1. Scarcity
-The Fed expanded the US money supply from ~$3 billion in 1913 to over $21 trillion — roughly a **7,000% increase** (WP §2.2). Bitcoin proved code-enforced scarcity is possible with its 21M cap. DGD adopts the same 21M cap.
+The Fed expanded the US money supply from ~$3 billion in 1913 to over $21 trillion — roughly a **7,000-fold increase** — about 700,000% (WP §2.2).
+
+> **Note on the figure:** the White Paper phrases this as "roughly 7,000 percent," but $3 billion to $21 trillion is a **7,000-FOLD** increase (~700,000%). Say "7,000 times" or "7,000-fold" — a viewer with a calculator will check, and being wrong about arithmetic is fatal for a project whose whole argument is *check the math*. Flagged for the Foundation.
+ Bitcoin proved code-enforced scarcity is possible with its 21M cap. DGD adopts the same 21M cap.
 **Hook idea:** "The dollar in your pocket is designed to shrink. Here's the math."
 
 ### 2. Stable Pricing

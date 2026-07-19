@@ -31,7 +31,7 @@ updated: 2026-06-16
 
 ### Shocking number
 - "The US dollar lost over 96% of its value since 1913."
-- "The money supply grew 7,000% in one century."
+- "The money supply grew 7,000-FOLD in one century."
 - "A 2% inflation target cuts your savings in half every 35 years."
 
 ### The question hook

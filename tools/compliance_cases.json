@@ -192,6 +192,66 @@
       "expect": "pass",
       "text": "Inviting someone is single-level and one-time; it never changes the amount anyone receives from a release. Not financial advice.",
       "why": "accurate referral description"
+    },
+    {
+      "id": "mult-1",
+      "expect": "fail",
+      "text": "This could 5x your money.",
+      "why": "single-digit multiplier was a false negative"
+    },
+    {
+      "id": "mult-2",
+      "expect": "fail",
+      "text": "You will double your money.",
+      "why": "multiplier in words"
+    },
+    {
+      "id": "mult-3",
+      "expect": "pass",
+      "text": "Render the b-roll at 2x resolution for a crisp export. Not financial advice.",
+      "why": "2x as a technical spec must survive"
+    },
+    {
+      "id": "sol-x1",
+      "expect": "fail",
+      "text": "Purchase DGD today.",
+      "why": "purchase verb was uncovered"
+    },
+    {
+      "id": "sol-x2",
+      "expect": "fail",
+      "text": "Acquire DGD now.",
+      "why": "acquire verb was uncovered"
+    },
+    {
+      "id": "sol-x3",
+      "expect": "fail",
+      "text": "DM me to get started.",
+      "why": "direct-response solicitation"
+    },
+    {
+      "id": "sol-x4",
+      "expect": "fail",
+      "text": "Sign up under me and start today.",
+      "why": "recruiting solicitation"
+    },
+    {
+      "id": "dist-5",
+      "expect": "fail",
+      "text": "Coins are released as people join and split among everyone.",
+      "why": "the hole that let the beginner page through"
+    },
+    {
+      "id": "mlm-6",
+      "expect": "pass",
+      "text": "See the cross-posting matrix for platform rules. Not financial advice.",
+      "why": "'matrix' in an innocent sense must not fail"
+    },
+    {
+      "id": "mlm-7",
+      "expect": "pass",
+      "text": "The commission was appointed to review the filing. Not financial advice.",
+      "why": "'commission' in an innocent sense must not fail"
     }
   ]
 }

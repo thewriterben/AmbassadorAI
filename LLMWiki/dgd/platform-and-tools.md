@@ -69,14 +69,16 @@ wallet download without mentioning verification is doing them a disservice.
 | Transaction fee | 0.00001 DGD — **burned** |
 | Staking rewards | **Burned** — zero staking inflation |
 | Privacy | Native **Tor V3** onion addressing |
-| Consensus | Hybrid Proof-of-Stake |
+| Consensus | Hybrid **Proof-of-Work + Proof-of-Stake**, refined by SegWit (WP) |
 | SegWit | Implemented |
 | Licence | MIT open source |
 
-**Lineage matters and is a good story:** DGD forks **Blackcoin**, launched in early 2014 by the same
-core contributors — one of the first pure Proof-of-Stake chains, with over a decade of production
-history. "Built on twelve years of proof-of-stake" is a verifiable, non-promotional credibility
-point that doesn't touch price.
+**Lineage matters and is a good story:** DGD's **Proof-of-Stake component** is derived from the
+**Blackcoin** model — launched in early 2014 by the same core contributors, one of the first pure
+Proof-of-Stake chains — **with one critical modification: there are no staking rewards** (WP).
+Be precise here: Blackcoin supplies the PoS half, not the whole consensus. DGD is a *hybrid*
+PoW+PoS chain. "Built on twelve years of proof-of-stake" is a verifiable, non-promotional
+credibility point that doesn't touch price.
 
 Because both staking rewards and transaction fees are burned, **no new coins are ever created and
 supply can only fall**. That's a cleaner scarcity story than most chains can tell.
@@ -87,9 +89,13 @@ supply can only fall**. That's a cleaner scarcity story than most chains can tel
 |---|---|
 | **digitalgold.co** (DigitalGoldX) | The platform — validation, wallet downloads, stats, DEX, marketplace |
 | **[digitalgoldfoundation.org](https://digitalgoldfoundation.org)** | The Foundation — the self-regulating body setting CFV fair-value standards |
-| **[@DigitalGoldOrg](https://x.com/DigitalGoldOrg)** | Official Foundation account — network updates |
-| **[@DigitalGoldTalk](https://x.com/DigitalGoldTalk)** | Podcast / news, **and where recognition structures are announced** |
+| **[@DigitalGoldOrg](https://x.com/DigitalGoldOrg)** | Foundation account listed on the site — network updates |
+| **[@DigitalGoldTalk](https://x.com/DigitalGoldTalk)** | Podcast / news — and the channel the **White Paper names** for announcing referral, promotional and onboarding recognition (WP §10.1) |
 | **[DGD Ambassadors](https://t.me/DGDAmbassadors)** | The ambassador Telegram |
+
+Two X accounts, two jobs: the site lists **@DigitalGoldOrg** for network updates, while the
+White Paper routes **recognition announcements** through **@DigitalGoldTalk**. Watch both; don't
+call either "the" official channel.
 
 The Foundation and the platform are **different entities** doing different jobs — the Foundation
 sets standards, the platform operates validation. Blurring them is a small inaccuracy that a

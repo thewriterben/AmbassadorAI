@@ -70,3 +70,8 @@ Append-only. Format: `## [YYYY-MM-DD] <type> | <summary>`. Newest at bottom. Qui
 ## [2026-07-03] trend-radar | AI video trend report generated
 ## [2026-07-04] daily | content drop generated
 ## [2026-07-05] daily | content drop generated
+## [2026-07-19] correction | distribution model corrected from the digitalgold.co relaunch
+   Releases go to funded accounts (active validation balance), not all users. Unclaimed
+   shares return to treasury. No levels/tiers/downlines; inviting is single-level and
+   one-time. New page dgd/platform-and-tools.md. Linter gained mlm_framing +
+   distribution_error rules. See maintenance/2026-07-19-website-model-update.md.

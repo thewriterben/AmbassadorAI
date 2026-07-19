@@ -36,6 +36,7 @@ Usage
 import argparse
 import json
 import os
+import shlex
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -181,9 +182,9 @@ def main():
           f'SCHEDULE="{a.schedule}"',
           'echo "Uploading media…"',
           ': > "$(dirname "$0")/published.tsv"  # platform<TAB>post_id, for dgd_performance sync',
-          f'VIDEO_URL=$(postiz upload "{a.media}" | jq -r .path)']
+          f'VIDEO_URL=$(postiz upload {shlex.quote(a.media)} | jq -r .path)']
     if a.thumb:
-        sh.append(f'THUMB_URL=$(postiz upload "{a.thumb}" | jq -r .path)')
+        sh.append(f'THUMB_URL=$(postiz upload {shlex.quote(a.thumb)} | jq -r .path)')
     sh.append('echo "Resolving integration IDs…"')
     for p in platforms:
         ident = PLATFORMS[p][0]

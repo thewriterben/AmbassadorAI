@@ -47,7 +47,7 @@ def main():
 
     n = len(cases)
     print(f"\ncompliance evals: {passed}/{n} passed"
-          + (f", {len(failures)} MISMATCH" if failures else " — rails holding."))
+          + (f", {len(failures)} MISMATCH" if failures else " - rails holding."))
     sys.exit(1 if failures else 0)
 
 

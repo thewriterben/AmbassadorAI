@@ -13,7 +13,7 @@ Reusable skeletons. Drop a DGD topic into any of these and you have a script.
 - **Payoff (5–35s):** deliver the insight, one idea, with visuals.
 - **Loop (35–45s):** reopen curiosity + soft CTA ("follow for the rest / read the white paper").
 
-*Example (Scarcity):* "Saving money is making you poorer 〔hook〕. We're taught saving is safe — but the supply keeps growing 〔gap〕. The US money supply grew ~7,000% in a century; more units chasing the same goods means each unit buys less. Code can cap supply instead — like a 21-million limit that can't be raised 〔payoff〕. That's one of six things 'real money' needs — follow for the other five 〔loop〕."
+*Example (Scarcity):* "Saving money is making you poorer 〔hook〕. We're taught saving is safe — but the supply keeps growing 〔gap〕. The US money supply grew ~7,000-fold in a century; more units chasing the same goods means each unit buys less. Code can cap supply instead — like a 21-million limit that can't be raised 〔payoff〕. That's one of six things 'real money' needs — follow for the other five 〔loop〕."
 
 ## 2. Myth → Reality → Why it matters
 - State a common belief → flip it → explain the consequence.

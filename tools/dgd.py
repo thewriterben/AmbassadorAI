@@ -43,15 +43,32 @@ def run(script, args):
     return subprocess.call([sys.executable, os.path.join(HERE, script), *args])
 
 
+def _ascii_safe():
+    """Windows consoles and redirected stdout are often cp1252 - the tick and
+    cross raise UnicodeEncodeError and kill the health check."""
+    enc = (getattr(sys.stdout, "encoding", None) or "ascii").lower()
+    try:
+        "\u2713\u2717\u00b7".encode(enc)
+        return False
+    except (UnicodeEncodeError, LookupError):
+        return True
+
+
+_ASCII = _ascii_safe()
+_ok_mark = "OK" if _ASCII else "\u2713"
+_bad_mark = "XX" if _ASCII else "\u2717"
+_opt_mark = ".." if _ASCII else "\u00b7"
+
+
 def doctor():
     ok = True
 
     def check(label, good, detail="", required=True):
         nonlocal ok
-        mark = "✓" if good else ("✗" if required else "·")
+        mark = _ok_mark if good else (_bad_mark if required else _opt_mark)
         if not good and required:
             ok = False
-        print(f"  {mark} {label}" + (f" — {detail}" if detail else ""))
+        print(f"  {mark} {label}" + (f" - {detail}" if detail else ""))
 
     print("DGD toolchain doctor\n--------------------")
     print("tools present:")
@@ -69,7 +86,8 @@ def doctor():
 
     print("compliance rails:")
     rc = subprocess.run([sys.executable, os.path.join(HERE, "run_compliance_evals.py")],
-                        capture_output=True, text=True)
+                        capture_output=True, text=True,
+                        encoding="utf-8", errors="replace")
     last = (rc.stdout.strip().splitlines() or ["(no output)"])[-1]
     check("red-team eval suite", rc.returncode == 0, last)
 
@@ -84,7 +102,7 @@ def doctor():
           bool(os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("OPENAI_API_KEY")),
           "needed only for `dgd ai` / the AI tab", required=False)
 
-    print("\n" + ("ALL GREEN — pipeline ready." if ok else
+    print("\n" + ("ALL GREEN - pipeline ready." if ok else
                   "Some checks failed (see ✗). Dry-run features still work."))
     return 0 if ok else 1
 

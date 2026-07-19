@@ -1,6 +1,6 @@
 ---
 tags: [dgd, subject, glossary, reference]
-updated: 2026-06-16
+updated: 2026-07-19
 source: Digital Gold White Paper
 ---
 

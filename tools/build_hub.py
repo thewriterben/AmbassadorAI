@@ -152,7 +152,7 @@ GEN = {
          "question": "no one actually collects the network's fees",
          "myth": "someone must be skimming a cut from every transaction", "motif": "vault"},
         {"short": "the shrinking per-person share", "Short": "The shrinking per-person share", "name": "The per-person share",
-         "angle": "how coins released as the network grows are split among everyone, so each person's share gets smaller as more join",
+         "angle": "how coins released as the network grows are split equally across every funded account, so each account's share gets smaller as more join",
          "question": "joining sooner doesn't simply mean ending up with more",
          "myth": "being there first automatically means a bigger slice forever", "motif": "scarcity"},
         {"short": "trust without a middleman", "Short": "Trust without a middleman", "name": "Trust without a middleman",

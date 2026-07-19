@@ -67,6 +67,12 @@ MUTE      = (150, 158, 178)
 # The DGD coin is NEVER generated - it is composited from the reference asset.
 # Generators invent a different coin every time; an inconsistent coin reads as a
 # fake project. See skills/dgd-video-studio/reference/coin-assets.md.
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+try:
+    import compliance_lint as CL   # single source of truth for the rails
+except Exception:
+    CL = None
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 COIN_REF = os.path.join(ROOT, "Knowledge Base", "Coin Ref", "nbgdgd.png")
 COIN_MM = 34.1          # $20 Saint-Gaudens Double Eagle diameter - the spec size
@@ -144,17 +150,29 @@ ALLOWED = {"not financial advice", "sponsored"}
 
 
 def compliance_scan(*texts):
+    """Fail-closed pre-scan for any text rendered onto an asset.
+
+    Delegates to compliance_lint - the single source of truth for the rails.
+    The local BANNED list below is only a fallback for when the linter can't be
+    imported; it is deliberately narrower, and a divergence here was how
+    "Buy DGD now", "guaranteed" and "risk-free" once rendered onto title cards.
+    """
     hits = []
     for t in texts:
         if not t:
             continue
-        low = t.lower()
-        if low.strip() in ALLOWED:
+        if t.lower().strip() in ALLOWED:
             continue
-        for pat in BANNED:
-            m = re.search(pat, low)
-            if m:
-                hits.append((t, m.group(0)))
+        if CL is not None:
+            for f in CL.lint_text(t)["findings"]:
+                if f["severity"] == "FAIL":
+                    hits.append((t, f["term"]))
+        else:
+            low = t.lower()
+            for pat in BANNED:
+                m = re.search(pat, low)
+                if m:
+                    hits.append((t, m.group(0)))
     return hits
 
 

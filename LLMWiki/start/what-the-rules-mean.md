@@ -28,7 +28,7 @@ Whenever a sentence hints that the viewer will *gain*, flip it to describe the *
 Same fact, safe framing:
 
 - ❌ "Get in early — more coins for you."
-- ✅ "Coins are released as people join and split among everyone, so each person's share gets smaller as the network grows."
+- ✅ "Coins are released as accounts join and split equally across every **funded** account, so each account's share gets smaller as the network grows."
 
 The full cheat-sheet is [do / don't language](do-and-dont-language.md).
 

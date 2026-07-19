@@ -49,8 +49,10 @@ RULES = [
      "Replace with: 'price advances along a fixed curve as the network grows.'"),
     ("price_prediction", "FAIL", r"\bpump(?:ing|s)?\b",
      "No pump language; describe the distribution mechanism."),
-    ("price_prediction", "FAIL", r"\b\d{2,}x\b",
-     "No multiplier claims (e.g. 100x). The curve is a mechanism, not a forecast."),
+    ("price_prediction", "FAIL", r"\b\d+(?:\.\d+)?\s?x\b(?!\s*(?:speed|faster|slower|zoom|resolution))",
+     "No multiplier claims (2x, 5x, 100x). The curve is a mechanism, not a forecast."),
+    ("price_prediction", "FAIL", r"\b(?:double|triple|quadruple)\s+(?:your|their|his|her)\s+money\b",
+     "No multiplier claims. Describe the mechanism, never an outcome."),
     ("price_prediction", "FAIL", r"\bprice target\b|\bnext (?:bitcoin|ethereum|gem)\b",
      "No targets or 'next X' framing; explain how the design differs."),
     ("price_prediction", "FAIL", r"\bto \$\s?\d",
@@ -71,8 +73,16 @@ RULES = [
     ("solicitation", "FAIL",
      r"\bbuy\s+(?:dgd|digital gold|\$?\d|it|in|now|the dip|some|more|coins?|tokens?|crypto|here|today|the bag)\b",
      "Don't solicit buying DGD. 'Read the white paper / official channels in bio to learn more.'"),
-    ("solicitation", "FAIL", r"\b(?:where|how)\s+to\s+buy\b|\bgo\s+buy\b|\blink\s+to\s+buy\b",
+    ("solicitation", "FAIL", r"\b(?:where|how)\s+to\s+(?:buy|get|acquire|purchase)\b|\bgo\s+buy\b|\blink\s+to\s+buy\b",
      "Don't point people to buy. Point to the white paper / official channels instead."),
+    ("solicitation", "FAIL",
+     r"\b(?:purchase|acquire|grab|snag|claim)\s+(?:dgd|digital gold|some|your|the)\b"
+     r"|\b(?:purchase|acquire)\s+\w+\s+(?:today|now)\b",
+     "Don't solicit acquisition. Point to the white paper instead."),
+    ("solicitation", "FAIL",
+     r"\bDM\s+me\b|\bmessage\s+me\s+(?:to|for|and)\b|\blink\s+in\s+bio\s+to\s+(?:buy|get|join|start)\b"
+     r"|\bsign\s+up\s+(?:with|under)\s+me\b",
+     "No direct-response solicitation. Educational content points to public sources, not to you."),
     ("solicitation", "WARN", r"\bbuy(?:ing|s)?\b",
      "'buy' as a plain verb (e.g. 'money buys less') is fine; confirm it isn't soliciting acquisition of DGD."),
     ("solicitation", "FAIL", r"\bget in\b|\bdon'?t miss out\b|\blast chance\b|\bFOMO\b",
@@ -91,13 +101,16 @@ RULES = [
     # referrals are single-level with a one-time bonus. That combination makes
     # network-marketing language both INACCURATE and legally dangerous: it invites
     # exactly the reading the Foundation's structure is built to avoid.
-    ("mlm_framing", "FAIL", r"\bdown[- ]?line\b|\bup[- ]?line\b|\bmatrix\b",
+    ("mlm_framing", "FAIL",
+     r"\bdown[- ]?line\b|\bup[- ]?line\b|\b(?:forced|binary|\dx\d)\s+matrix\b|\bmatrix\s+(?:plan|comp|compensation|position|spillover)\b",
      "There are no downlines. Inviting is single-level with a one-time bonus (WP §10.1)."),
     ("mlm_framing", "FAIL", r"\bmulti[- ]?level\b|\bMLM\b|\bnetwork marketing\b",
      "DGD is not multi-level. Say: 'inviting is single-level and doesn't change what anyone earns.'"),
     ("mlm_framing", "FAIL", r"\b(?:build|grow|your)\s+(?:your\s+)?team\b|\bget people under you\b",
      "Recruiting-for-income framing. The referral bonus never changes release amounts."),
-    ("mlm_framing", "FAIL", r"\bresidual income\b|\boverride(?:s)?\b|\bcommission(?:s)?\b",
+    ("mlm_framing", "FAIL",
+     r"\bresidual income\b|\b(?:generation|team|group|level)\s+(?:override|bonus|commission)s?\b"
+     r"|\bcommissions?\s+(?:on|from)\s+(?:your|their|the)\s+(?:team|network|referrals?|downline)\b",
      "No residuals, overrides or commissions exist in the model."),
     ("mlm_framing", "FAIL", r"\b(?:tier|rank|level)\s+(?:up|bonus|system)\b|\bhigher tier\b",
      "There are no tiers, ranks or levels — the distribution curve is continuous (WP §5.1)."),
@@ -106,8 +119,11 @@ RULES = [
      "Per-recruit earnings framing. Releases go to funded accounts equally, not per referral."),
     # ---- FAIL: misstating who receives a release ----------------------------
     ("distribution_error", "FAIL",
-     r"\bsplit\b[^.]{0,30}\ball\s+(?:current\s+)?(?:users|accounts|members)\b",
-     "Releases go to accounts with an ACTIVE VALIDATION BALANCE, not to all users."),
+     r"\b(?:split|shared?|divided|allocated|distributed)\b[^.]{0,40}"
+     r"\b(?:among|across|between|to)\s+(?:all\s+(?:current\s+)?)?"
+     r"(?:everyone|everybody|all\s+(?:users|accounts|members|holders|participants)"
+     r"|users|members|holders|participants)\b",
+     "Releases go to accounts with an ACTIVE VALIDATION BALANCE, not to all users/everyone."),
     ("distribution_error", "FAIL",
      r"\b(?:everyone|all users|all accounts)\s+(?:gets?|receives?|earns?)\b[^.]{0,25}\brelease",
      "Unfunded accounts receive nothing. Unclaimed shares return to treasury, not to others."),

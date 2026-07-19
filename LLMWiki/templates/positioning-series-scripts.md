@@ -95,7 +95,7 @@ Two ready-to-shoot mini-series in one pack. **Theme A** explains the safe-harbor
 | 6–30s | "A lot of tokens only 'work' if new buyers keep arriving to pay more — you profit only if someone after you pays up. That's a chair-game, not money. Real money doesn't need a greater fool; it holds value because it's scarce, stable, and actually used. That's the design Digital Gold aims at (WP §2.2)." | GREATER-FOOL vs REAL MONEY | Chairs being pulled away vs steady line |
 | 30–37s | "Understanding the trap protects you — whatever you hold. Follow for more." | KNOW THE GAME | Outro |
 
-**Hashtags:** #cryptoeducation #degen #soundmoney #cryptotwitter #investing101
+**Hashtags:** #cryptoeducation #degen #soundmoney #cryptotwitter #monetarypolicy
 **Compliance note:** educate about the *mechanism*; don't position DGD as "the winning seat." No return claims.
 
 ## B3 — "Stop Getting Rekt. Start Understanding Money."
