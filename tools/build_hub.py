@@ -54,6 +54,7 @@ SECTIONS = [
         ("craft/viral-principles.md", "Viral principles"),
         ("craft/story-structures.md", "Story structures"),
         ("craft/positioning-and-audiences.md", "Positioning & audiences"),
+        ("craft/citable-data.md", "Citable data (CPI / macro)"),
         ("craft/platform-specs.md", "Platform specs"),
     ]),
     ("Stay compliant", [

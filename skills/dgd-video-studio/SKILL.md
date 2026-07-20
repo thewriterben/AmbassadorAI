@@ -94,6 +94,12 @@ For the latest tool/trend state, check the freshest files in `LLMWiki/trends/`,
 `LLMWiki/daily/`, and `LLMWiki/maintenance/` before relying on memory — free tiers and
 platform rules change monthly.
 
+**Outside-world figures (CPI, inflation, macro) come from `LLMWiki/craft/citable-data.md`** —
+never from a `daily/` or `trends/` file, which are dated archives that rot silently. If that page
+is over a month old, re-verify at the source before anything is recorded. It also carries the
+narrative caution: as of June 2026 inflation **fell**, so an "inflation is destroying your savings"
+hook is currently out of step with the print.
+
 The runnable toolchain lives in `tools/`, driven by **one entry point** — always call it
 through the router, never the sub-scripts directly:
 

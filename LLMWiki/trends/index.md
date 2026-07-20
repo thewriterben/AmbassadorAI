@@ -23,4 +23,4 @@ Newest first. The trend-radar task prepends each new entry below.
 
 <!-- TREND-LINKS -->
 - **[2026-07-03](2026-07-03.md)** — Chinese models take the lead (Seedance 2.5 lands this month with 30s native clips; Sora API sunset confirmed); Shorts now ranks watch-time-per-impression and all platforms reward 60–90s; calm cinematic anti-over-editing suits our identity. Best DGD angle: energy-driven inflation (gas +40.5% y/y) as a cost-push explainer on the Scarcity pillar.
-- **[2026-06-29](2026-06-29.md)** — Native AI audio goes standard (Veo 3.1, Kling 3.0 storyboard mode, Sora app sunsetting); captions slow to 2–4 word keyword-pop chunks + analog/VHS grain revival; algos demote hype hooks. Best DGD angle: outcome-first inflation hook (CPI 4.2%) on the Scarcity pillar.
+- **[2026-06-29](2026-06-29.md)** — Native AI audio goes standard (Veo 3.1, Kling 3.0 storyboard mode, Sora app sunsetting); captions slow to 2–4 word keyword-pop chunks + analog/VHS grain revival; algos demote hype hooks. Best DGD angle: outcome-first inflation hook on the Scarcity pillar. **CPI figure superseded — see [citable-data.md](../craft/citable-data.md) (3.5% as of June 2026).**

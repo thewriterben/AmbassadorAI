@@ -58,6 +58,7 @@ Catalog of every page. Start at the [README](README.md). Agent: read this first 
 - [viral-principles.md](craft/viral-principles.md) — what makes short-form spread in 2026.
 - [hooks-library.md](craft/hooks-library.md) — 50+ compliance-safe hooks (incl. positioning hooks).
 - [story-structures.md](craft/story-structures.md) — 7 reusable script skeletons.
+- [citable-data.md](craft/citable-data.md) — ⭐ current CPI / macro figures, dated and sourced. **Quote outside numbers from here, never from `daily/`.**
 - [platform-specs.md](craft/platform-specs.md) — sizes, lengths, posting cheat-sheet.
 - [positioning-and-audiences.md](craft/positioning-and-audiences.md) — "boring on purpose," the anti-degen angle, audience segments & content franchises.
 
