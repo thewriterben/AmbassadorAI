@@ -11,7 +11,7 @@ How to frame Digital Gold for different audiences — including the "degen" crow
 
 DGD's identity is the **anti-speculation** coin. The White Paper says it plainly: *"This is not a speculative instrument."* In a market built on hype, that's a **feature**, not a weakness — and it's your sharpest hook. Lean into it:
 
-- **"Sound money, not a moonshot."**
+- **"Sound money, not a lottery ticket."**
 - **"The coin that's boring on purpose."**
 - **"Designed to be money, not a lottery ticket."**
 
@@ -24,16 +24,36 @@ This framing is compliant *and* contrarian — which is exactly what cuts throug
 **"Degen"** (degenerate) is crypto slang for high-risk gamblers chasing 100x plays, memecoins, and "apeing in." The word appears **nowhere** in DGD's white paper — because DGD is the **philosophical opposite** of degen culture. That contrast is the whole opportunity.
 
 ### The smart play: speak *to* degens, don't become one
-The degen-heavy audience (Crypto Twitter/X, crypto TikTok) is huge and bored of being sold the next gem. You can reach them with a **contrarian, educational, anti-gambling** message:
+The degen-heavy audience (Crypto Twitter/X, crypto TikTok) is huge and bored of being sold the next big thing. You can reach them with a **contrarian, educational, anti-gambling** message:
 
 - "Crypto Twitter is 99% degen plays. Here's the 1% philosophy nobody posts about."
 - "Tired of getting rekt? There's a whole different idea of what money is."
-- "Everyone's chasing the next 100x. This coin was designed so there's *nothing* to chase."
+- "Most of crypto is built to be chased. This one wasn't."
+- "There's nothing here to chase. That's the design, not a disappointment."
 - "The most contrarian thing in crypto right now? Boring, sound money."
 
 You can use the **lingo** ("rekt," "aped in," "exit liquidity," "casino") to grab attention and build rapport — as long as the **payload is education**, not a pitch.
 
 ### 🚫 The line you do NOT cross
+> ## ⚠️ Why the approved lines no longer contain the literal lingo
+>
+> The prime directive permits borrowing degen lingo *as contrast* — and as a strategy that is
+> still right. But the **words themselves** have been removed from every ready-to-use line here,
+> for three reasons the directive predates:
+>
+> 1. **Platform classifiers are keyword-driven and don't parse irony.** A crypto video containing
+>    "100x" is scored on the token, not on the sentence that follows it.
+> 2. **Short-form is the medium where the second half gets clipped.** "Everyone's chasing the next
+>    100x" survives a screenshot; "…this was built so there's nothing to chase" does not.
+> 3. **The program recruits in the EU, UK and Australia**, where
+>    [platform policy](../compliance/platform-policies.md) bans crypto *promotion* outright — "off
+>    limits, full stop." A classifier flagging an EU ambassador's post doesn't hear the contrast.
+>
+> So: **keep the contrast strategy, drop the trigger words.** "Most of crypto is built to be
+> chased. This one wasn't." does the same job and passes the gate. The compliance linter FAILs the
+> literal terms on every shippable surface, deliberately — if a line you want to use is blocked,
+> that is the rail working, not a bug to route around.
+
 Do **not** market DGD *as* a degen play. The instant you say "ape into DGD," "next 100x gem," "this is the degen bag that prints," you have:
 1. Broken the [communications discipline](../compliance/communications-discipline.md) (speculation/profit framing), **and**
 2. Undermined DGD's **[safe-harbor / digital-commodity status](../dgd/positioning-safe-harbor.md)**, which depends on value *not* coming from "expectations of profit."
@@ -53,8 +73,8 @@ So the rule is simple:
 | Time | Spoken | On-screen text | Visual |
 |---|---|---|---|
 | 0–1s | "This might be the most boring coin in crypto. On purpose." | BORING ON PURPOSE | Slot machine powering down |
-| 1–6s | "No 100x promises. No 'ape in.' That's the entire point." | NOTHING TO CHASE | Calm gold coin |
-| 6–30s | "Most of crypto is a casino — chase the pump, hope you're not exit liquidity. Digital Gold was designed the opposite way: fixed rules, a price tied to how many people actually use it, and a structure built so there's nothing to gamble on. It's an attempt at *money*, not a bet (WP Abstract, §2.2)." | CASINO vs SOUND MONEY | Split screen: chaos vs steady line |
+| 1–6s | "Nothing to chase. No hype to sell you. That's the entire point." | NOTHING TO CHASE | Calm gold coin |
+| 6–30s | "Most of crypto runs like a casino. Digital Gold was designed the opposite way: fixed rules, a price tied to how many people actually use it, and a structure built so there's nothing to gamble on. It's an attempt at *money*, not a bet (WP Abstract, §2.2)." | CASINO vs SOUND MONEY | Split screen: chaos vs steady line |
 | 30–37s | "Not financial advice — just a different philosophy of money. Read the white paper and decide for yourself." | A DIFFERENT PHILOSOPHY | Outro |
 
 **Disclosure + AI labels as always.** → [pre-publish checklist](../templates/pre-publish-checklist.md)

@@ -212,9 +212,19 @@ DONT_TABLE_HEADER_RE = re.compile(
     r"\bbanned\b|\brewrite\b|\bnever say\b).*\|", re.IGNORECASE)
 
 
+_EMPHASIS_RE = re.compile(r"[*_`~]+")
+
+
 def is_instructional(line):
-    """True if the line teaches the rule rather than breaking it."""
-    return any(rx.search(line) for rx in INSTRUCTIONAL_RE)
+    """True if the line teaches the rule rather than breaking it.
+
+    Markdown emphasis is stripped first: "Do **not** market DGD as a degen play"
+    would otherwise fail to match "not market", because the asterisks sit between
+    the negation and the verb. That gap made the whole check unreliable on the
+    wiki's own prose, which is heavily emphasised.
+    """
+    return any(rx.search(line) or rx.search(_EMPHASIS_RE.sub("", line))
+               for rx in INSTRUCTIONAL_RE)
 
 
 # Categories where stating the NEGATIVE is the correct, expected phrasing:

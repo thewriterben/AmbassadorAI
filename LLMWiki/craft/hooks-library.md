@@ -63,7 +63,7 @@ updated: 2026-06-16
 - "This might be the most boring coin in crypto. On purpose."
 - "Crypto Twitter is 99% degen plays. Here's the 1% nobody posts."
 - "Tired of getting rekt? There's a different idea of what money is."
-- "Everyone's chasing the next 100x. This was built so there's nothing to chase."
+- "Most of crypto is built to be chased. This one wasn't."
 - "The most contrarian thing in crypto right now: boring, sound money."
 
 ### "Safe harbor" (legal, not financial)

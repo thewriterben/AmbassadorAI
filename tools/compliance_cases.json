@@ -374,6 +374,39 @@
       "expect": "pass",
       "text": "Check the description for the white paper. Not financial advice.",
       "why": "pointing at the white paper is the sanctioned form"
+    },
+    {
+      "id": "emph-1",
+      "expect": "warn",
+      "doc_context": true,
+      "text": "Do **not** market DGD as a degen play.",
+      "why": "markdown emphasis must not break instructional detection"
+    },
+    {
+      "id": "emph-2",
+      "expect": "fail",
+      "doc_context": true,
+      "text": "**Buy DGD now** for guaranteed returns.",
+      "why": "emphasis must not excuse a violation"
+    },
+    {
+      "id": "emph-3",
+      "expect": "fail",
+      "doc_context": true,
+      "text": "*This will 100x.*",
+      "why": "italic violation still fails"
+    },
+    {
+      "id": "degen-3",
+      "expect": "fail",
+      "text": "Everyone's chasing the next 100x. This was built so there's nothing to chase.",
+      "why": "POLICY CALL: literal lingo still FAILS on shippable surfaces, even as contrast"
+    },
+    {
+      "id": "degen-4",
+      "expect": "fail",
+      "text": "Sound money, not a moonshot.",
+      "why": "the old approved line - now correctly blocked"
     }
   ]
 }
