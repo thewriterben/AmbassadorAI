@@ -320,6 +320,60 @@
       "expect": "pass",
       "text": "In March 2026 X lifted its crypto-promotion ban. Not financial advice.",
       "why": "'2026 X' is a year + the platform, not a multiplier"
+    },
+    {
+      "id": "dry-1",
+      "expect": "pass",
+      "text": "Unclaimed coins go back to the treasury - they don't get shared out to everyone else. Not financial advice.",
+      "why": "DRY RUN: the correct statement of the model was blocked by the rule protecting it"
+    },
+    {
+      "id": "dry-2",
+      "expect": "pass",
+      "text": "Volatility - not a guaranteed safe harbor. Not financial advice.",
+      "why": "DRY RUN: negated 'guaranteed' is the correct caveat"
+    },
+    {
+      "id": "dry-3",
+      "expect": "fail",
+      "text": "Each release is split among everyone.",
+      "why": "un-negated: still fails"
+    },
+    {
+      "id": "dry-4",
+      "expect": "fail",
+      "text": "This isn't a scam, buy DGD now.",
+      "why": "negation elsewhere must not excuse solicitation"
+    },
+    {
+      "id": "dry-5",
+      "expect": "fail",
+      "text": "It's not risky - you'll double your money.",
+      "why": "negation must not excuse a multiplier claim"
+    },
+    {
+      "id": "dry-6",
+      "expect": "fail",
+      "text": "No downside, guaranteed gains.",
+      "why": "'gains' is not negation-sensitive - defence in depth"
+    },
+    {
+      "id": "soft-2",
+      "expect": "fail",
+      "text": "Consider a small, research-first approach - treat it like an experiment.",
+      "why": "DRY RUN: soft acquisition suggestion, was in the baseline"
+    },
+    {
+      "id": "soft-3",
+      "expect": "fail",
+      "text": "Check the description for links.",
+      "why": "DRY RUN: undirected CTA, was in the baseline"
+    },
+    {
+      "id": "soft-4",
+      "expect": "pass",
+      "text": "Check the description for the white paper. Not financial advice.",
+      "why": "pointing at the white paper is the sanctioned form"
     }
   ]
 }

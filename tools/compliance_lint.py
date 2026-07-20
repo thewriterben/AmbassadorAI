@@ -73,6 +73,17 @@ RULES = [
      "Replace with 'a design aimed at preserving purchasing power.'"),
     ("return_promise", "FAIL", r"\bguaranteed\b|\brisk[- ]?free\b",
      "Nothing is guaranteed; it's a reasoned design and the WP says so."),
+    ("investment", "FAIL",
+     r"\bhedge\s+(?:against|for)\b|\binflation\s+hedge\b",
+     "'Hedge against inflation' is investment framing. Describe the supply mechanism instead."),
+    ("investment", "FAIL",
+     r"\btreat\s+it\s+like\s+an?\s+experiment\b|\bresearch[- ]first\s+approach\b"
+     r"|\bstart\s+small\b|\bdip\s+a\s+toe\b|\btest\s+the\s+waters\b",
+     "A soft suggestion to acquire is still a solicitation. Point to the white paper instead."),
+    ("solicitation", "FAIL",
+     r"\b(?:check|see|link|links)\s+(?:in\s+)?(?:the\s+)?(?:description|bio)\b"
+     r"(?!\s*(?:for\s+)?(?:the\s+)?(?:white\s*paper|official))",
+     "Only ever point to the white paper / official channels, and say so explicitly."),
     # ---- FAIL: solicitation -------------------------------------------------
     ("solicitation", "FAIL",
      r"\bbuy\s+(?:dgd|digital gold|\$?\d|it|in|now|the dip|some|more|coins?|tokens?|crypto|here|today|the bag)\b",
@@ -122,9 +133,11 @@ RULES = [
      r"\bearn\b[^.]{0,40}\b(?:per|every|each)\s+(?:signup|sign-up|referral|person|recruit)\b",
      "Per-recruit earnings framing. Releases go to funded accounts equally, not per referral."),
     # ---- FAIL: misstating who receives a release ----------------------------
+    # Negation-aware: "they DON'T get shared out to everyone" is the correct
+    # statement of the model and must not be blocked by the rule protecting it.
     ("distribution_error", "FAIL",
-     r"\b(?:split|shared?|divided|allocated|distributed)\b[^.]{0,40}"
-     r"\b(?:among|across|between|to)\s+(?:all\s+(?:current\s+)?)?"
+     r"\b(?:split|shared?|divided|allocated|distributed)\b"
+     r"[^.]{0,40}\b(?:among|across|between|to)\s+(?:all\s+(?:current\s+)?)?"
      r"(?:everyone|everybody|all\s+(?:users|accounts|members|holders|participants)"
      r"|users|members|holders|participants)\b",
      "Releases go to accounts with an ACTIVE VALIDATION BALANCE, not to all users/everyone."),
@@ -204,6 +217,25 @@ def is_instructional(line):
     return any(rx.search(line) for rx in INSTRUCTIONAL_RE)
 
 
+# Categories where stating the NEGATIVE is the correct, expected phrasing:
+#   "they DON'T get shared out to everyone"   (the corrected model)
+#   "not a GUARANTEED safe harbor"            (the correct caveat)
+# Scoped deliberately. Solicitation and price_prediction are NOT here, so
+# "This isn't a scam, buy DGD now" still fails on the second clause.
+NEGATION_SENSITIVE = {"distribution_error"}
+NEGATION_SENSITIVE_TERMS = {"guaranteed"}
+NEG_CUE_RE = re.compile(
+    r"\b(?:not|never|no|nothing|isn'?t|aren'?t|doesn'?t|don'?t|won'?t|cannot|can'?t)\b"
+    r"[^.;:!?]{0,30}$", re.IGNORECASE)
+
+
+def _negated(line, start, cat, term):
+    """Is this match governed by a negation earlier in the same clause?"""
+    if cat not in NEGATION_SENSITIVE and term.lower() not in NEGATION_SENSITIVE_TERMS:
+        return False
+    return bool(NEG_CUE_RE.search(line[:start]))
+
+
 def lint_text(text, want_disclosure=False, doc_context=False):
     """Return {'findings': [...], 'verdict': 'pass'|'warn'|'fail', 'suppressed': N}.
 
@@ -232,6 +264,9 @@ def lint_text(text, want_disclosure=False, doc_context=False):
                                     (in_dont_table and line.strip().startswith("|")))
         for cat, sev, rx, fix in COMPILED:
             for m in rx.finditer(line):
+                if sev == "FAIL" and _negated(line, m.start(), cat, m.group(0)):
+                    suppressed += 1
+                    continue
                 if teaching and sev == "FAIL":
                     suppressed += 1
                     sev_out = "INFO"

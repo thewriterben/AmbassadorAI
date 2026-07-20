@@ -1,19 +1,15 @@
-# 60s Script — Digital Gold / Sound Money (example)
+# A bigger balance doesn't get you a bigger share
 
-Beat 1 (0:00–0:10) — Hook:
-"Imagine money you can’t print more of. No governments, no hidden fees — just a fixed rule that everyone can see. That’s why some call Bitcoin ‘Digital Gold.’"
+**Topic:** how DGD releases are split · **Audience:** crypto-curious · **Platform:** Reels / Shorts
+**Takeaway:** funding more doesn't earn more per release — it earns for longer.
 
-Beat 2 (0:10–0:20) — Problem:
-"Today, central banks can expand the money supply. That can help in a crisis — but it can also reduce the value of your savings over time."
+| Time | Spoken | On-screen text | Suggested visual |
+|---|---|---|---|
+| 0–3s | "Put in ten times more money, get ten times more coins. That's how it usually works. Not here." | TEN TIMES MORE? NO. | Assay at the workbench, two identical coins on the scale |
+| 3–10s | "Digital Gold releases coins as accounts join. Each release is split equally across every funded account — same amount each, whatever your balance." | SPLIT EQUALLY · SAME AMOUNT EACH | Slow push on the balanced scale, both pans level |
+| 10–20s | "So a larger balance doesn't buy a larger share. It just keeps you receiving for longer, until it runs out." | BIGGER BALANCE = LONGER, NOT LARGER | Two hourglasses, one taller, same grain size falling |
+| 20–30s | "And if an account isn't funded, it receives nothing from that release. Those coins go back to the treasury — they don't get shared out to everyone else." | UNFUNDED = NOTHING · UNCLAIMED → TREASURY | Coin returning along a gold line to a vault door |
+| 30–40s | "It's a design choice. Equal per participant, not proportional to what you put in. Whether that's the right choice is a fair question — the white paper explains the reasoning." | A DESIGN CHOICE, NOT A PROMISE | Assay setting the loupe down, looking to camera |
+| 40–45s | "Educational only, not financial advice. Follow if you want the next one." | NOT FINANCIAL ADVICE | Title card, gold on navy |
 
-Beat 3 (0:20–0:30) — Promise:
-"Bitcoin is capped at 21 million coins. That scarcity is built into the system — a digital scarcity unlike any currency you’ve used."
-
-Beat 4 (0:30–0:42) — Evidence:
-"Transactions are recorded on a public ledger, verifiable by anyone. That transparency and cryptographic security make it resilient to many forms of tampering."
-
-Beat 5 (0:42–0:54) — Trade-offs:
-"It’s volatile and not yet universal for payments. But for people seeking a hedge against inflation, it’s a new tool — not a silver bullet."
-
-Beat 6 (0:54–1:00) — Close / CTA:
-"If you want to learn more, check the description for links and consider a small, research-first approach — treat it like an experiment."
+**Disclosure:** AI-generated visuals · not financial advice (both on-screen, first 3–5s).

@@ -1,37 +1,29 @@
-# 6-Shot Storyboard (example)
+# Shot list — "A bigger balance doesn't get you a bigger share"
 
-Shot 1 — Hook (0:00–0:10)
-- Camera: Close-up of a person looking thoughtful
-- Visuals: Slow push-in, soft lighting
-- On-screen text: "What if money couldn't be printed?"
-- B-roll: Stacks of paper money, printing press (quick cut)
+Companion to `script.md`. Vertical 1080×1920, visual change roughly every 2s,
+captions burned in. Assets from `dgd.py assets kit` + `dgd.py assets coin`.
 
-Shot 2 — Problem (0:10–0:20)
-- Camera: Wide shot of cityscape / central bank building
-- Visuals: Subtle zoom out, news headlines overlaid
-- On-screen text: "Central banks can create more money"
-- B-roll: Graph of rising money supply
+**Character:** Assay (see `cast/assay.json`) — paste the block from
+`dgd.py character prompt` verbatim into every generation, with its seed.
 
-Shot 3 — Promise (0:20–0:30)
-- Camera: Animated infographic of 21M cap
-- Visuals: Clean motion graphic showing coins counting up to 21M
-- On-screen text: "Capped supply: 21 million"
-- B-roll: Minimalist coin icons, ledger animation
+| # | Time | Shot | Asset / source | On-screen text |
+|---|---|---|---|---|
+| 1 | 0–3s | Assay at a workbench, two identical coins on a balance scale | character block + `assets coin --preset hand` | TEN TIMES MORE? NO. |
+| 2 | 3–10s | Slow push on the scale, both pans level | `assets coin-motion --mode wobble` | SPLIT EQUALLY · SAME AMOUNT EACH |
+| 3 | 10–20s | Two hourglasses, one taller, identical grain size falling | `assets motif --theme scarcity` | BIGGER BALANCE = LONGER, NOT LARGER |
+| 4 | 20–30s | A coin travelling back along a gold line into a vault door | `assets motif --theme vault` | UNFUNDED = NOTHING · UNCLAIMED → TREASURY |
+| 5 | 30–40s | Assay sets the loupe down, looks to camera | character block | A DESIGN CHOICE, NOT A PROMISE |
+| 6 | 40–45s | Title card, gold on navy | `01_title.png` | NOT FINANCIAL ADVICE |
 
-Shot 4 — Evidence (0:30–0:42)
-- Camera: Over-the-shoulder of developer checking ledger on screen
-- Visuals: Screen capture style ledger, highlighted blocks
-- On-screen text: "Transparent ledger — verifiable by anyone"
-- B-roll: Blockchain visualization, code snippets (stylized)
+## Disclosure placement (both, first 3–5s, on-screen)
 
-Shot 5 — Trade-offs (0:42–0:54)
-- Camera: Medium interview shot
-- Visuals: Person speaking to camera, alternates with market charts
-- On-screen text: "Volatility — not a guaranteed safe harbor"
-- B-roll: Volatility chart, thinking person
+- **Sponsored / #Ad** — the promotional pathway pays DGD recognition, so this is
+  branded content. `03_disclosure.png`.
+- **AI-generated** — separate label, not merged with the sponsorship one.
 
-Shot 6 — Close / CTA (0:54–1:00)
-- Camera: Wide to close pull-away
-- Visuals: Call-to-action overlay, link to description
-- On-screen text: "Learn more — links below"
-- B-roll: Channel logo, thumbnail preview
+## Notes
+
+- The coin is **composited**, never generated — see `reference/coin-assets.md`.
+- Shot 4 is the beat people get wrong: unclaimed coins go **back to the
+  treasury**, they are not redistributed to other accounts.
+- No stacks of coins, no price charts, no rocket or casino imagery anywhere.

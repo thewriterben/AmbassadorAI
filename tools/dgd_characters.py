@@ -421,7 +421,14 @@ def main(argv=None):
         if CL is None:
             sys.stderr.write("REFUSING: compliance_lint unavailable, cannot gate the prompt.\n")
             return 2
-        res = CL.lint_text(block)
+        # Lint the USER-SUPPLIED parts only. The negative list is our own
+        # boilerplate ("no rocket or casino imagery") and linting it made every
+        # prompt warn about a word we ourselves added to forbid it.
+        authored = "\n".join([sheet.get("name", ""), sheet.get("role", ""),
+                              sheet.get("look", ""), sheet.get("wardrobe", ""),
+                              sheet.get("manner", ""), sheet.get("voice", ""),
+                              a.shot or "", a.style or ""])
+        res = CL.lint_text(authored)
         if res["verdict"] == "fail":
             sys.stderr.write("BLOCKED - the prompt breaks the communications discipline:\n")
             for f in res["findings"]:
