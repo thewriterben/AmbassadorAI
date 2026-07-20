@@ -3,6 +3,8 @@ import json
 import os
 
 TOOLS = os.path.join(os.path.dirname(__file__), "..", "tools")
+import sys
+sys.path.insert(0, TOOLS)
 
 
 # ---------------------------------------------------------------- compliance_lint
@@ -18,11 +20,44 @@ def test_lint_verdicts():
 
 
 def test_lint_matches_eval_cases():
-    import compliance_lint as CL
-    cases = json.load(open(os.path.join(TOOLS, "compliance_cases.json"), encoding="utf-8"))["cases"]
-    for c in cases:
-        got = CL.lint_text(c["text"], doc_context=c.get("doc_context", False))["verdict"]
-        assert got == c["expect"], c["id"]
+    """Delegates to the eval runner rather than reimplementing it.
+
+    This test used to have its own copy of the case-evaluation logic. When
+    `doc_context` was added to the case schema, only the runner was updated, so
+    the suite failed while `run_compliance_evals.py` passed on the same file.
+    One implementation, one place.
+    """
+    import run_compliance_evals as EV
+    passed, failures = EV.run_cases()
+    assert not failures, "cases whose verdict changed: " + ", ".join(
+        f"{c['id']} (expected {c['expect']}, got {got})" for c, got in failures)
+    assert passed > 0, "no cases ran - is compliance_cases.json empty?"
+
+
+def test_eval_case_file_is_valid():
+    """The case file's own schema is guarded.
+
+    A field that one consumer honours and another silently ignores is the bug
+    class that produced the drift above. load_cases() rejects unknown fields, so
+    adding one without teaching the runner about it fails loudly here.
+    """
+    import run_compliance_evals as EV
+    cases = EV.load_cases()
+    assert len(cases) >= 60, f"expected the full red-team set, got {len(cases)}"
+
+
+def test_eval_loader_rejects_an_unknown_field(tmp_path):
+    """Prove the guard actually fires - otherwise it is decoration."""
+    import run_compliance_evals as EV
+    bad = tmp_path / "cases.json"
+    bad.write_text(json.dumps({"cases": [
+        {"id": "x", "expect": "pass", "text": "hello", "strict_mode": True}]}), encoding="utf-8")
+    try:
+        EV.load_cases(str(bad))
+    except ValueError as e:
+        assert "strict_mode" in str(e)
+    else:
+        raise AssertionError("load_cases accepted an unknown field - the guard is not working")
 
 
 # ---------------------------------------------------------------- dgd_publish
