@@ -1,0 +1,22 @@
+{
+  "_comment": "Copy this next to where you want the output, fill it in, then run scripts/build_all.py. Only `states` is required.",
+
+  "org":   "Digital Gold",
+  "term":  "Fall 2026",
+  "today": "2026-08-11",
+
+  "states": ["Colorado", "Arizona"],
+
+  "exclude_campuses": [],
+
+  "route": [
+    ["LEG 1 — <name>", "<one line on why these group together>",
+     ["<stop or action>", "<stop or action>"]]
+  ],
+
+  "budget_extra": [
+    ["<line item>", "<cost>", "<note>"]
+  ],
+
+  "top5": []
+}
