@@ -44,6 +44,15 @@ item carrying its WP/wiki source.
 > The tablet path — signed single-use questions, nonce, expiry, ordering — was
 > attacked directly and does hold.
 
+> **Correction, 2026-09-18.** Two claims in this document are narrower than
+> they read. "The daily cap is what bounds" mini-game XP holds inside one UTC
+> day only: rounds opened before midnight and claimed after it are counted
+> against the wrong day and all pay (`AUDIT-2026-09-18.md` R1, reproduced,
+> open). And "demo makes no network calls" (16 Sept, C5) covered the level-win
+> call only: a `DGD_DEMO` build still registers an anonymous player on cold
+> start through `ArcadeProgress.load()` (A1, reproduced on an emulator against
+> a local server). Both are regression tests now; neither is fixed.
+
 Node 24 + Hono + `node:sqlite`, TypeScript run directly (no build step). Working copy at
 `C:\src\arcade-server`; `npm start` listens on :8787, `npm test` runs the rule tests (9, all
 passing). SQLite is the pilot store; the schema is plain SQL so Postgres is a driver swap.
