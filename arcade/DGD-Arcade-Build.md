@@ -273,7 +273,12 @@ XP/badges/expedition/tablet, never earn/cash; the footer on every home screen re
 
 Toolchain on the build PC: Flutter 3.47 at `C:\src\flutter`, Android Studio + SDK 35/36, Python 3
 with Pillow (asset pipelines). Working copy at `C:\src\puzzle-app`; `arcade/app/` in this repo is a
-mirror without `build/`, `.dart_tool/` and the full-resolution image backups.
+mirror without `build/`, `.dart_tool/` and the full-resolution image backups. **The mirror is
+only as current as the last copy.** On 18 Sep it was found two days stale — before the nine-game
+removal, the settings screen and the C9 teardown test — and the same was true of `arcade/server/`
+against `C:\srcrcade-server` (the `DELETE /v1/me` route). Both were re-synced that day. Until
+the working copies move into this repo, every change in `C:\src` needs a copy here, or the git
+history records a product that was never built.
 
 ```
 tools\check.cmd       pub get + analyze + test           → C:\src\check.log

@@ -20,7 +20,7 @@ after(() => {
 const advance = (ms: number) => (offset += ms);
 
 const db = openDb(':memory:');
-const bank = QuestionBank.load(fileURLToPath(new URL('../data/bank', import.meta.url)));
+const bank = QuestionBank.fromFile(fileURLToPath(new URL('../data/question-bank-seed.md', import.meta.url)));
 const app = createApp(db, bank);
 
 async function call(method: string, path: string, body?: unknown, token?: string) {
@@ -362,6 +362,69 @@ test('concurrent finishes pay exactly once', async () => {
   // matters either way is that one expedition never produces two ledger rows.
   const events = db.prepare('SELECT COUNT(*) AS n FROM xp_events WHERE ref_id = ?').get(exp) as { n: number };
   assert.ok(events.n <= 1, `${events.n} XP events for a single expedition`);
+});
+
+test('DELETE /v1/me erases the player from every table', async () => {
+  const fresh = (await call('POST', '/v1/players', {})).json.token;
+  const me = await call('GET', '/v1/me', undefined, fresh);
+  const playerId = db.prepare('SELECT id FROM players WHERE handle = ?').get(me.json.handle) as { id: string };
+  assert.ok(playerId, 'could not find the player we just made');
+  const id = playerId.id;
+
+  // Leave a trail in as many tables as a player can touch: an expedition with
+  // issued tablets, a ledger play, a mini round, and the XP ledger rows those
+  // produce. A delete that only clears `players` would leave all of it.
+  const start = await call('POST', '/v1/expeditions', {}, fresh);
+  const exp = start.json.expeditionId;
+  for (let i = 0; i < start.json.tabletCount; i++) {
+    advance(Math.ceil(start.json.tabletFractions[i] * config.run.minFinishMs) + 2000);
+    const t = await call('POST', `/v1/expeditions/${exp}/tablets/${i}`, {}, fresh);
+    await call('POST', `/v1/expeditions/${exp}/tablets/${i}/answer`, { token: t.json.token, choice: 0 }, fresh);
+  }
+  advance(config.run.minFinishMs + 5000);
+  await call('POST', `/v1/expeditions/${exp}/finish`, { runMs: 120_000 }, fresh);
+  await playMini('pillar_sort', { right: 9, total: 9 }, fresh);
+  const today = todayIndex();
+  await call('POST', '/v1/ledger/guess', { guess: puzzleFor(today).answer }, fresh);
+
+  const countFor = (table: string, col = 'player_id') =>
+    (db.prepare(`SELECT COUNT(*) AS n FROM ${table} WHERE ${col} = ?`).get(id) as { n: number }).n;
+  const tabletRows = () =>
+    (
+      db
+        .prepare('SELECT COUNT(*) AS n FROM tablets WHERE expedition_id IN (SELECT id FROM expeditions WHERE player_id = ?)')
+        .get(id) as { n: number }
+    ).n;
+
+  // Guard the guard: if the trail were empty the assertions below would pass
+  // against a delete that does nothing at all.
+  assert.ok(countFor('expeditions') > 0, 'no expedition to delete');
+  assert.ok(tabletRows() > 0, 'no tablet rows to delete');
+  assert.ok(countFor('xp_events') > 0, 'no XP events to delete');
+  assert.ok(countFor('ledger_plays') > 0, 'no ledger play to delete');
+  assert.ok(countFor('mini_rounds') > 0, 'no mini round to delete');
+
+  const del = await call('DELETE', '/v1/me', undefined, fresh);
+  assert.equal(del.status, 200);
+  assert.equal(del.json.deleted, true);
+  assert.equal(del.json.rows.players, 1);
+
+  for (const table of ['expeditions', 'badges', 'tablet_state', 'ledger_plays', 'mini_rounds', 'xp_events']) {
+    assert.equal(countFor(table), 0, `${table} still holds rows for a deleted player`);
+  }
+  // `tablets` is keyed to the expedition, not the player — the case a naive
+  // "DELETE ... WHERE player_id" sweep silently misses.
+  assert.equal(tabletRows(), 0, 'tablets rows survived, orphaned');
+  assert.equal((db.prepare('SELECT COUNT(*) AS n FROM players WHERE id = ?').get(id) as { n: number }).n, 0);
+
+  // The token resolved against the row that is now gone, so it stops working.
+  assert.equal((await call('GET', '/v1/me', undefined, fresh)).status, 401);
+  assert.equal((await call('DELETE', '/v1/me', undefined, fresh)).status, 401);
+});
+
+test('deletion needs a valid token', async () => {
+  assert.equal((await call('DELETE', '/v1/me')).status, 401);
+  assert.equal((await call('DELETE', '/v1/me', undefined, 'not-a-token')).status, 401);
 });
 
 test('junk in a request body is rejected, not 500', async () => {

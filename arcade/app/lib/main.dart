@@ -4,18 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'arcade/leaderboard_screen.dart';
-import 'arcade/ledger/daily_ledger_screen.dart';
-import 'arcade/mini/chain_builder_screen.dart';
-import 'arcade/mini/design_or_myth_screen.dart';
-import 'arcade/mini/pillar_sort_screen.dart';
 import 'arcade/progress.dart';
-import 'arcade/run/tablet_run_screen.dart';
+import 'arcade/settings_screen.dart';
 import 'audio.dart';
 import 'dev.dart';
-import 'games/blocks_game.dart';
-import 'games/merge_game.dart';
-import 'games/rope_game.dart';
-import 'games/words_game.dart';
 import 'match3/model/levels.dart';
 import 'match3/progress.dart';
 import 'match3/ui/level_map.dart';
@@ -106,11 +98,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 6),
-                const Text(
-                    Dev.demoBuild
-                        // No expeditions in the demo, so don't promise them.
-                        ? 'Match the coins. Sixty levels through the making of Digital Gold.'
-                        : 'Learn how Digital Gold is designed — one expedition at a time.',
+                const Text('Match the coins. Sixty levels through the making of Digital Gold.',
                     style: TextStyle(fontSize: 14, color: AppTheme.body, height: 1.4)),
                 const SizedBox(height: 16),
                 // XP, level and the standings link all come from the server.
@@ -120,114 +108,21 @@ class HomeScreen extends StatelessWidget {
                   const _XpBar(),
                   const SizedBox(height: 18),
                 ],
-                // Both of these are server-authoritative — see Dev.demoBuild.
-                if (!Dev.demoBuild) ...[
-                  const _Section('EXPEDITIONS'),
-                  _GameCard(
-                    title: 'Tablet Run',
-                    kicker: '01 · EXPEDITION',
-                    blurb: 'Roll from 1913 to the network. Three Knowledge Tablets gate the way.',
-                    asset: 'assets/images/coin_gold.png',
-                    primary: true,
-                    onTap: () => _open(context, const TabletRunScreen()),
-                  ),
-                  const SizedBox(height: 12),
-                  ListenableBuilder(
-                    listenable: ArcadeProgress.instance,
-                    builder: (_, __) {
-                      final p = ArcadeProgress.instance;
-                      return _GameCard(
-                        title: 'Daily Ledger',
-                        kicker: '02 · ONE PUZZLE A DAY',
-                        blurb: p.ledgerDoneToday
-                            ? 'Done for today · streak ${p.streak}. Back at 00:00 UTC.'
-                            : 'Same puzzle for everyone. Six attempts. Keep the streak.',
-                        asset: 'assets/images/word_correct.png',
-                        onTap: () => _open(context, const DailyLedgerScreen()),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 18),
-                ],
-                if (!Dev.demoBuild) ...[
-                  const _Section('KNOWLEDGE MINI-GAMES'),
-                _GameCard(
-                  title: 'Pillar Sort',
-                  kicker: '03 · 60 SECONDS',
-                  blurb: 'Statements fly in. Tap the pillar each one belongs to.',
-                  asset: 'assets/images/piece_silver.png',
-                  onTap: () => _open(context, const PillarSortScreen()),
-                ),
-                const SizedBox(height: 12),
-                _GameCard(
-                  title: 'Design or Myth?',
-                  kicker: '04 · SWIPE',
-                  blurb: 'Right if it\'s how DGD is built, left if it\'s a myth. The misconceptions ambassadors hear most.',
-                  asset: 'assets/images/piece_red.png',
-                  onTap: () => _open(context, const DesignOrMythScreen()),
-                ),
-                const SizedBox(height: 12),
-                _GameCard(
-                  title: 'Chain Builder',
-                  kicker: '05 · ORDER THE LINKS',
-                  blurb: 'Drag the supply chain, the release flow and custody steps into order.',
-                  asset: 'assets/images/piece_copper.png',
-                  onTap: () => _open(context, const ChainBuilderScreen()),
-                ),
-                const SizedBox(height: 18),
-                ],
-                // The demo is Coin Quest alone, so the section heading would be
-                // labelling a list of one.
-                if (!Dev.demoBuild) const _Section('ARCADE'),
+                // The catalogue is Coin Quest alone while the next ten games
+                // are built. No section heading — it would be labelling a list
+                // of one — and no leading number, because there is no
+                // catalogue for it to be sixth in.
                 ListenableBuilder(
                   listenable: Progress.instance,
                   builder: (_, __) => _GameCard(
                     title: 'Coin Quest: Digital Gold',
-                    // The numbering is a position in the catalogue; with one
-                    // card there is no catalogue to be sixth in.
-                    kicker: Dev.demoBuild ? 'MATCH-3' : '06 · MATCH-3',
+                    kicker: 'MATCH-3',
                     blurb: 'Match the coins. ${Progress.instance.totalStars}/${levels.length * 3} stars.',
                     asset: 'assets/images/piece_gold.png',
+                    primary: true,
                     onTap: () => _open(context, const LevelMapScreen()),
                   ),
                 ),
-                // Merge, Words, Blocks and Rope are at a rougher finish than
-                // Coin Quest; showing them in the demo invites feedback on the
-                // wrong things.
-                if (!Dev.demoBuild) ...[
-                const SizedBox(height: 12),
-                _GameCard(
-                  title: 'Merge',
-                  kicker: '07 · SWIPE TO 2048',
-                  blurb: 'Slide and double the tiles up to the DGD coin.',
-                  asset: 'assets/images/merge_2048.png',
-                  onTap: () => _open(context, const MergeGame()),
-                ),
-                const SizedBox(height: 12),
-                _GameCard(
-                  title: 'Words',
-                  kicker: '08 · SIX GUESSES',
-                  blurb: 'Five-letter word, six tries, unlimited rounds.',
-                  asset: 'assets/images/word_present.png',
-                  onTap: () => _open(context, const WordsGame()),
-                ),
-                const SizedBox(height: 12),
-                _GameCard(
-                  title: 'Blocks',
-                  kicker: '09 · DROP AND CLEAR',
-                  blurb: 'Falling ingots. Tap to rotate, swipe down to drop.',
-                  asset: 'assets/images/block_0.png',
-                  onTap: () => _open(context, const BlocksGame()),
-                ),
-                const SizedBox(height: 12),
-                _GameCard(
-                  title: 'Rope',
-                  kicker: '10 · CUT AND CATCH',
-                  blurb: 'Swipe the ropes so the coin lands in the vault.',
-                  asset: 'assets/images/rope_treat.png',
-                  onTap: () => _open(context, const RopeGame()),
-                ),
-                ],
                 const SizedBox(height: 18),
                 Center(
                   child: Container(
@@ -241,7 +136,40 @@ class HomeScreen extends StatelessWidget {
                             color: AppTheme.muted)),
                   ),
                 ),
-                const SizedBox(height: 18),
+                const SizedBox(height: 10),
+                // Settings carries the two data-deletion controls, which both
+                // stores expect to be reachable from inside the app. It sits
+                // by the disclaimer because that is where people look for
+                // privacy and legal controls — and because the header row is
+                // already full: a third button there overflows by 26px on a
+                // 432pt-wide screen, which widget_test catches.
+                //
+                // Kept compact deliberately. A default TextButton's 48pt tap
+                // target plus its own padding pushed the no-monetary-value
+                // disclaimer off the bottom of the first screen, and that line
+                // is a compliance statement — it has to be readable without
+                // scrolling. The tap target is still 36pt, above the 24pt
+                // minimum for a secondary text link.
+                Center(
+                  child: TextButton(
+                    style: TextButton.styleFrom(
+                      minimumSize: const Size(0, 36),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    onPressed: () {
+                      Audio.instance.tap();
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen()));
+                    },
+                    child: const Text('Settings and your data',
+                        style: TextStyle(
+                            fontFamily: AppTheme.fontMono,
+                            fontSize: 11,
+                            letterSpacing: 0.8,
+                            color: AppTheme.muted)),
+                  ),
+                ),
+                const SizedBox(height: 6),
                 const Center(
                   child: Text('Educational only. XP and badges have no monetary value.',
                       style: TextStyle(fontFamily: AppTheme.fontMono, fontSize: 10, color: AppTheme.dim)),
@@ -253,23 +181,6 @@ class HomeScreen extends StatelessWidget {
       ),
     );
   }
-}
-
-class _Section extends StatelessWidget {
-  final String text;
-  const _Section(this.text);
-
-  @override
-  Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.only(bottom: 10),
-        child: Row(children: [
-          Text(text,
-              style: const TextStyle(
-                  fontFamily: AppTheme.fontMono, fontSize: 10, letterSpacing: 1.4, color: AppTheme.muted)),
-          const SizedBox(width: 10),
-          const Expanded(child: Divider(color: AppTheme.border, height: 1)),
-        ]),
-      );
 }
 
 class _XpBar extends StatelessWidget {

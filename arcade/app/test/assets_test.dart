@@ -15,11 +15,24 @@ void main() {
     final ref = RegExp(r'''['"](assets/[^'"]+)['"]''');
 
     final missing = <String>[];
+    final unreadable = <String>[];
     for (final f in Directory('$root/lib')
         .listSync(recursive: true)
         .whereType<File>()
         .where((f) => f.path.endsWith('.dart'))) {
-      for (final m in ref.allMatches(f.readAsStringSync())) {
+      // A file the OS will not let anyone open is not part of the build — the
+      // compiler cannot read it either. On Windows a deleted file whose handle
+      // is still held by another process lingers as a directory entry in
+      // exactly this state until that process lets go. Skip it, but say so:
+      // silently ignoring an unreadable source file would hide a real one.
+      final String src;
+      try {
+        src = f.readAsStringSync();
+      } on FileSystemException {
+        unreadable.add(f.path.substring(root.length + 1));
+        continue;
+      }
+      for (final m in ref.allMatches(src)) {
         final rel = m.group(1)!;
         // Interpolated paths — 'assets/images/block_$i.png' — only resolve at
         // runtime, so there is nothing to look up here. The families they
@@ -33,6 +46,11 @@ void main() {
       }
     }
 
+    if (unreadable.isNotEmpty) {
+      // ignore: avoid_print
+      print('assets_test: skipped ${unreadable.length} unreadable file(s) — '
+          'delete-pending or locked:\n  ${unreadable.join('\n  ')}');
+    }
     expect(missing, isEmpty, reason: 'missing assets:\n${missing.join('\n')}');
   });
 

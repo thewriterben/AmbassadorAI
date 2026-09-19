@@ -68,6 +68,25 @@ class ArcadeApi {
 
   Future<Map<String, dynamic>> me() => _get('/v1/me');
 
+  /// Erases this player's server record, then forgets the local identity.
+  ///
+  /// The order matters. The stored token is the only way to name the record on
+  /// the server, so clearing it first would leave an unreachable row behind and
+  /// tell the player their data was deleted when it was not. The local wipe
+  /// happens only after the server confirms.
+  ///
+  /// Afterwards the app has no identity at all. The next call to [init] simply
+  /// registers a new anonymous player, which is the right behaviour: someone
+  /// who deletes their record and keeps playing starts again from nothing.
+  Future<void> deleteMe() async {
+    await _delete('/v1/me');
+    _token = null;
+    playerId = null;
+    final p = _prefs ??= await SharedPreferences.getInstance();
+    await p.remove('api.token');
+    await p.remove('api.player');
+  }
+
   // Expeditions
   Future<Map<String, dynamic>> startExpedition() => _post('/v1/expeditions', {});
   Future<Map<String, dynamic>> openTablet(String exp, int idx) => _post('/v1/expeditions/$exp/tablets/$idx', {});
@@ -113,6 +132,17 @@ class ArcadeApi {
   Future<Map<String, dynamic>> _get(String path) async {
     try {
       final r = await _client.get(Uri.parse('$base$path'), headers: _headers()).timeout(_timeout);
+      return _decode(r);
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw ApiException('offline', 0, '$e');
+    }
+  }
+
+  Future<Map<String, dynamic>> _delete(String path) async {
+    try {
+      final r = await _client.delete(Uri.parse('$base$path'), headers: _headers()).timeout(_timeout);
       return _decode(r);
     } on ApiException {
       rethrow;

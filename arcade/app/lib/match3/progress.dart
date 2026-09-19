@@ -81,7 +81,11 @@ class Progress extends ChangeNotifier {
   }
 
   /// Wipes all Coin Quest progress, including the first-run coaching cards.
-  Future<void> devReset() async {
+  ///
+  /// Not dev-only despite its origins: this is also what the "erase progress on
+  /// this device" control in Settings calls, so it is a user-facing action and
+  /// has to stay correct rather than merely convenient.
+  Future<void> eraseAll() async {
     final p = _prefs ??= await SharedPreferences.getInstance();
     for (final k in p.getKeys().where((k) => k.startsWith('m3.')).toList()) {
       await p.remove(k);

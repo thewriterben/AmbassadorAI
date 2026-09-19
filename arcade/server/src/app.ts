@@ -471,5 +471,56 @@ export function createApp(db: Db, bank: QuestionBank) {
     return c.json({ handle, rerollsLeft: maxRerollsPerDay - usedToday - 1 });
   });
 
+  /**
+   * Erases the player and everything keyed to them. Irreversible.
+   *
+   * Both app stores ask whether users can request deletion of their data, and
+   * "no" is a poor answer for an app that could simply support it. There are no
+   * accounts here — no name, email or phone is ever collected — so this is the
+   * only deletion there is to offer.
+   *
+   * Two things are easy to get wrong and are handled explicitly:
+   *
+   *  - **`tablets` is keyed to `expedition_id`, not `player_id`.** Deleting by
+   *    player alone would leave its rows behind, orphaned and still holding
+   *    which questions this person was asked. It is deleted through the
+   *    expedition join, and it has to go first.
+   *  - **All of it, or none of it.** A half-finished delete would leave a
+   *    player row gone but its XP ledger intact, which is worse than not
+   *    deleting at all — the record survives with nothing left to explain it.
+   *    The whole thing runs in one transaction.
+   *
+   * The bearer token is not revoked separately: it is only ever resolved by
+   * hashing it against `players.token_hash`, so removing the row is what makes
+   * it stop working. The client is expected to discard its stored token and
+   * register again if the player keeps playing.
+   */
+  app.delete('/v1/me', auth, (c) => {
+    const id = c.get('playerId');
+
+    // node:sqlite has no transaction() wrapper — that is better-sqlite3's API —
+    // so BEGIN/COMMIT are explicit, with a ROLLBACK on any failure.
+    const rows: Record<string, number> = {};
+    db.exec('BEGIN');
+    try {
+      rows.tablets = Number(
+        db
+          .prepare('DELETE FROM tablets WHERE expedition_id IN (SELECT id FROM expeditions WHERE player_id = ?)')
+          .run(id).changes,
+      );
+      // Children before parents: foreign_keys is ON, so players must be last.
+      for (const table of ['expeditions', 'badges', 'tablet_state', 'ledger_plays', 'mini_rounds', 'xp_events']) {
+        rows[table] = Number(db.prepare(`DELETE FROM ${table} WHERE player_id = ?`).run(id).changes);
+      }
+      rows.players = Number(db.prepare('DELETE FROM players WHERE id = ?').run(id).changes);
+      db.exec('COMMIT');
+    } catch (err) {
+      db.exec('ROLLBACK');
+      throw err;
+    }
+
+    return c.json({ deleted: true, rows });
+  });
+
   return app;
 }

@@ -103,6 +103,34 @@ class ArcadeProgress extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Deletes the server-side play record and resets this cache to a new player.
+  ///
+  /// Throws [ApiException] if the server cannot be reached. That is deliberate:
+  /// the screen must be able to say "we could not reach the server, nothing was
+  /// deleted" rather than clearing the local cache and implying otherwise. An
+  /// offline delete is not a delete.
+  ///
+  /// The cached snapshot is dropped too — leaving it would show the deleted
+  /// player's XP and badges on the home screen until the next refresh.
+  Future<void> deleteAccount() async {
+    await ArcadeApi.instance.deleteMe();
+    final p = _p ??= await SharedPreferences.getInstance();
+    await p.remove('ar.snapshot');
+    handle = null;
+    xp = weeklyXp = expeditions = expeditionsComplete = 0;
+    tabletsCorrect = ledgersSolved = streak = 0;
+    level = 1;
+    levelProgress = 0;
+    mastery = 0;
+    lastLedgerDay = null;
+    ledgerDoneToday = false;
+    rewardedExpeditionsToday = 0;
+    badges.clear();
+    miniPlays.clear();
+    offline = false;
+    notifyListeners();
+  }
+
   /// Opens a server-issued round. Call when the player actually starts playing.
   ///
   /// Returns null when the server is unreachable; [recordMini] then no-ops

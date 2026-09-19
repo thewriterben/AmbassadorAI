@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:math';
+
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -83,7 +85,10 @@ class _Match3ScreenState extends State<Match3Screen> {
       // celebrate() runs ~5 s of audio and fireworks. Without this guard,
       // backing out during the record above left it playing over the level map.
       if (!mounted) return;
-      await game.celebrate();
+      // Clearing the last vault in the game gets the grand show rather than
+      // the ordinary one. Keyed off the end of the level list, not a hardcoded
+      // 60, so adding a world moves the finale with it.
+      await game.celebrate(finale: widget.level.id == levels.last.id);
       if (!mounted) return;
       for (var s = 1; s <= session.stars; s++) {
         await Future.delayed(const Duration(milliseconds: 260));
@@ -160,6 +165,14 @@ class _Match3ScreenState extends State<Match3Screen> {
                             'Win — 1 star': () => _devEnd(SessionState.won, stars: 1),
                             'Win — 0 stars (under par)': () =>
                                 _devEnd(SessionState.won, stars: 0),
+                            // The grand show only fires on the last level, so
+                            // without this the only way to see it is to clear
+                            // all sixty.
+                            'Win — GRAND FINALE show': () => unawaited(
+                                  game.celebrate(finale: true).then((_) {
+                                    if (mounted) _devEnd(SessionState.won, stars: 3);
+                                  }),
+                                ),
                             'Lose — encouragement line': () => _devEnd(SessionState.lost),
                           },
                         ),
@@ -182,31 +195,48 @@ class _Match3ScreenState extends State<Match3Screen> {
                     builder: (_, __, ___) => Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // The goal and its counter share one Expanded, with the
+                        // stars pinned right.
+                        //
+                        // This used to be Flexible(text), counter, Spacer(),
+                        // stars — and a Spacer *is* an Expanded, so it competed
+                        // with the Flexible for the slack and took half of it.
+                        // The goal text was left with about a third of the row
+                        // and ellipsised on its second line however short the
+                        // wording got: "BREAK 12 REINFORCED VAU…". Shortening
+                        // the strings treated the symptom; this is the cause.
                         Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Flexible(
-                              child: Text(lv.goalText.toUpperCase(),
-                                  // Two lines before it gives up: the goal is
-                                  // the one thing on screen the player must be
-                                  // able to read in full.
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                      fontFamily: AppTheme.fontMono,
-                                      fontSize: 11,
-                                      letterSpacing: 1.2,
-                                      color: AppTheme.muted)),
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  Flexible(
+                                    child: Text(lv.goalText.toUpperCase(),
+                                        // Two lines before it gives up: the
+                                        // goal is the one thing on screen the
+                                        // player must be able to read in full.
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                            fontFamily: AppTheme.fontMono,
+                                            fontSize: 11,
+                                            letterSpacing: 1.2,
+                                            color: AppTheme.muted)),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  // Objective levels are won by the counter,
+                                  // not the score, so it gets the accent.
+                                  Text(session.goalCounter,
+                                      style: TextStyle(
+                                          fontFamily: AppTheme.fontMono,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w700,
+                                          color: session.goalMet ? AppTheme.success : AppTheme.accent)),
+                                ],
+                              ),
                             ),
-                            const SizedBox(width: 8),
-                            // Objective levels are won by the counter, not the
-                            // score, so it gets the accent treatment.
-                            Text(session.goalCounter,
-                                style: TextStyle(
-                                    fontFamily: AppTheme.fontMono,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w700,
-                                    color: session.goalMet ? AppTheme.success : AppTheme.accent)),
-                            const Spacer(),
+                            const SizedBox(width: 10),
                             _stars(session.stars),
                           ],
                         ),
@@ -229,23 +259,53 @@ class _Match3ScreenState extends State<Match3Screen> {
                     ),
                   ),
                 ),
-                // Board
+                // Board.
+                //
+                // The game surface is the whole area, not a board-shaped box.
+                //
+                // It used to be an AspectRatio sized to the grid, inside a
+                // Container with `clipBehavior: Clip.antiAlias`. That clipped
+                // everything the game drew to the board rectangle — including
+                // the fireworks, which is why every win celebration looked
+                // small however many shells it fired. Two-thirds of the screen
+                // was off limits to them.
+                //
+                // Flame already centres the board itself (`_layout()` computes
+                // `cell = min(w/cols, h/rows)` and an `origin` that centres the
+                // grid), so the AspectRatio was doing work the engine already
+                // did. Handing the game the full area changes nothing about
+                // where the board is drawn, and lets the celebration use the
+                // whole screen.
+                //
+                // The glass plate stays a Flutter widget behind the game, laid
+                // out from the same arithmetic so it lands exactly under the
+                // grid with the 6px surround it always had.
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.all(8),
-                    child: Center(
-                      child: AspectRatio(
-                        aspectRatio: lv.cols / lv.rows,
-                        child: Container(
-                          decoration: AppTheme.glass(
-                              radius: 20,
-                              fill: const Color(0xCC050607),
-                              outline: AppTheme.borderStrong),
-                          clipBehavior: Clip.antiAlias,
-                          padding: const EdgeInsets.all(6),
-                          child: GameWidget(game: game),
-                        ),
-                      ),
+                    child: LayoutBuilder(
+                      builder: (context, c) {
+                        final cell = min(c.maxWidth / lv.cols, c.maxHeight / lv.rows);
+                        final bw = cell * lv.cols, bh = cell * lv.rows;
+                        const surround = 6.0;
+                        return Stack(
+                          children: [
+                            Positioned(
+                              left: (c.maxWidth - bw) / 2 - surround,
+                              top: (c.maxHeight - bh) / 2 - surround,
+                              width: bw + surround * 2,
+                              height: bh + surround * 2,
+                              child: Container(
+                                decoration: AppTheme.glass(
+                                    radius: 20,
+                                    fill: const Color(0xCC050607),
+                                    outline: AppTheme.borderStrong),
+                              ),
+                            ),
+                            Positioned.fill(child: GameWidget(game: game)),
+                          ],
+                        );
+                      },
                     ),
                   ),
                 ),

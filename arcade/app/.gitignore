@@ -1,6 +1,9 @@
 .dart_tool/
 .packages
 build/
+# Kotlin compiler scratch — build junk with timestamped filenames, so every
+# build would otherwise add a new file to the diff.
+android/.kotlin/
 .flutter-plugins
 .flutter-plugins-dependencies
 *.iml
@@ -8,3 +11,8 @@ build/
 ios/Pods/
 android/.gradle/
 android/local.properties
+
+# Release signing � credential, never committed.
+android/key.properties
+*.jks
+*.keystore

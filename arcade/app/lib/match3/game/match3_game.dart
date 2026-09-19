@@ -69,6 +69,14 @@ class Match3Game extends FlameGame with DragCallbacks, TapCallbacks {
   late Vector2 origin;
   bool _busy = true; // true until the intro drop-in finishes
   bool _ended = false;
+  /// Set once the game is torn down — the player left the level.
+  ///
+  /// The cascade loop is a chain of awaits on effect completers. Removing the
+  /// game completes those early (see [GemComponent.onRemove]) so the chain can
+  /// unwind, but the chain must then *stop*: without this it would keep
+  /// animating, playing sound and finally call [onEnd] into a route that is no
+  /// longer on screen.
+  bool _dead = false;
   Pos? _selected;
   Pos? _dragFrom;
   Vector2 _dragAccum = Vector2.zero();
@@ -79,6 +87,12 @@ class Match3Game extends FlameGame with DragCallbacks, TapCallbacks {
 
   @override
   Color backgroundColor() => const Color(0x00000000);
+
+  @override
+  void onRemove() {
+    _dead = true;
+    super.onRemove();
+  }
 
   @override
   Future<void> onLoad() async {
@@ -255,12 +269,13 @@ class Match3Game extends FlameGame with DragCallbacks, TapCallbacks {
   // ------------------------------------------------------------ swap + cascade
 
   Future<void> _trySwap(Pos a, Pos b) async {
-    if (_busy || _ended) return;
+    if (_busy || _ended || _dead) return;
     _busy = true;
     _clearHint();
     final ga = _gems[board.at(a)!.id]!, gb = _gems[board.at(b)!.id]!;
 
     await Future.wait([ga.moveTo(centerOf(b), 0.14), gb.moveTo(centerOf(a), 0.14)]);
+    if (_dead) return;
 
     final res = session.swap(a, b);
     if (!res.valid) {
@@ -280,6 +295,7 @@ class Match3Game extends FlameGame with DragCallbacks, TapCallbacks {
 
     for (final step in res.steps) {
       await _animateStep(step);
+      if (_dead) return;
       notifier.value++;
     }
     // The board reshuffles itself when it runs out of moves; say so rather
@@ -292,18 +308,22 @@ class Match3Game extends FlameGame with DragCallbacks, TapCallbacks {
       for (final g in _gems.values) {
         g.pos = _posOfGem(g.gem) ?? g.pos;
         await g.moveTo(centerOf(g.pos), 0.28, curve: Curves.easeInOut);
+        if (_dead) return;
       }
       await Future.delayed(const Duration(milliseconds: 220));
+      if (_dead) return;
     }
     _busy = false;
     if (session.state != SessionState.playing && !_ended) {
       _ended = true;
       await Future.delayed(const Duration(milliseconds: 250));
+      if (_dead) return;
       onEnd?.call(session.state);
     }
   }
 
   Future<void> _animateStep(CascadeStep step) async {
+    if (_dead) return;
     final a = Audio.instance;
     final removedSpecials = step.removed.values.where((g) => g.isSpecial).toList();
     final hadBomb = removedSpecials.any((g) => g.special == Special.bomb);
@@ -422,6 +442,7 @@ class Match3Game extends FlameGame with DragCallbacks, TapCallbacks {
       }
     }
     await Future.wait(pops);
+    if (_dead) return;
 
     // 2. Falls + spawns.
     final moves = <Future>[];
@@ -442,6 +463,7 @@ class Match3Game extends FlameGame with DragCallbacks, TapCallbacks {
       moves.add(comp.moveTo(centerOf(e.key), 0.09 + above * 0.045, curve: Curves.easeIn));
     }
     await Future.wait(moves);
+    if (_dead) return;
     if (moves.isNotEmpty) {
       a.land();
       if (step.spawns.length >= 4) a.coinDrop();
@@ -864,7 +886,7 @@ class Match3Game extends FlameGame with DragCallbacks, TapCallbacks {
   /// Fireworks over the finished board. Standalone builds only — the arcade
   /// plan bars prize-style celebration inside the DGD App tab, which is the
   /// same reason the coin fountain became a shine wave.
-  void _fireworkShow() {
+  void _fireworkShow({bool grand = false}) {
     if (Audio.inAppTab) return;
     const colors = [
       Color(0xFFFFD678), // gold
@@ -873,6 +895,12 @@ class Match3Game extends FlameGame with DragCallbacks, TapCallbacks {
       Color(0xFF94E8B4), // money green
       Colors.white,
     ];
+
+    if (grand) {
+      _grandShow(colors);
+      return;
+    }
+
     // Six shells at a walking pace, then three together as a finale. The
     // stagger matters more than the count: all at once is just a flash.
     var t = 0.10;
@@ -898,9 +926,122 @@ class Match3Game extends FlameGame with DragCallbacks, TapCallbacks {
     }
   }
 
+  /// The last vault in the game gets a real display.
+  ///
+  /// Structure, because a firework show is pacing rather than quantity — the
+  /// ordinary show is six shells and reads as "well done"; simply firing
+  /// twenty at once would read as noise, not as more:
+  ///
+  ///   1. **Opening pair**, wide left and right, to say something different is
+  ///      happening before the player has finished reading the board.
+  ///   2. **A climbing run** of nine, alternating sides and rising as it goes,
+  ///      so the eye is dragged upward.
+  ///   3. **A held beat.** Nothing at all for a third of a second. This is what
+  ///      makes the last movement land; without it the finale is just more of
+  ///      the same.
+  ///   4. **The finale**: five together across the full width, then a gold
+  ///      willow overhead that keeps falling for three seconds.
+  ///
+  /// Deliberately still light and fireworks, never coins: arcade plan §4.3
+  /// bars prize-style and jackpot imagery, and a shower of gold coins over a
+  /// gold-backed asset's own app is exactly what it is warning about. It is
+  /// also why this whole method is behind the App-tab gate in the caller.
+  void _grandShow(List<Color> colors) {
+    // 1. Opening pair, hard left and hard right.
+    for (var i = 0; i < 2; i++) {
+      _firework(
+        Vector2(size.x * (i == 0 ? 0.14 : 0.86), size.y * 0.30),
+        const Color(0xFFFFD678),
+        delay: 0.08 + i * 0.09,
+        scale: 1.15,
+      );
+    }
+
+    // 2. The climbing run: alternating sides, apex rising, tempo tightening.
+    var t = 0.48;
+    for (var i = 0; i < 9; i++) {
+      final k = i / 8; // 0 -> 1 as the run progresses
+      final side = i.isEven ? 0.18 : 0.82;
+      final at = Vector2(
+        size.x * (side + (_rng.nextDouble() - 0.5) * 0.30),
+        // Starts low, finishes high: 0.42 of the screen down to 0.10.
+        size.y * (0.42 - k * 0.32 + (_rng.nextDouble() - 0.5) * 0.05),
+      );
+      _firework(at, colors[i % colors.length],
+          delay: t, scale: 0.95 + k * 0.5 + _rng.nextDouble() * 0.2);
+      t += 0.26 - k * 0.10; // accelerando
+    }
+
+    // 3. The held beat — the most important third of a second in the show.
+    t += 0.34;
+
+    // 4. Five across the full width, one sound covering all of them.
+    for (var i = 0; i < 5; i++) {
+      final at = Vector2(
+        size.x * (0.12 + i * 0.19 + (_rng.nextDouble() - 0.5) * 0.06),
+        size.y * (0.10 + _rng.nextDouble() * 0.22),
+      );
+      _firework(at, colors[(i + 2) % colors.length],
+          delay: t + i * 0.06,
+          scale: 1.5 + _rng.nextDouble() * 0.35,
+          mute: true,
+          onBreak: i == 0 ? Audio.instance.fwFinale : null);
+    }
+
+    // ...and the willow that hangs over the whole thing.
+    _willow(Vector2(size.x * 0.5, size.y * 0.16), delay: t + 0.30);
+  }
+
+  /// A gold willow: a wide, slow canopy that keeps falling after the bangs.
+  ///
+  /// Separate from [_firework] because it is the opposite shape — where a shell
+  /// is fast and radial and gone in a second and a half, this is slow, heavily
+  /// drag-damped and lasts three, so the screen is still alive while the
+  /// results card is on its way in. It is what stops the show ending on a bang
+  /// and then nothing.
+  void _willow(Vector2 at, {double delay = 0}) {
+    _root.add(TimerComponent(
+      period: max(delay, 0.001),
+      removeOnFinish: true,
+      onTick: () {
+        Audio.instance.fwCrackle();
+        _skyFlash(at, const Color(0xFFFFD678), cell * 5.0);
+        const n = 54;
+        _root.add(ParticleSystemComponent(
+          position: at,
+          priority: 69,
+          particle: Particle.generate(
+            count: n,
+            lifespan: 3.4,
+            applyLifespanToChildren: false,
+            generator: (i) {
+              // Biased towards the horizontal so the canopy spreads wide before
+              // gravity takes it, which is what makes a willow read as a willow
+              // rather than as a slow sphere.
+              final a = (i / n) * pi * 2 + (_rng.nextDouble() - 0.5) * 0.3;
+              final sp = (150 + _rng.nextDouble() * 120);
+              return _star(
+                Vector2(cos(a) * sp * 1.35, sin(a) * sp * 0.55),
+                const Color(0xFFFFD678),
+                lifespan: 2.6 + _rng.nextDouble() * 0.8,
+                radius: cell * 0.055,
+              );
+            },
+          ),
+        ));
+      },
+    ));
+  }
+
   /// Win celebration: a shine wave across the board, light motes, one ring —
   /// then, outside the App tab, fireworks and a spoken line over a drum fill.
-  Future<void> celebrate() async {
+  ///
+  /// [finale] is the last vault in the game. It runs the grand show instead,
+  /// and holds roughly twice as long so the willow is still falling rather than
+  /// being cut off by the results card — a finale that gets interrupted is
+  /// worse than no finale, because the player sees that something was meant to
+  /// happen and did not.
+  Future<void> celebrate({bool finale = false}) async {
     _busy = true;
     Audio.instance.ting();
     _flash(AppTheme.accentHover, 0.35);
@@ -933,19 +1074,36 @@ class Match3Game extends FlameGame with DragCallbacks, TapCallbacks {
       ),
     ));
     await Future.delayed(const Duration(milliseconds: 450));
+    if (_dead) return;
     Audio.instance.win();
-    _shockwave(Vector2(size.x / 2, size.y / 2), size.x * 0.8, AppTheme.accent);
-    _fireworkShow();
+    _shockwave(Vector2(size.x / 2, size.y / 2), size.x * (finale ? 1.15 : 0.8),
+        AppTheme.accent);
+    if (finale) _flash(AppTheme.accentHover, 0.5);
+    _fireworkShow(grand: finale);
     if (!Audio.inAppTab) {
       Audio.instance.winFill();
       // Let two shells break before the line, so it lands inside the show
       // rather than on top of the first lift.
       await Future.delayed(const Duration(milliseconds: 950));
+      if (_dead) return;
       Audio.instance.voWinner();
-      // The six shells run ~2.2 s, the finale trio breaks around 2.6 s, and
-      // the willows fall for another 2.4 s after that. Hold for it — cutting
-      // to the results card mid-break is what made the old one feel clipped.
-      await Future.delayed(const Duration(milliseconds: 3600));
+      if (finale) {
+        // The grand show: opening pair, a nine-shell climbing run, the held
+        // beat, five together, then the willow falling for 3.4 s. About 7 s
+        // end to end from the first lift; 950 ms of it has already passed.
+        await Future.delayed(const Duration(milliseconds: 5200));
+        if (_dead) return;
+        // One more spoken line over the falling willow. The show has earned a
+        // second one by this point, and it fills what would otherwise be the
+        // quietest part of it.
+        Audio.instance.voPraise(big: true);
+        await Future.delayed(const Duration(milliseconds: 1400));
+      } else {
+        // The six shells run ~2.2 s, the finale trio breaks around 2.6 s, and
+        // the willows fall for another 2.4 s after that. Hold for it — cutting
+        // to the results card mid-break is what made the old one feel clipped.
+        await Future.delayed(const Duration(milliseconds: 3600));
+      }
     } else {
       await Future.delayed(const Duration(milliseconds: 900));
     }
@@ -1015,30 +1173,61 @@ class GemComponent extends SpriteComponent {
     required Vector2 size,
   }) : super(sprite: sprite, position: position, size: size, anchor: Anchor.center);
 
+  /// Completers handed out by [moveTo], [pop] and [pulse] that have not fired.
+  ///
+  /// An effect's `onComplete` never runs if the component is removed while the
+  /// effect is mid-flight — which is exactly what happens when the player backs
+  /// out of a level during a cascade. The cascade loop in Match3Game is sitting
+  /// on one of these futures, so it would never resume, never return, and would
+  /// hold the game, its board and every sprite alive for the life of the
+  /// process. Completing them on removal lets the loop unwind and the whole
+  /// graph get collected.
+  final List<Completer<void>> _pending = [];
+
+  Completer<void> _track() {
+    final c = Completer<void>();
+    _pending.add(c);
+    return c;
+  }
+
+  void _settle(Completer<void> c) {
+    _pending.remove(c);
+    if (!c.isCompleted) c.complete();
+  }
+
+  @override
+  void onRemove() {
+    for (final c in _pending) {
+      if (!c.isCompleted) c.complete();
+    }
+    _pending.clear();
+    super.onRemove();
+  }
+
   Future<void> moveTo(Vector2 target, double seconds,
       {Curve curve = Curves.easeOut, double delay = 0}) {
-    final c = Completer<void>();
+    final c = _track();
     add(MoveToEffect(target, EffectController(duration: seconds, curve: curve, startDelay: delay),
-        onComplete: c.complete));
+        onComplete: () => _settle(c)));
     return c.future;
   }
 
   Future<void> pop() {
-    final c = Completer<void>();
+    final c = _track();
     add(ScaleEffect.to(Vector2.all(1.3), EffectController(duration: 0.06)));
     add(ScaleEffect.to(Vector2.zero(),
         EffectController(duration: 0.14, startDelay: 0.06, curve: Curves.easeIn), onComplete: () {
       removeFromParent();
-      c.complete();
+      _settle(c);
     }));
     return c.future;
   }
 
   Future<void> pulse() {
-    final c = Completer<void>();
+    final c = _track();
     add(ScaleEffect.to(Vector2.all(1.35),
         EffectController(duration: 0.12, reverseDuration: 0.14, curve: Curves.easeOut),
-        onComplete: c.complete));
+        onComplete: () => _settle(c)));
     return c.future;
   }
 

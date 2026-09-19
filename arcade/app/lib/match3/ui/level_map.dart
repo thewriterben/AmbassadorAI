@@ -39,11 +39,42 @@ class _LevelMapScreenState extends State<LevelMapScreen> {
     super.dispose();
   }
 
+  /// Opens the map on the level the player is actually up to.
+  ///
+  /// Two changes here, one of which is not the bug I thought it was.
+  ///
+  /// I reported that the map "always opens at level 60". It does not — it was
+  /// opening at level 60 on the test device because that device is genuinely on
+  /// level 59, having been pushed through the first fifty by the DEV world-jump
+  /// and then played to 58. `unlocked` was 59, the target clamped to 0, and the
+  /// top of the list is correct behaviour. The original code worked.
+  ///
+  /// What is still worth having:
+  ///
+  ///  * **The post-frame callback.** `main()` kicks off `Progress.load()` at
+  ///    startup, so by the time the map opens that future can already be
+  ///    complete and the callback can fire before the ListView has attached the
+  ///    controller. `_scroll.hasClients` is then false and the early return
+  ///    swallows the scroll silently. It is a real race even if it is not what
+  ///    was happening here; waiting a frame removes it.
+  ///  * **jumpTo rather than animateTo.** This is where the map should have
+  ///    opened, not a place to travel to. Animating it means watching the list
+  ///    fly past for half a second before you can touch anything, every visit.
   void _scrollToCurrent() {
-    if (!mounted || !_scroll.hasClients) return;
-    final idx = levels.length - Progress.instance.unlocked;
-    final target = (idx * _nodeSpacing - 200).clamp(0.0, _scroll.position.maxScrollExtent);
-    _scroll.animateTo(target, duration: const Duration(milliseconds: 500), curve: Curves.easeOut);
+    if (!mounted) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_scroll.hasClients) return;
+      // The list runs 60 at the top down to 1 at the bottom, so the offset of a
+      // level counts from the end. The 200 leaves the current node a little
+      // below the app bar rather than jammed under it.
+      final idx = levels.length - Progress.instance.unlocked;
+      final target =
+          (idx * _nodeSpacing - 200).clamp(0.0, _scroll.position.maxScrollExtent);
+      // Jump rather than animate. This is where the map should have opened, not
+      // a place to travel to — animating means watching thirty levels fly past
+      // before you can do anything, on every visit.
+      _scroll.jumpTo(target);
+    });
   }
 
   static const _nodeSpacing = 118.0;
@@ -66,7 +97,7 @@ class _LevelMapScreenState extends State<LevelMapScreen> {
                       Progress.instance.devUnlockThrough(w.firstLevel),
                 'Audio soak test': () => Navigator.push(context,
                     MaterialPageRoute(builder: (_) => const DevSoakScreen())),
-                'Reset all progress': () => Progress.instance.devReset(),
+                'Reset all progress': () => Progress.instance.eraseAll(),
               },
             ),
           ),
