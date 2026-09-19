@@ -1,5 +1,8 @@
 __pycache__/
 .dgd_web_work/
+# Built app binaries. 50+ MB each and rebuilt constantly — they belong on disk
+# for handing to testers, not in git history.
+arcade/dist/
 site/
 *.pyc
 raw/

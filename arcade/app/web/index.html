@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <base href="$FLUTTER_BASE_HREF">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="description" content="DGD Arcade — learn how Digital Gold is designed, one expedition at a time. Educational only; XP and badges have no monetary value.">
+  <meta name="theme-color" content="#020203">
+  <meta name="color-scheme" content="dark">
+
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="DGD Arcade">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="manifest" href="manifest.json">
+
+  <title>DGD Arcade</title>
+  <style>
+    html, body { margin: 0; height: 100%; background: #020203; overflow: hidden; }
+    #splash {
+      position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center;
+      justify-content: center; gap: 18px; background: #020203; color: #9a9a9a;
+      font: 500 11px/1 ui-monospace, "Geist Mono", Menlo, monospace; letter-spacing: .14em;
+      transition: opacity .35s ease; z-index: 10;
+    }
+    #splash.gone { opacity: 0; pointer-events: none; }
+    #splash img { width: 96px; height: 96px; filter: drop-shadow(0 0 28px rgba(234,149,45,.45)); animation: float 2.4s ease-in-out infinite; }
+    @keyframes float { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-6px) } }
+    #bar { width: 140px; height: 2px; background: #101010; border-radius: 2px; overflow: hidden; }
+    #bar i { display: block; height: 100%; width: 0; background: #ea952d; transition: width .3s ease; }
+    #note { color: #4d4d4d; font-size: 10px; }
+  </style>
+</head>
+<body>
+  <div id="splash" aria-busy="true">
+    <img src="icons/Icon-192.png" alt="">
+    <div id="bar"><i id="fill"></i></div>
+    <div id="msg">LOADING THE ARCADE</div>
+    <div id="note">EDUCATIONAL ONLY · NO MONETARY VALUE</div>
+  </div>
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+</html>
