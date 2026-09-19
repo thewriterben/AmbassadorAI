@@ -20,7 +20,7 @@ after(() => {
 const advance = (ms: number) => (offset += ms);
 
 const db = openDb(':memory:');
-const bank = QuestionBank.fromFile(fileURLToPath(new URL('../data/question-bank-seed.md', import.meta.url)));
+const bank = QuestionBank.load(fileURLToPath(new URL('../data/bank', import.meta.url)));
 const app = createApp(db, bank);
 
 async function call(method: string, path: string, body?: unknown, token?: string) {
