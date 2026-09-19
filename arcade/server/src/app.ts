@@ -377,9 +377,9 @@ export function createApp(db: Db, bank: QuestionBank) {
     if (now > parsed.expiresAt) return c.json({ error: 'round_expired' }, 409);
 
     const round = db
-      .prepare('SELECT id, player_id, game, nonce, started_at, claimed_at FROM mini_rounds WHERE id = ?')
+      .prepare('SELECT id, player_id, game, day, nonce, started_at, claimed_at FROM mini_rounds WHERE id = ?')
       .get(parsed.roundId) as
-      | { id: string; player_id: string; game: string; nonce: string | null; started_at: number | null; claimed_at: number | null }
+      | { id: string; player_id: string; game: string; day: number; nonce: string | null; started_at: number | null; claimed_at: number | null }
       | undefined;
     if (!round || round.player_id !== id || round.game !== game) return c.json({ error: 'round_not_found' }, 404);
     if (round.nonce !== parsed.nonce) return c.json({ error: 'round_not_found' }, 404);
@@ -400,12 +400,15 @@ export function createApp(db: Db, bank: QuestionBank) {
     const right = uint(body.right, cap);
     const total = Math.max(right, uint(body.total, cap));
     const extra = uint(body.extra, 10_000);
-    const day = todayIndex();
+    // A round belongs to the day it was OPENED, and the cap counts that day.
+    // Counting by the claim day let rounds opened before UTC midnight and
+    // claimed after it pay in full: none of them carried the new day, so the
+    // count was 0 for every claim (audit 2026-09-18, R1).
     // The open round itself is one of the day's rounds, so exclude it.
     const rounds = (
       db
         .prepare('SELECT COUNT(*) AS n FROM mini_rounds WHERE player_id = ? AND game = ? AND day = ? AND id != ? AND claimed_at IS NOT NULL')
-        .get(id, game, day, round.id) as { n: number }
+        .get(id, game, round.day, round.id) as { n: number }
     ).n;
     let gained = 0;
     const status = getPlayer(db, id)!.status;

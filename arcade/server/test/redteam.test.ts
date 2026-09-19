@@ -75,12 +75,13 @@ async function playMini(call: ReturnType<typeof fresh>['call'], game: string, to
 
 // ---------------------------------------------------------------------------
 
-openFinding('R1 the mini-game daily cap still binds when rounds straddle UTC midnight', async () => {
-  // mini_rounds.day is stamped when the round is OPENED (app.ts:357-362), but
-  // the cap counts claimed rounds whose day equals the CLAIM day (app.ts:403-409).
-  // Rounds opened before midnight and claimed after it are counted against a
-  // day that contains none of them, so the count is 0 for every claim and all
-  // of them pay. The 60-minute token life bounds the window, not the quantity.
+holds('R1 the mini-game daily cap still binds when rounds straddle UTC midnight', async () => {
+  // Found open on 2026-09-18, fixed the same day. mini_rounds.day is stamped
+  // when the round is OPENED, and the cap used to count claimed rounds whose
+  // day equalled the CLAIM day. Rounds opened before midnight and claimed
+  // after it were counted against a day that contained none of them, so the
+  // count was 0 for every claim and all 15 paid. The cap now counts by the
+  // round's own day.
   const { call, player } = fresh();
   const tok = await player();
   const game = 'pillar_sort';

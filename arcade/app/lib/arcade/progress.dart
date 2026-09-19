@@ -49,7 +49,18 @@ class ArcadeProgress extends ChangeNotifier {
   }
 
   /// Pulls the current snapshot from the server; flips [offline] on failure.
+  ///
+  /// A demo build has no backend and must never register a player. This was
+  /// the one unguarded path: `main()` calls [load] on every cold start, and
+  /// [ArcadeApi.init] registers an anonymous player the first time it is
+  /// reached, so a demo that could reach a server created an identity on
+  /// launch (audit 2026-09-18, A1). The gate lives here rather than in
+  /// `main()` so no future caller of [refresh] can reopen it.
   Future<void> refresh() async {
+    if (Dev.demoBuild) {
+      notifyListeners();
+      return;
+    }
     try {
       await ArcadeApi.instance.init();
       apply(await ArcadeApi.instance.me());

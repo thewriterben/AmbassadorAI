@@ -51,7 +51,9 @@ item carrying its WP/wiki source.
 > open). And "demo makes no network calls" (16 Sept, C5) covered the level-win
 > call only: a `DGD_DEMO` build still registers an anonymous player on cold
 > start through `ArcadeProgress.load()` (A1, reproduced on an emulator against
-> a local server). Both are regression tests now; neither is fixed.
+> a local server). Both were fixed the same day — the cap counts by the day a
+> round was opened, and `refresh()` is gated on the demo flag — and both are
+> regression tests, so the two claims above hold again as written.
 
 Node 24 + Hono + `node:sqlite`, TypeScript run directly (no build step). Working copy at
 `C:\src\arcade-server`; `npm start` listens on :8787, `npm test` runs the rule tests (9, all

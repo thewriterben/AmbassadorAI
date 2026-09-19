@@ -18,6 +18,7 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:puzzle_pack/arcade/api.dart';
 import 'package:puzzle_pack/arcade/progress.dart';
+import 'package:puzzle_pack/dev.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Seen {
@@ -92,7 +93,33 @@ class FakeServer {
 void main() {
   final base = Uri.parse(ArcadeApi.base);
   final loop = base.host == '127.0.0.1' || base.host == 'localhost';
-  final skip = loop && base.port != 8787 ? false : 'needs --dart-define=ARCADE_API=http://127.0.0.1:<port> (not the dev server port)';
+  final needsDefine = loop && base.port != 8787 ? null : 'needs --dart-define=ARCADE_API=http://127.0.0.1:<port> (not the dev server port)';
+  final skip = needsDefine ?? (Dev.demoBuild ? 'not a demo build test; run without DGD_DEMO' : false);
+
+  // Run with --dart-define=DGD_DEMO=true as well as ARCADE_API. A demo build
+  // has no backend: cold start must not register a player, and a level start
+  // must not open a round. This was open on 2026-09-18 (audit A1).
+  group('a demo build never talks to the server', () {
+    late FakeServer server;
+    setUpAll(() async {
+      SharedPreferences.setMockInitialValues({});
+      server = await FakeServer.start(InternetAddress.loopbackIPv4, base.port);
+      server.script = server.happy;
+    });
+    tearDownAll(() => server.close());
+
+    test('cold start, refresh and a level start make zero requests', () async {
+      await ArcadeProgress.instance.load();
+      await ArcadeProgress.instance.refresh();
+      expect(await ArcadeProgress.instance.startMini('coin_quest'), isNull);
+      final (gained, _) = await ArcadeProgress.instance.recordMini('coin_quest', token: null, right: 3, total: 3);
+      expect(gained, 0);
+      await Future<void>.delayed(const Duration(milliseconds: 300));
+      expect(server.seen, isEmpty, reason: 'a demo build registered or opened a round');
+      expect(ArcadeApi.instance.ready, isFalse);
+      expect(ArcadeProgress.instance.offline, isFalse, reason: 'no backend is not "offline"');
+    });
+  }, skip: needsDefine ?? (Dev.demoBuild ? false : 'run with --dart-define=DGD_DEMO=true'));
 
   group('ArcadeApi against a loopback server', () {
     late FakeServer server;
