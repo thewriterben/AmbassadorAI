@@ -1,6 +1,6 @@
 # DGD Arcade — build, bundle and hosting notes
 
-Status as of 2026-09-14. The Arcade is a single Flutter codebase (`arcade/app/`) that builds to
+Status as of 2026-09-14. The Arcade is a single Flutter codebase (`arcade/v1/app/`) that builds to
 Android, iOS and a web bundle. The web bundle is what the PWA pilot ships and what the DGD App's
 WebView tab embeds (Integration Brief §"Runtime"). This note records what exists, how it is built,
 what it weighs, and what the host has to do.
@@ -15,7 +15,7 @@ what it weighs, and what the host has to do.
 | Knowledge mini-games | Pillar Sort · Design or Myth? · Chain Builder | `lib/arcade/mini/` | v1.1 (built early) |
 | Arcade | Coin Quest (match-3, 60 vaults across 6 worlds) · Merge · Words · Blocks · Rope | `lib/match3/`, `lib/games/` | not in plan; engagement filler |
 
-The question bank lives only on the server, in `arcade/server/data/bank/` — a directory of
+The question bank lives only on the server, in `arcade/v1/server/data/bank/` — a directory of
 markdown files loaded at startup, so a batch is added by dropping in a new numbered file. It
 currently holds **170 items** (A 46 · B 57 · C 41 · D 26) across nine sections, each tracing to a
 `LLMWiki/dgd/*` page and a White Paper section. `arcade/tools/bank-lint.py` runs the repo's
@@ -31,7 +31,7 @@ come from the server's copy of `question-bank-seed.md` and never ship in the cli
 content (pillar statements, myths, chains) lives in `lib/arcade/knowledge/content.dart`, each
 item carrying its WP/wiki source.
 
-## Backend (`arcade/server/`)
+## Backend (`arcade/v1/server/`)
 
 > **Correction, 2026-09-16.** This section has claimed throughout that the server
 > is the sole authority on XP and that the client never submits a score. The
@@ -272,10 +272,10 @@ XP/badges/expedition/tablet, never earn/cash; the footer on every home screen re
 ## Building
 
 Toolchain on the build PC: Flutter 3.47 at `C:\src\flutter`, Android Studio + SDK 35/36, Python 3
-with Pillow (asset pipelines). Working copy at `C:\src\puzzle-app`; `arcade/app/` in this repo is a
+with Pillow (asset pipelines). Working copy at `C:\src\puzzle-app`; `arcade/v1/app/` in this repo is a
 mirror without `build/`, `.dart_tool/` and the full-resolution image backups. **The mirror is
 only as current as the last copy.** On 18 Sep it was found two days stale — before the nine-game
-removal, the settings screen and the C9 teardown test — and the same was true of `arcade/server/`
+removal, the settings screen and the C9 teardown test — and the same was true of `arcade/v1/server/`
 against `C:\srcrcade-server` (the `DELETE /v1/me` route). Both were re-synced that day. Until
 the working copies move into this repo, every change in `C:\src` needs a copy here, or the git
 history records a product that was never built.

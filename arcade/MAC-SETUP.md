@@ -50,7 +50,7 @@ question.
 
 ## 1. Move the code across — 2 minutes
 
-`arcade/dist/puzzle-app.bundle` (11.5 MB) is a **git bundle**: the entire
+`arcade/v1/dist/puzzle-app.bundle` (11.5 MB) is a **git bundle**: the entire
 repository, all history, in one file. No accounts, no remote, no network.
 
 Get it onto the Mac however is easiest — USB stick, Drive, Dropbox, iCloud. Then:

@@ -14,8 +14,8 @@ being accurate is the part Play enforces.
 
 ## What the app actually does with data
 
-Established by reading `arcade/server/src/db.ts` (the schema), `auth.ts`
-(account creation) and `arcade/app/lib/arcade/api.dart` (what the client sends).
+Established by reading `arcade/v1/server/src/db.ts` (the schema), `auth.ts`
+(account creation) and `arcade/v1/app/lib/arcade/api.dart` (what the client sends).
 
 **There are no user accounts.** On first launch the app asks the server for an
 anonymous player record and gets back an opaque id and a bearer token, which it

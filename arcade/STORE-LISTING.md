@@ -131,8 +131,8 @@ over exactly.
 
 ## 3. Play data safety — draft answers
 
-Established by reading `arcade/server/src/db.ts`, `auth.ts` and
-`arcade/app/lib/arcade/api.dart`.
+Established by reading `arcade/v1/server/src/db.ts`, `auth.ts` and
+`arcade/v1/app/lib/arcade/api.dart`.
 
 | Question | Answer | Why |
 |---|---|---|

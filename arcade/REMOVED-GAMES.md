@@ -7,8 +7,8 @@ starting from nothing.
 
 `C:\src\puzzle-app` is **not** under version control, so before any of this a
 snapshot of `lib/`, `test/`, `assets/` and `pubspec.yaml` went to
-`arcade/dist/puzzle-app-snapshot-2026-09-16.zip` (11.2 MB). That zip is the only
-copy of the removed code. `arcade/dist/` is git-ignored, so it lives on this
+`arcade/v1/dist/puzzle-app-snapshot-2026-09-16.zip` (11.2 MB). That zip is the only
+copy of the removed code. `arcade/v1/dist/` is git-ignored, so it lives on this
 machine and nowhere else — worth putting somewhere that survives the laptop if
 any of these nine are ever coming back.
 

@@ -1,5 +1,9 @@
 # DGD Arcade — demo and release
 
+> **This document is about v1** — Coin Quest only, the version going to the
+> stores and into the main DGD app. Build it from `arcade/v1/`. The ten-game
+> catalogue is v2 and is not a store candidate yet. See `VERSIONS.md`.
+
 Status as of 2026-09-16. This covers getting the app to internal testers and,
 from there, to a public listing. It is a runbook, not a plan document: every
 step is either done, or blocked on something named.
@@ -76,7 +80,7 @@ the new ten games need server-verified scoring.
 
 Before the demo goes out:
 
-1. **Deploy `arcade/server`.** Node 24, Hono, `node:sqlite`, no build step.
+1. **Deploy `arcade/v1/server`.** Node 24, Hono, `node:sqlite`, no build step.
    Any host that runs a Node process with a persistent disk works; SQLite is
    the pilot store and the schema is plain SQL, so Postgres is a driver swap
    if it outgrows that.
@@ -108,14 +112,14 @@ have separate logs now.
 Flutter writes every release APK to the same `app-release.apk`, so the DEV build
 and the demo were silently overwriting each other — the file on disk was always
 whichever ran last, with nothing to say which it was. Both scripts now copy
-their output to `arcade/dist/` under its own name:
+their output to `arcade/v1/dist/` under its own name:
 
 | | |
 |---|---|
-| `arcade/dist/DGD-Arcade-DEV.apk` | DEV menu in, for you and me |
-| `arcade/dist/DGD-Arcade-demo.apk` | Coin Quest only, hand this to testers |
+| `arcade/v1/dist/DGD-Arcade-DEV.apk` | DEV menu in, for you and me |
+| `arcade/v1/dist/DGD-Arcade-demo.apk` | Coin Quest only, hand this to testers |
 
-`arcade/dist/` is git-ignored — these are 55 MB each and rebuilt constantly.
+`arcade/v1/dist/` is git-ignored — these are 55 MB each and rebuilt constantly.
 `TESTERS.md` is the note to send alongside the demo.
 
 `demobuild.cmd` refuses to run without `ARCADE_API` set, because a demo silently

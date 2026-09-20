@@ -1,8 +1,9 @@
 __pycache__/
 .dgd_web_work/
 # Built app binaries. 50+ MB each and rebuilt constantly — they belong on disk
-# for handing to testers, not in git history.
-arcade/dist/
+# for handing to testers, not in git history. One dist per version:
+# arcade/v1/dist, arcade/v2/dist.
+arcade/*/dist/
 site/
 *.pyc
 raw/
