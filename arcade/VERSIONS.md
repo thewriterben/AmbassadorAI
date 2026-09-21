@@ -134,7 +134,10 @@ guarantee they drift.
 The release keystore, the hosted backend and its real `ARCADE_SECRET`, and
 the compliance sign-offs all belong to DGD rather than to a version. They
 block v1 shipping and they will block v2 shipping too. `RELEASE.md` and
-`MEETING-BRIEF.md` track them.
+`MEETING-BRIEF.md` track them. The store-readiness items that came out of the
+backend developer's review on 2026-09-20 — targetSdk 36, the real App Store
+ID, the synthetic stats series, the preview framing, and the Path A/B/C
+decision that gates it — are tracked as S1–S6 in `STORE-READINESS-2026-09-20.md`.
 
 ---
 
