@@ -76,6 +76,29 @@ Not preferences. Several were learned the hard way.
 - Arcade plan §4.3 bars prize-style celebration inside the DGD app: no coin
   showers, no jackpot, no casino visuals.
 
+**The Mac owns `apple/` — decided 2026-09-21**
+
+- `apple/` is **edited on the Mac only.** Windows has no Xcode, so a change
+  made here cannot be compiled, cannot be tested, and will not be noticed as
+  broken until someone opens the tree on a Mac — possibly days later, possibly
+  mid-submission.
+- This is not a style preference. It is the same failure mode as the stale
+  `arcade-repo` on 2026-09-20: work that looks done, is not, and stays quiet.
+- Windows still *reads* `apple/` freely — reviewing a diff, checking a grep,
+  merging a bundle. Only authoring is restricted.
+- **Markdown under `apple/` is exempt**, and deliberately so. The rule exists
+  because Windows cannot compile a change; a `.md` file cannot be compiled
+  anywhere, and the iOS docs go stale exactly when a Mac session forgets them.
+  Blocking doc fixes from Windows would protect nothing and cost accuracy —
+  see `ca39dc1`, which fixed reviewer notes that still described a chart
+  removed the same day.
+- A `pre-commit` hook in `C:\src\dgd-native\.git\hooks\` enforces it and
+  explains itself when it fires. Merges are exempt. If you genuinely need to
+  override, `set DGD_ALLOW_APPLE_EDIT=1` for that one commit — and say in the
+  commit message that the change is uncompiled, as `d6ad633` did.
+- Hooks live in `.git/`, so they are **not** carried by a bundle or a clone.
+  If this repository is set up on another Windows machine, copy the hook over.
+
 **Build rules**
 
 - `DGD_APP_TAB=true` is **mandatory** for any embed build. It is what

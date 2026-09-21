@@ -323,6 +323,20 @@ chart would use, and `HomeStatsPanel.swift`'s own comment says the site's
 it is a decision, not an oversight; if the real chart is not built, both
 copies should go together.
 
+**One thing the Mac session missed, found here and fixed (`ca39dc1`).**
+`DATA_SOURCE.md` was updated, but two other documents still described the
+chart in detail — and one of them is **`APP_STORE_REVIEW_NOTES.md`, which gets
+pasted into App Store Connect.** Its "How to test" walked the reviewer through
+tapping Stats to see timeframe pills, an orange sparkline, period percentages
+and mini fireworks. A reviewer following those steps would find an app that
+does not match its own notes: a rejection risk on its own, and a particularly
+avoidable one given S5 exists to remove that chart. The notes and `README.md`
+now describe the live-only panel, and the notes say outright that a generated
+series was removed on 2026-09-21 and why.
+
+The lesson generalises: **deleting a feature is not done when the code
+compiles.** Grep the prose too — especially anything a reviewer reads.
+
 **Status: done.** B2b (the arcade embed) remains deferred.
 
 ### B3 status — 2026-09-21 — largely dissolved
