@@ -439,6 +439,32 @@ and V2 closed on Android, the server ledger with nothing open, the native
 tree under git. The review adds no security finding on the app itself — it
 calls it "technically clean" — and the one it adds on the backend is §0.
 
+## 6b. Decisions taken 2026-09-21 — the launch view
+
+The stated priority is **launch**. That reorders nothing technical, but it is
+worth saying plainly which of the open items actually stand between here and a
+store submission, because most of them are not engineering:
+
+| | Blocker | Owner | Can it be worked around? |
+|---|---|---|---|
+| **S1** | release keystore, App Bundle | **DGD** | No. Nothing ships without it, and the keystore is deliberately not held here (`RELEASE.md`). |
+| **B1** | primary category + who signs the 3.1.5(v) defence | **DGD** | No, and it should be answered early — if referrals earn anything convertible to DGD, it can change the category or the invite feature itself. |
+| **B2a** | the synthetic stats chart on iOS | Benji, on the Mac | No. It is the one genuine consumer-protection finding in the review. |
+| S3 | placeholder App Store link | DGD (the ID) | Waits on the ID. |
+| S4 | preview framing | DGD | Follows §1. |
+| S7 | app-link verification | here | Gated on S1. |
+
+**B2b — the iOS arcade — is deferred** until this version has been reviewed
+and the backend is being wired in. That is a scope decision, not a technical
+one: iOS ships without an arcade, or iOS ships later, and either is a choice
+DGD gets to make with a reviewed build in front of them.
+
+Two of the three real blockers are DGD's to answer, and neither is waiting on
+code. That is the honest state of the launch.
+
+Repositories stay **local and private** until DGD's company GitHub exists;
+transfer is by git bundle (`MAC-CONTINUE.md`).
+
 ## 7. Order of work
 
 1. §0, today, by DGD.
