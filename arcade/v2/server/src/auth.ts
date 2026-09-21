@@ -133,19 +133,40 @@ function limitKey(c: Context): string {
   return addr ? 'a:' + addr : 'u:unattributable';
 }
 
-/** Fixed-window per-key limiter — enough for a pilot; put a real one at the edge later. */
-export function rateLimit(perMinute: number) {
-  const hits = new Map<string, { n: number; at: number }>();
+/**
+ * Sliding-window per-key limiter.
+ *
+ * The first version was a fixed window that reset the first time a hit landed
+ * more than `windowMs` after the window opened, so a burst of `limit` at t=0
+ * and another at t=61 s admitted twice the limit inside 61 s (audit R4). This
+ * one keeps the previous window's count and weights it by how much of that
+ * window still overlaps the last `windowMs`: at t=61 s the first burst still
+ * counts for 59/60 of itself, so the second window admits only what the limit
+ * leaves. Windows are anchored to each key's first hit rather than the wall
+ * clock, which keeps the arithmetic deterministic under the tests' clock
+ * control. Enough for a pilot; put a real one at the edge later.
+ */
+export function rateLimit(limit: number, windowMs = 60_000, error = 'rate_limited') {
+  const buckets = new Map<string, { start: number; count: number; prev: number }>();
   return async (c: Context, next: Next) => {
     const key = limitKey(c);
     const now = Date.now();
-    const h = hits.get(key);
-    if (!h || now - h.at > 60_000) hits.set(key, { n: 1, at: now });
-    else if (++h.n > perMinute) return c.json({ error: 'rate_limited' }, 429);
+    let b = buckets.get(key);
+    if (!b || now - b.start >= 2 * windowMs) {
+      b = { start: now, count: 0, prev: 0 };
+      buckets.set(key, b);
+    } else if (now - b.start >= windowMs) {
+      b.prev = b.count;
+      b.count = 0;
+      b.start += windowMs;
+    }
+    const weight = 1 - (now - b.start) / windowMs;
+    if (b.prev * weight + b.count >= limit) return c.json({ error }, 429);
+    b.count++;
     // Evict only what has expired. Clearing the whole map let an attacker flush
     // every legitimate counter by cycling enough distinct keys.
-    if (hits.size > 50_000) {
-      for (const [k, v] of hits) if (now - v.at > 60_000) hits.delete(k);
+    if (buckets.size > 50_000) {
+      for (const [k, v] of buckets) if (now - v.start >= 2 * windowMs) buckets.delete(k);
     }
     await next();
   };

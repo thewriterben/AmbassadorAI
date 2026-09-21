@@ -99,6 +99,11 @@ export const config = {
 
   rateLimit: {
     perMinute: num('RATE_PER_MINUTE', 120),
+    // Anonymous player creation from one address, per hour. Registration is
+    // unauthenticated and every identity can climb the board, so it needs a
+    // cap far below the generic per-minute limit (audit R3). Ten covers a
+    // household or a lab bench; a farm hits it in seconds.
+    playersPerHour: num('PLAYERS_PER_HOUR', 10),
   },
 };
 
