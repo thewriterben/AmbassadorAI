@@ -13,11 +13,14 @@ conversation.
 
 Three real blockers. Only one is engineering.
 
+**As of 21 Sep both remaining blockers are DGD's.** No engineering work stands
+between this build and a submission.
+
 | | Blocker | Owner |
 |---|---|---|
 | **S1** | release keystore, App Bundle | **DGD** — nothing ships without it |
 | **B1** | primary category + who signs the 3.1.5(v) defence | **DGD** — answer early; it can change the invite feature itself |
-| **B2a** | the synthetic stats chart on iOS | Benji, on the Mac |
+| ~~B2a~~ | ~~the synthetic stats chart on iOS~~ | **done** 21 Sep, `2948702` |
 
 Everything else is gated on one of those, or on an artefact DGD has not
 produced (App Store ID). Full table in
@@ -39,6 +42,7 @@ Android is in good shape; the work below is all verified on device.
 | `d6ad633` | dgd-native | iOS stats panel rewritten — **uncompiled**, this is B2a |
 | `783c6ba` | dgd-native | **S2** — large-screen width caps at targetSdk 36 |
 | `284710d` | puzzle-app | the arcade half of the same S2 change |
+| `2948702` | dgd-native | **B2a** — built on the Mac. The uncompiled panel compiled unchanged; 93 tests pass, down from 107, all fourteen the generator's |
 
 Also closed: `DGD_APP_TAB` suppression, proved by an A/B build diff rather
 than by eye — `voWinner` and `fireworkShow` vanish from the flagged snapshot

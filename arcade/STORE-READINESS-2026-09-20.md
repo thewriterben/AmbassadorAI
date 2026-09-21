@@ -284,6 +284,47 @@ engine lifecycle took three attempts, and a plausible-looking uncompiled
 Swift file would be worse than the shape plus a reference implementation.
 **Status: handed over.**
 
+### B2a — DONE 2026-09-21, on the Mac
+
+Commit `2948702`, merged back as a clean fast-forward. **The iOS half of S5 is
+closed: no synthetic performance series ships on either platform.**
+
+`HomeStatsPanel.swift` — 565 lines down to 86, written on Windows with no
+Xcode — **compiled unchanged.** The only edit to it was deleting its own "NOT
+COMPILED" warning. That was the genuine risk in this handover and it did not
+materialise; `SpinningCoinView.swift`, the other uncompiled file, also built
+without being touched.
+
+What went with the generator: `PreviewStatsSeries.swift` and its tests,
+`accountsGrowthSentence` (the last `StatsTimeframe` user) and the test-only
+`signedDeltaDigits` / `signedAccountsDeltaString`, and the chart-caption
+asserts in `PriceFormatterTests`. `DATA_SOURCE.md` §4 updated.
+
+Xcode 27.0, iPhone 18 Pro simulator, iOS 27: clean build, **93 tests pass, down
+from 107.** All fourteen removed tested the generator — which matches Android's
+106 → 92 almost exactly, and is the check worth doing, because a similar drop
+on both platforms is evidence the same thing was removed rather than a
+different amount of something.
+
+Verified here after the merge rather than taken on trust:
+
+| Check | Result |
+|---|---|
+| `git grep "Illustrative" -- apple/` | nothing |
+| `git grep "PreviewStatsSeries" -- apple/` | nothing |
+| `git grep "StatsTimeframe" -- apple/` | nothing |
+| the three dropped formatters | no references anywhere |
+| `PriceFormatterTests` survivors | 8 tests, including `testPercentChangeString` and the hero-price coverage |
+
+One note, not a defect. `chartPriceString` now has no production caller on
+either platform — Android kept its equivalent too. It is the formatter a real
+chart would use, and `HomeStatsPanel.swift`'s own comment says the site's
+`/analytics` endpoints serve genuine daily history for exactly that. Leaving
+it is a decision, not an oversight; if the real chart is not built, both
+copies should go together.
+
+**Status: done.** B2b (the arcade embed) remains deferred.
+
 ### B3 status — 2026-09-21 — largely dissolved
 Checked against the current guidelines rather than recalled. Following the
 Epic injunction, Apple's May 2025 update means that **on the US storefront**
@@ -449,7 +490,7 @@ store submission, because most of them are not engineering:
 |---|---|---|---|
 | **S1** | release keystore, App Bundle | **DGD** | No. Nothing ships without it, and the keystore is deliberately not held here (`RELEASE.md`). |
 | **B1** | primary category + who signs the 3.1.5(v) defence | **DGD** | No, and it should be answered early — if referrals earn anything convertible to DGD, it can change the category or the invite feature itself. |
-| **B2a** | the synthetic stats chart on iOS | Benji, on the Mac | No. It is the one genuine consumer-protection finding in the review. |
+| ~~**B2a**~~ | ~~the synthetic stats chart on iOS~~ | — | **Done 21 Sep** (`2948702`). S5 is now closed on both platforms. |
 | S3 | placeholder App Store link | DGD (the ID) | Waits on the ID. |
 | S4 | preview framing | DGD | Follows §1. |
 | S7 | app-link verification | here | Gated on S1. |
@@ -461,6 +502,10 @@ DGD gets to make with a reviewed build in front of them.
 
 Two of the three real blockers are DGD's to answer, and neither is waiting on
 code. That is the honest state of the launch.
+
+**Update, later on 21 Sep:** B2a is done. **Both remaining blockers are now
+DGD's** — the keystore and the 3.1.5(v) answer. There is no engineering work
+standing between this build and a submission.
 
 Repositories stay **local and private** until DGD's company GitHub exists;
 transfer is by git bundle (`MAC-CONTINUE.md`).
