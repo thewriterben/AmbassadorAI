@@ -104,6 +104,24 @@ unchanged.
 
 ---
 
+### It has been security-reviewed
+
+Two passes on the build you are holding: one reading the app as a file, one
+running it.
+
+Four things came out, all small, **none of them affecting what you will see**:
+a screen meant only for developers was still inside the app (switched off and
+unreachable, but it should not have been there); a configuration file was
+carrying internal notes about our own website that nobody needed; and two
+issues with how we *check* the app rather than with the app itself — one where
+a test run could report "all passed" while quietly skipping the most important
+test.
+
+The first three are fixed. The fourth is a decision about our own process.
+
+Worth saying because it is the point of doing this: the checking found
+problems with the checking. That is what you want a review to do.
+
 ## What is left
 
 Three things. **Two of them are decisions, not work.**
