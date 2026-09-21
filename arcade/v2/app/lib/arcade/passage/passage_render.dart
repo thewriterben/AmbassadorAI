@@ -3,10 +3,12 @@ part of 'passage_game.dart';
 /// Drawing for [PassageGame]. Split out because the simulation above is the
 /// part worth reviewing and it should not be buried under paint calls.
 ///
-/// Everything is drawn from primitives rather than sprites. The art direction
-/// is the app's own — near-black sky, one amber accent, brushed metal — so
-/// there is nothing here that resembles any existing game's look, which is
-/// the part of an arcade homage that actually carries legal risk.
+/// The coins are the DGD coin renders Coin Quest uses — gold, silver and
+/// copper — so the two games read as one app and the thing you fly and
+/// collect is unmistakably the brand's own coin. Everything else is drawn
+/// from primitives in the app's own art direction: near-black sky, one amber
+/// accent, brushed metal. Nothing here resembles any existing game's look,
+/// which is the part of an arcade homage that actually carries legal risk.
 extension PassageRender on PassageGame {
   void renderWorld(Canvas canvas) {
     if (!_laidOut) return;
@@ -30,9 +32,27 @@ extension PassageRender on PassageGame {
     PickupKind.copper: (Color(0xFFE8A97E), Color(0xFFB4652A), Color(0xFF52280D), Color(0xFFD98A55)),
   };
 
-  /// A small coin in one of the three metals. Gold carries the DGD mark —
-  /// a spiral, drawn rather than sprited, so it reads as "one of those" next
-  /// to the player's coin and as the thing worth ten next to the others.
+  /// The DGD coin render for [kind], drawn centred on [c] at radius [r],
+  /// optionally tilted. Returns false when the image is not available so the
+  /// caller can draw a coin instead.
+  bool _spriteCoin(Canvas canvas, Offset c, double r, PickupKind kind, {double alpha = 1, double tilt = 0}) {
+    final s = _coinSprites[kind];
+    if (s == null) return false;
+    final paint = alpha >= 1 ? null : (Paint()..color = const Color(0xFFFFFFFF).withValues(alpha: alpha));
+    if (tilt == 0) {
+      s.render(canvas, position: Vector2(c.dx, c.dy), size: Vector2.all(r * 2), anchor: Anchor.center, overridePaint: paint);
+      return true;
+    }
+    canvas.save();
+    canvas.translate(c.dx, c.dy);
+    canvas.rotate(tilt);
+    s.render(canvas, position: Vector2.zero(), size: Vector2.all(r * 2), anchor: Anchor.center, overridePaint: paint);
+    canvas.restore();
+    return true;
+  }
+
+  /// A small coin in one of the three metals: the DGD render when it is
+  /// loaded, a drawn coin in the same palette when it is not.
   void _smallCoin(Canvas canvas, Offset c, double r, PickupKind kind, {double alpha = 1}) {
     final (hi, body, lo, rim) = _metal[kind]!;
     final gold = kind == PickupKind.gold;
@@ -51,6 +71,7 @@ extension PassageRender on PassageGame {
           ),
       );
     }
+    if (_spriteCoin(canvas, c, r, kind, alpha: alpha)) return;
     canvas.drawCircle(
       c,
       r,
@@ -300,6 +321,11 @@ extension PassageRender on PassageGame {
           [0.0, 0.52, 1.0],
         ),
     );
+    // The player's coin is the gold DGD render, tilting nose-down as it
+    // falls and levelling on a flap, which is most of what makes a disc
+    // read as something in flight rather than a cursor.
+    final tilt = (_vy / _vMax).clamp(-1.0, 1.0) * 0.45;
+    if (_spriteCoin(canvas, c, _coinR, PickupKind.gold, alpha: alpha, tilt: tilt)) return;
     canvas.drawCircle(
       c,
       _coinR,

@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:math';
 import 'dart:ui';
 
+import 'package:flame/components.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -295,6 +297,12 @@ class PassageGame extends FlameGame {
   /// Red flash after a strike, 1 fading to 0.
   double _strikeFlash = 0;
 
+  /// The DGD coin renders, the same three Coin Quest ships and the home
+  /// screen shows. Null until [onLoad] has them, or for good if the load
+  /// fails — the renderer falls back to drawn coins rather than to nothing,
+  /// so a missing image can never take the game down with it.
+  final Map<PickupKind, Sprite> _coinSprites = {};
+
   late List<Pickup> _pickups;
   final List<_Spill> _spills = [];
   final List<_Pop> _pops = [];
@@ -375,6 +383,36 @@ class PassageGame extends FlameGame {
 
   double get _skyFloor => _h * 1.3;
   double get _groundAt => _h * 0.87;
+
+  @override
+  Future<void> onLoad() async {
+    await super.onLoad();
+    // Not awaited. A GameWidget holds the whole game — update, render, the
+    // era banner — until onLoad completes, and the first version awaited
+    // the three images here, which pushed the opening banner late enough
+    // for the widget test to miss it. The images arrive within a frame or
+    // two on device; until they do the renderer draws coins itself.
+    unawaited(_loadCoinSprites());
+  }
+
+  /// Loaded by their bare names the way Coin Quest loads its pieces; Flame
+  /// prefixes assets/images/. assets_test.dart cannot see these names, so
+  /// the drawn fallback is what stands between a renamed file and a blank
+  /// coin.
+  Future<void> _loadCoinSprites() async {
+    const files = {
+      PickupKind.gold: 'coin_gold.png',
+      PickupKind.silver: 'coin_silver.png',
+      PickupKind.copper: 'coin_copper.png',
+    };
+    for (final e in files.entries) {
+      try {
+        _coinSprites[e.key] = await Sprite.load(e.value);
+      } catch (_) {
+        // Drawn fallback for this metal. See _smallCoin.
+      }
+    }
+  }
 
   @override
   void onGameResize(Vector2 size) {
@@ -603,7 +641,7 @@ class PassageGame extends FlameGame {
     return dx * dx + dy * dy < rr * rr;
   }
 
-  double _pickR(PickupKind k) => _coinR * (k == PickupKind.gold ? 0.85 : 0.55);
+  double _pickR(PickupKind k) => _coinR * (k == PickupKind.gold ? 0.85 : 0.6);
 
   void _collect(Pickup p, double sx) {
     if (p.taken) return;

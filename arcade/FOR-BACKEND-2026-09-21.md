@@ -173,6 +173,18 @@ Recent work that touches your surface area:
   code, and every inbound `?ref=` deep link, threw `NoSuchMethodError` on
   Android 8 through 12. Found by running lint for the first time in the
   release-candidate pass.
+
+  Verified three ways, because the Pixel is API 36 and would never have hit
+  this — "it works on my phone" proves nothing here, and the bug shipped in the
+  first place precisely because nobody ran those versions:
+
+  1. An **Android 11 (API 30) emulator** was stood up specifically for it. The
+     `?ref=` deep link resolves with no `NoSuchMethodError` and the app runs.
+  2. The **shipped APK's dex** references exactly
+     `URLDecoder.decode(String, String)` and
+     `URLEncoder.encode(String, String)` — the API 1 overloads — and no
+     `Charset` variant anywhere. That is artefact-level proof, not source-level.
+  3. Lint is clean and is now a permanent step in the RC pass.
 - **R8 is now on** for release builds, with keep rules for Flutter, Tink,
   ZXing and OkHttp — all four resolve by reflection and fail at runtime rather
   than at build time if shrunk away.

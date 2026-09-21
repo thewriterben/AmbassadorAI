@@ -170,7 +170,7 @@ pacing without replacing it with something that does the same work.**
 | Server | `passage` added to the mini-game allow-list; XP `stars × 12`, plus 24 for a full passage, plus `min(12, score ÷ 50)` for coins. The passage bonus keys off stars, not eras reached — reaching 2009 is not flying through it |
 | Min round | 4 s — the shortest legitimate run is a player who taps once and never again, which measures at ~5.3 s and is asserted in the test |
 | Tests | `test/passage_test.dart` — layout reachability, gap floor, the star rule, that a player who stops tapping lands rather than dies, and the coin rules below |
-| Art | Drawn from primitives. No sprites, nothing resembling any existing game's look |
+| Art | The coins are the DGD coin renders Coin Quest ships (`coin_gold`, `coin_silver`, `coin_copper`); everything else is drawn from primitives. Nothing resembling any existing game's look |
 
 ## What playing it on a Pixel found, 2026-09-20
 
@@ -220,8 +220,10 @@ The first device build was an MVP with nothing to do between gates. The
 second pass adds something to chase, and the reward for chasing it is speed.
 Four decisions, each taken deliberately:
 
-1. **Three metals, unequal on purpose.** A **gold DGD coin** (10 points,
-   drawn with the spiral mark) floats in every opening and **drifts the
+1. **Three metals, unequal on purpose, all DGD.** Every coin in the game —
+   the one you fly and the ones you collect — is one of the three DGD coin
+   renders Coin Quest uses. A **gold coin** (10 points) floats in every
+   opening and **drifts the
    full height of it**, half a coin clear of either lip at the extremes, one
    cycle in about 2.4 s. Even gates start at the top and odd gates at the
    bottom, so consecutive coins are always moving in opposite directions

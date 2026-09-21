@@ -89,6 +89,11 @@ Worth saying plainly: this was caught by a code-quality check that had never
 been run on this project before. It was added as a standing part of the
 release checklist.
 
+And the fix was then checked **on an actual Android 11 device**, not just on a
+modern phone. The test phone here runs the newest Android, which never had the
+problem — so "it works on my phone" would have proved nothing. That is exactly
+how the bug got in.
+
 ### Tablets and folding phones
 
 Android changed the rules this year: apps no longer get to stay locked in
