@@ -272,6 +272,37 @@ clean and should say so explicitly. If yes, that needs separating from the app
 before submission, and it is a bigger change than anything else in track B.
 **Owner: DGD. Status: open, and it should be answered early.**
 
+### B1 — ANSWERED 2026-09-21: **yes**
+
+DGD confirms that referrals are compensated in DGD, or in something
+convertible to it. That closes the question and opens a decision.
+
+**The guideline, verbatim:** *"Cryptocurrency apps may not offer currency for
+completing tasks, such as downloading other apps, encouraging other users to
+download, posting to social networks, etc."*
+
+Three elements, and the app is exposed on all three:
+
+1. *"Cryptocurrency apps"* — a DGD ticker with a DGD member path. In scope.
+2. *"may not offer currency"* — the **app** pays nothing; the **site** does.
+   This is the only element with any daylight in it, and see below.
+3. *"encouraging other users to download"* — **Display QR encodes
+   `/app?ref=USERNAME`.** That is an app-download link carrying a referral
+   code that earns DGD. It is not an analogy to the guideline's example; it is
+   the example.
+
+The off-app-payout argument is the whole defence, and it is weak. The app
+ships the referral mechanism, the code, the QR and the share sheet; only the
+settlement happens elsewhere. A reviewer who learns the programme pays in DGD
+is unlikely to accept that the app is uninvolved, and **the QR is the hardest
+part to explain away** because its payload is literally an app download.
+
+This is a legal and commercial judgment, not an engineering one, and it wants
+DGD's counsel rather than an opinion from here. What engineering can say is
+what each option costs — recorded in `B1-DECISION-2026-09-21.md`.
+
+**Status: decision pending. This is now the critical path for iOS.**
+
 ### B2 status — 2026-09-21
 `integration/IOS-B2-RUNBOOK.md`, plus the Swift itself. `HomeStatsPanel.swift`
 is rewritten to the live-figures-only panel that Android already ships

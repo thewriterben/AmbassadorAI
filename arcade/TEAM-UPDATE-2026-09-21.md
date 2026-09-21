@@ -126,12 +126,22 @@ The question is about the **invite links on the main app**:
 > Does anyone receive DGD, or anything that can be turned into DGD, for
 > referring someone — on the website, off-app, by hand, or at any point later?
 
-**If no**, we say so plainly in the submission and it is settled. **If yes**,
-that has to be separated from the app before we submit, and it is a bigger
-change than anything else outstanding.
+**Answered on 21 September: yes.** Referrals do earn DGD.
 
-This is worth answering early rather than late. It is the only open item that
-could change what the app does rather than just when it ships.
+So this is now a decision rather than a question, and it is the one thing that
+changes what the app does rather than just when it ships. Apple's rule names
+"encouraging other users to download" specifically, and our Display QR is an
+app-download link with a referral code attached — which is close enough to the
+rule's own wording that we should not plan on talking our way past it.
+
+The realistic choices are to take the invite feature out of the app (the
+website keeps it), or for referrals to stop paying in DGD. Neither is an
+engineering problem — removing the feature is about half a day — and the call
+sits with DGD and its legal advisers, not with the build.
+
+**What this means for timing:** iOS is the constrained side. Android is
+probably unaffected, but that word is doing real work and it needs checking
+rather than assuming.
 
 ---
 

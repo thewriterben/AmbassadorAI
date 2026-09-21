@@ -150,13 +150,27 @@ a question only DGD can answer:
 > **Does anyone receive DGD, or anything convertible to it, for a referral —
 > on the site, off-app, manually, or later?**
 
-If **no**, the defence is clean and the reviewer notes should say so
-explicitly. If **yes**, that needs separating from the app before submission,
-and it is a larger change than anything else outstanding.
+**Answered 2026-09-21: yes.** Referrals are compensated in DGD or in something
+convertible to it.
 
-Backend will know whether any such crediting path exists in the site's data
-model, which is why it is in this document rather than only in the commercial
-one.
+That makes Apple's clause bite. Verbatim: *"Cryptocurrency apps may not offer
+currency for completing tasks, such as downloading other apps, **encouraging
+other users to download**, posting to social networks, etc."* The app's
+Display QR encodes `/app?ref=USERNAME` — an app-download link carrying a
+referral code that earns DGD. The options and their costs are in
+`B1-DECISION-2026-09-21.md`; the decision is DGD's with counsel.
+
+**What backend is asked for, whichever option is chosen:**
+
+1. **The shape of the crediting path.** Is it automatic on signup, manual, or
+   batched later? Is it recorded per-referrer in a way that could be paused or
+   scoped by channel? If the app's invite codes can be distinguished from the
+   site's own, that distinction may matter.
+2. **Whether referral credit can be turned off for app-originated referrals
+   specifically** — that is, `?ref=` codes that arrived via the app — without
+   disturbing the website programme. If it can, that is a much cheaper
+   mitigation than removing the feature.
+3. Nothing in the app needs to change for backend to answer either of those.
 
 ---
 
