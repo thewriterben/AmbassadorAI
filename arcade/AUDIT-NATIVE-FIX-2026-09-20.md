@@ -132,7 +132,11 @@ scrim may re-lay out. Cosmetic if it happens; **not tested on the device**.
 If a jump is ever seen, `systemBarsPadding()` plus `displayCutoutPadding()`
 on the ticker is the narrower choice.
 
-### N4. INFO (pre-existing, for `MERGE.md`) — backup is on, and the password store is device-bound
+### N4. INFO (pre-existing, for `MERGE.md`) — backup is on, and the password store is device-bound — RETIRED 2026-09-20
+
+Both signup preference files are now excluded from backup and device
+transfer (native commit `69f51c7`, see `AUDIT-v1.0.2-2026-09-20.md` V2), so
+no restore can bring the ciphertext without its key.
 `allowBackup="true"` in the manifest, and the password lives in
 `EncryptedSharedPreferences`. The master key is in the Keystore and is never
 backed up, so a restore to a new device brings the ciphertext without the

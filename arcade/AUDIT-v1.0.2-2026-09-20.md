@@ -58,15 +58,28 @@
 - **Hostile deep link.** The exported `MainActivity` takes the
   `digitalgold.co/app` intent with a script-tag path, quote-laden query and a
   400-character parameter without crashing; the ticker renders.
-- **No crashes** in either phase. Static: RC4 (32-bit x86 declared without
-  an engine) unchanged; debug flags as before. RC3 was closed after this
-  pass: the host manifest now reports `1.0.2 (2)`, and the rebuilt APK in
-  `integration/` (sha256 `6c98f117…`) differs from the audited `72837584…`
-  build only in that.
+- **No crashes** in either phase. Static: debug flags as before. RC3 and
+  RC4 were closed after this pass: the host manifest reports `1.0.2 (2)` and
+  the APK no longer declares 32-bit x86; V1 and V2 below were fixed as
+  well. The current `integration/DGD-merged-arcade-v1.0.2-demo-debug.apk`
+  (sha256 `d6812bf2…`) differs from the audited `72837584…` build in those
+  four things only.
 
 ## Notes
 
-### V1. INFO — the verification step asserts an email that was not sent
+### V1. INFO — the verification step asserts an email that was not sent — FIXED 2026-09-20
+
+Native commit `e124cb9`, both platforms: the step is titled "Verify your
+email", the body reads "In the live app, a verification code is sent to
+<address>. Enter it below to continue.", the spam note is conditional, and
+the resend flash reads "Resent in the live app". "Resend code" stays, as a
+button label is a request rather than a claim, and the copy still carries
+no "Demo" line — the PREVIEW · NOT LIVE header is the disclosure and the
+copy now stops contradicting it. `LockedCopyTest` gains a case that none of
+those strings can claim a sent email; 105 unit tests pass. The rebuilt APK
+(sha256 `1b9756f2…`, 80869951 bytes) no longer contains the old sentence. The
+Swift side is edited to match and, like the rest of the Apple tree, is not
+compiled here.
 The screen is headed **PREVIEW · NOT LIVE** and its accessibility label reads
 "Demo only. This app does not send email." Below that the body copy says
 *"We sent a verification code to redteam@example.edu. Enter it below to
@@ -78,7 +91,19 @@ told where to look for it. A copy decision for DGD, and one to settle before
 store review reads the same screen: "In the live app a code would be sent
 to …" says the same thing without asserting it.
 
-### V2. INFO — the email address is at rest in plaintext, under backup
+### V2. INFO — the email address is at rest in plaintext, under backup — FIXED 2026-09-20 (Android)
+
+Native commit `69f51c7`: the address now lives in the encrypted preferences
+file with the password, an install from before the change has it moved
+across on first read with the plaintext copy deleted, and both signup
+preference files are excluded from cloud backup and device transfer by
+`backup_rules.xml` and `data_extraction_rules.xml`. That exclusion also
+retires N4 from the ticker-fix audit, since an encrypted file whose key
+stays in one device's Keystore had nothing to offer a restore anyway. 106
+unit tests pass, two of them new. Verified on a wiped emulator: a seeded plaintext address was moved out of `dgd.signup.xml`, a login stored the address and password only in the encrypted file, a plaintext search of the app's private storage found none of them, and a backup captured through the local transport contained neither signup file. Rebuilt APK sha256 `d6812bf2…`,
+80,870,916 bytes. **iOS is not done:** there the email is still `@AppStorage`
+(UserDefaults, which iCloud backs up) with only the password in the
+Keychain; the same move is a Swift change for someone with a Mac.
 Pre-existing and documented: username and email are ordinary
 `SharedPreferences`, only the password is encrypted, and the host manifest
 has `allowBackup="true"`. The email is personal data that will ride along in

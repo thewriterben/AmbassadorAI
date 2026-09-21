@@ -19,7 +19,12 @@ Established by reading `arcade/v1/server/src/db.ts` (the schema), `auth.ts`
 
 **There are no user accounts.** On first launch the app asks the server for an
 anonymous player record and gets back an opaque id and a bearer token, which it
-stores on the device. No email address, phone number, username, password or
+stores on the device. [Drafting note, 2026-09-20: this paragraph describes
+the arcade alone. The merged DGD app's signup *preview* also stores, on the
+device only, a username in plain preferences and an email address and
+password in encrypted preferences; none of it is sent anywhere and none of
+it is included in backups (native commit `69f51c7`). The merged
+app's listing needs a sentence for that.] No email address, phone number, username, password or
 social login is involved at any point. Nothing asks the player who they are.
 
 **The display name is assigned, never typed.** Leaderboard handles come from a
