@@ -1,7 +1,14 @@
 __pycache__/
 .dgd_web_work/
+# Built app binaries. 50+ MB each and rebuilt constantly — they belong on disk
+# for handing to testers, not in git history. One dist per version:
+# arcade/v1/dist, arcade/v2/dist.
+arcade/*/dist/
 site/
 *.pyc
 raw/
 example-output/hub-preview/
 .pytest_cache/
+
+# Merged-app release candidates are 80 MB+ each; the audit records the sha256.
+arcade/integration/*.apk

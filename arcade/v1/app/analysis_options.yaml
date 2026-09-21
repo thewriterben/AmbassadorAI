@@ -1,0 +1,10 @@
+analyzer:
+  exclude:
+    - build/**
+    - android/**
+    - ios/**
+    - web/**
+    # Dev-only scripts: they import lib/ by relative path and print to stdout
+    # on purpose. Nothing here ships in the app.
+    - tools/**
+include: package:flutter_lints/flutter.yaml

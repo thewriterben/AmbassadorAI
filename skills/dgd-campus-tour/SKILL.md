@@ -1,5 +1,14 @@
 ---
 name: dgd-campus-tour
+version: 1.0.0
+tags:
+  - campus
+  - university
+  - outreach
+  - digital-gold
+  - compliance
+  - ambassador
+  - research
 metadata:
   version: 1.0.0
   tags: campus, university, outreach, digital-gold, compliance, ambassador, research

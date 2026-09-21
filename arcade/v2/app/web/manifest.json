@@ -1,0 +1,20 @@
+{
+  "name": "DGD Arcade",
+  "short_name": "DGD Arcade",
+  "description": "Learn how Digital Gold is designed, one expedition at a time. Educational only; XP and badges have no monetary value.",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#020203",
+  "theme_color": "#020203",
+  "lang": "en",
+  "categories": ["education", "games"],
+  "prefer_related_applications": false,
+  "icons": [
+    { "src": "icons/Icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/Icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/Icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "icons/Icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

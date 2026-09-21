@@ -1,0 +1,17 @@
+{
+  "name": "dgd-arcade-server",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Server-authoritative backend for the DGD Arcade (Explorer track): XP, Knowledge Tablets, Daily Ledger.",
+  "type": "module",
+  "engines": { "node": ">=24" },
+  "scripts": {
+    "start": "node src/index.ts",
+    "dev": "node --watch src/index.ts",
+    "test": "node --test test/*.test.ts"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.14.0",
+    "hono": "^4.7.0"
+  }
+}
