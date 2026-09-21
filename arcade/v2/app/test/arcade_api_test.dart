@@ -121,6 +121,66 @@ void main() {
     });
   }, skip: needsDefine ?? (Dev.demoBuild ? false : 'run with --dart-define=DGD_DEMO=true'));
 
+  // A build compiled without ARCADE_API has no backend (audit 2026-09-20,
+  // RC1): the localhost fallback exists in debug only. `flutter test` is
+  // always debug, so the resolver is tested as a pure function and the gates
+  // are tested by overriding the resolved base. Runs before the loopback
+  // group so the singleton is still untouched.
+  group('ArcadeApi.resolveBase', () {
+    test('an explicit ARCADE_API always wins', () {
+      expect(ArcadeApi.resolveBase(env: 'https://x.example', isWeb: false, debug: false), 'https://x.example');
+      expect(ArcadeApi.resolveBase(env: 'https://x.example', isWeb: true, webOrigin: Uri.parse('https://h/'), debug: true),
+          'https://x.example');
+    });
+    test('native debug falls back to the dev server on localhost', () {
+      expect(ArcadeApi.resolveBase(env: '', isWeb: false, debug: true), 'http://localhost:8787');
+    });
+    test('HOLDS RC1 native release with no ARCADE_API has no backend at all', () {
+      expect(ArcadeApi.resolveBase(env: '', isWeb: false, debug: false), '');
+    });
+    test('web falls back to same-origin /api', () {
+      expect(ArcadeApi.resolveBase(env: '', isWeb: true, webOrigin: Uri.parse('https://h/x/'), debug: false), 'https://h/api');
+    });
+  });
+
+  group('a build with no backend never talks to a server', () {
+    late FakeServer server;
+    setUpAll(() async {
+      SharedPreferences.setMockInitialValues({});
+      server = await FakeServer.start(InternetAddress.loopbackIPv4, base.port);
+      server.script = server.happy;
+      ArcadeApi.baseOverride = '';
+    });
+    tearDownAll(() async {
+      ArcadeApi.baseOverride = null;
+      await server.close();
+    });
+
+    // refresh() rather than load(): load() is what cold start calls, but it
+    // also marks the local cache as read, and the loopback group below
+    // asserts on that first read. The gate under test is in refresh().
+    test('HOLDS RC1 refresh and a level start make zero requests', () async {
+      expect(ArcadeApi.hasBackend, isFalse);
+      expect(ArcadeProgress.noBackend, isTrue);
+      await ArcadeProgress.instance.refresh();
+      expect(await ArcadeProgress.instance.startMini('coin_quest'), isNull);
+      final (gained, _) = await ArcadeProgress.instance.recordMini('coin_quest', token: null, right: 3, total: 3);
+      expect(gained, 0);
+      await Future<void>.delayed(const Duration(milliseconds: 300));
+      expect(server.seen, isEmpty, reason: 'a build with no backend registered or opened a round');
+      expect(ArcadeApi.instance.ready, isFalse);
+      expect(ArcadeProgress.instance.offline, isFalse, reason: 'no backend is not "offline"');
+    });
+
+    test('HOLDS RC1 a direct API call is refused before any socket opens', () async {
+      await expectLater(
+        ArcadeApi.instance.me(),
+        throwsA(isA<ApiException>().having((e) => e.code, 'code', 'no_backend')),
+      );
+      expect(server.seen, isEmpty);
+    });
+  }, skip: needsDefine ?? (Dev.demoBuild ? 'not a demo build test; run without DGD_DEMO' : false));
+
   group('ArcadeApi against a loopback server', () {
     late FakeServer server;
 
