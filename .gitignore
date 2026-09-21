@@ -9,3 +9,6 @@ site/
 raw/
 example-output/hub-preview/
 .pytest_cache/
+
+# Merged-app release candidates are 80 MB+ each; the audit records the sha256.
+arcade/integration/*.apk
