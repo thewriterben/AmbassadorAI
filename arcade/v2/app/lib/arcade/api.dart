@@ -18,11 +18,46 @@ class ArcadeApi {
   ArcadeApi._();
 
   static const _env = String.fromEnvironment('ARCADE_API');
-  static final String base = _env.isNotEmpty
-      ? _env
-      : kIsWeb
-          ? Uri.base.resolve('/api').toString()
-          : 'http://localhost:8787';
+
+  /// Where the backend is, or empty when this build has none.
+  ///
+  /// Decided once by [resolveBase] from the environment and the build mode.
+  /// [baseOverride] exists for tests only.
+  static String get base => baseOverride ?? _resolvedBase;
+  static final String _resolvedBase = resolveBase(
+    env: _env,
+    isWeb: kIsWeb,
+    webOrigin: kIsWeb ? Uri.base : null,
+    debug: kDebugMode,
+  );
+  @visibleForTesting
+  static String? baseOverride;
+
+  /// True when this build can talk to a server at all.
+  static bool get hasBackend => base.isNotEmpty;
+
+  /// Pure, so the release case can be tested: `flutter test` is always debug.
+  ///
+  /// The localhost fallback is for `flutter run` against the dev server and
+  /// nothing else. Compiled into anything that leaves the machine it means
+  /// "trust whatever is listening on 127.0.0.1:8787", which on Android is any
+  /// installed app — the merged app's release candidate registered a player
+  /// there at every launch (audit 2026-09-20, RC1). So the fallback exists in
+  /// debug mode only; a release or profile build with no ARCADE_API has no
+  /// backend, and behaves exactly like the demo.
+  @visibleForTesting
+  static String resolveBase({required String env, required bool isWeb, Uri? webOrigin, required bool debug}) {
+    if (env.isNotEmpty) return env;
+    if (isWeb && webOrigin != null) return webOrigin.resolve('/api').toString();
+    return debug ? 'http://localhost:8787' : '';
+  }
+
+  /// Every request passes through here, so no caller — present or future —
+  /// can reach a backend this build does not have. Callers already handle
+  /// [ApiException]; this is the same contract with a code of its own.
+  void _requireBackend() {
+    if (!hasBackend) throw const ApiException('no_backend', 0, 'this build has no ARCADE_API');
+  }
   static const _timeout = Duration(seconds: 8);
 
   final _client = http.Client();
@@ -131,6 +166,7 @@ class ArcadeApi {
       };
 
   Future<Map<String, dynamic>> _get(String path) async {
+    _requireBackend();
     try {
       final r = await _client.get(Uri.parse('$base$path'), headers: _headers()).timeout(_timeout);
       return _decode(r);
@@ -142,6 +178,7 @@ class ArcadeApi {
   }
 
   Future<Map<String, dynamic>> _delete(String path) async {
+    _requireBackend();
     try {
       final r = await _client.delete(Uri.parse('$base$path'), headers: _headers()).timeout(_timeout);
       return _decode(r);
@@ -153,6 +190,7 @@ class ArcadeApi {
   }
 
   Future<Map<String, dynamic>> _post(String path, Map<String, dynamic> body, {bool auth = true}) async {
+    _requireBackend();
     try {
       final r = await _client
           .post(Uri.parse('$base$path'), headers: _headers(auth: auth), body: jsonEncode(body))

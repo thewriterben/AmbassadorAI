@@ -79,10 +79,11 @@ still needs. Bump within the band on every upload, never reuse.
 | `v1.0.1` | Modal sheets clear the navigation bar; the hero coin always flips rather than alternating spin/flip. Both cosmetic, both verified on a Pixel. See `integration/COIN-AND-ICON.md` |
 | `v1.0.2` | A build with no `ARCADE_API` has no backend, never `localhost:8787`. Closes `AUDIT-RC-2026-09-20.md` RC1; verified on a wiped emulator. The embed is built with `DGD_EMBED=demo` until a backend is hosted |
 
-**v1.0.1 and v1.0.2 have not yet been merged into v2** — step 4 below. The same two edits
-were applied to v2 by hand and analyze clean, but they are uncommitted and
-v2's worktree has in-progress Passage work from another session. Whoever owns
-v2 should either keep those edits or drop them and take the merge.
+**v1 `main` through v1.0.2 is merged into `v2/ten-games`** as of 2026-09-20
+(`9552296`). The v1.0.1 edits that had been applied to v2 by hand were
+superseded by the merge and dropped; v2 keeps its own `2.0.0+200` version
+line. The in-progress Passage work in that worktree was left uncommitted and
+untouched. v2: analyzer clean, 69 plain / 76 loopback / 5 demo tests pass.
 
 ## If a bug is found in v1
 

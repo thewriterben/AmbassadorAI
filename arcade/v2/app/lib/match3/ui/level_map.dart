@@ -268,7 +268,7 @@ class _LevelSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final best = Progress.instance.best(level.id);
     return Container(
-      margin: const EdgeInsets.all(16),
+      margin: AppTheme.sheetMargin(context),
       padding: const EdgeInsets.all(24),
       decoration: AppTheme.glass(radius: 24, fill: AppTheme.card, outline: AppTheme.borderStrong),
       child: Column(

@@ -48,16 +48,23 @@ class ArcadeProgress extends ChangeNotifier {
     await refresh();
   }
 
+  /// True when there is nothing to talk to: a demo build, or a build compiled
+  /// without ARCADE_API (see [ArcadeApi.resolveBase]). The two must behave
+  /// identically — never register, never open a round — so every gate reads
+  /// this rather than [Dev.demoBuild] alone.
+  static bool get noBackend => Dev.demoBuild || !ArcadeApi.hasBackend;
+
   /// Pulls the current snapshot from the server; flips [offline] on failure.
   ///
-  /// A demo build has no backend and must never register a player. This was
-  /// the one unguarded path: `main()` calls [load] on every cold start, and
+  /// A build with no backend must never register a player. This was the one
+  /// unguarded path: `main()` calls [load] on every cold start, and
   /// [ArcadeApi.init] registers an anonymous player the first time it is
   /// reached, so a demo that could reach a server created an identity on
-  /// launch (audit 2026-09-18, A1). The gate lives here rather than in
-  /// `main()` so no future caller of [refresh] can reopen it.
+  /// launch (audit 2026-09-18, A1), and an embed with no ARCADE_API did the
+  /// same against localhost (audit 2026-09-20, RC1). The gate lives here
+  /// rather than in `main()` so no future caller of [refresh] can reopen it.
   Future<void> refresh() async {
-    if (Dev.demoBuild) {
+    if (noBackend) {
       notifyListeners();
       return;
     }
@@ -137,7 +144,7 @@ class ArcadeProgress extends ChangeNotifier {
   /// rather than failing loudly, which is the same shape as before for an
   /// offline player.
   Future<String?> startMini(String game) async {
-    if (Dev.demoBuild) return null; // no backend in the demo
+    if (noBackend) return null; // nothing to open a round on
     try {
       return await ArcadeApi.instance.miniStart(game);
     } on ApiException {
