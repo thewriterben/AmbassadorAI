@@ -88,10 +88,18 @@ works until the next `xcodegen generate` throws the edit away.
 
 ## 3. What to tell Claude on the Mac
 
+**Start a new session — do not try to resume the Windows one.** Sessions do
+follow your Claude account across surfaces, so this conversation may well
+appear in the sidebar on the Mac. It is the wrong vehicle anyway: its
+connected folders are `F:\` paths that do not exist on that machine, so every
+file reference in it is dead. The continuity you actually need is in these
+documents, which is why they were written.
+
 Connect two folders: `~/src/dgd-native` and the `AmbassadorAI` clone. Then
 open with something close to this:
 
-> Continuing DGD iOS work from a Windows session. Read
+> Continuing DGD iOS work from a Windows session. Read `arcade/SESSION-STATE.md`
+> first — it has the standing constraints. Then read
 > `arcade/integration/IOS-B2-RUNBOOK.md` and `arcade/MAC-CONTINUE.md` in the
 > AmbassadorAI folder, then do **B2a only** — B2b is deferred.
 >
