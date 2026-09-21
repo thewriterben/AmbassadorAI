@@ -86,13 +86,24 @@ by anyone but DGD (`RELEASE.md` §"release signing"). The build scripts
 already produce an `.aab`. **Owner: DGD for the keystore; then one release
 build here. Status: open, waiting on DGD.**
 
-### S2. BLOCKER — targetSdk 35 → 36
-Play has required API 36 for new apps and updates since 2026-08-31. The
-native app targets 35 (`app/build.gradle.kts`). Raising it opts the app into
-Android 16 runtime behaviour, so it is a bump **plus a retest** of the ticker
-and the embedded arcade on an API 36 image, not a one-line change. The
-arcade's own standalone build should move with it. **Owner: here. Status:
-open.**
+### S2. BLOCKER — targetSdk 35 → 36 — DONE 2026-09-20
+Native commit `5958514`: `targetSdk = 36`, and the version moved to
+`1.0.3 (3)` with it (S6). The arcade's standalone build already targeted
+36 through Flutter's default. Retested on a **wiped Android 16 (API 36,
+Google APIs) emulator** with `localhost:8787` routed to the impostor backend
+(`redteam-runs/20260921T003000Z-s2-api36-fd23e0c3/`): cold start, arcade, Coin Quest into a board, four predictive-back
+presses returning to the ticker, the hostile deep link, and the login sheet
+with the keyboard up — insets correct under Android 16's enforced
+edge-to-edge, zero requests, nothing at rest in plaintext, no crash. Every
+native library was already 16 KB page-aligned (`PT_LOAD` 0x4000 or 0x10000;
+`zipalign -P 16` clean), which Android 16 devices require. Two things to
+know: (1) the portrait lock on both activities is ignored on large screens
+once the app targets 36, so tablets and unfolded foldables will show the
+ticker and arcade in whatever orientation the device is in — not tested, and
+a product call rather than a defect; (2) the Android 16 emulator survives
+only with `-gpu host`; the software renderer segfaults seconds after boot.
+Rebuilt APK: `integration/DGD-merged-arcade-v1.0.3-demo-debug.apk`, sha256
+`fd23e0c3…`, gitignored. **Status: done.**
 
 ### S3. HIGH — placeholder App Store link
 `https://apps.apple.com/app/id0000000000` in `DigitalGoldSite.kt`,
@@ -116,9 +127,21 @@ panel must lose its chart and change tiles. Independent of the path decision
 on any path that keeps the panel, and the fix is straightforward because the
 data exists. **Owner: here. Status: open.**
 
-### S6. LOW — version bump on the next shipped change
-Any of S2–S5 shipping means `1.0.3 (3)`; Play never accepts a reused code.
-**Owner: here, with whichever of the above lands first. Status: open.**
+### S6. LOW — version bump on the next shipped change — DONE with S2
+`1.0.3 (3)` as of native commit `5958514`. The next shipped change
+is `1.0.4 (4)`; Play never accepts a reused code. **Status: done.**
+
+### S7. LOW — app links are unverified, so the deep link opens the browser
+`MainActivity` declares `autoVerify` app links for `digitalgold.co/app`, but
+on the Android 16 emulator `pm get-app-links` reports `legacy_failure` for
+both hosts and the `https://digitalgold.co/app/…` intent opened Chrome
+instead of the app. That is correct Android 12+ behaviour for an unverified
+link: the app needs `https://digitalgold.co/.well-known/assetlinks.json`
+listing its **release** signing certificate's SHA-256, which does not exist
+until S1 produces that certificate. The debug certificate seen on the
+emulator would never verify anyway. Found during the S2 retest; not a
+regression from the target bump. **Owner: DGD hosts the file after S1; then
+one verification here. Status: open, gated on S1.**
 
 ## 5. What the review does not change
 
@@ -131,8 +154,8 @@ calls it "technically clean" — and the one it adds on the backend is §0.
 
 1. §0, today, by DGD.
 2. §1, by DGD, before any of the below is scheduled.
-3. S2 and S5 can start now regardless of the path, and S6 rides with them.
-4. S1 and S3 wait on DGD artefacts (keystore, App Store ID).
+3. ~~S2 and S6~~ done. S5 can start now regardless of the path.
+4. S1 and S3 wait on DGD artefacts (keystore, App Store ID); S7 waits on S1.
 5. S4 follows the decision.
 
 *Related: `RELEASE.md` (the release procedure and the keystore stance),

@@ -82,10 +82,10 @@ Six changes. Five were forced; the sixth is the entry point.
 on every upload, and until this bump the merged app was indistinguishable
 from the pre-merge ticker on a device (`AUDIT-RC-2026-09-20.md`, RC3).
 
-**`targetSdk` stays 35 and `minSdk` stays 26.** compileSdk only decides which
-APIs may be called; targetSdk opts into new runtime behaviour and minSdk
-decides which devices can install. Only the safe one moved — no behaviour
-changes, no device dropped.
+**`targetSdk` is 36 as of 2026-09-20** (it had stayed at 35 when compileSdk
+moved, deliberately); Play requires it, and the bump was retested on an
+Android 16 emulator — `STORE-READINESS-2026-09-20.md`, S2. **`minSdk` stays
+26**: no device dropped.
 
 ### The Kotlin bump is the one to take seriously
 
