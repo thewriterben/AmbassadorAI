@@ -60,13 +60,26 @@
   400-character parameter without crashing; the ticker renders.
 - **No crashes** in either phase. Static: debug flags as before. RC3 and
   RC4 were closed after this pass: the host manifest reports `1.0.2 (2)` and
-  the APK no longer declares 32-bit x86. The current
-  `integration/DGD-merged-arcade-v1.0.2-demo-debug.apk` (sha256 `420027e0…`)
-  differs from the audited `72837584…` build only in those two things.
+  the APK no longer declares 32-bit x86; V1 below was fixed as well. The
+  current `integration/DGD-merged-arcade-v1.0.2-demo-debug.apk` (sha256
+  `1b9756f2…`) differs from the audited `72837584…` build in those three
+  things only.
 
 ## Notes
 
-### V1. INFO — the verification step asserts an email that was not sent
+### V1. INFO — the verification step asserts an email that was not sent — FIXED 2026-09-20
+
+Native commit `e124cb9`, both platforms: the step is titled "Verify your
+email", the body reads "In the live app, a verification code is sent to
+<address>. Enter it below to continue.", the spam note is conditional, and
+the resend flash reads "Resent in the live app". "Resend code" stays, as a
+button label is a request rather than a claim, and the copy still carries
+no "Demo" line — the PREVIEW · NOT LIVE header is the disclosure and the
+copy now stops contradicting it. `LockedCopyTest` gains a case that none of
+those strings can claim a sent email; 105 unit tests pass. The rebuilt APK
+(sha256 `1b9756f2…`, 80869951 bytes) no longer contains the old sentence. The
+Swift side is edited to match and, like the rest of the Apple tree, is not
+compiled here.
 The screen is headed **PREVIEW · NOT LIVE** and its accessibility label reads
 "Demo only. This app does not send email." Below that the body copy says
 *"We sent a verification code to redteam@example.edu. Enter it below to
