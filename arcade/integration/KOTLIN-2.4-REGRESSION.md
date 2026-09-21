@@ -21,7 +21,7 @@ source, changing only the Kotlin version**. One variable, or the comparison
 means nothing.
 
 > **The script is not checked in.** It was not saved with this note; the
-> stripped copy still exists at `C:\src	icker-baseline` but the script that
+> stripped copy still exists at `C:\src\ticker-baseline` but the script that
 > produced it does not, so this pass cannot be re-run from the repository
 > until it is rewritten (audit RC2).
 
