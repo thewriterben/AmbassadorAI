@@ -27,15 +27,46 @@ artefact.
 
 ## Verdict
 
-**Nothing blocking. Two findings worth acting on, both low severity, neither a
-credential or a live vulnerability.**
+**Nothing blocking. Two findings, both low severity, neither a credential or a
+live vulnerability. Both are now fixed and re-verified.**
 
-| | Finding | Severity |
-|---|---|---|
-| **F1** | Dev-only screens are compiled into the shipped binary, and a source comment claims they cannot be | **Low** (unreachable) / **Medium** as a documentation defect |
-| **F2** | `assets/stats-source.json` ships ~8 KB of internal API reconnaissance notes that the app never reads | **Low** (information disclosure) |
+| | Finding | Severity | Status |
+|---|---|---|---|
+| **F1** | Dev-only screens compiled into the shipped binary, and a source comment claiming they cannot be | **Low** (unreachable) / **Medium** as a documentation defect | **Fixed** `11dcd60` |
+| **F2** | `assets/stats-source.json` shipping ~8 KB of internal API reconnaissance the app never reads | **Low** (information disclosure) | **Fixed** `bc8c614` |
 
 Everything else checked clean or was confirmed correct-by-design.
+
+### Re-sweep after the fixes
+
+The whole sweep was re-run in the same container against the rebuilt artefact.
+
+```
+before  sha256 c44ded28...  61,514,019 bytes
+after   sha256 a3ac069d...  61,265,511 bytes      -248,508
+```
+
+| | before | after |
+|---|---|---|
+| `dev_soak.dart` / `DevSoakScreen` / `DevMenu` / `"Audio soak"` | present | **0 in both dex and libapp.so** |
+| `devCombo` / `devUnlockThrough` | present | **0** |
+| `stats-source.json` | 9,069 bytes | **1,158 bytes** |
+| distinct `digitalgold.co` URLs in the binary | 12 | **4** — site root, `/api/forms/stats`, and the two invite URLs |
+| `digitalgoldx.com` | present | **gone** |
+| distinct URLs overall | 64 | 55 |
+
+Unchanged and still correct: §4.3 suppression (`voWinner` 0, `fireworkShow`
+0, `voPraise` present), RC1 clean, RC4 clean on all three ABIs, no secrets, no
+trackers, manifest posture, backup exclusions.
+
+`eraseAll` still resolves once in `libapp.so`. That is the Settings screen's
+**Delete my play record** control — a shipped feature and a store requirement
+— not the dev shortcut of the same shape.
+
+The size drop is worth one line, because a size change meant nothing in an
+earlier rebuild today: there the AOT snapshot was rearranged inside the same
+page-aligned total. Here 248 KB actually left the binary, which is consistent
+with code being dropped rather than moved.
 
 ---
 

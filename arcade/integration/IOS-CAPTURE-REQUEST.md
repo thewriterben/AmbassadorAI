@@ -51,6 +51,25 @@ on screen, stop and say so — it would mean the build is not the merged one.
 Say which of those you see, either way — the package needs to state the iOS
 gap accurately rather than guess at it.
 
+## One small fix while you are there — `apple/stats-source.json`
+
+Android's copy of this file was trimmed today (red-team F2). The iOS copy
+still carries the full version, and it is the same problem: ~8 KB of API
+investigation shipped inside the product, of which the app reads three fields.
+
+What it currently discloses to anyone who unpacks the `.ipa`: five endpoints
+rather than one, which of them 404s, the note that **a foreign `Origin` header
+returns HTTP 500**, and `digitalgoldx.com`.
+
+Replace it with `android/app/src/main/assets/stats-source.json` from the same
+commit (`bc8c614`) — the two are meant to be the same contract, and the Swift
+decoder reads the same three keys. Check `StatsEndpoint.swift` agrees before
+building.
+
+Safe: the decoder falls back to the hardcoded `published` endpoint if the file
+is missing or unparseable, so a bad edit degrades to the default rather than
+breaking the ticker.
+
 ## Send back
 
 The six PNGs, and one line for each of: Xcode version, simulator device, iOS
