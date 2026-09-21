@@ -60,10 +60,10 @@
   400-character parameter without crashing; the ticker renders.
 - **No crashes** in either phase. Static: debug flags as before. RC3 and
   RC4 were closed after this pass: the host manifest reports `1.0.2 (2)` and
-  the APK no longer declares 32-bit x86; V1 below was fixed as well. The
-  current `integration/DGD-merged-arcade-v1.0.2-demo-debug.apk` (sha256
-  `1b9756f2…`) differs from the audited `72837584…` build in those three
-  things only.
+  the APK no longer declares 32-bit x86; V1 and V2 below were fixed as
+  well. The current `integration/DGD-merged-arcade-v1.0.2-demo-debug.apk`
+  (sha256 `d6812bf2…`) differs from the audited `72837584…` build in those
+  four things only.
 
 ## Notes
 
@@ -91,7 +91,19 @@ told where to look for it. A copy decision for DGD, and one to settle before
 store review reads the same screen: "In the live app a code would be sent
 to …" says the same thing without asserting it.
 
-### V2. INFO — the email address is at rest in plaintext, under backup
+### V2. INFO — the email address is at rest in plaintext, under backup — FIXED 2026-09-20 (Android)
+
+Native commit `69f51c7`: the address now lives in the encrypted preferences
+file with the password, an install from before the change has it moved
+across on first read with the plaintext copy deleted, and both signup
+preference files are excluded from cloud backup and device transfer by
+`backup_rules.xml` and `data_extraction_rules.xml`. That exclusion also
+retires N4 from the ticker-fix audit, since an encrypted file whose key
+stays in one device's Keystore had nothing to offer a restore anyway. 106
+unit tests pass, two of them new. Verified on a wiped emulator: a seeded plaintext address was moved out of `dgd.signup.xml`, a login stored the address and password only in the encrypted file, a plaintext search of the app's private storage found none of them, and a backup captured through the local transport contained neither signup file. Rebuilt APK sha256 `d6812bf2…`,
+80,870,916 bytes. **iOS is not done:** there the email is still `@AppStorage`
+(UserDefaults, which iCloud backs up) with only the password in the
+Keychain; the same move is a Swift change for someone with a Mac.
 Pre-existing and documented: username and email are ordinary
 `SharedPreferences`, only the password is encrypted, and the host manifest
 has `allowBackup="true"`. The email is personal data that will ride along in
