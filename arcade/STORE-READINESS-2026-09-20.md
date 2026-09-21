@@ -121,11 +121,23 @@ and the privacy items. Either way the PREVIEW · NOT LIVE header and the
 "coming soon" line leave. **Owner: DGD decides, then here. Status: open,
 gated.**
 
-### S5. HIGH — the synthetic stats series
-`PreviewStatsSeries` must plot real history from `/analytics` or the stats
-panel must lose its chart and change tiles. Independent of the path decision
-on any path that keeps the panel, and the fix is straightforward because the
-data exists. **Owner: here. Status: open.**
+### S5. HIGH — the synthetic stats series — DONE 2026-09-20 (Android)
+Native commit `27e4b2a`: the Stats panel now shows the live snapshot and
+nothing else — Accounts, Price, Market cap, and a line stating the source and
+the time of the fetch. The generated series (`PreviewStatsSeries`, with its
+timeframes, section pills, sparkline, percent captions and the "Illustrative
+trend — live historical data is coming soon" footnote) is deleted along with
+its tests and the growth-sentence formatter; the chart-motion constants went
+with it. 92 unit tests pass (was 106; the fourteen removed all tested the
+generator). The rebuilt APK (sha256 `0f8dd848…`, 80,821,760 bytes) contains no
+"Illustrative trend" string. Verified on the Android 16 emulator with the
+network on: the panel opens from the Stats button with the three live figures
+and the source line, no chart, no crash. The smaller option was chosen over
+plotting `/analytics` history: that is a feature with product decisions in it
+(which timeframes, two-decimal history against a five-decimal ticker), and
+the panel's doc comment says where real history goes when it comes.
+**iOS is not done:** `HomeStatsPanel.swift` still draws the same generated
+chart; a Swift change for someone with a Mac. **Status: done on Android.**
 
 ### S6. LOW — version bump on the next shipped change — DONE with S2
 `1.0.3 (3)` as of native commit `5958514`. The next shipped change
@@ -154,7 +166,7 @@ calls it "technically clean" — and the one it adds on the backend is §0.
 
 1. §0, today, by DGD.
 2. §1, by DGD, before any of the below is scheduled.
-3. ~~S2 and S6~~ done. S5 can start now regardless of the path.
+3. ~~S2, S5 and S6~~ done on Android; the iOS halves of S5 (and V2) need a Mac.
 4. S1 and S3 wait on DGD artefacts (keystore, App Store ID); S7 waits on S1.
 5. S4 follows the decision.
 
