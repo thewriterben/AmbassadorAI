@@ -29,11 +29,17 @@ tags, in one file: no accounts, no remote, no network, which is exactly what
 the decision above calls for.
 
 ```
-C:\src\mac-handoff\dgd-native.bundle    27.3 MB   HEAD 783c6ba, + 2 tags
+F:\Documents\dgdappsource\mac-handoff\dgd-native.bundle   27.3 MB   HEAD 783c6ba, + 2 tags
 ```
 
 `puzzle-app.bundle` is beside it, but **you do not need it for B2a** — that is
 the arcade, and the arcade is B2b. Leave it.
+
+There is a `READ-ME-FIRST.md` in that folder with the same clone commands, so
+the handoff stands on its own if it gets copied to a USB stick without this
+file. (The originals were written to `C:\src\mac-handoff\`, which is outside
+the connected folders and therefore invisible from Cowork — `dgdappsource` is
+the copy to use.)
 
 Move the file over however is easiest — USB stick, AirDrop, iCloud. Then:
 
