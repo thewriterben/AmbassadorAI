@@ -78,6 +78,10 @@ Six changes. Five were forced; the sixth is the entry point.
 | `ndkVersion` | unset → **28.2.13676358** | Needed so symbol stripping can run. See below |
 | Entry point | — | `Arcade` object, a manifest entry, a theme, one button |
 
+**Host version is `1.0.2 (2)`** as of 2026-09-20 — `versionCode` must rise
+on every upload, and until this bump the merged app was indistinguishable
+from the pre-merge ticker on a device (`AUDIT-RC-2026-09-20.md`, RC3).
+
 **`targetSdk` stays 35 and `minSdk` stays 26.** compileSdk only decides which
 APIs may be called; targetSdk opts into new runtime behaviour and minSdk
 decides which devices can install. Only the safe one moved — no behaviour

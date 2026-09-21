@@ -58,9 +58,11 @@
 - **Hostile deep link.** The exported `MainActivity` takes the
   `digitalgold.co/app` intent with a script-tag path, quote-laden query and a
   400-character parameter without crashing; the ticker renders.
-- **No crashes** in either phase. Static: RC3 (`versionName 1.0.0`,
-  `versionCode 1`) and RC4 (32-bit x86 declared without an engine) are
-  unchanged; debug flags as before.
+- **No crashes** in either phase. Static: RC4 (32-bit x86 declared without
+  an engine) unchanged; debug flags as before. RC3 was closed after this
+  pass: the host manifest now reports `1.0.2 (2)`, and the rebuilt APK in
+  `integration/` (sha256 `6c98f117…`) differs from the audited `72837584…`
+  build only in that.
 
 ## Notes
 
