@@ -62,7 +62,15 @@
 
 ## Findings
 
-### W1. LOW — the arcade's own preferences file is backed up, and will one day hold the bearer token
+### W1. LOW — the arcade's own preferences file is backed up, and will one day hold the bearer token — FIXED 2026-09-21
+
+Native commit `f92186f`: `FlutterSharedPreferences.xml` is excluded from
+cloud backup and device transfer in both rule files, alongside the two
+signup files. Verified on a wiped Android 16 emulator with every preference
+file present (arcade coach flag written, login stored): the backup captured
+through the local transport contained `_manifest, r/app_flutter, f/profileInstalled` — no `sp/` entry at all.
+Rebuilt APK sha256 `a9ac0a74…`. Moving the token itself into Keystore-backed
+storage remains a v1 arcade change for when a backend exists.
 The local-transport backup on Android 16 contained `sp/FlutterSharedPreferences.xml`
 alongside the ticker's snapshot. Today that file holds one boolean. Once the
 embed is built with `ARCADE_API` the same file holds `api.token`, the bearer
