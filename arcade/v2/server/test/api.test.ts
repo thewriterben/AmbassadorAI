@@ -23,12 +23,22 @@ const db = openDb(':memory:');
 const bank = QuestionBank.fromFile(fileURLToPath(new URL('../data/question-bank-seed.md', import.meta.url)));
 const app = createApp(db, bank);
 
+// Each unauthenticated call comes from its own address. Registration now has
+// an hourly per-address cap (audit R3), and this file creates well over ten
+// players; without distinct sockets they would all share one bucket and the
+// eleventh would be a 429 that has nothing to do with the test in hand.
+let nextAddr = 0;
 async function call(method: string, path: string, body?: unknown, token?: string) {
-  const res = await app.request(path, {
-    method,
-    headers: { 'content-type': 'application/json', ...(token ? { authorization: `Bearer ${token}` } : {}) },
-    body: body === undefined ? undefined : JSON.stringify(body),
-  });
+  const env = token ? undefined : { incoming: { socket: { remoteAddress: `198.18.${(nextAddr >> 8) & 255}.${nextAddr++ & 255}` } } };
+  const res = await app.request(
+    path,
+    {
+      method,
+      headers: { 'content-type': 'application/json', ...(token ? { authorization: `Bearer ${token}` } : {}) },
+      body: body === undefined ? undefined : JSON.stringify(body),
+    },
+    env as any,
+  );
   return { status: res.status, json: (await res.json()) as any };
 }
 

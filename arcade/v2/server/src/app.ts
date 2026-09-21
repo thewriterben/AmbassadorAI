@@ -47,15 +47,47 @@ function shuffled<T>(xs: readonly T[]): T[] {
   return a;
 }
 
+/**
+ * A JSON column the server wrote itself failed to parse. That is a damaged
+ * database, not a bad request, but it must be a handled 409 rather than a
+ * stack trace out of Hono's default handler (audit R9).
+ */
+class CorruptStateError extends Error {
+  where: string;
+  constructor(where: string) {
+    super(`corrupt JSON in ${where}`);
+    this.where = where;
+  }
+}
+
+function readJsonColumn<T>(text: string, where: string): T {
+  try {
+    return JSON.parse(text) as T;
+  } catch {
+    throw new CorruptStateError(where);
+  }
+}
+
 export function createApp(db: Db, bank: QuestionBank) {
   const app = new Hono<Env>();
   app.use('*', cors({ origin: config.corsOrigins.includes('*') ? '*' : config.corsOrigins }));
   app.use('/v1/*', rateLimit(config.rateLimit.perMinute));
+  app.onError((err, c) => {
+    if (err instanceof CorruptStateError) {
+      console.error(`[arcade] ${err.message}`);
+      return c.json({ error: 'corrupt_state' }, 409);
+    }
+    console.error(err);
+    return c.json({ error: 'internal' }, 500);
+  });
+  // Registration has its own, much tighter bucket (audit R3): the generic
+  // limiter alone let one address mint perMinute identities a minute.
+  const signupLimit = rateLimit(config.rateLimit.playersPerHour, 3_600_000, 'signup_rate_limited');
 
   app.get('/healthz', (c) => c.json({ ok: true, bank: bank.items.length, day: todayIndex() }));
 
   // ---------------------------------------------------------------- players
-  app.post('/v1/players', async (c) => {
+  app.post('/v1/players', signupLimit, async (c) => {
     const body = (await c.req.json().catch(() => ({}))) as { deviceHint?: string };
     const { id, token } = createPlayer(db, typeof body.deviceHint === 'string' ? body.deviceHint.slice(0, 120) : undefined);
     ensureHandle(db, id);
@@ -147,7 +179,11 @@ export function createApp(db: Db, bank: QuestionBank) {
     const minReach = fractions(exp.tablet_count)[idx] * config.run.minFinishMs * config.run.tabletFractionSlack;
     const flags: string[] = [];
     if (now - exp.started_at < minReach) flags.push(`tablet${idx}_early`);
-    const q = bank.get(t.question_id)!;
+    // The bank can change under a live run: a question's id is a hash of its
+    // prompt, so an edit retires the old id and every tablet row that still
+    // points at it (audit R7). Gone, not a crash.
+    const q = bank.get(t.question_id);
+    if (!q) return c.json({ error: 'question_retired' }, 410);
     const order = shuffled([0, ...q.distractors.map((_, i) => i + 1)]);
     const nonce = randomBytes(9).toString('base64url');
     const expiresAt = now + config.tablets.answerWindowMs + config.tablets.graceMs;
@@ -177,6 +213,10 @@ export function createApp(db: Db, bank: QuestionBank) {
   app.post('/v1/expeditions/:id/tablets/:idx/answer', auth, async (c) => {
     const exp = getExp(c);
     if (!exp) return c.json({ error: 'not_found' }, 404);
+    // finish() closes the run; a tablet left open must not be answerable
+    // afterwards, or the run's state machine and the mastery record keep
+    // moving after the payout (audit R6). Same answer as the issue path.
+    if (exp.finished_at) return c.json({ error: 'expedition_over' }, 409);
     const idx = Number(c.req.param('idx'));
     const body = (await c.req.json().catch(() => ({}))) as { token?: string; choice?: number | null };
     const sig = typeof body.token === 'string' ? verifyTablet(body.token) : null;
@@ -186,8 +226,10 @@ export function createApp(db: Db, bank: QuestionBank) {
     if (t.answered_at) return c.json({ error: 'already_answered' }, 409);
     const now = Date.now();
     const latency = now - t.issued_at;
-    const q = bank.get(t.question_id)!;
-    const order = JSON.parse(t.option_order) as number[];
+    const q = bank.get(t.question_id);
+    if (!q) return c.json({ error: 'question_retired' }, 410);
+    const order = readJsonColumn<number[]>(t.option_order, 'tablets.option_order');
+    if (!Array.isArray(order)) throw new CorruptStateError('tablets.option_order');
     const all = [q.correct, ...q.distractors];
     // choice = index into the options array we sent; null = timed out.
     const choice = typeof body.choice === 'number' && body.choice >= 0 && body.choice < order.length ? body.choice : null;
@@ -271,7 +313,7 @@ export function createApp(db: Db, bank: QuestionBank) {
   const ledgerState = (id: string, day: number) => {
     const p = puzzleFor(day);
     const row = db.prepare('SELECT * FROM ledger_plays WHERE player_id = ? AND day = ?').get(id, day) as any;
-    const guesses: string[] = row ? JSON.parse(row.guesses) : [];
+    const guesses: string[] = row ? readJsonColumn<string[]>(row.guesses, 'ledger_plays.guesses') : [];
     const over = !!row?.over;
     return {
       day,
@@ -301,7 +343,7 @@ export function createApp(db: Db, bank: QuestionBank) {
     const guess = String(body.guess ?? '').toUpperCase();
     if (!validGuess(guess, p)) return c.json({ error: 'invalid_guess', ...ledgerState(id, day) }, 400);
     const row = db.prepare('SELECT * FROM ledger_plays WHERE player_id = ? AND day = ?').get(id, day) as any;
-    const guesses: string[] = row ? JSON.parse(row.guesses) : [];
+    const guesses: string[] = row ? readJsonColumn<string[]>(row.guesses, 'ledger_plays.guesses') : [];
     if (row?.over) return c.json({ error: 'ledger_over', ...ledgerState(id, day) }, 409);
     guesses.push(guess);
     const solved = guess === p.answer;

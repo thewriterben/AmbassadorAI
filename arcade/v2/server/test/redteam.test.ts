@@ -132,27 +132,33 @@ accepted('R2 a mini-game score is whatever the client says, bounded only by the 
   assert.equal(total, config.mini.rewardedRoundsPerDay * 80, 'coin_quest pays at most 10 × 80 XP per UTC day');
 });
 
-openFinding('R3 anonymous player creation is throttled by something other than the generic limiter', async () => {
-  // POST /v1/players is unauthenticated and has no cap of its own. Anything
-  // under rateLimit.perMinute from one bucket mints that many identities, each
-  // of which can climb the board. No attestation, no device binding, no
-  // proof-of-work. The client (api.dart) also re-registers silently on any 401.
+holds('R3 anonymous player creation is throttled well below the generic limiter', async () => {
+  // POST /v1/players is unauthenticated, and every identity it mints can
+  // climb the board. It now has its own hourly bucket per address
+  // (config.rateLimit.playersPerHour), far below the generic per-minute limit.
+  // Fixed 2026-09-20; was open since the 18 Sept audit.
   const { call } = fresh();
+  const cap = config.rateLimit.playersPerHour;
+  assert.ok(cap * 4 <= config.rateLimit.perMinute, 'the creation cap must sit well below the per-minute limit');
   const ids = new Set<string>();
-  for (let i = 0; i < 60; i++) {
+  for (let i = 0; i < cap; i++) {
     const r = await call('POST', '/v1/players', { deviceHint: 'sybil' }, { socket: '203.0.113.9' });
-    assert.equal(r.status, 201);
+    assert.equal(r.status, 201, `creation ${i} from one address`);
     ids.add(r.json.playerId);
   }
-  assert.equal(ids.size, 60, 'sixty distinct players from one address in one window');
-  // The control we want: bulk anonymous creation from one source slows down
-  // well before the generic per-minute limit. Encoded as the assertion this
-  // test should eventually make.
-  assert.fail('no creation cap exists; only rateLimit.perMinute bounds signup from one address');
+  assert.equal(ids.size, cap);
+  const over = await call('POST', '/v1/players', { deviceHint: 'sybil' }, { socket: '203.0.113.9' });
+  assert.equal(over.status, 429, 'creation past the hourly cap');
+  assert.equal(over.json.error, 'signup_rate_limited');
+  // Another address is another bucket, and the cap is per hour, not forever.
+  assert.equal((await call('POST', '/v1/players', {}, { socket: '203.0.113.10' })).status, 201);
+  advance(2 * 3_600_000);
+  assert.equal((await call('POST', '/v1/players', {}, { socket: '203.0.113.9' })).status, 201, 'the bucket clears');
 });
 
-openFinding('R4 the rate limiter does not admit a double burst at the window boundary', async () => {
-  // Fixed window (auth.ts:139-146): the counter resets the first time a hit
+holds('R4 the rate limiter does not admit a double burst at the window boundary', async () => {
+  // Fixed 2026-09-20 by a sliding-window counter in auth.ts. The original:
+  // fixed window (auth.ts:139-146): the counter reset the first time a hit
   // lands more than 60 s after the window opened. perMinute hits at t=0 and
   // perMinute more at t=61 s is 2× the limit inside 61 s. Known residual from
   // audit B3, unchanged.
@@ -199,8 +205,9 @@ holds('R5 X-Forwarded-For is ignored unless a proxy is trusted, and then only it
   }
 });
 
-openFinding('R6 a tablet cannot be answered once its expedition is finished', async () => {
-  // The issue path checks finished_at (app.ts:136); the answer path does not
+holds('R6 a tablet cannot be answered once its expedition is finished', async () => {
+  // Fixed 2026-09-20: the answer path now checks finished_at like the issue
+  // path. The original: the issue path checked finished_at (app.ts:136); the answer path did not
   // (app.ts:177-218). A tablet left open survives `finish`, and answering it
   // afterwards still writes the tablet row and updates spaced-retrieval
   // mastery through record(). XP is unaffected because finish has already
@@ -219,8 +226,8 @@ openFinding('R6 a tablet cannot be answered once its expedition is finished', as
   assert.equal(late.status, 409, `answer after finish returned ${late.status}: ${JSON.stringify(late.json)}`);
 });
 
-openFinding('R7 a bank question that disappears between issue and answer is a 4xx, not a 500', async () => {
-  // Audit B8, still open. A question's id is sha1(section + prompt), so
+holds('R7 a bank question that disappears between issue and answer is a 4xx, not a 500', async () => {
+  // Audit B8, fixed 2026-09-20: a retired id is a 410. A question's id is sha1(section + prompt), so
   // editing a prompt gives it a new id and every tablet row that references
   // the old one hits `bank.get(...)!` (app.ts:150, 189) and throws forever.
   // Simulated here by removing the id from a private bank instance — the same
@@ -261,9 +268,10 @@ accepted('R8 status="xp_only" means zero XP, not "XP only", and is never set by 
   assert.ok(!/SET status\s*=\s*'xp_only'|status\s*=\s*['"]xp_only['"]\s*WHERE/i.test(code), 'nothing writes xp_only');
 });
 
-openFinding('R9 a corrupt server-written JSON column is a handled error, not a 500', async () => {
-  // JSON.parse on tablets.option_order (app.ts:190) and ledger_plays.guesses
-  // (app.ts:274, 304) is unguarded. Only reachable through a damaged database,
+holds('R9 a corrupt server-written JSON column is a handled error, not a 500', async () => {
+  // Fixed 2026-09-20: readJsonColumn() throws CorruptStateError and onError
+  // maps it to 409. The original: JSON.parse on tablets.option_order (app.ts:190) and ledger_plays.guesses
+  // (app.ts:274, 304) was unguarded. Only reachable through a damaged database,
   // so low severity — but a reader that throws on its own stored data is the
   // wrong shape, and Hono's default handler turns it into a stack trace.
   const { db, call, player } = fresh();
