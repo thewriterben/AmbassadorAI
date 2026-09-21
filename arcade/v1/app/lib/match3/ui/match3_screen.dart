@@ -351,7 +351,7 @@ class _EndSheet extends StatelessWidget {
     final won = session.state == SessionState.won;
     final isLast = session.level.id == levels.length;
     return Container(
-      margin: const EdgeInsets.all(16),
+      margin: AppTheme.sheetMargin(context),
       padding: const EdgeInsets.all(24),
       decoration: AppTheme.glass(radius: 24, fill: AppTheme.card, outline: AppTheme.borderStrong),
       child: Column(

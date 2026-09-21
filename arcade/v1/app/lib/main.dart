@@ -7,7 +7,6 @@ import 'arcade/leaderboard_screen.dart';
 import 'arcade/progress.dart';
 import 'arcade/settings_screen.dart';
 import 'audio.dart';
-import 'dev.dart';
 import 'match3/model/levels.dart';
 import 'match3/progress.dart';
 import 'match3/ui/level_map.dart';
@@ -104,7 +103,7 @@ class HomeScreen extends StatelessWidget {
                 // XP, level and the standings link all come from the server.
                 // Without one the bar would sit at level 1 with an OFFLINE chip
                 // and a leaderboard link that goes nowhere.
-                if (!Dev.demoBuild) ...[
+                if (!ArcadeProgress.noBackend) ...[
                   const _XpBar(),
                   const SizedBox(height: 18),
                 ],
@@ -335,18 +334,21 @@ class _HeroCoinState extends State<_HeroCoin> with TickerProviderStateMixin {
         })
         ..repeat();
 
-  /// Tap response: the coin spins about its vertical axis or flips about its
-  /// horizontal one, alternating so a run of taps doesn't repeat itself.
+  /// Tap response: the coin **flips**, end over end about its horizontal axis.
+  ///
+  /// The flip is the arcade's gesture and the spin is the DGD app's — the same
+  /// coin, told apart by how it moves, so a player who has just come through
+  /// from the ticker can feel they have arrived somewhere else. This used to
+  /// alternate spin/flip on each tap; the alternation is what was given up to
+  /// make the two surfaces distinguishable.
   late final AnimationController _toss =
       AnimationController(vsync: this, duration: const Duration(milliseconds: 900));
-  bool _flip = false;
 
   void _tap() {
     // Ignore taps mid-toss rather than restarting: a coin that resets halfway
     // reads as a glitch, and the sound would retrigger on every jab.
     if (_toss.isAnimating) return;
-    setState(() => _flip = !_flip);
-    _flip ? Audio.instance.coinFlip() : Audio.instance.coinSpin();
+    Audio.instance.coinFlip();
     _toss.forward(from: 0).then((_) {
       // A sparkle of sound on landing, at a gentle level — this is idle play,
       // not an achievement.
@@ -375,7 +377,7 @@ class _HeroCoinState extends State<_HeroCoin> with TickerProviderStateMixin {
 
         // Two full turns, decelerating, so it settles face-on rather than
         // stopping edge-on where the coin would be invisible.
-        final spin = Curves.easeOutCubic.transform(_toss.value) * pi * 4;
+        final flip = Curves.easeOutCubic.transform(_toss.value) * pi * 4;
         // A small hop, peaking mid-toss.
         final hop = sin(_toss.value * pi) * s * 0.10;
 
@@ -391,8 +393,7 @@ class _HeroCoinState extends State<_HeroCoin> with TickerProviderStateMixin {
               transform: Matrix4.identity()
                 // Perspective, or the rotation reads as a flat squash.
                 ..setEntry(3, 2, 0.0012)
-                ..rotateY(_flip ? 0 : spin)
-                ..rotateX(_flip ? spin : 0),
+                ..rotateX(flip),
               child: SizedBox(
             width: s * 1.3,
             height: s * 1.3,

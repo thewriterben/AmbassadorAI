@@ -59,6 +59,22 @@ class AppTheme {
         border: Border.all(color: outline ?? border, width: 0.5),
       );
 
+  /// Outer margin for a floating (card-style) modal bottom sheet.
+  ///
+  /// `showModalBottomSheet` does not inset its child for system UI, so a sheet
+  /// with a plain 16px margin ends up with its bottom edge — and in practice
+  /// its primary button — underneath the navigation bar. Verified on a Pixel:
+  /// the Play button on the level sheet sat directly on the gesture pill.
+  ///
+  /// `viewPadding` rather than `padding`, because the sheet route consumes the
+  /// latter on its way down; `viewPadding` still reports the physical inset.
+  static EdgeInsets sheetMargin(BuildContext context) => EdgeInsets.fromLTRB(
+        16,
+        16,
+        16,
+        16 + MediaQuery.viewPaddingOf(context).bottom,
+      );
+
   static ThemeData get data => ThemeData(
         useMaterial3: true,
         brightness: Brightness.dark,

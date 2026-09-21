@@ -9,7 +9,7 @@ publish_to: 'none'
 # Build numbers are banded so Play never sees one go backwards:
 #   v1.x -> 100..199
 #   v2.x -> 200..299
-version: 1.0.0+100
+version: 1.0.2+102
 
 environment:
   sdk: '>=3.3.0 <4.0.0'
