@@ -14,6 +14,14 @@ rem prize-style celebration inside the DGD app, and that flag is what
 rem suppresses the fireworks and the spoken winner line. Shipping the embed
 rem without it puts a coin-shower in a finance app.
 rem
+rem The backend must be chosen explicitly, too (AUDIT-RC-2026-09-20.md, RC1).
+rem An embed built with neither define used to fall back to
+rem http://localhost:8787 and trust whatever answered there. The code no
+rem longer does that in a release build, and this script refuses to build
+rem unless one of these is set before running it:
+rem   set ARCADE_API=https://...    a configured build, or
+rem   set DGD_EMBED=demo            no backend: Coin Quest only, zero requests
+rem
 rem JDK 21 is also required, and is the step this script was missing until
 rem 2026-09-20. Flutter ignores JAVA_HOME and prefers Android Studio's bundled
 rem JBR, which here is JDK 25; on 25 the plugins' Dokka javadoc tasks die and
@@ -34,6 +42,21 @@ if not exist "%JDK21%\bin\java.exe" (
   exit /b 1
 )
 
+if defined ARCADE_API (
+  set "DEFINES=--dart-define=DGD_APP_TAB=true --dart-define=ARCADE_API=%ARCADE_API%"
+  echo embed config: ARCADE_API=%ARCADE_API%
+) else if /I "%DGD_EMBED%"=="demo" (
+  set "DEFINES=--dart-define=DGD_APP_TAB=true --dart-define=DGD_DEMO=true"
+  echo embed config: DEMO - no backend, zero requests
+) else (
+  echo.
+  echo Refusing to build: neither ARCADE_API nor DGD_EMBED=demo is set.
+  echo   set ARCADE_API=https://...    - or -    set DGD_EMBED=demo
+  echo Without an explicit choice the arcade would have no backend to talk to,
+  echo and older builds fell back to http://localhost:8787 ^(audit RC1^).
+  exit /b 1
+)
+
 echo ==================== 1. regenerate the module from v1 ====================
 python "%~dp0sync_module.py"
 if errorlevel 1 (echo SYNC FAILED & exit /b 1)
@@ -48,7 +71,7 @@ echo ==================== 3. build the AAR ====================
 cd /d %MODULE%
 call flutter clean >nul 2>&1
 call flutter pub get
-call flutter build aar --no-debug --no-profile --dart-define=DGD_APP_TAB=true
+call flutter build aar --no-debug --no-profile %DEFINES%
 set RC=%ERRORLEVEL%
 
 rem Restore the default before anything else can fail. Leaving the override in

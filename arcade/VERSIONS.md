@@ -6,14 +6,14 @@ Two versions exist and they do not touch each other.
 |---|---|---|
 | What | Coin Quest and the Explorer track | Coin Quest plus the new catalogue, starting with Passage |
 | Status | **Frozen.** Merge candidate for the main DGD app | In development |
-| Version | `1.0.0+100` | `2.0.0+200` |
+| Version | `1.0.1+101` | `2.0.0+200` |
 | Branch | `main` | `v2/ten-games` |
 | App folder | `C:\src\puzzle-app` | `C:\src\puzzle-app-v2` |
 | Server folder | `C:\src\arcade-server` | `C:\src\arcade-server-v2` |
 | Repo mirror | `arcade/v1/` | `arcade/v2/` |
 | Build scripts | `arcade/v1/*.cmd` | `arcade/v2/*.cmd` |
 | Artefacts | `arcade/v1/dist/` | `arcade/v2/dist/` |
-| Tag | `v1.0.0` in both repos | untagged until it ships |
+| Tag | `v1.0.1` (also `v1.0.0`) | untagged until it ships |
 
 ## The one rule
 
@@ -70,6 +70,19 @@ and it never forgets a number once used. So the bands are reserved up front:
 v1 can therefore ship ninety-nine patches without ever colliding with v2, and
 v2 can be uploaded to a test track at any point without burning a number v1
 still needs. Bump within the band on every upload, never reuse.
+
+## Releases so far
+
+| Tag | What |
+|---|---|
+| `v1.0.0` | The frozen merge candidate. Soak-tested 6000/6000 |
+| `v1.0.1` | Modal sheets clear the navigation bar; the hero coin always flips rather than alternating spin/flip. Both cosmetic, both verified on a Pixel. See `integration/COIN-AND-ICON.md` |
+| `v1.0.2` | A build with no `ARCADE_API` has no backend, never `localhost:8787`. Closes `AUDIT-RC-2026-09-20.md` RC1; verified on a wiped emulator. The embed is built with `DGD_EMBED=demo` until a backend is hosted |
+
+**v1.0.1 and v1.0.2 have not yet been merged into v2** — step 4 below. The same two edits
+were applied to v2 by hand and analyze clean, but they are uncommitted and
+v2's worktree has in-progress Passage work from another session. Whoever owns
+v2 should either keep those edits or drop them and take the merge.
 
 ## If a bug is found in v1
 
