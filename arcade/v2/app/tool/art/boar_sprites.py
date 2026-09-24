@@ -298,7 +298,7 @@ POSES = [
     (-58, 1.0, 0.9),   # 2 down
     (8, 0.78, 0.6),    # 3 recovery, fingers folding
     (40, 0.62, 0.45),  # 4 hurt, crumpled
-    (-4, 1.05, 0.35),  # 5 dash, swept back
+    (-4, 0.92, 0.35),  # 5 dash, swept back (at 1.05 the razorback's tip left the frame)
     (58, 1.0, 1.0),    # 6 landing, braking
     (26, 0.5, 0.45),   # 7 stand, folded
 ]

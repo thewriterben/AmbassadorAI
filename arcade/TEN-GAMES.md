@@ -353,7 +353,8 @@ the next run.
    the loadout move to phase 4, where the shop needs them.
 3. **Abilities in the run** — built 2026-09-24, see below.
 4. **Shop and loadout** — built 2026-09-24, see below.
-5. **Tuning and final art.**
+5. **Tuning and final art** — tooling and calibration built 2026-09-24,
+   see below. Real tuning waits on real runs; final art waits on an artist.
 
 **Not yet verified on a phone:** whether each stage reads at game size,
 whether the overhang past the hitbox feels fair at the pillars, and whether
@@ -538,6 +539,87 @@ wide. It now wraps.
   and paid.
 - **One fix:** the confirmation message sat over the Fly button for four
   seconds. It is now shorter and lifted clear.
+
+### Phase 5, tuning and final art — tooling built 2026-09-24
+
+Tuning properly needs real players on a deployed server, and final art needs
+an artist. What could be done ahead of both was done.
+
+**Calibration from simulated players**
+(`test/passage_calibration_test.dart`). A bot flies the real simulation
+headlessly. It sees what a player sees — the openings, the coins, its own
+height and speed — taps after a reaction delay, and aims imperfectly. It also
+has the human part: it misjudges its own speed, taps early or late, and looks
+away now and then. Without those, its "casual" player flew the whole passage
+nine runs in ten.
+
+Three profiles, 40 runs each:
+
+| Player | Median run | p25–p75 | Eras reached | Whole passage |
+|---|---|---|---|---|
+| Casual | 130 | 61–239 | 3.6 | 0% |
+| Regular | 339 | 246–412 | 4.7 | 3% |
+| Skilled | 729 | 503–1,003 | 6.6 | 28% |
+
+At four runs a day the casual player reaches the juvenile in about 3 days and
+the razorback in about 11.5. That is the pace the owner asked for when the
+thresholds were lowered, so **the thresholds stand at 1,500 and 6,000.**
+Regular players take about 1 and 4.5 days, skilled about half a day and 2.
+
+**Prices** also stand. A first ability comes in about a day for a casual
+player. Every ability at level 3 is 32,300 points, about two months casual,
+three weeks regular, and eleven days skilled. The daily cap of 10 paid runs
+bounds all of it.
+
+The skilled bot flies the whole passage less often than its score suggests,
+because chasing gold coins to the lips of the late, narrow gaps costs strikes.
+That is the risk the drifting gold coin was designed to carry, and here it is
+measured.
+
+These are a bot's numbers, not people's. They bracket the first settings and
+are to be replaced by measured ones.
+
+**Playability guard.** By default the same file runs a steady profile: human
+reaction time, no coin chasing, no lapses. It has to fly the whole passage
+with no strikes on four seeds. If a change to the gaps, speed or drift ever
+breaks that, the game has become unfair rather than harder, and the suite goes
+red. The full report runs with `--dart-define=CALIBRATE=true`.
+
+**The real report** (server, `npm run report:passage -- --db <path>`,
+`src/report.ts`). It is read-only and covers:
+- claimed runs and players
+- score percentiles, the star split and eras reached
+- the typical player's points and runs on a day they play (the median of each
+  player's median day, counting only paid runs, as growth does)
+- active days to each stage at the current thresholds
+- suggested thresholds for target days (default 2.5 and 10)
+- boars at each stage, unlocks by level, abilities flown with, and rejected
+  loadouts
+
+Below 20 players it suggests nothing, because a threshold tuned to three
+testers is worse than the calibrated guess. A test checks every figure against
+hand-made rows. The same test caught its median taking the upper middle value.
+Thresholds change by env var (`PASSAGE_JUVENILE_AT`, `PASSAGE_RAZORBACK_AT`),
+so acting on the report needs no deploy.
+
+**Final art handoff.**
+- **`WHEN-PIGS-FLY-ART-BRIEF.md`** gives an artist: the character and three
+  stages in the owner's words, the required coin slot, style and originality
+  rules, the eight-frame sheet contract with each pose, headroom and export
+  size, and the steps to drop the art in.
+- **`tool/art/check_sheets.py`** validates a delivery against the contract.
+  It checks mode, frame count, empty frames, art touching the frame edge and
+  background, measures the hoof line exactly, and prints a starting point for
+  the anchors.
+- **Already found by it:** the placeholder razorback's dash-pose wing ran off
+  the frame, now fixed.
+- **What it cannot measure:** where the hitbox belongs is a judgement, so the
+  brief says to confirm on a phone.
+
+**Still open, and the owner's call:** the razorback's raised wings covering the
+HUD at the ceiling, the rump overhang past the hitbox at the pillars, and a
+boar left untapped during the final landing touching down below the screen.
+All three are in the phase 1 notes.
 
 ---
 

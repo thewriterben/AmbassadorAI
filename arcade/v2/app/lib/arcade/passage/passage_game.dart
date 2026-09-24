@@ -452,6 +452,15 @@ class PassageGame extends FlameGame {
   @visibleForTesting
   double get clock => _t;
 
+  /// Vertical speed, pixels per second, down positive. For the calibration
+  /// bot, which has to judge a flap the way a player's eye does.
+  @visibleForTesting
+  double get boarVy => _vy;
+
+  /// Where the ground is (off the bottom of the screen until the landing).
+  @visibleForTesting
+  double get groundY => _groundY;
+
   /// The first gate not yet entered, as its opening's centre, for tests.
   @visibleForTesting
   double? get nextGapY => _nextGate()?.gapY;
