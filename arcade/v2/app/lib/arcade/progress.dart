@@ -6,6 +6,25 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../dev.dart';
 import 'api.dart';
 
+/// What one When Pigs Fly claim did for the boar.
+class PassageClaim {
+  /// Points added to the boar. Zero for a practice run: past the daily cap,
+  /// or an account the server is not paying.
+  final int credited;
+
+  /// The stage this claim grew the boar into, or null if it did not cross a
+  /// line.
+  final String? grewInto;
+
+  const PassageClaim({required this.credited, this.grewInto});
+
+  factory PassageClaim.from(Map<String, dynamic> r, {required String stageBefore, required String stageAfter}) =>
+      PassageClaim(
+        credited: (r['passageCredited'] as num?)?.toInt() ?? 0,
+        grewInto: stageAfter != stageBefore ? stageAfter : null,
+      );
+}
+
 /// Explorer-track progress as the server last reported it. XP, badges and
 /// streaks are computed server-side (arcade/server); this is a read cache so
 /// the home screen renders instantly and survives being offline. No monetary
@@ -33,6 +52,21 @@ class ArcadeProgress extends ChangeNotifier {
   double mastery = 0;
   final Set<String> badges = {};
   final Map<String, int> miniPlays = {};
+
+  /// When Pigs Fly: the boar as the server last reported it. The server
+  /// decides the stage from [passageLifetime]; the app only draws it.
+  /// Points have no monetary value, like XP.
+  int passageLifetime = 0;
+  int passagePoints = 0;
+  String passageStage = 'piglet';
+  int passageStageAt = 0;
+  String? passageNextStage;
+  int? passageNextAt;
+
+  /// What the most recent When Pigs Fly claim did for the boar. Null from the
+  /// moment a run opens until its claim comes back — the results sheet reads
+  /// that as "still counting", or as "offline" when [offline] is set.
+  PassageClaim? passageClaim;
 
   /// True when the last server call failed; XP shown may be stale.
   bool offline = false;
@@ -105,6 +139,18 @@ class ArcadeProgress extends ChangeNotifier {
     miniPlays
       ..clear()
       ..addAll(((s['miniPlays'] as Map?) ?? const {}).map((k, v) => MapEntry(k as String, (v as num).toInt())));
+    // Absent from snapshots cached before growth existed, and from a server
+    // that predates it: keep what we have rather than resetting the boar.
+    final pg = s['passage'];
+    if (pg is Map) {
+      int n(String k) => (pg[k] as num?)?.toInt() ?? 0;
+      passageLifetime = n('lifetime');
+      passagePoints = n('points');
+      passageStage = pg['stage'] as String? ?? 'piglet';
+      passageStageAt = n('stageAt');
+      passageNextStage = pg['nextStage'] as String?;
+      passageNextAt = (pg['nextAt'] as num?)?.toInt();
+    }
     if (persist) _p?.setString('ar.snapshot', jsonEncode(s));
     offline = false;
     notifyListeners();
@@ -134,6 +180,11 @@ class ArcadeProgress extends ChangeNotifier {
     rewardedExpeditionsToday = 0;
     badges.clear();
     miniPlays.clear();
+    passageLifetime = passagePoints = passageStageAt = 0;
+    passageStage = 'piglet';
+    passageNextStage = null;
+    passageNextAt = null;
+    passageClaim = null;
     offline = false;
     notifyListeners();
   }
@@ -144,6 +195,7 @@ class ArcadeProgress extends ChangeNotifier {
   /// rather than failing loudly, which is the same shape as before for an
   /// offline player.
   Future<String?> startMini(String game) async {
+    if (game == 'passage') passageClaim = null;
     if (noBackend) return null; // nothing to open a round on
     try {
       return await ArcadeApi.instance.miniStart(game);
@@ -175,13 +227,33 @@ class ArcadeProgress extends ChangeNotifier {
       // These casts are deliberately inside the try, but a malformed body
       // raises TypeError rather than ApiException, so catch broadly: a bad
       // response must not dead-end a results screen.
+      final before = passageStage;
       apply(r['progress'] as Map<String, dynamic>);
+      if (game == 'passage') {
+        passageClaim = PassageClaim.from(r, stageBefore: before, stageAfter: passageStage);
+        notifyListeners();
+      }
       return ((r['xpGained'] as num).toInt(), (r['badges'] as List).cast<String>());
     } catch (e) {
       offline = true;
       notifyListeners();
       return (0, const <String>[]);
     }
+  }
+
+  /// Test seam: the growth fields as a server snapshot would set them.
+  @visibleForTesting
+  void setPassageForTest({required int lifetime, required String stage, int stageAt = 0, String? nextStage, int? nextAt}) {
+    apply({
+      'passage': {
+        'lifetime': lifetime,
+        'points': lifetime,
+        'stage': stage,
+        'stageAt': stageAt,
+        'nextStage': nextStage,
+        'nextAt': nextAt,
+      },
+    }, persist: false);
   }
 
   static const badgeNames = {

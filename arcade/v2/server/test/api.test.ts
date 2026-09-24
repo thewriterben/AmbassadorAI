@@ -332,6 +332,67 @@ test('passage pays for stars, the full passage, and a capped coin score', async 
   assert.equal(row.score, 0);
 });
 
+test('the boar grows from points scored on rewarded passage rounds, and only those', async () => {
+  const fresh = (await call('POST', '/v1/players', {})).json.token;
+  const [, juvenile, razorback] = config.passage.stages;
+  const max = config.mini.maxScore.passage;
+  const me = (await call('GET', '/v1/me', undefined, fresh)).json;
+  assert.deepEqual(me.passage, {
+    lifetime: 0, points: 0, stage: 'piglet', stageAt: 0, nextStage: 'juvenile', nextAt: juvenile.at,
+  });
+
+  // A run's score goes to both totals and comes back on the claim.
+  let r = await playMini('passage', { right: 1, total: 3, extra: 2, score: 120 }, fresh);
+  assert.equal(r.json.passageCredited, 120);
+  assert.equal(r.json.progress.passage.lifetime, 120);
+  assert.equal(r.json.progress.passage.points, 120);
+
+  // Another game's score grows nothing, and says nothing about the boar.
+  r = await playMini('pillar_sort', { right: 9, total: 9, score: 999 }, fresh);
+  assert.equal(r.json.passageCredited, undefined);
+  assert.equal(r.json.progress.passage.lifetime, 120);
+
+  // Enough full-score runs cross the juvenile line.
+  let lifetime = 120;
+  let rounds = 1;
+  while (lifetime < juvenile.at) {
+    r = await playMini('passage', { right: 3, total: 3, extra: 9, score: max }, fresh);
+    lifetime += max;
+    rounds++;
+  }
+  assert.equal(r.json.progress.passage.lifetime, lifetime);
+  assert.equal(r.json.progress.passage.stage, 'juvenile');
+  assert.equal(r.json.progress.passage.nextStage, 'razorback');
+
+  // Past the daily cap a run is practice: no XP and no growth.
+  while (rounds < config.mini.rewardedRoundsPerDay) {
+    r = await playMini('passage', { right: 1, total: 3, extra: 1, score: 1 }, fresh);
+    lifetime += 1;
+    rounds++;
+  }
+  r = await playMini('passage', { right: 3, total: 3, extra: 9, score: max }, fresh);
+  assert.equal(r.json.xpGained, 0);
+  assert.equal(r.json.passageCredited, 0);
+  assert.equal(r.json.progress.passage.lifetime, lifetime);
+
+  // The last stage has nothing after it.
+  const id = (db.prepare('SELECT id FROM players WHERE handle = ?').get(me.handle) as { id: string }).id;
+  db.prepare('UPDATE passage_profile SET lifetime = ? WHERE player_id = ?').run(razorback.at, id);
+  const top = (await call('GET', '/v1/me', undefined, fresh)).json.passage;
+  assert.equal(top.stage, 'razorback');
+  assert.equal(top.nextStage, null);
+  assert.equal(top.nextAt, null);
+});
+
+test('an account on the abuse ladder flies for practice and grows nothing', async () => {
+  const fresh = (await call('POST', '/v1/players', {})).json.token;
+  const me = (await call('GET', '/v1/me', undefined, fresh)).json;
+  db.prepare("UPDATE players SET status = 'xp_only' WHERE handle = ?").run(me.handle);
+  const r = await playMini('passage', { right: 3, total: 3, extra: 9, score: 500 }, fresh);
+  assert.equal(r.json.passageCredited, 0);
+  assert.equal(r.json.progress.passage.lifetime, 0);
+});
+
 // --- the two findings the audit reproduced, which the old suite could not see.
 // Both are concurrency or forgery, and the whole suite was sequential and
 // honest, so neither had anywhere to show up.
@@ -424,6 +485,7 @@ test('DELETE /v1/me erases the player from every table', async () => {
   advance(config.run.minFinishMs + 5000);
   await call('POST', `/v1/expeditions/${exp}/finish`, { runMs: 120_000 }, fresh);
   await playMini('pillar_sort', { right: 9, total: 9 }, fresh);
+  await playMini('passage', { right: 1, total: 3, extra: 1, score: 40 }, fresh);
   const today = todayIndex();
   await call('POST', '/v1/ledger/guess', { guess: puzzleFor(today).answer }, fresh);
 
@@ -443,13 +505,14 @@ test('DELETE /v1/me erases the player from every table', async () => {
   assert.ok(countFor('xp_events') > 0, 'no XP events to delete');
   assert.ok(countFor('ledger_plays') > 0, 'no ledger play to delete');
   assert.ok(countFor('mini_rounds') > 0, 'no mini round to delete');
+  assert.ok(countFor('passage_profile') > 0, 'no boar to delete');
 
   const del = await call('DELETE', '/v1/me', undefined, fresh);
   assert.equal(del.status, 200);
   assert.equal(del.json.deleted, true);
   assert.equal(del.json.rows.players, 1);
 
-  for (const table of ['expeditions', 'badges', 'tablet_state', 'ledger_plays', 'mini_rounds', 'xp_events']) {
+  for (const table of ['expeditions', 'badges', 'tablet_state', 'ledger_plays', 'mini_rounds', 'xp_events', 'passage_profile']) {
     assert.equal(countFor(table), 0, `${table} still holds rows for a deleted player`);
   }
   // `tablets` is keyed to the expedition, not the player — the case a naive

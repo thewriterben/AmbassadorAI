@@ -165,6 +165,42 @@ export function checkBadges(db: Db, id: string): string[] {
 }
 
 /** The shape the client caches as ArcadeProgress. */
+/**
+ * The player's boar: points scored in When Pigs Fly, and the stage those
+ * points have grown it to. The stage is decided here and nowhere else — the
+ * app draws whatever this says — so a threshold change needs no app release.
+ */
+export function passageProfile(db: Db, id: string) {
+  const row = db.prepare('SELECT lifetime, points FROM passage_profile WHERE player_id = ?').get(id) as
+    | { lifetime: number; points: number }
+    | undefined;
+  const lifetime = row?.lifetime ?? 0;
+  const stages = config.passage.stages;
+  let i = 0;
+  while (i + 1 < stages.length && lifetime >= stages[i + 1].at) i++;
+  const next = stages[i + 1];
+  return {
+    lifetime,
+    points: row?.points ?? 0,
+    stage: stages[i].id,
+    stageAt: stages[i].at,
+    nextStage: next?.id ?? null,
+    nextAt: next?.at ?? null,
+  };
+}
+
+/** Adds a claimed run's score to both totals. See the table comment in db.ts. */
+export function creditPassage(db: Db, id: string, amount: number) {
+  if (amount <= 0) return;
+  db.prepare(
+    `INSERT INTO passage_profile (player_id, lifetime, points, updated_at) VALUES (?, ?, ?, ?)
+     ON CONFLICT(player_id) DO UPDATE SET
+       lifetime = lifetime + excluded.lifetime,
+       points = points + excluded.points,
+       updated_at = excluded.updated_at`,
+  ).run(id, amount, amount, Date.now());
+}
+
 export function snapshot(db: Db, id: string, extra: Record<string, unknown> = {}) {
   const p = getPlayer(db, id)!;
   return {
@@ -183,6 +219,7 @@ export function snapshot(db: Db, id: string, extra: Record<string, unknown> = {}
     lastLedgerDay: p.last_ledger_day,
     badges: badgesOf(db, id),
     miniPlays: miniPlays(db, id),
+    passage: passageProfile(db, id),
     status: p.status,
     ...extra,
   };

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../audio.dart';
 import '../../theme.dart';
 import '../cabinet/cabinet.dart';
+import '../progress.dart';
 import 'boar.dart';
 import 'eras.dart';
 import 'passage_game.dart';
@@ -23,9 +24,12 @@ class _PassageScreenState extends State<PassageScreen> {
   PassageGame? _game;
 
   /// The DEV menu's stage choice, kept across "Fly again" so a stage being
-  /// looked at does not reset to the piglet every run. Replaced by the
-  /// player's real stage from the server in phase 2.
-  static BoarStage _devStage = BoarStage.piglet;
+  /// looked at does not reset every run. Null means the player's own boar.
+  static BoarStage? _devStage;
+
+  /// The boar this player has grown, as the server last said. Read when a
+  /// run is built, so a stage reached on one run's claim flies on the next.
+  static BoarStage get _ownStage => BoarStage.fromId(ArcadeProgress.instance.passageStage) ?? BoarStage.piglet;
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +38,7 @@ class _PassageScreenState extends State<PassageScreen> {
       title: 'When Pigs Fly',
       kicker: 'ONE TAP',
       musicTrack: Audio.trackLevel,
-      builder: (run) => _game = PassageGame(run: run, stage: _devStage),
+      builder: (run) => _game = PassageGame(run: run, stage: _devStage ?? _ownStage),
       hudBuilder: (context, run) => _Hud(game: _game!),
       overlayBuilder: (context, run) => _Overlay(game: _game!),
       resultBuilder: (context, result) => _Result(result: result, game: _game!),
@@ -142,11 +146,16 @@ class _Overlay extends StatelessWidget {
     return Stack(
       children: [
         Positioned.fill(child: _EraBanner(key: ObjectKey(game), game: game)),
-        if (!game.started)
+        if (!game.started) ...[
+          Align(
+            alignment: const Alignment(0, 0.44),
+            child: _StageLine(stage: game.stage),
+          ),
           const Align(
             alignment: Alignment(0, 0.62),
             child: _Prompt('Tap to fly'),
           ),
+        ],
         if (game.phase == PassagePhase.landing)
           const Align(
             alignment: Alignment(0, 0.62),
@@ -160,6 +169,47 @@ class _Overlay extends StatelessWidget {
       ],
     );
   }
+}
+
+/// Which boar is about to fly, and how far it is from the next stage. Shown
+/// under the hovering boar until the first tap.
+class _StageLine extends StatelessWidget {
+  final BoarStage stage;
+  const _StageLine({required this.stage});
+
+  @override
+  Widget build(BuildContext context) {
+    final p = ArcadeProgress.instance;
+    // A DEV override, or a build with nothing to grow against, shows the
+    // name alone: a progress figure that can never move would be a lie.
+    final own = BoarStage.fromId(p.passageStage) == stage;
+    final next = BoarStage.fromId(p.passageNextStage);
+    final detail = ArcadeProgress.noBackend || !own
+        ? null
+        : next == null
+            ? 'fully grown'
+            : '${_n(p.passageLifetime)} / ${_n(p.passageNextAt ?? 0)} to ${next.label.toLowerCase()}';
+    return Text(
+      detail == null ? stage.label.toUpperCase() : '${stage.label.toUpperCase()}  ·  $detail',
+      style: const TextStyle(
+        fontFamily: AppTheme.fontMono,
+        fontSize: 11,
+        letterSpacing: 1.4,
+        color: AppTheme.muted,
+      ),
+    );
+  }
+}
+
+/// 12345 -> "12,345".
+String _n(int v) {
+  final s = v.toString();
+  final b = StringBuffer();
+  for (var i = 0; i < s.length; i++) {
+    if (i > 0 && (s.length - i) % 3 == 0) b.write(',');
+    b.write(s[i]);
+  }
+  return b.toString();
 }
 
 class _Prompt extends StatelessWidget {
@@ -363,6 +413,10 @@ class _Result extends StatelessWidget {
             ),
           ],
         ),
+        if (!ArcadeProgress.noBackend) ...[
+          const SizedBox(height: 16),
+          GrowthPanel(score: result.score, flew: game.stage),
+        ],
         const SizedBox(height: 18),
         // Every era, with the ones you reached lit. Seeing the unlit ones is
         // the invitation to fly again; it is doing the work that a score
@@ -427,6 +481,100 @@ class _Result extends StatelessWidget {
           ),
         ],
       ],
+    );
+  }
+}
+
+/// The boar's growth, on the results sheet: its stage, how far it is to the
+/// next, what this flight added, and — once, on the run that crosses a line —
+/// that it grew.
+///
+/// The claim is fire-and-forget (see the cabinet), so this listens rather
+/// than waiting: it can open on "counting" and fill in a moment later.
+class GrowthPanel extends StatelessWidget {
+  final int score;
+
+  /// The stage that flew this run, which is not always the player's own —
+  /// the DEV menu can override it.
+  final BoarStage flew;
+  const GrowthPanel({super.key, required this.score, required this.flew});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListenableBuilder(
+      listenable: ArcadeProgress.instance,
+      builder: (context, _) {
+        final p = ArcadeProgress.instance;
+        final stage = BoarStage.fromId(p.passageStage) ?? BoarStage.piglet;
+        final next = BoarStage.fromId(p.passageNextStage);
+        final claim = p.passageClaim;
+        final grew = BoarStage.fromId(claim?.grewInto);
+
+        final nextAt = p.passageNextAt;
+        final span = nextAt == null ? 1 : (nextAt - p.passageStageAt).clamp(1, 1 << 31);
+        final frac = nextAt == null ? 1.0 : ((p.passageLifetime - p.passageStageAt) / span).clamp(0.0, 1.0);
+
+        final caption = switch (claim) {
+          null when p.offline => 'Offline: this flight did not count toward growth.',
+          null => 'Adding up the flight…',
+          PassageClaim(credited: > 0) when next != null =>
+            '+${_n(claim.credited)} toward ${next.label.toLowerCase()}',
+          PassageClaim(credited: > 0) => '+${_n(claim.credited)}. Fully grown.',
+          _ when score > 0 => "Today's growing flights are used up; this one was practice.",
+          _ => null,
+        };
+
+        return Container(
+          padding: const EdgeInsets.fromLTRB(10, 10, 14, 12),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            color: grew != null ? AppTheme.accent.withValues(alpha: 0.10) : Colors.transparent,
+            border: Border.all(color: grew != null ? AppTheme.accent : AppTheme.border),
+          ),
+          child: Row(
+            children: [
+              BoarPortrait(stage: grew ?? stage, size: 58),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      grew != null
+                          ? 'Your boar grew into a ${grew.label.toLowerCase()}.'
+                          : next == null
+                              ? '${stage.label} · fully grown'
+                              : '${stage.label} · ${_n(p.passageLifetime)} / ${_n(nextAt ?? 0)}',
+                      style: TextStyle(
+                        fontSize: grew != null ? 14.5 : 13,
+                        fontWeight: grew != null ? FontWeight.w600 : FontWeight.w500,
+                        color: grew != null ? AppTheme.accent : AppTheme.text,
+                      ),
+                    ),
+                    const SizedBox(height: 7),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(99),
+                      child: LinearProgressIndicator(
+                        value: frac,
+                        minHeight: 5,
+                        backgroundColor: AppTheme.border,
+                        valueColor: const AlwaysStoppedAnimation(AppTheme.accent),
+                      ),
+                    ),
+                    if (grew != null || caption != null) ...[
+                      const SizedBox(height: 6),
+                      Text(
+                        grew != null ? 'It flies as a ${grew.label.toLowerCase()} from your next run.' : caption!,
+                        style: const TextStyle(fontSize: 12, height: 1.35, color: AppTheme.body),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

@@ -97,6 +97,24 @@ export const config = {
     scoreXp: { passage: { perPoints: 50, cap: 12 } } as Record<string, { perPoints: number; cap: number }>,
   },
 
+  // When Pigs Fly (game id `passage`): the boar grows across runs from the
+  // points a player has ever scored in it. Only rewarded rounds count, so
+  // the daily cap above bounds growth the same way it bounds XP.
+  //
+  // The thresholds are provisional, set from a guess at casual play — about
+  // four runs a day at about 150 points. First pass was a week to the
+  // juvenile and a month to the razorback; lowered the same day (owner's
+  // call) to two or three days and about ten. They are meant to be reset
+  // from measured scores once real runs are on the server, which is why
+  // both can be overridden without a deploy.
+  passage: {
+    stages: [
+      { id: 'piglet', at: 0 },
+      { id: 'juvenile', at: num('PASSAGE_JUVENILE_AT', 1_500) },
+      { id: 'razorback', at: num('PASSAGE_RAZORBACK_AT', 6_000) },
+    ] as Array<{ id: string; at: number }>,
+  },
+
   rateLimit: {
     perMinute: num('RATE_PER_MINUTE', 120),
     // Anonymous player creation from one address, per hour. Registration is

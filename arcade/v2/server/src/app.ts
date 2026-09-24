@@ -6,7 +6,7 @@ import type { QuestionBank } from './bank.ts';
 import { config } from './config.ts';
 import { createPlayer, rateLimit, requirePlayer, signMini, signTablet, verifyMini, verifyTablet, type Env } from './auth.ts';
 import { pick, record, mastery } from './scheduler.ts';
-import { awardXp, checkBadges, getPlayer, leaderboard, snapshot } from './progress.ts';
+import { awardXp, checkBadges, creditPassage, getPlayer, leaderboard, snapshot } from './progress.ts';
 import { ensureHandle, maxRerollsPerDay, rerollHandle } from './handles.ts';
 import { markGuess, puzzleFor, todayIndex, validGuess } from './ledger.ts';
 
@@ -460,6 +460,9 @@ export function createApp(db: Db, bank: QuestionBank) {
         .get(id, game, round.day, round.id) as { n: number }
     ).n;
     let gained = 0;
+    // Points credited to the boar. Same gate as XP: a flagged player, or a
+    // round past the daily cap, flies for practice and grows nothing.
+    let credited = 0;
     const status = getPlayer(db, id)!.status;
     if (status === 'ok' && rounds < config.mini.rewardedRoundsPerDay) {
       if (game === 'coin_quest') {
@@ -485,6 +488,10 @@ export function createApp(db: Db, bank: QuestionBank) {
         const sx = config.mini.scoreXp[game];
         gained =
           Math.min(3, right) * 12 + (right >= 2 ? 24 : 0) + (sx ? Math.min(sx.cap, Math.floor(score / sx.perPoints)) : 0);
+        // The whole (clamped) score grows the boar. Growth is cosmetic and
+        // the shop it will fund only changes how a run plays, never what XP
+        // pays, so it does not need the second cap the XP bonus has.
+        credited = score;
       } else if (game === 'chain_builder') {
         gained = Math.min(right, 3) * config.xp.chainSolved - extra * config.xp.chainExtraCheck;
       } else {
@@ -504,8 +511,15 @@ export function createApp(db: Db, bank: QuestionBank) {
       round.id,
     );
     awardXp(db, id, gained, 'mini', round.id);
+    creditPassage(db, id, credited);
     const badges = checkBadges(db, id);
-    return c.json({ xpGained: gained, badges, rewardedRoundsLeft: Math.max(0, config.mini.rewardedRoundsPerDay - rounds - 1), progress: snapshot(db, id) });
+    return c.json({
+      xpGained: gained,
+      badges,
+      rewardedRoundsLeft: Math.max(0, config.mini.rewardedRoundsPerDay - rounds - 1),
+      ...(game === 'passage' ? { passageCredited: credited } : {}),
+      progress: snapshot(db, id),
+    });
   });
 
   // ------------------------------------------------------------ scoreboard
@@ -578,7 +592,7 @@ export function createApp(db: Db, bank: QuestionBank) {
           .run(id).changes,
       );
       // Children before parents: foreign_keys is ON, so players must be last.
-      for (const table of ['expeditions', 'badges', 'tablet_state', 'ledger_plays', 'mini_rounds', 'xp_events']) {
+      for (const table of ['expeditions', 'badges', 'tablet_state', 'ledger_plays', 'mini_rounds', 'xp_events', 'passage_profile']) {
         rows[table] = Number(db.prepare(`DELETE FROM ${table} WHERE player_id = ?`).run(id).changes);
       }
       rows.players = Number(db.prepare('DELETE FROM players WHERE id = ?').run(id).changes);

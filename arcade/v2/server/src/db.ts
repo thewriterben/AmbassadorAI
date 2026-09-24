@@ -108,6 +108,17 @@ CREATE TABLE IF NOT EXISTS xp_events (
   created_at INTEGER NOT NULL
 );
 
+-- When Pigs Fly growth. 'lifetime' only ever rises and decides the boar's
+-- stage; 'points' is what the shop (phase 4) will spend. They are separate
+-- so that spending can never shrink the boar. Like XP, neither has any
+-- monetary value.
+CREATE TABLE IF NOT EXISTS passage_profile (
+  player_id TEXT PRIMARY KEY REFERENCES players(id),
+  lifetime INTEGER NOT NULL DEFAULT 0,
+  points INTEGER NOT NULL DEFAULT 0,
+  updated_at INTEGER NOT NULL
+);
+
 CREATE INDEX IF NOT EXISTS ix_exp_player_day ON expeditions(player_id, started_at);
 CREATE INDEX IF NOT EXISTS ix_mini_player_day ON mini_rounds(player_id, game, day);
 CREATE INDEX IF NOT EXISTS ix_xp_created ON xp_events(created_at);

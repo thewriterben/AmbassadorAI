@@ -349,10 +349,8 @@ the next run.
 
 1. **The boar replaces the coin** — built 2026-09-24: sheets, animation,
    fixed hitbox, title and home card, DEV stage switch.
-2. **Persistent growth** — a `passage_profile` table (lifetime points,
-   points available, ability levels, loadout); a claimed run credits its
-   score to both, on rewarded rounds only; stage thresholds in config,
-   measured from real run scores; the stage shown in the app.
+2. **Persistent growth** — built 2026-09-24, see below. Ability levels and
+   the loadout move to phase 4, where the shop needs them.
 3. **Abilities in the run** — dash, grapple, teleport (to the middle of the
    next opening, never past a pillar; charges per run), freeze shot, tractor
    beam; two HUD buttons with cooldown rings.
@@ -364,6 +362,53 @@ the next run.
 **Not yet verified on a phone:** whether each stage reads at game size,
 whether the overhang past the hitbox feels fair at the pillars, and whether
 the razorback's wings crowd the late, narrow gaps visually.
+
+### Phase 2, persistent growth — built 2026-09-24
+
+**Server.** A `passage_profile` table holds `lifetime` (only ever rises;
+decides the stage) and `points` (what the phase 4 shop will spend), kept apart
+so spending can never shrink the boar. A claimed passage round adds its
+clamped score to both, behind exactly the gate XP uses: an `ok` account,
+inside the daily rewarded-round cap. Past the cap, or on the abuse ladder, a
+flight is practice and grows nothing. The stage is computed on the server
+from `config.passage.stages` and sent in every progress snapshot as a
+`passage` block (lifetime, points, stage, where this stage began, the next
+stage and where it begins); the claim also returns `passageCredited`. The app
+draws whatever stage the server names, so thresholds change without an app
+release. `DELETE /v1/me` now clears the profile too.
+
+**Thresholds are provisional:** juvenile at 1,500 lifetime points,
+razorback at 6,000, from a guess of about four runs a day at about 150
+points (two or three days, then about ten). The first pass was 4,000 and
+18,000 (a week, then a month); the owner asked for faster growth the same
+day. Both are environment-overridable
+(`PASSAGE_JUVENILE_AT`, `PASSAGE_RAZORBACK_AT`) and are to be reset from
+measured scores once real runs are on the server.
+
+**App.** Runs start as the player's own stage (the DEV override still wins
+when set). Under the hovering boar before the first tap: "PIGLET · 1,240 /
+4,000 to juvenile", or "fully grown". The results sheet has a growth panel:
+the standing boar, its stage and progress bar, and what this flight did —
+"+120 toward juvenile", "Adding up the flight…" while the fire-and-forget
+claim is out, "Today's growing flights are used up; this one was practice",
+or "Offline: this flight did not count toward growth." On the claim that
+crosses a line the panel turns amber: "Your boar grew into a juvenile. It
+flies as a juvenile from your next run." Builds with no backend (the demo,
+and the standard DEV APK) show no progress figures at all, since nothing
+there can ever move them.
+
+**Tests.** Server: a score reaches both totals and comes back on the claim;
+another game's score grows nothing; full-score runs cross the juvenile line;
+past the cap a run grows nothing; the last stage has no next; a restricted
+account grows nothing; deletion clears the profile. App: stage ids map (and
+an unknown one does not crash); a snapshot without the block leaves the boar
+alone; a claim knows what it credited and whether it crossed a line; the
+panel's five states.
+
+**Verified on the Pixel** against a local server with thresholds of 15 and
+60: the piglet's progress before and after a run, the grew-into-juvenile
+panel, the next run flying as a juvenile, and its progress toward the
+razorback. Screenshots in `v2/dist/shots/pigs-growth-*.png`.
 
 ---
 
