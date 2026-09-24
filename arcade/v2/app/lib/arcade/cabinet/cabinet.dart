@@ -129,6 +129,12 @@ class CabinetScreen extends StatefulWidget {
   /// like. Rebuilt on [CabinetRun.tick].
   final Widget Function(BuildContext context, CabinetRun run)? overlayBuilder;
 
+  /// On-screen controls over the game — ability buttons. Unlike the overlay
+  /// this layer takes touches, but only where a control actually is: the
+  /// empty space between controls hit-tests through to the play area, so a
+  /// tap there is still the game's tap. Hidden while the run is settling.
+  final Widget Function(BuildContext context, CabinetRun run)? controlsBuilder;
+
   /// Music bed for the duration of the run.
   final String musicTrack;
 
@@ -146,6 +152,7 @@ class CabinetScreen extends StatefulWidget {
     required this.hudBuilder,
     required this.resultBuilder,
     this.overlayBuilder,
+    this.controlsBuilder,
     this.musicTrack = Audio.trackLevel,
     this.devActions,
   });
@@ -327,6 +334,15 @@ class CabinetScreenState extends State<CabinetScreen> with WidgetsBindingObserve
                 child: ValueListenableBuilder<int>(
                   valueListenable: run.hud,
                   builder: (c, __, ___) => widget.overlayBuilder!(c, run),
+                ),
+              ),
+            ),
+          if (widget.controlsBuilder != null && !_settling)
+            Positioned.fill(
+              child: SafeArea(
+                child: ValueListenableBuilder<int>(
+                  valueListenable: run.hud,
+                  builder: (c, __, ___) => widget.controlsBuilder!(c, run),
                 ),
               ),
             ),

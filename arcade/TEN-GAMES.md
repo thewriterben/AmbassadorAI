@@ -351,9 +351,7 @@ the next run.
    fixed hitbox, title and home card, DEV stage switch.
 2. **Persistent growth** — built 2026-09-24, see below. Ability levels and
    the loadout move to phase 4, where the shop needs them.
-3. **Abilities in the run** — dash, grapple, teleport (to the middle of the
-   next opening, never past a pillar; charges per run), freeze shot, tractor
-   beam; two HUD buttons with cooldown rings.
+3. **Abilities in the run** — built 2026-09-24, see below.
 4. **Shop and loadout** — atomic purchase and loadout endpoints; a pre-run
    screen with the boar, progress to the next stage, the shop and the
    loadout; claims carry the loadout and reject abilities not owned.
@@ -409,6 +407,55 @@ panel's five states.
 60: the piglet's progress before and after a run, the grew-into-juvenile
 panel, the next run flying as a juvenile, and its progress toward the
 razorback. Screenshots in `v2/dist/shots/pigs-growth-*.png`.
+
+### Phase 3, abilities in the run — built 2026-09-24
+
+Five abilities, at most two per run, each on its own button in a bottom
+corner. A tap anywhere else is still a flap. Until the shop exists nobody
+owns one, so a normal run looks exactly as before; the DEV menu equips
+preset pairs at a chosen level for testing. Numbers per level are in
+`abilities.dart` and a test holds every level at least as good as the one
+below it.
+
+| Ability | What it does | Level 1 → 3 |
+|---|---|---|
+| Dash | Holds altitude, scrolls at 2.2× for 0.35 s, untouchable a little longer | cooldown 8 → 5 s, immunity 0.45 → 0.65 s |
+| Grapple | A chain from the snout hooks the nearest gold coin ahead and hauls the boar to its height at 1.5× scroll; a flap lets go. Untouchable while the line is taut | reach 0.9 → 1.3 screens, cooldown 10 → 6 s |
+| Blink | Moves the boar straight up or down to the middle of the next opening it has not entered. It never moves the boar along the passage | 1 → 3 charges a run |
+| Freeze shot | Spits a coin at the next gold coin ahead; that coin stops drifting and resumes from where it stopped, not where it would have been | hold 3 → 5 s, cooldown 7 → 5 s |
+| Tractor beam | Every coin within reach is drawn to the boar and taken | reach 0.20 → 0.30 screen heights, 3 → 5 s, cooldown 12 → 8 s |
+
+**Rules the code keeps.** Nothing fires before the first tap, or in a
+descent or a landing: no button changes an ending. No ability carries the boar
+past a pillar it has not reached. A button with nothing to act on (no gold
+coin in reach, no gate ahead) is dead rather than a wasted cooldown. Ability
+immunity is kept apart from the post-strike grace, because that one makes the
+boar blink and a dash should read as power, not as having been hit.
+
+**Found on the phone.** The first grapple fired from above a gate hauled the
+boar straight down through the top pillar and cost a strike. An ability must
+never be what strikes you, so the boar is untouchable while the line is taut.
+The line always ends at a coin inside an opening, and the cooldown limits it.
+
+**Controls.** The cabinet gained a controls layer. Unlike the overlay it
+takes touches, but only where a control is: empty space hit-tests through to
+the play area, so a tap there is still the game's. A widget test holds this.
+Buttons fire on touch-down like the flap, show a ring refilling over the
+cooldown and the charges left, and are hidden while the run settles.
+
+**Tests** (17): the numbers (every ability limited; levels never worse; at
+most two); nothing fires before the first tap or in a descent; cooldowns hold;
+a dead button costs nothing; dash holds altitude, speeds the scroll and
+survives a pillar that strikes without it; grapple takes its coin, never drags
+the boar into a pillar, and lets go on a flap; blink moves only vertically,
+to the next opening, and counts its charges; freeze stops a coin and thaws
+without a jump; tractor takes what is in reach and nothing far away; and the
+controls layer takes its own taps while everywhere else still flaps.
+
+**Verified on the Pixel** with all three DEV loadouts. Dash showed speed
+lines and the dash pose; the grapple showed its chain; the freeze shot flew
+and left its target ringed in ice; blink burst at both ends; the tractor ring
+pulsed; charges and cooldown rings updated.
 
 ---
 

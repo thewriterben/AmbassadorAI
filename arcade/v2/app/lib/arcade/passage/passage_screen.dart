@@ -1,9 +1,12 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 import '../../audio.dart';
 import '../../theme.dart';
 import '../cabinet/cabinet.dart';
 import '../progress.dart';
+import 'abilities.dart';
 import 'boar.dart';
 import 'eras.dart';
 import 'passage_game.dart';
@@ -31,6 +34,25 @@ class _PassageScreenState extends State<PassageScreen> {
   /// run is built, so a stage reached on one run's claim flies on the next.
   static BoarStage get _ownStage => BoarStage.fromId(ArcadeProgress.instance.passageStage) ?? BoarStage.piglet;
 
+  /// DEV loadouts, cycled from the menu, until the shop (phase 4) sells
+  /// abilities. Index 0 is none, which is what every player has today.
+  static const _devLoadouts = [
+    <AbilityKind>[],
+    [AbilityKind.dash, AbilityKind.grapple],
+    [AbilityKind.teleport, AbilityKind.freeze],
+    [AbilityKind.tractor, AbilityKind.dash],
+  ];
+  static int _devLoadout = 0;
+  static int _devLevel = 1;
+
+  static List<EquippedAbility> get _loadout =>
+      [for (final k in _devLoadouts[_devLoadout]) EquippedAbility(k, _devLevel)];
+
+  static String _loadoutLabel() {
+    final l = _devLoadouts[_devLoadout];
+    return l.isEmpty ? 'none' : '${l.map((k) => k.label).join(' + ')}, level $_devLevel';
+  }
+
   @override
   Widget build(BuildContext context) {
     return CabinetScreen(
@@ -38,9 +60,10 @@ class _PassageScreenState extends State<PassageScreen> {
       title: 'When Pigs Fly',
       kicker: 'ONE TAP',
       musicTrack: Audio.trackLevel,
-      builder: (run) => _game = PassageGame(run: run, stage: _devStage ?? _ownStage),
+      builder: (run) => _game = PassageGame(run: run, stage: _devStage ?? _ownStage, loadout: _loadout),
       hudBuilder: (context, run) => _Hud(game: _game!),
       overlayBuilder: (context, run) => _Overlay(game: _game!),
+      controlsBuilder: (context, run) => _Controls(game: _game!),
       resultBuilder: (context, result) => _Result(result: result, game: _game!),
       devActions: () => {
         'Skip to the landing': () => _game?.devSkipToLanding(),
@@ -50,9 +73,154 @@ class _PassageScreenState extends State<PassageScreen> {
           final g = _game;
           if (g != null) _devStage = g.devNextStage();
         },
+        // Loadouts apply from the next run: a run's abilities are fixed when
+        // it starts, the way the shop's will be.
+        'Abilities (next run): ${_devLoadouts[(_devLoadout + 1) % _devLoadouts.length].map((k) => k.label).join(' + ').ifEmpty('none')}':
+            () => _devLoadout = (_devLoadout + 1) % _devLoadouts.length,
+        'Ability level (next run): ${_devLevel % maxAbilityLevel + 1}': () => _devLevel = _devLevel % maxAbilityLevel + 1,
+        'Now equipped: ${_loadoutLabel()}': () {},
       },
     );
   }
+}
+
+extension on String {
+  String ifEmpty(String other) => isEmpty ? other : this;
+}
+
+/// The two ability buttons, in the bottom corners where thumbs already are.
+/// Nothing at all for a run without abilities, so the screen is exactly as
+/// it was for everyone until the shop exists.
+class _Controls extends StatelessWidget {
+  final PassageGame game;
+  const _Controls({required this.game});
+
+  @override
+  Widget build(BuildContext context) {
+    if (game.slots.isEmpty) return const SizedBox.shrink();
+    return Stack(
+      children: [
+        for (var i = 0; i < game.slots.length; i++)
+          Positioned(
+            left: i == 0 ? 22 : null,
+            right: i == 1 ? 22 : null,
+            bottom: 26,
+            child: AbilityButton(game: game, index: i),
+          ),
+      ],
+    );
+  }
+}
+
+/// One ability button: its icon, a ring that fills back in over the
+/// cooldown, and the charges left for an ability counted by use.
+///
+/// It fires on touch-down, like the flap does, because a button that waits
+/// for the finger to lift is a quarter-second late in a game this fast. It
+/// repaints every frame from the game's own clock, so the ring stops when
+/// the game is paused.
+class AbilityButton extends StatefulWidget {
+  final PassageGame game;
+  final int index;
+  const AbilityButton({super.key, required this.game, required this.index});
+
+  @override
+  State<AbilityButton> createState() => _AbilityButtonState();
+}
+
+class _AbilityButtonState extends State<AbilityButton> with SingleTickerProviderStateMixin {
+  late final AnimationController _frames =
+      AnimationController(vsync: this, duration: const Duration(seconds: 1))..repeat();
+
+  @override
+  void dispose() {
+    _frames.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final slot = widget.game.slots[widget.index];
+    final kind = slot.ability.kind;
+    return Semantics(
+      button: true,
+      label: kind.label,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTapDown: (_) => widget.game.useAbility(widget.index),
+        child: AnimatedBuilder(
+          animation: _frames,
+          builder: (context, _) {
+            final live = widget.game.canUseAbility(widget.index);
+            return SizedBox.square(
+              dimension: 68,
+              child: CustomPaint(
+                painter: _RingPainter(cooldown: slot.cooldownFrac, live: live),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Icon(kind.icon, size: 28, color: live ? AppTheme.accent : AppTheme.dim),
+                    if (slot.stats.charges > 0)
+                      Positioned(
+                        right: 6,
+                        bottom: 6,
+                        child: Text(
+                          '${slot.chargesLeft}',
+                          style: TextStyle(
+                            fontFamily: AppTheme.fontMono,
+                            fontSize: 12,
+                            color: slot.spent ? AppTheme.dim : AppTheme.text,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class _RingPainter extends CustomPainter {
+  final double cooldown;
+  final bool live;
+  _RingPainter({required this.cooldown, required this.live});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final c = size.center(Offset.zero);
+    final r = size.shortestSide / 2 - 3;
+    canvas.drawCircle(c, r, Paint()..color = AppTheme.bg.withValues(alpha: 0.62));
+    canvas.drawCircle(
+      c,
+      r,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 3
+        ..color = AppTheme.border,
+    );
+    // The recharged part of the ring, sweeping round clockwise from the top.
+    final ready = 1 - cooldown;
+    if (ready > 0) {
+      canvas.drawArc(
+        Rect.fromCircle(center: c, radius: r),
+        -pi / 2,
+        2 * pi * ready,
+        false,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 3
+          ..strokeCap = StrokeCap.round
+          ..color = live ? AppTheme.accent : AppTheme.muted,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(_RingPainter old) => old.cooldown != cooldown || old.live != live;
 }
 
 class _Hud extends StatelessWidget {

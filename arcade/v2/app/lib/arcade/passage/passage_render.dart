@@ -16,8 +16,10 @@ extension PassageRender on PassageGame {
     _strata(canvas);
     _pillars(canvas);
     _pickupsLayer(canvas);
+    _shotLayer(canvas);
     _ground(canvas);
     _spillLayer(canvas);
+    _abilityFx(canvas);
     _coin(canvas);
     _popLayer(canvas);
     _flash(canvas);
@@ -129,12 +131,101 @@ extension PassageRender on PassageGame {
   void _pickupsLayer(Canvas canvas) {
     for (final p in _pickups) {
       if (p.taken) continue;
+      if (p.pull != null) {
+        // Being drawn in by the tractor beam: shrinking as it arrives.
+        final at = _pulledAt(p);
+        _smallCoin(canvas, at, _pickR(p.kind) * (1 - 0.4 * p.pull!.clamp(0.0, 1.0)), p.kind);
+        continue;
+      }
       final sx = _coinX + (p.worldX - scrollX);
       if (sx < -_coinR * 3 || sx > _w + _coinR * 3) continue;
+      if (p.frozenAt(_t)) {
+        // Frozen by a shot: an icy ring, fading in its last second.
+        final left = (p._clockResume - _t).clamp(0.0, 1.0);
+        canvas.drawCircle(
+          Offset(sx, p.yAt(_t)),
+          _pickR(p.kind) * 1.45,
+          Paint()
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = _coinR * 0.16
+            ..color = const Color(0xFFBFE8FF).withValues(alpha: 0.85 * left),
+        );
+      }
       // Trail coins get a slow bob, phased by position so a trail ripples
       // rather than nodding in unison. Gold coins drift on their own.
       final bob = p.amp == 0 ? sin(_t * 3.0 + p.worldX * 0.02) * _h * 0.004 : 0.0;
       _smallCoin(canvas, Offset(sx, p.yAt(_t) + bob), _pickR(p.kind), p.kind);
+    }
+  }
+
+  void _shotLayer(Canvas canvas) {
+    final s = _shot;
+    if (s == null) return;
+    final at = Offset(_coinX + (s.worldX - scrollX), s.y);
+    for (var k = 1; k <= 4; k++) {
+      canvas.drawCircle(
+        at.translate(-k * _coinR * 0.45, 0),
+        _coinR * (0.34 - k * 0.05),
+        Paint()..color = const Color(0xFFBFE8FF).withValues(alpha: 0.35 - k * 0.07),
+      );
+    }
+    _smallCoin(canvas, at, _coinR * 0.4, PickupKind.gold);
+  }
+
+  /// Everything the abilities draw around the boar, under it.
+  void _abilityFx(Canvas canvas) {
+    final c = Offset(_coinX, _coinY);
+
+    if (_t < _tractorUntil) {
+      final pulse = 0.5 + 0.5 * sin(_t * 9);
+      canvas.drawCircle(
+        c,
+        _tractorReach,
+        Paint()..color = AppTheme.accent.withValues(alpha: 0.05 + 0.03 * pulse),
+      );
+      canvas.drawCircle(
+        c,
+        _tractorReach,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = _coinR * 0.08
+          ..color = AppTheme.accent.withValues(alpha: 0.35 + 0.25 * pulse),
+      );
+      final beam = Paint()
+        ..strokeWidth = _coinR * 0.12
+        ..color = AppTheme.accent.withValues(alpha: 0.45);
+      for (final p in _pickups) {
+        if (p.pull != null && !p.taken) canvas.drawLine(c, _pulledAt(p), beam);
+      }
+    }
+
+    final hook = _grapple;
+    if (hook != null) {
+      // The tusk-chain: links from the snout to the hooked coin.
+      final from = c.translate(_coinR * 1.1, _coinR * 0.2);
+      final to = Offset(_coinX + (hook.worldX - scrollX), hook.yAt(_t));
+      final d = to - from;
+      final n = max(2, (d.distance / (_coinR * 0.55)).floor());
+      final link = Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = _coinR * 0.12
+        ..color = const Color(0xFFE8C66A);
+      for (var k = 0; k <= n; k++) {
+        canvas.drawCircle(Offset.lerp(from, to, k / n)!, _coinR * 0.16, link);
+      }
+    }
+
+    if (_t < _dashUntil) {
+      // Speed lines streaming off the boar.
+      final f = ((_dashUntil - _t) / 0.35).clamp(0.0, 1.0);
+      final line = Paint()
+        ..strokeWidth = _coinR * 0.14
+        ..strokeCap = StrokeCap.round
+        ..color = AppTheme.text.withValues(alpha: 0.55 * f);
+      for (final dy in const [-0.7, 0.0, 0.7]) {
+        final y = _coinY + dy * _coinR;
+        canvas.drawLine(Offset(_coinX - _coinR * 1.8, y), Offset(_coinX - _coinR * (4.5 + dy.abs() * 2), y), line);
+      }
     }
   }
 
@@ -363,6 +454,7 @@ extension PassageRender on PassageGame {
     if (phase == PassagePhase.down) return _phaseT < 0.25 ? BoarFrame.land : BoarFrame.stand;
     if (phase != PassagePhase.flying && _groundY - _coinY < _coinR * 3.2) return BoarFrame.land;
     if (_t < _hurtUntil) return BoarFrame.hurt;
+    if (_t < _dashUntil) return BoarFrame.dash;
     return BoarFrame.cycle[_wingPhase.floor() % BoarFrame.cycle.length];
   }
 

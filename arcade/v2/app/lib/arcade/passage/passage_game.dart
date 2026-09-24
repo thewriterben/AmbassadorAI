@@ -10,9 +10,11 @@ import 'package:flutter/services.dart';
 import '../../audio.dart';
 import '../../theme.dart';
 import '../cabinet/cabinet.dart';
+import 'abilities.dart';
 import 'boar.dart';
 import 'eras.dart';
 
+part 'passage_abilities.dart';
 part 'passage_render.dart';
 
 /// When Pigs Fly — the one-tap flyer, game 1 of the new catalogue. Its id
@@ -142,10 +144,31 @@ class Pickup {
   final double phase;
   bool taken = false;
 
+  /// Tractor beam: 0..1 while being drawn to the boar, null otherwise.
+  double? pull;
+
+  /// Where the coin was when the beam caught it, in world x and screen y.
+  double pullX = 0, pullY = 0;
+
   Pickup({required this.worldX, required this.y, required this.kind, this.amp = 0, this.phase = 0});
 
+  // The coin's own drift clock. It runs with game time until a freeze shot
+  // stops it, holds while frozen, and resumes from where it stopped — so a
+  // thawed coin carries on from its frozen height instead of jumping to
+  // wherever it would have drifted to meanwhile.
+  double _clockBase = 0, _clockResume = 0;
+  double _localT(double t) => _clockBase + max(0.0, t - _clockResume);
+
+  /// Stops this coin's drift for [seconds] from game time [t].
+  void freezeAt(double t, double seconds) {
+    _clockBase = _localT(t);
+    _clockResume = t + seconds;
+  }
+
+  bool frozenAt(double t) => t < _clockResume;
+
   /// Where the coin is at game time [t].
-  double yAt(double t) => amp == 0 ? y : y + amp * sin(phase + t * PassageGame.driftRadPerSecond);
+  double yAt(double t) => amp == 0 ? y : y + amp * sin(phase + _localT(t) * PassageGame.driftRadPerSecond);
 
   int get value => switch (kind) {
         PickupKind.copper => PassageGame.copperValue,
@@ -187,9 +210,29 @@ class PassageGame extends FlameGame {
   /// so the DEV menu can show all three.
   BoarStage stage;
 
-  PassageGame({required this.run, this.seed, this.stage = BoarStage.piglet}) {
+  /// The abilities this run carries, one per button, at most two. Empty for
+  /// a normal run until the shop exists (phase 4); the DEV menu fills it.
+  final List<AbilitySlot> slots;
+
+  PassageGame({
+    required this.run,
+    this.seed,
+    this.stage = BoarStage.piglet,
+    List<EquippedAbility> loadout = const [],
+  }) : slots = [for (final a in loadout.take(2)) AbilitySlot(a)] {
     run.onTap = flap;
   }
+
+  /// Whether ability button [i] would do something right now.
+  bool canUseAbility(int i) => _canUse(i);
+
+  /// Fires ability button [i]. False, and nothing spent, if it is not live.
+  bool useAbility(int i) => _use(i);
+
+  /// A dash in progress: speed-up and dash frame.
+  bool get dashing => _t < _dashUntil;
+  bool get grappling => _grapple != null;
+  bool get tractoring => _t < _tractorUntil;
 
   // ------------------------------------------------------------ tuning
   //
@@ -326,6 +369,30 @@ class PassageGame extends FlameGame {
   double _flapAt = -10;
   double _hurtUntil = -1;
 
+  // Ability state. See passage_abilities.dart.
+  double _dashUntil = -1;
+
+  /// Strike immunity from an ability. Kept apart from [_invUntil], the grace
+  /// after a strike, because that one also makes the boar blink — and a
+  /// dash should read as power, not as having been hit.
+  double _immuneUntil = -1;
+  Pickup? _grapple;
+  double _grappleUntil = -1;
+  _Shot? _shot;
+  double _tractorUntil = -1;
+  double _tractorReach = 0;
+
+  /// Also untouchable while a grapple line is taut. The line hauls the boar
+  /// to a coin inside an opening, but the path there can cross a pillar's
+  /// lip — on device the first grapple from above a gate dragged the boar
+  /// straight through one — and an ability must never be what strikes you.
+  bool get _vulnerable => _t > _invUntil && _t > _immuneUntil && _grapple == null;
+
+  /// Scroll multiplier while an ability is carrying the boar.
+  static const dashSpeed = 2.2;
+  static const grappleSpeed = 1.5;
+  double get _abilitySpeed => _t < _dashUntil ? dashSpeed : (_grapple != null ? grappleSpeed : 1.0);
+
   late List<Pickup> _pickups;
   final List<_Spill> _spills = [];
   final List<_Pop> _pops = [];
@@ -376,6 +443,28 @@ class PassageGame extends FlameGame {
 
   @visibleForTesting
   List<Pickup> get pickups => List.unmodifiable(_pickups);
+
+  /// The boar's height, for tests.
+  @visibleForTesting
+  double get boarY => _coinY;
+
+  /// Game time, for tests.
+  @visibleForTesting
+  double get clock => _t;
+
+  /// The first gate not yet entered, as its opening's centre, for tests.
+  @visibleForTesting
+  double? get nextGapY => _nextGate()?.gapY;
+
+  @visibleForTesting
+  bool get shotInFlight => _shot != null;
+
+  /// Forces the boar's height, for tests.
+  @visibleForTesting
+  set boarYForTest(double y) {
+    _coinY = y;
+    _vy = 0;
+  }
 
   @visibleForTesting
   int get spillCount => _spills.length;
@@ -577,7 +666,7 @@ class PassageGame extends FlameGame {
   /// Scroll speed at the current point of the passage. Rises gently — the
   /// ramp is in the gaps, not mainly in the speed, because speed is the one
   /// that makes a game unreadable rather than hard.
-  double get _speed => _w * (0.52 + 0.20 * progress) * speedFactor;
+  double get _speed => _w * (0.52 + 0.20 * progress) * speedFactor * _abilitySpeed;
 
   int _eraFor(double x) {
     final block = gatesPerEra * _spacing + _eraGap;
@@ -596,6 +685,8 @@ class PassageGame extends FlameGame {
     }
     _vy = _flapImpulse * _lift;
     _flapAt = _t;
+    // A flap is the player taking the controls back: it lets go of a grapple.
+    _grapple = null;
     Audio.instance.tap();
   }
 
@@ -630,6 +721,7 @@ class PassageGame extends FlameGame {
     dt = min(dt, 1 / 30);
     _t += dt;
     _wingPhase += dt * _wingRate;
+    if (_started) _updateAbilities(dt);
     if (_strikeFlash > 0) _strikeFlash = max(0, _strikeFlash - dt * 2.2);
 
     if (!_started) {
@@ -663,8 +755,9 @@ class PassageGame extends FlameGame {
   void _updateCoins(double dt) {
     if (momentum > 0) momentum = max(0.0, momentum - momentumDecayPerSecond * dt);
 
+    _updateTractor(dt);
     for (final p in _pickups) {
-      if (p.taken) continue;
+      if (p.taken || p.pull != null) continue;
       final dx = p.worldX - scrollX;
       if (dx < -_w * 0.4 || dx > _w) continue;
       final sx = _coinX + dx;
@@ -706,7 +799,7 @@ class PassageGame extends FlameGame {
     // that crosses a tier line pays at the tier it was taken in.
     score += p.value * multiplier;
     momentum = min(1.0, momentum + p.momentumGain);
-    _pops.add(_Pop(Offset(sx, p.yAt(_t)), p.kind == PickupKind.gold));
+    _pops.add(_Pop(Offset(sx, p.pull != null ? _coinY : p.yAt(_t)), p.kind == PickupKind.gold));
     if (p.kind == PickupKind.gold) {
       Audio.instance.coinSpin();
     } else {
@@ -735,7 +828,7 @@ class PassageGame extends FlameGame {
         Audio.instance.ting();
         run.tick();
       }
-      if (reserve > 0 && !g.struck && _t > _invUntil && dx.abs() < _gateW) {
+      if (reserve > 0 && !g.struck && _vulnerable && dx.abs() < _gateW) {
         if (_hits(g)) _strike(g);
       }
     }
@@ -786,7 +879,16 @@ class PassageGame extends FlameGame {
   /// Gravity and the ceiling. [ceilingOnly] skips the soft floor, which only
   /// applies while there are still gates to fly.
   void _integrate(double dt, {bool ceilingOnly = false}) {
-    _vy = (_vy + _gravity * dt).clamp(-_vMax, _vMax);
+    final hook = _grapple;
+    if (_t < _dashUntil) {
+      _vy = 0; // a dash holds altitude
+    } else if (hook != null) {
+      // Hauled toward the hooked coin's height, which it keeps following as
+      // the coin drifts. Gravity is off while the line is taut.
+      _vy = ((hook.yAt(_t) - _coinY) * PassageAbilities._grappleSpring).clamp(-_vMax, _vMax);
+    } else {
+      _vy = (_vy + _gravity * dt).clamp(-_vMax, _vMax);
+    }
     _coinY += _vy * dt;
 
     final ceiling = _coinR * 1.2;
@@ -802,7 +904,7 @@ class PassageGame extends FlameGame {
     if (_coinY > floor) {
       _coinY = floor;
       if (_vy > 0) _vy = 0;
-      if (reserve > 0 && _t > _invUntil) _strike(null);
+      if (reserve > 0 && _vulnerable) _strike(null);
     }
   }
 
