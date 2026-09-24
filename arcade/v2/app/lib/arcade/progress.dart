@@ -6,6 +6,29 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../dev.dart';
 import 'api.dart';
 
+/// One ability as the shop lists it for this player.
+class PassageAbility {
+  final String id;
+
+  /// 0 when locked.
+  final int level;
+  final int maxLevel;
+
+  /// Points for the next level, or null at the top.
+  final int? nextCost;
+
+  const PassageAbility({required this.id, required this.level, required this.maxLevel, this.nextCost});
+
+  factory PassageAbility.from(Map m) => PassageAbility(
+        id: m['id'] as String? ?? '',
+        level: (m['level'] as num?)?.toInt() ?? 0,
+        maxLevel: (m['maxLevel'] as num?)?.toInt() ?? 3,
+        nextCost: (m['nextCost'] as num?)?.toInt(),
+      );
+
+  bool get owned => level > 0;
+}
+
 /// What one When Pigs Fly claim did for the boar.
 class PassageClaim {
   /// Points added to the boar. Zero for a practice run: past the daily cap,
@@ -62,6 +85,13 @@ class ArcadeProgress extends ChangeNotifier {
   int passageStageAt = 0;
   String? passageNextStage;
   int? passageNextAt;
+
+  /// Every ability in the shop, with the level owned (0 = locked) and the
+  /// price of the next level, as the server lists them.
+  final List<PassageAbility> passageAbilities = [];
+
+  /// The abilities the player takes into a run, in button order.
+  final List<String> passageLoadout = [];
 
   /// What the most recent When Pigs Fly claim did for the boar. Null from the
   /// moment a run opens until its claim comes back — the results sheet reads
@@ -150,6 +180,18 @@ class ArcadeProgress extends ChangeNotifier {
       passageStageAt = n('stageAt');
       passageNextStage = pg['nextStage'] as String?;
       passageNextAt = (pg['nextAt'] as num?)?.toInt();
+      final ab = pg['abilities'];
+      if (ab is List) {
+        passageAbilities
+          ..clear()
+          ..addAll(ab.whereType<Map>().map(PassageAbility.from));
+      }
+      final lo = pg['loadout'];
+      if (lo is List) {
+        passageLoadout
+          ..clear()
+          ..addAll(lo.whereType<String>());
+      }
     }
     if (persist) _p?.setString('ar.snapshot', jsonEncode(s));
     offline = false;
@@ -185,6 +227,8 @@ class ArcadeProgress extends ChangeNotifier {
     passageNextStage = null;
     passageNextAt = null;
     passageClaim = null;
+    passageAbilities.clear();
+    passageLoadout.clear();
     offline = false;
     notifyListeners();
   }
@@ -219,11 +263,12 @@ class ArcadeProgress extends ChangeNotifier {
     required int total,
     int extra = 0,
     int score = 0,
+    List<Map<String, Object>> loadout = const [],
   }) async {
     if (token == null) return (0, const <String>[]);
     try {
       final r = await ArcadeApi.instance
-          .miniResult(game, token: token, right: right, total: total, extra: extra, score: score);
+          .miniResult(game, token: token, right: right, total: total, extra: extra, score: score, loadout: loadout);
       // These casts are deliberately inside the try, but a malformed body
       // raises TypeError rather than ApiException, so catch broadly: a bad
       // response must not dead-end a results screen.
@@ -238,6 +283,36 @@ class ArcadeProgress extends ChangeNotifier {
       offline = true;
       notifyListeners();
       return (0, const <String>[]);
+    }
+  }
+
+  /// Raises a When Pigs Fly ability a level. Null on success, otherwise the
+  /// reason: 'not_enough_points', 'max_level', 'offline', or another server
+  /// code. A refusal still refreshes the cache from the snapshot it carries,
+  /// so a screen showing a stale balance corrects itself.
+  Future<String?> upgradeAbility(String ability) => _shop(() => ArcadeApi.instance.passageUpgrade(ability));
+
+  /// Saves the abilities to take into runs, in button order.
+  Future<String?> setPassageLoadout(List<String> abilities) =>
+      _shop(() => ArcadeApi.instance.passageLoadout(abilities));
+
+  Future<String?> _shop(Future<Map<String, dynamic>> Function() call) async {
+    if (noBackend) return 'offline';
+    try {
+      await ArcadeApi.instance.init();
+      final r = await call();
+      apply(r['progress'] as Map<String, dynamic>);
+      return null;
+    } on ApiException catch (e) {
+      final p = e.body?['progress'];
+      if (p is Map<String, dynamic>) apply(p);
+      if (e.offline) {
+        offline = true;
+        notifyListeners();
+      }
+      return e.offline ? 'offline' : e.code;
+    } catch (_) {
+      return 'bad_response';
     }
   }
 

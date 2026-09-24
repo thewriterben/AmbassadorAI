@@ -352,9 +352,7 @@ the next run.
 2. **Persistent growth** — built 2026-09-24, see below. Ability levels and
    the loadout move to phase 4, where the shop needs them.
 3. **Abilities in the run** — built 2026-09-24, see below.
-4. **Shop and loadout** — atomic purchase and loadout endpoints; a pre-run
-   screen with the boar, progress to the next stage, the shop and the
-   loadout; claims carry the loadout and reject abilities not owned.
+4. **Shop and loadout** — built 2026-09-24, see below.
 5. **Tuning and final art.**
 
 **Not yet verified on a phone:** whether each stage reads at game size,
@@ -456,6 +454,90 @@ controls layer takes its own taps while everywhere else still flaps.
 lines and the dash pose; the grapple showed its chain; the freeze shot flew
 and left its target ringed in ice; blink burst at both ends; the tractor ring
 pulsed; charges and cooldown rings updated.
+
+### Phase 4, shop and loadout — built 2026-09-24
+
+**Flow.** The home card now opens the boar's front room rather than the game.
+It shows the boar and its progress, the two buttons the next run will have
+("Taking up: left button, right button"), the five abilities with their
+level pips and next price, the points available, and a Fly button. After a
+run, Done comes back here. With no server (the demo, the standard DEV APK),
+the room shows only the boar and Fly.
+
+**Prices** (points, levels 1 / 2 / 3), set in server config, so the app never
+hard-codes one:
+
+| Ability | L1 | L2 | L3 |
+|---|---|---|---|
+| Dash | 600 | 1,500 | 3,000 |
+| Grapple | 800 | 1,800 | 3,500 |
+| Blink | 1,200 | 2,500 | 5,000 |
+| Freeze shot | 700 | 1,600 | 3,200 |
+| Tractor beam | 900 | 2,000 | 4,000 |
+
+They are set against the growth thresholds. A first ability arrives about
+when the piglet becomes a juvenile, and a full set of level 3s takes weeks.
+Blink costs most because it is the strongest.
+
+**Server.** A `passage_abilities` table holds owned levels, and
+`passage_profile` gains the loadout.
+- **Upgrade:** `POST /v1/passage/abilities/:id/upgrade` pays from `points` and
+  never from `lifetime`, so spending never shrinks the boar. The level read,
+  the balance check and both writes run in one transaction with no await
+  between them. Two taps landing together pay once, and a test fires them
+  together.
+- **Loadout:** `POST /v1/passage/loadout` takes at most two distinct owned
+  abilities.
+- **Claims:** a passage claim now carries `loadout: [{id, level}]`. A run that
+  flew with an ability the player does not own, or above the level they own,
+  pays nothing (no XP, no growth) and is flagged `loadoutRejected`. It is
+  recorded rather than refused, so it cannot be quietly retried without the
+  field. `mini_rounds.loadout` keeps what each run flew with, for review.
+- **Deletion:** `DELETE /v1/me` clears owned abilities too. An unknown ability
+  id, including `__proto__`, is a 404.
+
+**App.** The snapshot's `passage` block now lists every ability as `{id,
+level, maxLevel, nextCost}` plus the loadout. `ArcadeProgress.upgradeAbility`
+and `setPassageLoadout` return null or a reason. A refusal still refreshes
+the cache from the snapshot it carries, so a stale balance corrects itself.
+- **First unlock:** goes straight into an empty slot.
+- **Unaffordable:** a level shows its price but its button is disabled.
+- **A third ability:** is refused on the spot ("Two at a time").
+- **The run:** takes the player's own loadout at their owned levels. A DEV
+  loadout still wins when set, and the server pays such a run nothing unless
+  it happens to be owned.
+- **Copy:** says Unlock and Level 2, never buy. It says points come only from
+  flying and that using them never shrinks the boar.
+
+**Tests.** Server:
+- the shop lists every ability with its next price
+- an upgrade pays from points only, until the top level
+- concurrent upgrades pay once
+- loadout validation (unowned, duplicate, three, not a list)
+- a claim with an unowned or over-level ability pays nothing
+- deletion clears abilities
+
+App:
+- the snapshot parses
+- a run reports its loadout in the claim's shape
+- the room lists every ability and enables only affordable ones
+- only owned abilities can be taken up, and never a third
+- the loadout shows as the two buttons
+- no shop without a server
+
+A test also caught the ability card's button row overflowing when text is
+wide. It now wraps.
+
+**Verified on the Pixel** against a local server with 2,400 points seeded.
+- **The room:** read the server's shop.
+- **Unlocking dash:** took points from 2,400 to 1,800 while the boar stayed
+  at 2,400 / 6,000, and dash went into the left slot. Grapple went into the
+  right.
+- **The next run:** had both buttons.
+- **The claimed round:** recorded `["dash","grapple"]`, was accepted as owned,
+  and paid.
+- **One fix:** the confirmation message sat over the Fly button for four
+  seconds. It is now shorter and lifted clear.
 
 ---
 

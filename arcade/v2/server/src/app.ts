@@ -6,7 +6,17 @@ import type { QuestionBank } from './bank.ts';
 import { config } from './config.ts';
 import { createPlayer, rateLimit, requirePlayer, signMini, signTablet, verifyMini, verifyTablet, type Env } from './auth.ts';
 import { pick, record, mastery } from './scheduler.ts';
-import { awardXp, checkBadges, creditPassage, getPlayer, leaderboard, snapshot } from './progress.ts';
+import {
+  awardXp,
+  checkBadges,
+  checkLoadout,
+  creditPassage,
+  getPlayer,
+  leaderboard,
+  setLoadout,
+  snapshot,
+  upgradeAbility,
+} from './progress.ts';
 import { ensureHandle, maxRerollsPerDay, rerollHandle } from './handles.ts';
 import { markGuess, puzzleFor, todayIndex, validGuess } from './ledger.ts';
 
@@ -416,6 +426,7 @@ export function createApp(db: Db, bank: QuestionBank) {
       total?: number;
       extra?: number;
       score?: number;
+      loadout?: unknown;
       token?: string;
     };
 
@@ -449,6 +460,12 @@ export function createApp(db: Db, bank: QuestionBank) {
     const total = Math.max(right, uint(body.total, cap));
     const extra = uint(body.extra, 10_000);
     const score = uint(body.score, config.mini.maxScore[game] ?? 0);
+    // When Pigs Fly: the abilities this run flew with. A run claiming one the
+    // player does not own, or at a higher level than they own, flew with
+    // something it was not entitled to, so it pays nothing — it is recorded,
+    // not refused, so the claim cannot simply be retried without it.
+    const flew = game === 'passage' ? checkLoadout(db, id, body.loadout ?? [], true) : [];
+    const loadoutOk = flew !== null;
     // A round belongs to the day it was OPENED, and the cap counts that day.
     // Counting by the claim day let rounds opened before UTC midnight and
     // claimed after it pay in full: none of them carried the new day, so the
@@ -464,7 +481,7 @@ export function createApp(db: Db, bank: QuestionBank) {
     // round past the daily cap, flies for practice and grows nothing.
     let credited = 0;
     const status = getPlayer(db, id)!.status;
-    if (status === 'ok' && rounds < config.mini.rewardedRoundsPerDay) {
+    if (status === 'ok' && rounds < config.mini.rewardedRoundsPerDay && loadoutOk) {
       if (game === 'coin_quest') {
         // right = stars earned (0-3), extra = level id. Clearing a level is
         // worth XP; replaying a cleared level for a better star is worth less.
@@ -502,12 +519,15 @@ export function createApp(db: Db, bank: QuestionBank) {
       }
       gained = Math.max(0, Math.min(config.mini.maxXpPerRound, gained));
     }
-    db.prepare('UPDATE mini_rounds SET right = ?, total = ?, extra = ?, score = ?, xp_gained = ? WHERE id = ?').run(
+    db.prepare(
+      'UPDATE mini_rounds SET right = ?, total = ?, extra = ?, score = ?, xp_gained = ?, loadout = ? WHERE id = ?',
+    ).run(
       right,
       total,
       extra,
       score,
       gained,
+      game === 'passage' ? JSON.stringify(flew ?? { rejected: body.loadout ?? null }) : null,
       round.id,
     );
     awardXp(db, id, gained, 'mini', round.id);
@@ -517,7 +537,7 @@ export function createApp(db: Db, bank: QuestionBank) {
       xpGained: gained,
       badges,
       rewardedRoundsLeft: Math.max(0, config.mini.rewardedRoundsPerDay - rounds - 1),
-      ...(game === 'passage' ? { passageCredited: credited } : {}),
+      ...(game === 'passage' ? { passageCredited: credited, ...(loadoutOk ? {} : { loadoutRejected: true }) } : {}),
       progress: snapshot(db, id),
     });
   });
@@ -536,6 +556,25 @@ export function createApp(db: Db, bank: QuestionBank) {
   });
 
   /** Assigns a fresh handle. Capped per day so the board stays recognizable. */
+  // ------------------------------------------------------ When Pigs Fly shop
+  // Points in, a level out. No other currency, no other way in.
+  app.post('/v1/passage/abilities/:ability/upgrade', auth, (c) => {
+    const id = c.get('playerId');
+    const result = upgradeAbility(db, id, c.req.param('ability'));
+    if (result === 'unknown_ability') return c.json({ error: result }, 404);
+    if (result !== 'ok') return c.json({ error: result, progress: snapshot(db, id) }, 409);
+    return c.json({ progress: snapshot(db, id) });
+  });
+
+  app.post('/v1/passage/loadout', auth, async (c) => {
+    const id = c.get('playerId');
+    const body = (await c.req.json().catch(() => ({}))) as { abilities?: unknown };
+    const ids = checkLoadout(db, id, body.abilities, false);
+    if (ids === null) return c.json({ error: 'invalid_loadout' }, 400);
+    setLoadout(db, id, ids);
+    return c.json({ progress: snapshot(db, id) });
+  });
+
   app.post('/v1/me/handle/reroll', auth, (c) => {
     const id = c.get('playerId');
     const day = todayIndex();
@@ -592,7 +631,16 @@ export function createApp(db: Db, bank: QuestionBank) {
           .run(id).changes,
       );
       // Children before parents: foreign_keys is ON, so players must be last.
-      for (const table of ['expeditions', 'badges', 'tablet_state', 'ledger_plays', 'mini_rounds', 'xp_events', 'passage_profile']) {
+      for (const table of [
+        'expeditions',
+        'badges',
+        'tablet_state',
+        'ledger_plays',
+        'mini_rounds',
+        'xp_events',
+        'passage_abilities',
+        'passage_profile',
+      ]) {
         rows[table] = Number(db.prepare(`DELETE FROM ${table} WHERE player_id = ?`).run(id).changes);
       }
       rows.players = Number(db.prepare('DELETE FROM players WHERE id = ?').run(id).changes);

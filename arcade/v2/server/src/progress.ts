@@ -171,9 +171,10 @@ export function checkBadges(db: Db, id: string): string[] {
  * app draws whatever this says — so a threshold change needs no app release.
  */
 export function passageProfile(db: Db, id: string) {
-  const row = db.prepare('SELECT lifetime, points FROM passage_profile WHERE player_id = ?').get(id) as
-    | { lifetime: number; points: number }
+  const row = db.prepare('SELECT lifetime, points, loadout FROM passage_profile WHERE player_id = ?').get(id) as
+    | { lifetime: number; points: number; loadout: string }
     | undefined;
+  const owned = ownedAbilities(db, id);
   const lifetime = row?.lifetime ?? 0;
   const stages = config.passage.stages;
   let i = 0;
@@ -186,7 +187,105 @@ export function passageProfile(db: Db, id: string) {
     stageAt: stages[i].at,
     nextStage: next?.id ?? null,
     nextAt: next?.at ?? null,
+    // Every ability in the shop, owned or not, with what the next level
+    // costs — so the app never hard-codes a price.
+    abilities: Object.entries(config.passage.abilities).map(([ability, costs]) => {
+      const level = owned.get(ability) ?? 0;
+      return { id: ability, level, maxLevel: costs.length, nextCost: level < costs.length ? costs[level] : null };
+    }),
+    loadout: parseLoadout(row?.loadout).filter((a) => owned.has(a)),
   };
+}
+
+function ownedAbilities(db: Db, id: string): Map<string, number> {
+  const rows = db.prepare('SELECT ability, level FROM passage_abilities WHERE player_id = ?').all(id) as Array<{
+    ability: string;
+    level: number;
+  }>;
+  return new Map(rows.map((r) => [r.ability, r.level]));
+}
+
+function parseLoadout(json: string | undefined): string[] {
+  try {
+    const v = JSON.parse(json ?? '[]');
+    return Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string') : [];
+  } catch {
+    return [];
+  }
+}
+
+const isAbility = (a: unknown): a is string =>
+  typeof a === 'string' && Object.prototype.hasOwnProperty.call(config.passage.abilities, a);
+
+/**
+ * Raises an ability one level, paying from `points`. Never touches
+ * `lifetime`: spending must not shrink the boar. The level read, the balance
+ * check and both writes happen with no await between them, inside one
+ * transaction, so two taps landing together pay once.
+ */
+export function upgradeAbility(
+  db: Db,
+  id: string,
+  ability: string,
+): 'ok' | 'unknown_ability' | 'max_level' | 'not_enough_points' {
+  if (!isAbility(ability)) return 'unknown_ability';
+  const costs = config.passage.abilities[ability];
+  db.exec('BEGIN');
+  try {
+    const level = ownedAbilities(db, id).get(ability) ?? 0;
+    if (level >= costs.length) {
+      db.exec('ROLLBACK');
+      return 'max_level';
+    }
+    const cost = costs[level];
+    const paid = db
+      .prepare('UPDATE passage_profile SET points = points - ?, updated_at = ? WHERE player_id = ? AND points >= ?')
+      .run(cost, Date.now(), id, cost);
+    if (paid.changes === 0) {
+      db.exec('ROLLBACK');
+      return 'not_enough_points';
+    }
+    db.prepare(
+      `INSERT INTO passage_abilities (player_id, ability, level) VALUES (?, ?, 1)
+       ON CONFLICT(player_id, ability) DO UPDATE SET level = level + 1`,
+    ).run(id, ability);
+    db.exec('COMMIT');
+    return 'ok';
+  } catch (err) {
+    db.exec('ROLLBACK');
+    throw err;
+  }
+}
+
+/**
+ * Validates what a player says they will fly with, or flew with: at most
+ * [config.passage.loadoutSlots] distinct abilities, each owned — and, for a
+ * claimed round, each at no more than the owned level. Returns the ids, or
+ * null for anything else.
+ */
+export function checkLoadout(db: Db, id: string, v: unknown, withLevels: boolean): string[] | null {
+  if (!Array.isArray(v) || v.length > config.passage.loadoutSlots) return null;
+  const owned = ownedAbilities(db, id);
+  const ids: string[] = [];
+  for (const e of v) {
+    const ability = withLevels ? (e as { id?: unknown })?.id : e;
+    if (!isAbility(ability) || ids.includes(ability)) return null;
+    const have = owned.get(ability) ?? 0;
+    if (have < 1) return null;
+    if (withLevels) {
+      const level = Number((e as { level?: unknown }).level);
+      if (!Number.isInteger(level) || level < 1 || level > have) return null;
+    }
+    ids.push(ability);
+  }
+  return ids;
+}
+
+export function setLoadout(db: Db, id: string, ids: string[]) {
+  db.prepare(
+    `INSERT INTO passage_profile (player_id, lifetime, points, updated_at, loadout) VALUES (?, 0, 0, ?, ?)
+     ON CONFLICT(player_id) DO UPDATE SET loadout = excluded.loadout, updated_at = excluded.updated_at`,
+  ).run(id, Date.now(), JSON.stringify(ids));
 }
 
 /** Adds a claimed run's score to both totals. See the table comment in db.ts. */

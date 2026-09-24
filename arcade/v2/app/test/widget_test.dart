@@ -57,6 +57,10 @@ void main() {
     final card = find.text('When Pigs Fly');
     await tester.scrollUntilVisible(card, 150, scrollable: find.byType(Scrollable).first);
     await tester.tap(card);
+    // The card opens the boar's front room; Fly opens the game.
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.tap(find.text('Fly'));
     // Not pumpAndSettle: a Flame game schedules a frame forever, so nothing
     // on this screen ever settles. Two pumps is the route transition.
     await tester.pump();
@@ -104,6 +108,10 @@ void main() {
     final card = find.text('When Pigs Fly');
     await tester.scrollUntilVisible(card, 150, scrollable: find.byType(Scrollable).first);
     await tester.tap(card);
+    // The card opens the boar's front room; Fly opens the game.
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.tap(find.text('Fly'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 500));
 

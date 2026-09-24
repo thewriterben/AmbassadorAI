@@ -113,6 +113,21 @@ export const config = {
       { id: 'juvenile', at: num('PASSAGE_JUVENILE_AT', 1_500) },
       { id: 'razorback', at: num('PASSAGE_RAZORBACK_AT', 6_000) },
     ] as Array<{ id: string; at: number }>,
+    // The shop: what each level of each ability costs in points, the first
+    // entry unlocking it. The ids are the app's AbilityKind names. Priced
+    // against the growth thresholds above: a first ability arrives around
+    // the time the piglet becomes a juvenile, a full set of level 3s takes
+    // weeks. Blink is dearest because it is the strongest thing in the shop.
+    // Points have no monetary value and nothing here can be paid for with
+    // anything but play.
+    abilities: {
+      dash: [600, 1_500, 3_000],
+      grapple: [800, 1_800, 3_500],
+      teleport: [1_200, 2_500, 5_000],
+      freeze: [700, 1_600, 3_200],
+      tractor: [900, 2_000, 4_000],
+    } as Record<string, number[]>,
+    loadoutSlots: 2,
   },
 
   rateLimit: {

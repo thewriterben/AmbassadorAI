@@ -1004,6 +1004,9 @@ class PassageGame extends FlameGame {
       reached: erasReached,
       total: eras.length,
       score: score,
+      loadout: [
+        for (final s in slots) {'id': s.ability.kind.name, 'level': s.ability.level},
+      ],
     ));
   }
 

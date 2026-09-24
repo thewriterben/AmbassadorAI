@@ -34,8 +34,10 @@ class _PassageScreenState extends State<PassageScreen> {
   /// run is built, so a stage reached on one run's claim flies on the next.
   static BoarStage get _ownStage => BoarStage.fromId(ArcadeProgress.instance.passageStage) ?? BoarStage.piglet;
 
-  /// DEV loadouts, cycled from the menu, until the shop (phase 4) sells
-  /// abilities. Index 0 is none, which is what every player has today.
+  /// DEV loadouts, cycled from the menu, for trying abilities without
+  /// unlocking them. Index 0 means the player's own loadout from the shop.
+  /// A DEV loadout the player does not own flies fine, but the server pays
+  /// the run nothing — it checks what a claim flew with.
   static const _devLoadouts = [
     <AbilityKind>[],
     [AbilityKind.dash, AbilityKind.grapple],
@@ -45,12 +47,21 @@ class _PassageScreenState extends State<PassageScreen> {
   static int _devLoadout = 0;
   static int _devLevel = 1;
 
-  static List<EquippedAbility> get _loadout =>
-      [for (final k in _devLoadouts[_devLoadout]) EquippedAbility(k, _devLevel)];
+  static List<EquippedAbility> get _loadout {
+    if (_devLoadout != 0) return [for (final k in _devLoadouts[_devLoadout]) EquippedAbility(k, _devLevel)];
+    // The player's own: what they chose in the shop, at the level they own.
+    final p = ArcadeProgress.instance;
+    return [
+      for (final id in p.passageLoadout)
+        for (final a in p.passageAbilities)
+          if (a.id == id && a.owned)
+            if (AbilityKind.fromId(id) case final k?) EquippedAbility(k, a.level),
+    ];
+  }
 
   static String _loadoutLabel() {
     final l = _devLoadouts[_devLoadout];
-    return l.isEmpty ? 'none' : '${l.map((k) => k.label).join(' + ')}, level $_devLevel';
+    return l.isEmpty ? 'your own' : '${l.map((k) => k.label).join(' + ')}, level $_devLevel';
   }
 
   @override
@@ -75,7 +86,7 @@ class _PassageScreenState extends State<PassageScreen> {
         },
         // Loadouts apply from the next run: a run's abilities are fixed when
         // it starts, the way the shop's will be.
-        'Abilities (next run): ${_devLoadouts[(_devLoadout + 1) % _devLoadouts.length].map((k) => k.label).join(' + ').ifEmpty('none')}':
+        'Abilities (next run): ${_devLoadouts[(_devLoadout + 1) % _devLoadouts.length].map((k) => k.label).join(' + ').ifEmpty('your own')}':
             () => _devLoadout = (_devLoadout + 1) % _devLoadouts.length,
         'Ability level (next run): ${_devLevel % maxAbilityLevel + 1}': () => _devLevel = _devLevel % maxAbilityLevel + 1,
         'Now equipped: ${_loadoutLabel()}': () {},

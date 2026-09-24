@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'arcade/leaderboard_screen.dart';
-import 'arcade/passage/passage_screen.dart';
+import 'arcade/passage/pigs_home_screen.dart';
 import 'arcade/progress.dart';
 import 'arcade/settings_screen.dart';
 import 'audio.dart';
@@ -134,7 +134,7 @@ class HomeScreen extends StatelessWidget {
                   kicker: 'ONE TAP',
                   blurb: 'Fly a winged piggy bank through nine eras of money, and land it.',
                   asset: 'assets/images/card_pigs.png',
-                  onTap: () => _open(context, const PassageScreen()),
+                  onTap: () => _open(context, const PigsHomeScreen()),
                 ),
                 const SizedBox(height: 18),
                 Center(

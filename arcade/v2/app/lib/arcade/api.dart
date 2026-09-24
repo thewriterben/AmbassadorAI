@@ -148,6 +148,8 @@ class ArcadeApi {
   Future<String> miniStart(String game) async =>
       (await _post('/v1/mini/$game/start', {}))['token'] as String;
 
+  /// [loadout] is only sent when a run flew with abilities, so a claim from
+  /// any other game — or an ability-free run — is byte-for-byte what it was.
   Future<Map<String, dynamic>> miniResult(
     String game, {
     required String token,
@@ -155,8 +157,23 @@ class ArcadeApi {
     required int total,
     int extra = 0,
     int score = 0,
+    List<Map<String, Object>> loadout = const [],
   }) =>
-      _post('/v1/mini/$game', {'token': token, 'right': right, 'total': total, 'extra': extra, 'score': score});
+      _post('/v1/mini/$game', {
+        'token': token,
+        'right': right,
+        'total': total,
+        'extra': extra,
+        'score': score,
+        if (loadout.isNotEmpty) 'loadout': loadout,
+      });
+
+  // When Pigs Fly shop. Both return a fresh `progress` snapshot; a refusal
+  // (not enough points, top level) is a 409 that carries one too.
+  Future<Map<String, dynamic>> passageUpgrade(String ability) =>
+      _post('/v1/passage/abilities/$ability/upgrade', {});
+  Future<Map<String, dynamic>> passageLoadout(List<String> abilities) =>
+      _post('/v1/passage/loadout', {'abilities': abilities});
 
   // ------------------------------------------------------------------ http
 

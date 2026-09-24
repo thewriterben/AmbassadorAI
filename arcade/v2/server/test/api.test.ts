@@ -337,9 +337,19 @@ test('the boar grows from points scored on rewarded passage rounds, and only tho
   const [, juvenile, razorback] = config.passage.stages;
   const max = config.mini.maxScore.passage;
   const me = (await call('GET', '/v1/me', undefined, fresh)).json;
-  assert.deepEqual(me.passage, {
-    lifetime: 0, points: 0, stage: 'piglet', stageAt: 0, nextStage: 'juvenile', nextAt: juvenile.at,
-  });
+  const p0 = me.passage;
+  assert.deepEqual(
+    {
+      lifetime: p0.lifetime,
+      points: p0.points,
+      stage: p0.stage,
+      stageAt: p0.stageAt,
+      nextStage: p0.nextStage,
+      nextAt: p0.nextAt,
+      loadout: p0.loadout,
+    },
+    { lifetime: 0, points: 0, stage: 'piglet', stageAt: 0, nextStage: 'juvenile', nextAt: juvenile.at, loadout: [] },
+  );
 
   // A run's score goes to both totals and comes back on the claim.
   let r = await playMini('passage', { right: 1, total: 3, extra: 2, score: 120 }, fresh);
@@ -391,6 +401,98 @@ test('an account on the abuse ladder flies for practice and grows nothing', asyn
   const r = await playMini('passage', { right: 3, total: 3, extra: 9, score: 500 }, fresh);
   assert.equal(r.json.passageCredited, 0);
   assert.equal(r.json.progress.passage.lifetime, 0);
+});
+
+// --- When Pigs Fly shop and loadout (phase 4)
+
+async function boarWith(points: number) {
+  const tok = (await call('POST', '/v1/players', {})).json.token;
+  const handle = (await call('GET', '/v1/me', undefined, tok)).json.handle;
+  const pid = (db.prepare('SELECT id FROM players WHERE handle = ?').get(handle) as { id: string }).id;
+  db.prepare(
+    `INSERT INTO passage_profile (player_id, lifetime, points, updated_at) VALUES (?, ?, ?, 0)
+     ON CONFLICT(player_id) DO UPDATE SET lifetime = excluded.lifetime, points = excluded.points`,
+  ).run(pid, points, points);
+  return { tok, pid };
+}
+
+const levelOf = (progress: any, ability: string) =>
+  progress.passage.abilities.find((a: any) => a.id === ability).level as number;
+
+test('the shop lists every ability with its next price, and sells only for points', async () => {
+  const { tok } = await boarWith(0);
+  const me = (await call('GET', '/v1/me', undefined, tok)).json;
+  assert.deepEqual(
+    me.passage.abilities.map((a: any) => [a.id, a.level, a.nextCost]),
+    Object.entries(config.passage.abilities).map(([id, costs]) => [id, 0, costs[0]]),
+  );
+  const broke = await call('POST', '/v1/passage/abilities/dash/upgrade', {}, tok);
+  assert.equal(broke.status, 409);
+  assert.equal(broke.json.error, 'not_enough_points');
+  assert.equal((await call('POST', '/v1/passage/abilities/jetpack/upgrade', {}, tok)).status, 404);
+  assert.equal((await call('POST', '/v1/passage/abilities/__proto__/upgrade', {}, tok)).status, 404);
+});
+
+test('an upgrade pays from points and never shrinks the boar', async () => {
+  const costs = config.passage.abilities.dash;
+  const total = costs.reduce((a, b) => a + b, 0);
+  const { tok } = await boarWith(total + 5);
+  let r;
+  for (let lvl = 1; lvl <= costs.length; lvl++) {
+    r = await call('POST', '/v1/passage/abilities/dash/upgrade', {}, tok);
+    assert.equal(r.status, 200);
+    assert.equal(levelOf(r.json.progress, 'dash'), lvl);
+  }
+  assert.equal(r!.json.progress.passage.points, 5);
+  assert.equal(r!.json.progress.passage.lifetime, total + 5, 'spending must not shrink the boar');
+  const maxed = await call('POST', '/v1/passage/abilities/dash/upgrade', {}, tok);
+  assert.equal(maxed.status, 409);
+  assert.equal(maxed.json.error, 'max_level');
+});
+
+test('two upgrades landing together pay once', async () => {
+  const { tok } = await boarWith(config.passage.abilities.freeze[0]);
+  const both = await Promise.all([
+    call('POST', '/v1/passage/abilities/freeze/upgrade', {}, tok),
+    call('POST', '/v1/passage/abilities/freeze/upgrade', {}, tok),
+  ]);
+  assert.deepEqual(both.map((r) => r.status).sort(), [200, 409]);
+  const me = (await call('GET', '/v1/me', undefined, tok)).json;
+  assert.equal(levelOf(me, 'freeze'), 1);
+  assert.equal(me.passage.points, 0);
+});
+
+test('a loadout is at most two owned abilities', async () => {
+  const [d, g, t] = [config.passage.abilities.dash[0], config.passage.abilities.grapple[0], config.passage.abilities.teleport[0]];
+  const { tok } = await boarWith(d + g + t);
+  for (const a of ['dash', 'grapple', 'teleport']) await call('POST', `/v1/passage/abilities/${a}/upgrade`, {}, tok);
+  const set = (abilities: unknown) => call('POST', '/v1/passage/loadout', { abilities }, tok);
+  assert.equal((await set(['freeze'])).status, 400, 'not owned');
+  assert.equal((await set(['dash', 'dash'])).status, 400, 'duplicate');
+  assert.equal((await set(['dash', 'grapple', 'teleport'])).status, 400, 'three');
+  assert.equal((await set('dash')).status, 400, 'not a list');
+  const ok = await set(['teleport', 'dash']);
+  assert.equal(ok.status, 200);
+  assert.deepEqual(ok.json.progress.passage.loadout, ['teleport', 'dash']);
+  assert.deepEqual((await set([])).json.progress.passage.loadout, []);
+});
+
+test('a run that flew with abilities it does not own pays nothing', async () => {
+  const { tok } = await boarWith(config.passage.abilities.dash[0]);
+  await call('POST', '/v1/passage/abilities/dash/upgrade', {}, tok);
+  const honest = await playMini('passage', { right: 1, total: 3, extra: 2, score: 50, loadout: [{ id: 'dash', level: 1 }] }, tok);
+  assert.ok(honest.json.xpGained > 0);
+  assert.equal(honest.json.passageCredited, 50);
+  const unowned = await playMini('passage', { right: 3, total: 3, extra: 9, score: 900, loadout: [{ id: 'teleport', level: 1 }] }, tok);
+  assert.equal(unowned.json.xpGained, 0);
+  assert.equal(unowned.json.passageCredited, 0);
+  assert.equal(unowned.json.loadoutRejected, true);
+  const overLevel = await playMini('passage', { right: 3, total: 3, extra: 9, score: 900, loadout: [{ id: 'dash', level: 3 }] }, tok);
+  assert.equal(overLevel.json.xpGained, 0);
+  assert.equal(overLevel.json.passageCredited, 0);
+  assert.equal(overLevel.json.loadoutRejected, true);
+  // A run with no abilities at all is always fine, and needs no field.
+  assert.ok((await playMini('passage', { right: 1, total: 3, extra: 1, score: 10 }, tok)).json.xpGained > 0);
 });
 
 // --- the two findings the audit reproduced, which the old suite could not see.
@@ -486,6 +588,8 @@ test('DELETE /v1/me erases the player from every table', async () => {
   await call('POST', `/v1/expeditions/${exp}/finish`, { runMs: 120_000 }, fresh);
   await playMini('pillar_sort', { right: 9, total: 9 }, fresh);
   await playMini('passage', { right: 1, total: 3, extra: 1, score: 40 }, fresh);
+  db.prepare('UPDATE passage_profile SET points = 10000 WHERE player_id = ?').run(id);
+  await call('POST', '/v1/passage/abilities/dash/upgrade', {}, fresh);
   const today = todayIndex();
   await call('POST', '/v1/ledger/guess', { guess: puzzleFor(today).answer }, fresh);
 
@@ -506,13 +610,14 @@ test('DELETE /v1/me erases the player from every table', async () => {
   assert.ok(countFor('ledger_plays') > 0, 'no ledger play to delete');
   assert.ok(countFor('mini_rounds') > 0, 'no mini round to delete');
   assert.ok(countFor('passage_profile') > 0, 'no boar to delete');
+  assert.ok(countFor('passage_abilities') > 0, 'no ability to delete');
 
   const del = await call('DELETE', '/v1/me', undefined, fresh);
   assert.equal(del.status, 200);
   assert.equal(del.json.deleted, true);
   assert.equal(del.json.rows.players, 1);
 
-  for (const table of ['expeditions', 'badges', 'tablet_state', 'ledger_plays', 'mini_rounds', 'xp_events', 'passage_profile']) {
+  for (const table of ['expeditions', 'badges', 'tablet_state', 'ledger_plays', 'mini_rounds', 'xp_events', 'passage_profile', 'passage_abilities']) {
     assert.equal(countFor(table), 0, `${table} still holds rows for a deleted player`);
   }
   // `tablets` is keyed to the expedition, not the player — the case a naive

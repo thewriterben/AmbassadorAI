@@ -55,12 +55,17 @@ class RunResult {
   /// with no points.
   final int score;
 
+  /// The abilities the run flew with, in the shape the server's claim
+  /// checks (`{id, level}`). Empty for every game but When Pigs Fly.
+  final List<Map<String, Object>> loadout;
+
   const RunResult({
     required this.ending,
     required this.stars,
     required this.reached,
     required this.total,
     this.score = 0,
+    this.loadout = const [],
   });
 }
 
@@ -239,6 +244,7 @@ class CabinetScreenState extends State<CabinetScreen> with WidgetsBindingObserve
               total: 3,
               extra: result.reached,
               score: result.score,
+              loadout: result.loadout,
             )));
       }
     }
