@@ -123,17 +123,17 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 10),
-                // Passage ships in the demo build as well as the dev one. It
+                // When Pigs Fly (id `passage`) ships in the demo build as well as the dev one. It
                 // needs no backend — `startMini` no-ops without a server and
                 // the run simply pays no XP — so the reason the old games were
                 // cut from the demo does not apply to it. If it should be held
                 // back from a tester build after all, wrap this card in
                 // `if (!Dev.demoBuild)`; nothing else has to change.
                 _GameCard(
-                  title: 'Passage',
+                  title: 'When Pigs Fly',
                   kicker: 'ONE TAP',
-                  blurb: 'Fly a coin through nine eras of money, and land it.',
-                  asset: 'assets/images/piece_gold.png',
+                  blurb: 'Fly a winged piggy bank through nine eras of money, and land it.',
+                  asset: 'assets/images/card_pigs.png',
                   onTap: () => _open(context, const PassageScreen()),
                 ),
                 const SizedBox(height: 18),

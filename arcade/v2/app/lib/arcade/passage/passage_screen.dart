@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 import '../../audio.dart';
 import '../../theme.dart';
 import '../cabinet/cabinet.dart';
+import 'boar.dart';
 import 'eras.dart';
 import 'passage_game.dart';
 
-/// Passage: the Flutter side. The cabinet supplies the frame, the pause sheet
-/// and the XP submit; everything here is the game's own chrome.
+/// When Pigs Fly (game id `passage`): the Flutter side. The cabinet supplies
+/// the frame, the pause sheet and the XP submit; everything here is the
+/// game's own chrome.
 class PassageScreen extends StatefulWidget {
   const PassageScreen({super.key});
 
@@ -20,14 +22,19 @@ class _PassageScreenState extends State<PassageScreen> {
   /// the three builders below are first called.
   PassageGame? _game;
 
+  /// The DEV menu's stage choice, kept across "Fly again" so a stage being
+  /// looked at does not reset to the piglet every run. Replaced by the
+  /// player's real stage from the server in phase 2.
+  static BoarStage _devStage = BoarStage.piglet;
+
   @override
   Widget build(BuildContext context) {
     return CabinetScreen(
       gameId: 'passage',
-      title: 'Passage',
+      title: 'When Pigs Fly',
       kicker: 'ONE TAP',
       musicTrack: Audio.trackLevel,
-      builder: (run) => _game = PassageGame(run: run),
+      builder: (run) => _game = PassageGame(run: run, stage: _devStage),
       hudBuilder: (context, run) => _Hud(game: _game!),
       overlayBuilder: (context, run) => _Overlay(game: _game!),
       resultBuilder: (context, result) => _Result(result: result, game: _game!),
@@ -35,6 +42,10 @@ class _PassageScreenState extends State<PassageScreen> {
         'Skip to the landing': () => _game?.devSkipToLanding(),
         'End short, here': () => _game?.devEndShort(),
         'Full momentum': () => _game?.devMaxMomentum(),
+        'Next boar stage': () {
+          final g = _game;
+          if (g != null) _devStage = g.devNextStage();
+        },
       },
     );
   }
@@ -303,7 +314,7 @@ class _Result extends StatelessWidget {
       (true, false) => 'All ${eras.length} eras. The third star is for '
           'setting it down softly.',
       _ => '${result.reached} of ${eras.length} eras flown, and a landing to '
-          'show for it. The reserve ran out, so the coin glided in early.',
+          'show for it. The reserve ran out, so the pig glided in early.',
     };
 
     return Column(

@@ -10,11 +10,19 @@ import 'package:flutter/services.dart';
 import '../../audio.dart';
 import '../../theme.dart';
 import '../cabinet/cabinet.dart';
+import 'boar.dart';
 import 'eras.dart';
 
 part 'passage_render.dart';
 
-/// Passage — the one-tap flyer, game 1 of the new catalogue.
+/// When Pigs Fly — the one-tap flyer, game 1 of the new catalogue. Its id
+/// everywhere below the title (server, cabinet, file names) is still
+/// `passage`, so rounds, XP and leaderboards carry straight over from the
+/// version where the player flew a coin.
+///
+/// The player is a winged piggy bank in three stages — see `boar.dart`. The
+/// simulation still flies a circle of the coin's old radius; only the art
+/// changed, which is why most of the names in this file still say "coin".
 ///
 /// ## Why this is not an endless runner
 ///
@@ -175,7 +183,11 @@ class PassageGame extends FlameGame {
   /// Fixed seed for tests and the DEV menu; null means a fresh passage.
   final int? seed;
 
-  PassageGame({required this.run, this.seed}) {
+  /// Which boar is flying. Fixed for a run once growth is live; settable now
+  /// so the DEV menu can show all three.
+  BoarStage stage;
+
+  PassageGame({required this.run, this.seed, this.stage = BoarStage.piglet}) {
     run.onTap = flap;
   }
 
@@ -303,6 +315,17 @@ class PassageGame extends FlameGame {
   /// so a missing image can never take the game down with it.
   final Map<PickupKind, Sprite> _coinSprites = {};
 
+  /// The boar sheets, cut into frames. All three stages are loaded so a DEV
+  /// stage switch is instant; the renderer falls back to the drawn coin for
+  /// any stage whose sheet is missing.
+  final Map<BoarStage, List<Sprite>> _boarFrames = {};
+
+  /// Wing-cycle position, in frames. Advanced in [update] at a rate that
+  /// jumps on every flap, so a tap is visibly a wingbeat.
+  double _wingPhase = 0;
+  double _flapAt = -10;
+  double _hurtUntil = -1;
+
   late List<Pickup> _pickups;
   final List<_Spill> _spills = [];
   final List<_Pop> _pops = [];
@@ -325,6 +348,12 @@ class PassageGame extends FlameGame {
   int get multiplier => momentum >= 0.98 ? 3 : (momentum >= 0.5 ? 2 : 1);
 
   /// Recent coin positions, for the trail.
+  ///
+  /// Stored as (distance flown, height), not as screen points. The first
+  /// version stored screen points at the coin's fixed x, so the trail could
+  /// only ever be vertical — a streak out of the top of the player rather
+  /// than a wake behind it. That passed for a round coin and did not for a
+  /// boar, where it read as exhaust from its back.
   final List<Offset> _trail = [];
 
   /// Total length of the passage, set in [_layout].
@@ -356,6 +385,10 @@ class PassageGame extends FlameGame {
 
   @visibleForTesting
   double get coinRadius => _coinR;
+
+  /// The frame the boar would be drawn with right now.
+  @visibleForTesting
+  int get boarFrame => _boarFrame();
 
   /// Takes a pickup as if the coin had flown through it.
   @visibleForTesting
@@ -393,6 +426,26 @@ class PassageGame extends FlameGame {
     // for the widget test to miss it. The images arrive within a frame or
     // two on device; until they do the renderer draws coins itself.
     unawaited(_loadCoinSprites());
+    unawaited(_loadBoarSheets());
+  }
+
+  /// One image per stage, one row of square frames. See the sheet contract
+  /// in `boar.dart`; a sheet with the wrong frame count is treated as
+  /// missing rather than drawn with frames cut in the wrong places.
+  Future<void> _loadBoarSheets() async {
+    for (final e in BoarSpec.all.entries) {
+      try {
+        final img = await images.load(e.value.file);
+        final side = img.height.toDouble();
+        if ((img.width / img.height).round() != BoarFrame.count) continue;
+        _boarFrames[e.key] = [
+          for (var i = 0; i < BoarFrame.count; i++)
+            Sprite(img, srcPosition: Vector2(i * side, 0), srcSize: Vector2.all(side)),
+        ];
+      } catch (_) {
+        // Drawn fallback. See _coin.
+      }
+    }
   }
 
   /// Loaded by their bare names the way Coin Quest loads its pieces; Flame
@@ -542,6 +595,7 @@ class PassageGame extends FlameGame {
       run.tick();
     }
     _vy = _flapImpulse * _lift;
+    _flapAt = _t;
     Audio.instance.tap();
   }
 
@@ -575,6 +629,7 @@ class PassageGame extends FlameGame {
     // and a hit reads as a phantom miss.
     dt = min(dt, 1 / 30);
     _t += dt;
+    _wingPhase += dt * _wingRate;
     if (_strikeFlash > 0) _strikeFlash = max(0, _strikeFlash - dt * 2.2);
 
     if (!_started) {
@@ -765,12 +820,23 @@ class PassageGame extends FlameGame {
     return overlaps(0, top) || overlaps(bottom, _h);
   }
 
+  /// Wingbeats per second, in frames of the four-frame cycle. Idle hover is
+  /// lazy, flight is steady, a fresh flap is a hard burst, and a descent is
+  /// a slow glide — the wings are the one place the boar says how it feels.
+  double get _wingRate {
+    if (!_started) return 5;
+    if (phase == PassagePhase.down) return 0;
+    if (phase == PassagePhase.descending) return 4;
+    return _t - _flapAt < 0.28 ? 20 : 8;
+  }
+
   /// A strike costs a unit of reserve and knocks the coin down. It does not
   /// end the run, and there is no lose sting anywhere in this game.
   void _strike(_Gate? g) {
     g?.struck = true;
     reserve--;
     _invUntil = _t + _invulnerableFor;
+    _hurtUntil = _t + 0.35;
     _vy = _h * 0.26;
     _strikeFlash = 1;
     Audio.instance.vaultHit();
@@ -840,7 +906,7 @@ class PassageGame extends FlameGame {
   }
 
   void _pushTrail() {
-    _trail.add(Offset(_coinX, _coinY));
+    _trail.add(Offset(scrollX, _coinY));
     final keep = 14 + (12 * momentum).round();
     while (_trail.length > keep) {
       _trail.removeAt(0);
@@ -865,6 +931,13 @@ class PassageGame extends FlameGame {
     eraNotifier.value = eras.length - 1;
     scrollX = _totalX - _w * 0.35;
     run.tick();
+  }
+
+  /// Cycles the boar through its three stages, mid-run.
+  BoarStage devNextStage() {
+    stage = BoarStage.values[(stage.index + 1) % BoarStage.values.length];
+    run.tick();
+    return stage;
   }
 
   /// Full momentum, to look at the fast passage without earning it.

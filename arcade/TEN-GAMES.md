@@ -42,10 +42,13 @@ specific audiovisual expression, so none of that is going anywhere near this.
 
 ---
 
-# 1. Passage — built 2026-09-20
+# 1. When Pigs Fly (was Passage) — built 2026-09-20, renamed 2026-09-24
 
-A gold coin flies a corridor through nine eras of monetary history. One tap
-holds altitude. Every run ends with the coin on the ground.
+A winged piggy bank flies a corridor through nine eras of monetary history.
+One tap holds altitude. Every run ends with the pig on the ground. Until
+2026-09-24 the player was a gold coin and the game was called Passage; the
+game id is still `passage` everywhere below the title, so rounds, XP and the
+leaderboard carry over. See "When Pigs Fly" below.
 
 ## Why it is not an endless flyer
 
@@ -166,11 +169,11 @@ pacing without replacing it with something that does the same work.**
 
 | | |
 |---|---|
-| Files | `lib/arcade/passage/{eras,passage_game,passage_render,passage_screen}.dart` |
+| Files | `lib/arcade/passage/{boar,eras,passage_game,passage_render,passage_screen}.dart`; sheet generator `tool/art/boar_sprites.py` |
 | Server | `passage` added to the mini-game allow-list; XP `stars × 12`, plus 24 for a full passage, plus `min(12, score ÷ 50)` for coins. The passage bonus keys off stars, not eras reached — reaching 2009 is not flying through it |
 | Min round | 4 s — the shortest legitimate run is a player who taps once and never again, which measures at ~5.3 s and is asserted in the test |
 | Tests | `test/passage_test.dart` — layout reachability, gap floor, the star rule, that a player who stops tapping lands rather than dies, and the coin rules below |
-| Art | The coins are the DGD coin renders Coin Quest ships (`coin_gold`, `coin_silver`, `coin_copper`); everything else is drawn from primitives. Nothing resembling any existing game's look |
+| Art | The coins are the DGD coin renders Coin Quest ships (`coin_gold`, `coin_silver`, `coin_copper`). The boar is three pixel-art sheets, `boar_{piglet,juvenile,razorback}.png` (placeholders, see below). Everything else is drawn from primitives. Nothing resembling any existing game's look |
 
 ## What playing it on a Pixel found, 2026-09-20
 
@@ -270,6 +273,97 @@ a score ignores one.
 **Not yet verified on a phone:** whether the drifting gold coin is a
 judgement or a coin-flip at the late gaps, whether 1.35× still reads, and
 whether the spill is catchable by a human who has just been knocked down.
+
+---
+
+## When Pigs Fly — decided 2026-09-24, phase 1 built the same day
+
+The player becomes a flying piggy bank, styled as a wild boar that grows
+across runs through three stages, with an upgrade shop between runs. The
+title and the piggy bank were kept after the framing concerns below were
+raised.
+
+**Decisions taken (asked and answered):**
+
+| Question | Answer |
+|---|---|
+| When does the boar grow? | Across runs, persistently |
+| Grown by what? | Lifetime points earned, held apart from the spendable balance so spending never shrinks the boar |
+| How are abilities unlocked? | A shop between runs, paid in points |
+| Who draws the sprites? | Placeholders generated in code now; final art replaces the files |
+| How are abilities fired? | Two on-screen ability buttons; a tap anywhere else is still a flap |
+| Coin pause | A freeze shot: a spat coin stops a gate coin's drift for a few seconds (pillars do not move, so the drift is what freezes) |
+| Grapple | Hooks the nearest gold coin and pulls the boar toward it |
+| Fairness | Upgraded runs count for stars and scores; the XP cap is unchanged, so upgrades cannot farm XP |
+
+**Framing concerns raised, and the owner's call.** A piggy bank that grows
+by collecting DGD coins leans toward the store-of-value framing this plan
+rejected for the inflation-dodging coin (see "The content, and what it
+deliberately does not say"). The idiom "when pigs fly" beside a DGD coin can
+also be read as a joke about price. Both were put to the owner, who kept the
+title and the piggy bank. Mitigations held to regardless: the boar grows
+from *flying* (lifetime points are a record of play, not a hoard), the shop
+currency is called points and never coins or DGD, and no copy says bank,
+balance, earn or invest. The coin slot on the boar's back is its one
+piggy-bank tell.
+
+**The three stages.**
+
+| Stage | Look | Sheet frame | Drawn at |
+|---|---|---|---|
+| Piglet | Small, golden-blond with cream humbug stripes and blond tufts, stubby wings | 48 px | 5.6 hitbox radii |
+| Juvenile | Filled out, bristly medium fur shifting from brown to gold, a bristle ridge, small tusks | 72 px | 6.6 |
+| Razorback | Full size: gold coat, spined crest, a flowing amber mane over the shoulders, large tusks, battle scars, a red eye, big bronze dragon wings | 108 px | 7.8 |
+
+**The hitbox does not grow.** The simulation still flies the coin's circle.
+The razorback a player spent weeks growing must never be harder to fit
+through a gap than the piglet; wings, crest and mane may overlap a pillar
+harmlessly. The body is sized so its height is close to the hitbox's, with
+the snout and rump overhanging it, which is forgiving rather than punishing.
+
+**The sheet contract** (`boar.dart`). One PNG per stage, one row of eight
+square frames facing right, the frame side being the image height:
+0-3 wing cycle (up, mid, down, recovery), 4 hurt, 5 dash (reserved for phase
+3), 6 landing, 7 standing. `BoarSpec` holds the three placement numbers per
+stage: where the hitbox centre sits in the frame, the frame's on-screen size
+in hitbox radii, and the hoof line of the standing frame. Final art replaces
+the files and, if its proportions differ, those numbers; no other code
+changes. The placeholders are authored at 1x by `tool/art/boar_sprites.py`
+(shaded primitives, 4x4 ordered dither, selective outline) and exported at
+4x nearest-neighbour; the game draws them unfiltered, so the pixels stay
+pixels. A test fails if any sheet is missing or has the wrong frame count;
+the renderer falls back to the old gold coin rather than draw a mis-cut
+sheet.
+
+**Animation.** The wings beat at 8 frames a second in flight, burst to 20
+for a quarter-second on every tap so a flap is visibly a wingbeat, glide at
+4 during a descent, and idle at 5 while the first banner is read. A strike
+shows the hurt frame for 0.35 s. The body pitches with climb and fall at two
+thirds of the coin's tilt, because a long body pitching hard reads as
+tumbling. Near the ground the landing frame is held level and lifted so the
+hooves never sink into the ground line; after touchdown the boar stands on
+it. DEV menu: "Next boar stage" cycles the stage mid-run and keeps it for
+the next run.
+
+**Build order.**
+
+1. **The boar replaces the coin** — built 2026-09-24: sheets, animation,
+   fixed hitbox, title and home card, DEV stage switch.
+2. **Persistent growth** — a `passage_profile` table (lifetime points,
+   points available, ability levels, loadout); a claimed run credits its
+   score to both, on rewarded rounds only; stage thresholds in config,
+   measured from real run scores; the stage shown in the app.
+3. **Abilities in the run** — dash, grapple, teleport (to the middle of the
+   next opening, never past a pillar; charges per run), freeze shot, tractor
+   beam; two HUD buttons with cooldown rings.
+4. **Shop and loadout** — atomic purchase and loadout endpoints; a pre-run
+   screen with the boar, progress to the next stage, the shop and the
+   loadout; claims carry the loadout and reject abilities not owned.
+5. **Tuning and final art.**
+
+**Not yet verified on a phone:** whether each stage reads at game size,
+whether the overhang past the hitbox feels fair at the pillars, and whether
+the razorback's wings crowd the late, narrow gaps visually.
 
 ---
 

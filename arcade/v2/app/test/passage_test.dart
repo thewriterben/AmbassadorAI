@@ -1,6 +1,10 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:flame/game.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:puzzle_pack/arcade/cabinet/cabinet.dart';
+import 'package:puzzle_pack/arcade/passage/boar.dart';
 import 'package:puzzle_pack/arcade/passage/eras.dart';
 import 'package:puzzle_pack/arcade/passage/passage_game.dart';
 
@@ -230,6 +234,55 @@ void main() {
       g.devSkipToLanding();
       _fly(g, run, 25);
       expect(result!.score, expected);
+    });
+  });
+
+  group('the boar', () {
+    // The sheets are loaded by bare name, which assets_test.dart cannot see,
+    // and a sheet cut into the wrong number of frames would draw the wrong
+    // pose for every state. The renderer refuses such a sheet and falls back
+    // to the coin; this makes the same mistake fail here instead of quietly
+    // shipping the coin.
+    test('every stage has a sheet of eight square frames', () {
+      for (final spec in BoarSpec.all.values) {
+        final f = File('assets/images/${spec.file}');
+        expect(f.existsSync(), isTrue, reason: '${spec.file} is missing');
+        final head = ByteData.sublistView(f.readAsBytesSync(), 16, 24);
+        final w = head.getUint32(0), h = head.getUint32(4);
+        expect(w, h * BoarFrame.count, reason: '${spec.file} is ${w}x$h');
+      }
+    });
+
+    test('grows on screen but never grows the hitbox', () {
+      final specs = BoarStage.values.map((s) => BoarSpec.all[s]!).toList();
+      for (var i = 1; i < specs.length; i++) {
+        expect(specs[i].sizeInRadii, greaterThan(specs[i - 1].sizeInRadii));
+      }
+      final r = _game(CabinetRun()).coinRadius;
+      for (final stage in BoarStage.values) {
+        final g = PassageGame(run: CabinetRun(), seed: 7, stage: stage)..onGameResize(_size);
+        expect(g.coinRadius, r, reason: '$stage changed the hitbox');
+      }
+    });
+
+    test('flaps in flight, flinches on a strike, stands once landed', () {
+      final run = CabinetRun();
+      final g = _game(run);
+      g.flap();
+      final seen = <int>{};
+      _fly(g, run, 0.6, each: (_) => seen.add(g.boarFrame));
+      expect(seen, containsAll(BoarFrame.cycle), reason: 'the wings should beat');
+
+      g.strikeForTest();
+      g.update(1 / 60);
+      expect(g.boarFrame, BoarFrame.hurt);
+
+      g.devSkipToLanding();
+      var stood = false;
+      _fly(g, run, 30, each: (_) {
+        if (g.phase == PassagePhase.down && g.boarFrame == BoarFrame.stand) stood = true;
+      });
+      expect(stood, isTrue, reason: 'a landed boar should end standing');
     });
   });
 

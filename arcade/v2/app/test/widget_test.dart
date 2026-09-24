@@ -36,7 +36,7 @@ void main() {
     await tester.scrollUntilVisible(
         find.text('Coin Quest: Digital Gold'), 150, scrollable: find.byType(Scrollable).first);
     expect(find.text('Coin Quest: Digital Gold'), findsOneWidget);
-    expect(find.text('Passage'), findsOneWidget);
+    expect(find.text('When Pigs Fly'), findsOneWidget);
 
     for (final t in removed) {
       expect(find.text(t), findsNothing, reason: '$t was removed but is still on the home screen');
@@ -54,7 +54,7 @@ void main() {
     await tester.pumpWidget(const ArcadeApp());
     await tester.pump();
 
-    final card = find.text('Passage');
+    final card = find.text('When Pigs Fly');
     await tester.scrollUntilVisible(card, 150, scrollable: find.byType(Scrollable).first);
     await tester.tap(card);
     // Not pumpAndSettle: a Flame game schedules a frame forever, so nothing
@@ -101,7 +101,7 @@ void main() {
     await tester.pumpWidget(const ArcadeApp());
     await tester.pump();
 
-    final card = find.text('Passage');
+    final card = find.text('When Pigs Fly');
     await tester.scrollUntilVisible(card, 150, scrollable: find.byType(Scrollable).first);
     await tester.tap(card);
     await tester.pump();
@@ -126,6 +126,13 @@ void main() {
 
     final entry = find.text('Settings and your data');
     await tester.scrollUntilVisible(entry, 150, scrollable: find.byType(Scrollable).first);
+    // scrollUntilVisible stops as soon as the list has built the entry, which
+    // can be just below the fold; a longer home-card blurb put it 11 px off
+    // screen and the tap landed on nothing.
+    // Not pumpAndSettle: home runs an ambient animation that never settles
+    // until a route covers it.
+    await tester.ensureVisible(entry);
+    await tester.pump(const Duration(milliseconds: 300));
     await tester.tap(entry);
     await tester.pumpAndSettle();
 

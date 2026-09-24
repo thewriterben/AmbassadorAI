@@ -4,9 +4,9 @@ part of 'passage_game.dart';
 /// part worth reviewing and it should not be buried under paint calls.
 ///
 /// The coins are the DGD coin renders Coin Quest uses — gold, silver and
-/// copper — so the two games read as one app and the thing you fly and
-/// collect is unmistakably the brand's own coin. Everything else is drawn
-/// from primitives in the app's own art direction: near-black sky, one amber
+/// copper — so the two games read as one app. The player is the boar, from
+/// the sprite sheets described in `boar.dart`. Everything else is drawn from
+/// primitives in the app's own art direction: near-black sky, one amber
 /// accent, brushed metal. Nothing here resembles any existing game's look,
 /// which is the part of an arcade homage that actually carries legal risk.
 extension PassageRender on PassageGame {
@@ -291,7 +291,7 @@ extension PassageRender on PassageGame {
     for (var i = 0; i < _trail.length; i++) {
       final f = i / _trail.length;
       canvas.drawCircle(
-        _trail[i],
+        Offset(_coinX - (scrollX - _trail[i].dx), _trail[i].dy),
         _coinR * (0.28 + 0.34 * f),
         Paint()..color = AppTheme.accent.withValues(alpha: 0.05 + 0.10 * f),
       );
@@ -321,9 +321,8 @@ extension PassageRender on PassageGame {
           [0.0, 0.52, 1.0],
         ),
     );
-    // The player's coin is the gold DGD render, tilting nose-down as it
-    // falls and levelling on a flap, which is most of what makes a disc
-    // read as something in flight rather than a cursor.
+    if (_boar(canvas, alpha)) return;
+    // No boar sheet: the gold coin, the way the game first shipped.
     final tilt = (_vy / _vMax).clamp(-1.0, 1.0) * 0.45;
     if (_spriteCoin(canvas, c, _coinR, PickupKind.gold, alpha: alpha, tilt: tilt)) return;
     canvas.drawCircle(
@@ -357,6 +356,56 @@ extension PassageRender on PassageGame {
         ..strokeWidth = _coinR * 0.10
         ..color = const Color(0xFFFFD98C).withValues(alpha: 0.50 * alpha),
     );
+  }
+
+  /// Which frame of the sheet to draw. See [BoarFrame].
+  int _boarFrame() {
+    if (phase == PassagePhase.down) return _phaseT < 0.25 ? BoarFrame.land : BoarFrame.stand;
+    if (phase != PassagePhase.flying && _groundY - _coinY < _coinR * 3.2) return BoarFrame.land;
+    if (_t < _hurtUntil) return BoarFrame.hurt;
+    return BoarFrame.cycle[_wingPhase.floor() % BoarFrame.cycle.length];
+  }
+
+  /// The boar, centred on the hitbox and pitched with its climb and fall.
+  /// Returns false when this stage's sheet is not loaded.
+  ///
+  /// Drawn with nearest-neighbour sampling so the pixels stay pixels at any
+  /// scale; the sheets are exported at 4x so a rotated frame still reads.
+  bool _boar(Canvas canvas, double alpha) {
+    final frames = _boarFrames[stage];
+    if (frames == null) return false;
+    final spec = BoarSpec.all[stage]!;
+    final side = _coinR * spec.sizeInRadii;
+    final frame = _boarFrame();
+    final paint = Paint()
+      ..filterQuality = FilterQuality.none
+      ..isAntiAlias = false
+      ..color = const Color(0xFFFFFFFF).withValues(alpha: alpha);
+
+    canvas.save();
+    if (phase == PassagePhase.down) {
+      // Standing: hooves on the ground line, level.
+      canvas.translate(_coinX, _groundY);
+      frames[frame].render(canvas,
+          position: Vector2(-spec.anchorU * side, -spec.footV * side), size: Vector2.all(side), overridePaint: paint);
+    } else {
+      // Nose up on a climb, down in a fall — gentler than the coin's tilt,
+      // because a long body pitching hard reads as tumbling.
+      //
+      // With its legs down the boar reaches further below the hitbox than
+      // it does in flight, so the landing frame is held level and lifted to
+      // keep the hooves out of the ground. Without this it sank in and then
+      // popped up by most of a radius on touchdown.
+      final landing = frame == BoarFrame.land;
+      final tilt = landing ? 0.0 : (_vy / _vMax).clamp(-1.0, 1.0) * 0.30;
+      final y = landing ? min(_coinY, _groundY - (spec.footV - spec.anchorV) * side) : _coinY;
+      canvas.translate(_coinX, y);
+      canvas.rotate(tilt);
+      frames[frame].render(canvas,
+          position: Vector2(-spec.anchorU * side, -spec.anchorV * side), size: Vector2.all(side), overridePaint: paint);
+    }
+    canvas.restore();
+    return true;
   }
 
   void _flash(Canvas canvas) {
