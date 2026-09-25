@@ -80,6 +80,8 @@ class _PassageScreenState extends State<PassageScreen> {
         'Skip to the landing': () => _game?.devSkipToLanding(),
         'End short, here': () => _game?.devEndShort(),
         'Full momentum': () => _game?.devMaxMomentum(),
+        'Hitbox: ${PassageGame.devShowHitbox ? 'hide' : 'show'}': () =>
+            PassageGame.devShowHitbox = !PassageGame.devShowHitbox,
         'Next boar stage': () {
           final g = _game;
           if (g != null) _devStage = g.devNextStage();
@@ -324,6 +326,25 @@ class _Overlay extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
+        // A shade behind the HUD row. The play area starts below it, but a
+        // razorback at the ceiling still reaches up under it with its wings,
+        // and without the shade that read as the sprite being cut off
+        // rather than flying behind the bar.
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          height: MediaQuery.paddingOf(context).top + 72,
+          child: const DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Color(0xE6020203), Color(0x00020203)],
+              ),
+            ),
+          ),
+        ),
         Positioned.fill(child: _EraBanner(key: ObjectKey(game), game: game)),
         if (!game.started) ...[
           Align(

@@ -319,6 +319,10 @@ class PassageGame extends FlameGame {
   double _groundY = 0;
 
   double _phaseT = 0;
+
+  /// How far the ground has crept up past where it settled. See
+  /// [_updateSettling].
+  double _creep = 0;
   PassagePhase phase = PassagePhase.flying;
 
   int reserve = startingReserve;
@@ -343,7 +347,28 @@ class PassageGame extends FlameGame {
   double touchdownSpeed = 0;
   static const softLandingAt = 0.42;
 
-  bool get softLanding => touchdownSpeed.abs() < softLandingAt;
+  /// True when the boar had been on the floor in the last [_scrapeWindow]
+  /// seconds before touching down. Since the ground appears at the floor
+  /// line (see [_groundStart]), a boar left sitting there would otherwise be
+  /// met by the ground at a crawl and handed the soft-landing star for doing
+  /// nothing. Easing down is the one hard thing in this game; it has to be
+  /// done from the air.
+  bool touchdownScraped = false;
+  static const _scrapeWindow = 1.5;
+  double _floorAt = -10;
+
+  bool get softLanding => touchdownSpeed.abs() < softLandingAt && !touchdownScraped;
+
+  /// The top of the play area, as a fraction of height. The HUD row and the
+  /// status bar sit over roughly the top eleventh of a phone, and until this
+  /// existed the openings, the coins and the boar's ceiling all ran up under
+  /// them — a razorback at the ceiling had most of its wings, and part of
+  /// its body, behind the reserve dots. Everything the player has to see or
+  /// reach now starts below it.
+  static const playTop = 0.12;
+
+  /// DEV: draw the collision capsule over the boar.
+  static bool devShowHitbox = false;
 
   /// Drives the era banner in the Flutter overlay.
   final ValueNotifier<int> eraNotifier = ValueNotifier(-1);
@@ -452,6 +477,12 @@ class PassageGame extends FlameGame {
   @visibleForTesting
   double get clock => _t;
 
+  /// The collision capsule's half-height and half-run, for tests.
+  @visibleForTesting
+  double get bodyRadius => _bodyR;
+  @visibleForTesting
+  double get bodyHalfLength => _bodyL;
+
   /// Vertical speed, pixels per second, down positive. For the calibration
   /// bot, which has to judge a flap the way a player's eye does.
   @visibleForTesting
@@ -514,6 +545,19 @@ class PassageGame extends FlameGame {
 
   double get _skyFloor => _h * 1.3;
   double get _groundAt => _h * 0.87;
+  double get _playTop => _h * playTop;
+
+  /// Where the ground appears when a run starts to settle: the floor line
+  /// the boar cannot fly below. It used to rise from well below the screen,
+  /// and a boar left untapped fell off the bottom and touched down out of
+  /// sight — the one moment the whole game is built around, unseen.
+  double get _groundStart => _h * 0.94;
+
+  BoarSpec get _spec => BoarSpec.all[stage]!;
+
+  /// The body's collision capsule: half-height, and half the straight run.
+  double get _bodyR => _coinR * _spec.bodyRadius;
+  double get _bodyL => _coinR * _spec.bodyHalfLength;
 
   @override
   Future<void> onLoad() async {
@@ -605,7 +649,7 @@ class PassageGame extends FlameGame {
         // rather than being four gates at one difficulty.
         final gapH = baseGap * (1 - 0.02 * i);
         final half = gapH / 2;
-        final lo = _h * 0.06 + half;
+        final lo = _playTop + half;
         final hi = _h * 0.94 - half;
         // Cap the step between consecutive gates. Without this the generator
         // will eventually put a gap at the top immediately after one at the
@@ -661,7 +705,7 @@ class PassageGame extends FlameGame {
           final arc = sin((t - 0.30) / 0.45 * pi);
           pickups.add(Pickup(
             worldX: lerpDouble(g.worldX, n.worldX, t)!,
-            y: (lerpDouble(g.gapY, n.gapY, t)! + bulge * arc).clamp(_h * 0.09, _h * 0.91),
+            y: (lerpDouble(g.gapY, n.gapY, t)! + bulge * arc).clamp(_playTop + _h * 0.03, _h * 0.91),
             // Silver at the peak of the arc, copper at its ends: the coins
             // furthest off the straight line are the ones worth bending for.
             kind: k == 1 || k == 2 ? PickupKind.silver : PickupKind.copper,
@@ -793,8 +837,10 @@ class PassageGame extends FlameGame {
     _spills.removeWhere((s) => s.taken || s.age > _spillLife || s.y > _h * 1.05);
   }
 
+  /// Whether a coin of radius [r] at ([x], [y]) touches the body capsule.
   bool _touches(double x, double y, double r) {
-    final dx = x - _coinX, dy = y - _coinY, rr = r + _coinR;
+    final cx = x.clamp(_coinX - _bodyL, _coinX + _bodyL);
+    final dx = x - cx, dy = y - _coinY, rr = r + _bodyR;
     return dx * dx + dy * dy < rr * rr;
   }
 
@@ -837,7 +883,10 @@ class PassageGame extends FlameGame {
         Audio.instance.ting();
         run.tick();
       }
-      if (reserve > 0 && !g.struck && _vulnerable && dx.abs() < _gateW) {
+      // Only a pillar within reach of the body is tested. The reach is the
+      // capsule's, not the old coin's: sized for a circle, this skipped the
+      // razorback's snout entirely until it was deep inside the pillar.
+      if (reserve > 0 && !g.struck && _vulnerable && dx.abs() < _gateW / 2 + _bodyL + _bodyR) {
         if (_hits(g)) _strike(g);
       }
     }
@@ -860,17 +909,24 @@ class PassageGame extends FlameGame {
     scrollX += _speed * dt * max(0.0, 1 - _phaseT * drag / 2);
 
     final rise = _easeOut((_phaseT / riseTime).clamp(0.0, 1.0));
-    _groundY = lerpDouble(_skyFloor, _groundAt, rise)!;
     // Once it has arrived it keeps creeping, so that someone tapping as fast
     // as they physically can still touches down inside a few seconds rather
     // than hovering out the clock.
-    if (rise >= 1) _groundY -= _h * 0.014 * dt * (_phaseT - riseTime);
+    //
+    // The creep has to accumulate. It used to be subtracted from a height
+    // recomputed from scratch every frame, so it never amounted to more than
+    // one frame's worth and a fast tapper could hover indefinitely. Found
+    // when the calibration bot, which taps as fast as its thumb allows,
+    // hovered over the ground for a minute and a half.
+    if (rise >= 1) _creep += _h * 0.014 * dt * (_phaseT - riseTime);
+    _groundY = lerpDouble(_groundStart, _groundAt, rise)! - _creep;
 
     _integrate(dt, ceilingOnly: true);
 
-    if (_coinY + _coinR >= _groundY) {
+    if (_coinY + _bodyR >= _groundY) {
       touchdownSpeed = _vy / _h;
-      _coinY = _groundY - _coinR;
+      touchdownScraped = _t - _floorAt < _scrapeWindow;
+      _coinY = _groundY - _bodyR;
       _vy = 0;
       _enter(PassagePhase.down);
       _onTouchdown();
@@ -881,7 +937,7 @@ class PassageGame extends FlameGame {
     _phaseT += dt;
     // Roll to a stop.
     scrollX += _speed * dt * max(0.0, 1 - _phaseT * 1.4);
-    _coinY = _groundY - _coinR;
+    _coinY = _groundY - _bodyR;
     if (_phaseT > 1.5) _finish();
   }
 
@@ -900,7 +956,7 @@ class PassageGame extends FlameGame {
     }
     _coinY += _vy * dt;
 
-    final ceiling = _coinR * 1.2;
+    final ceiling = _playTop + _bodyR;
     if (_coinY < ceiling) {
       // Not a penalty. Clipping the ceiling in a flyer is usually a player
       // who over-tapped, and charging them for it is a hidden death.
@@ -909,9 +965,10 @@ class PassageGame extends FlameGame {
     }
     if (ceilingOnly) return;
 
-    final floor = _h * 0.94 - _coinR;
+    final floor = _h * 0.94 - _bodyR;
     if (_coinY > floor) {
       _coinY = floor;
+      _floorAt = _t;
       if (_vy > 0) _vy = 0;
       if (reserve > 0 && _vulnerable) _strike(null);
     }
@@ -921,11 +978,13 @@ class PassageGame extends FlameGame {
     final gx = _coinX + (g.worldX - scrollX);
     final left = gx - _gateW / 2, right = gx + _gateW / 2;
     final top = g.gapY - g.gapH / 2, bottom = g.gapY + g.gapH / 2;
+    // The capsule against a pillar block: the gap between the body's straight
+    // run and the block, horizontally, and between its centre line and the
+    // block, vertically, compared with the capsule's radius.
     bool overlaps(double ry0, double ry1) {
-      final cx = _coinX.clamp(left, right);
-      final cy = _coinY.clamp(ry0, ry1);
-      final dx = _coinX - cx, dy = _coinY - cy;
-      return dx * dx + dy * dy < _coinR * _coinR;
+      final dx = max(0.0, max(left - (_coinX + _bodyL), (_coinX - _bodyL) - right));
+      final dy = max(0.0, max(ry0 - _coinY, _coinY - ry1));
+      return dx * dx + dy * dy < _bodyR * _bodyR;
     }
 
     return overlaps(0, top) || overlaps(bottom, _h);
@@ -978,6 +1037,7 @@ class PassageGame extends FlameGame {
     if (phase == p) return;
     phase = p;
     _phaseT = 0;
+    _creep = 0;
     if (p == PassagePhase.landing) Audio.instance.coinRoll();
     run.tick();
   }

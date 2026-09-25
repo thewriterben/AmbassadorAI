@@ -75,6 +75,16 @@ class BoarSpec {
   /// Shown on the pre-run and results screens once growth is live.
   final String name;
 
+  /// The body's collision shape: a horizontal capsule centred on the anchor,
+  /// in radii of the old coin. [bodyRadius] is its half-height and is the
+  /// same at every stage, and smaller than the coin's, so no stage is harder
+  /// to fit through a gap than the coin was. [bodyHalfLength] is the straight
+  /// run between the two round ends, and grows with the body, so a snout or
+  /// a rump that visibly meets a pillar counts. The first version kept the
+  /// coin's circle, and on device the razorback's snout sank most of a
+  /// radius into a pillar before a strike registered.
+  final double bodyRadius, bodyHalfLength;
+
   const BoarSpec({
     required this.file,
     required this.sizeInRadii,
@@ -82,6 +92,8 @@ class BoarSpec {
     required this.anchorV,
     required this.footV,
     required this.name,
+    this.bodyRadius = 0.9,
+    required this.bodyHalfLength,
   });
 
   static const all = {
@@ -92,6 +104,7 @@ class BoarSpec {
       anchorV: 0.553,
       footV: 0.79,
       name: 'Piglet',
+      bodyHalfLength: 0.35,
     ),
     BoarStage.juvenile: BoarSpec(
       file: 'boar_juvenile.png',
@@ -100,6 +113,7 @@ class BoarSpec {
       anchorV: 0.567,
       footV: 0.79,
       name: 'Juvenile',
+      bodyHalfLength: 0.5,
     ),
     BoarStage.razorback: BoarSpec(
       file: 'boar_razorback.png',
@@ -108,6 +122,7 @@ class BoarSpec {
       anchorV: 0.567,
       footV: 0.785,
       name: 'Razorback',
+      bodyHalfLength: 0.62,
     ),
   };
 }

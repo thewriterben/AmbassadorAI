@@ -43,7 +43,7 @@ void main() {
     test('every opening fits on screen', () {
       final g = _game(CabinetRun());
       for (final s in g.gateSpecs) {
-        expect(s.gapY - s.gapH / 2, greaterThanOrEqualTo(_size.y * 0.06 - 0.001));
+        expect(s.gapY - s.gapH / 2, greaterThanOrEqualTo(_size.y * PassageGame.playTop - 0.001));
         expect(s.gapY + s.gapH / 2, lessThanOrEqualTo(_size.y * 0.94 + 0.001));
       }
     });
@@ -283,6 +283,80 @@ void main() {
         if (g.phase == PassagePhase.down && g.boarFrame == BoarFrame.stand) stood = true;
       });
       expect(stood, isTrue, reason: 'a landed boar should end standing');
+    });
+  });
+
+  group('feel fixes', () {
+    test('nothing to see or reach sits under the HUD, and the boar cannot fly there', () {
+      final run = CabinetRun();
+      final g = _game(run);
+      final top = _size.y * PassageGame.playTop;
+      for (final p in g.pickups) {
+        expect(p.y - p.amp, greaterThanOrEqualTo(top - 0.001), reason: 'the top of its drift');
+      }
+      // Tap as fast as a thumb can for a second: the body stops at the line.
+      var highest = double.infinity;
+      _fly(g, run, 1.0, each: (t) {
+        g.flap();
+        highest = highest < g.boarY ? highest : g.boarY;
+      });
+      expect(highest - g.bodyRadius, greaterThanOrEqualTo(top - 0.5));
+    });
+
+    test('no stage is harder to fit through a gap than the coin was', () {
+      for (final stage in BoarStage.values) {
+        final g = PassageGame(run: CabinetRun(), seed: 7, stage: stage)..onGameResize(_size);
+        expect(g.bodyRadius, lessThanOrEqualTo(g.coinRadius), reason: '$stage');
+      }
+    });
+
+    test('a snout that meets a pillar is a strike', () {
+      final g = PassageGame(run: CabinetRun(), seed: 7, stage: BoarStage.razorback)..onGameResize(_size);
+      final gate = g.gateSpecs[2];
+      g.flap();
+      // The pillar's face just inside the capsule's front, but clear of where
+      // the old coin circle reached; the boar level with the top pillar.
+      g.scrollX = gate.worldX - g.gateWidth / 2 - g.bodyHalfLength - g.bodyRadius * 0.6;
+      g.boarYForTest = gate.gapY - gate.gapH / 2 - g.bodyRadius * 2;
+      g.update(1 / 120);
+      expect(g.reserve, PassageGame.startingReserve - 1);
+    });
+
+    test('an untapped landing touches down on screen', () {
+      final run = CabinetRun();
+      final g = _game(run);
+      g.flap();
+      g.devSkipToLanding();
+      var lowest = 0.0;
+      _fly(g, run, 20, each: (_) => lowest = lowest > g.boarY ? lowest : g.boarY);
+      expect(run.ended, isTrue);
+      expect(lowest + g.bodyRadius, lessThanOrEqualTo(_size.y * 0.94 + 0.5));
+    });
+
+    test('sitting on the floor as the ground arrives is not a soft landing', () {
+      final run = CabinetRun();
+      final g = _game(run);
+      g.flap();
+      g.devSkipToLanding();
+      // Parked on the floor line, still, as the landing begins.
+      g.boarYForTest = _size.y * 0.94 - g.bodyRadius;
+      g.update(1 / 60);
+      _fly(g, run, 20);
+      expect(g.touchdownScraped, isTrue);
+      expect(g.softLanding, isFalse);
+    });
+
+    test('a player tapping as fast as they can still touches down', () {
+      final run = CabinetRun();
+      final g = _game(run);
+      g.flap();
+      g.devSkipToLanding();
+      var n = 0;
+      final t = _fly(g, run, 30, each: (_) {
+        if (g.phase == PassagePhase.landing && n++ % 6 == 0) g.flap(); // ten taps a second
+      });
+      expect(run.ended, isTrue, reason: 'hovered out the clock');
+      expect(t, lessThan(20));
     });
   });
 

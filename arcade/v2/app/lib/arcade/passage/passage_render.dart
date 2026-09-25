@@ -22,7 +22,27 @@ extension PassageRender on PassageGame {
     _abilityFx(canvas);
     _coin(canvas);
     _popLayer(canvas);
+    if (PassageGame.devShowHitbox) _hitbox(canvas);
     _flash(canvas);
+  }
+
+  /// DEV: the collision capsule, and the play area's top edge.
+  void _hitbox(Canvas canvas) {
+    final paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5
+      ..color = const Color(0xFF3CFFB4);
+    canvas.drawRRect(
+      RRect.fromLTRBR(
+        _coinX - _bodyL - _bodyR,
+        _coinY - _bodyR,
+        _coinX + _bodyL + _bodyR,
+        _coinY + _bodyR,
+        Radius.circular(_bodyR),
+      ),
+      paint,
+    );
+    canvas.drawLine(Offset(0, _playTop), Offset(_w, _playTop), paint..color = const Color(0x803CFFB4));
   }
 
   /// Highlight, body and shadow for each metal. Gold is the player's own

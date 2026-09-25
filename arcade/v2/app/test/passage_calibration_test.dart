@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flame/game.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:puzzle_pack/arcade/cabinet/cabinet.dart';
+import 'package:puzzle_pack/arcade/passage/boar.dart';
 import 'package:puzzle_pack/arcade/passage/eras.dart';
 import 'package:puzzle_pack/arcade/passage/passage_game.dart';
 
@@ -31,13 +32,15 @@ void main() {
   // simply flies it: a steady player who ignores the coins and never looks
   // away gets through every gate. If a change to the gaps, the speed or the
   // drift breaks this, the game has become unfair, not harder.
-  test('a steady player can fly the whole passage', () {
-    final runs = [for (final seed in [11, 12, 13, 14]) _Bot(_Profile.steady, seed).fly()];
-    expect(runs.every((r) => r.eras >= eras.length && r.strikes == 0), isTrue, reason: 'runs: $runs');
+  test('a steady player can fly the whole passage, at every stage', () {
+    for (final stage in BoarStage.values) {
+      final runs = [for (final seed in [11, 12, 13, 14]) _Bot(_Profile.steady, seed, stage: stage).fly()];
+      expect(runs.every((r) => r.eras >= eras.length && r.strikes == 0), isTrue, reason: '$stage runs: $runs');
+    }
   });
 
   test('trace', () {
-    _Bot(_Profile.skilled, 11, trace: true).fly();
+    _Bot(_Profile.steady, 11, trace: true).fly();
   }, skip: const bool.fromEnvironment('TRACE') ? false : 'debug only');
 
   test('calibration report', () {
@@ -66,8 +69,8 @@ void main() {
       String days(int at) => perDay <= 0 ? '—' : (at / perDay).toStringAsFixed(1);
       out.writeln('${e.key.padRight(8)} ${perDay.toStringAsFixed(0).padLeft(5)} pts/day'
           '  | first ability (600) ${days(600)} d'
-          '  juvenile (1,500) ${days(1500)} d'
-          '  razorback (6,000) ${days(6000)} d');
+          '  juvenile (1,200) ${days(1200)} d'
+          '  razorback (4,000) ${days(4000)} d');
     }
     // ignore: avoid_print
     print(out);
@@ -130,9 +133,9 @@ class _Bot {
   int _lastReserve = PassageGame.startingReserve;
 
   final bool trace;
-  _Bot(this.p, int seed, {this.trace = false}) : rnd = Random(seed) {
+  _Bot(this.p, int seed, {this.trace = false, BoarStage stage = BoarStage.piglet}) : rnd = Random(seed) {
     run.onEnd = (r) => result = r;
-    g = PassageGame(run: run, seed: seed)..onGameResize(_size);
+    g = PassageGame(run: run, seed: seed, stage: stage)..onGameResize(_size);
   }
 
   double get h => _size.y;

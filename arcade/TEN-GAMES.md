@@ -374,8 +374,8 @@ stage and where it begins); the claim also returns `passageCredited`. The app
 draws whatever stage the server names, so thresholds change without an app
 release. `DELETE /v1/me` now clears the profile too.
 
-**Thresholds are provisional:** juvenile at 1,500 lifetime points,
-razorback at 6,000, from a guess of about four runs a day at about 150
+**Thresholds are provisional:** juvenile at 1,200 lifetime points,
+razorback at 4,000 (see the phase 5 feel fixes; originally 1,500 and 6,000), from a guess of about four runs a day at about 150
 points (two or three days, then about ten). The first pass was 4,000 and
 18,000 (a week, then a month); the owner asked for faster growth the same
 day. Both are environment-overridable
@@ -563,7 +563,9 @@ Three profiles, 40 runs each:
 
 At four runs a day the casual player reaches the juvenile in about 3 days and
 the razorback in about 11.5. That is the pace the owner asked for when the
-thresholds were lowered, so **the thresholds stand at 1,500 and 6,000.**
+thresholds were lowered, so the thresholds stood at 1,500 and 6,000 — until
+the feel fixes below moved the numbers, and they were lowered again to 1,200
+and 4,000.
 Regular players take about 1 and 4.5 days, skilled about half a day and 2.
 
 **Prices** also stand. A first ability comes in about a day for a casual
@@ -616,10 +618,73 @@ so acting on the report needs no deploy.
 - **What it cannot measure:** where the hitbox belongs is a judgement, so the
   brief says to confirm on a phone.
 
-**Still open, and the owner's call:** the razorback's raised wings covering the
-HUD at the ceiling, the rump overhang past the hitbox at the pillars, and a
-boar left untapped during the final landing touching down below the screen.
-All three are in the phase 1 notes.
+The three feel issues from the phase 1 notes were fixed the same day; see
+"Feel fixes" below. Those fixes moved the calibration, and the table above is
+the before; the after is in that section.
+
+### Feel fixes — 2026-09-24
+
+1. **The razorback's wings under the HUD.**
+   - The play area now starts below the HUD, at 12% of the screen height
+     (`PassageGame.playTop`). Before, openings reached to 6% and the boar's
+     ceiling sat under the status bar, so a razorback at the top had wings and
+     part of its body behind the reserve dots.
+   - Openings, trail coins and the boar's ceiling all respect the line.
+   - A soft shade behind the HUD row makes the wing tips that still reach up
+     under it read as flying behind the bar.
+2. **The snout and rump overhanging the hitbox.**
+   - The body now collides as a horizontal capsule, per stage in `BoarSpec`:
+     half-height 0.9 of the old coin radius at every stage, and a straight run
+     of 0.35 / 0.5 / 0.62 radii.
+   - The half-height is below the coin's, so no stage is harder to fit through
+     a gap than the coin was. The length means a snout that visibly meets a
+     pillar is a strike.
+   - Coins are taken by the same capsule, and the floor and touchdown use its
+     half-height.
+   - A test caught the old broad-phase check (pillar within one gate width)
+     skipping the razorback's snout entirely. It now reaches as far as the
+     capsule does.
+   - DEV menu: "Hitbox: show" draws the capsule and the play-area line.
+3. **An untapped landing out of sight.**
+   - When a run settles, the ground now appears at the floor line (94%) and
+     rises to 87%, instead of rising from below the screen. A boar left
+     untapped touches down in view.
+   - That alone would have handed out the soft-landing star to anyone parked
+     on the floor, because the ground would meet them at a crawl. So a
+     touchdown within 1.5 s of touching the floor is never soft.
+   - Easing down stays a thing you do from the air.
+
+**An older bug, found on the way.** The ground's creep after it settles — there
+so a player tapping as fast as possible still touches down — never
+accumulated. It was subtracted from a height recomputed every frame, so a fast
+tapper could hover forever. The calibration bot hovered for a minute and a
+half. The creep now accumulates, and a test taps ten times a second through a
+landing and requires a touchdown inside 20 s.
+
+**Calibration after the fixes** (same bot, 40 runs each):
+
+| Player | Median run | Eras reached | Whole passage | Juvenile / razorback at 4 runs a day |
+|---|---|---|---|---|
+| Casual | 96 | 2.9 | 0% | 3.9 / 15.6 days |
+| Regular | 385 | 5.4 | 5% | 1.0 / 3.9 days |
+| Skilled | 731 | 6.4 | 25% | 0.5 / 2.1 days |
+
+The narrower play area and the longer body made casual play a little harder.
+The casual player was now slower than the owner's 2–3 / ~10 day target, so on
+the owner's word **the thresholds were lowered to 1,200 and 4,000**. That puts
+casual play at 3.1 / 10.4 days, regular at 0.8 / 2.6 and skilled at 0.4 / 1.4.
+
+The fairness guard now flies every stage: a steady player gets through the
+whole passage with no strikes as a piglet, a juvenile and a razorback.
+
+**Tests added:**
+- nothing to see or reach sits under the HUD, and a frantic tapper stops at
+  the line
+- no stage's capsule is taller than the old coin
+- a razorback snout meeting a pillar is a strike
+- an untapped landing touches down on screen
+- parking on the floor is not a soft landing
+- a fast tapper still touches down
 
 ---
 

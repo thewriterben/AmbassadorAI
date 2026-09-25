@@ -104,14 +104,18 @@ export const config = {
   // The thresholds are provisional, set from a guess at casual play — about
   // four runs a day at about 150 points. First pass was a week to the
   // juvenile and a month to the razorback; lowered the same day (owner's
-  // call) to two or three days and about ten. They are meant to be reset
-  // from measured scores once real runs are on the server, which is why
-  // both can be overridden without a deploy.
+  // call) to two or three days and about ten, at 1,500 and 6,000. Simulated
+  // players then put a casual player (median run 96, after the feel fixes)
+  // at 3.9 and 15.6 days, so they were lowered again to 1,200 and 4,000:
+  // about 3 and 10 (the app's passage_calibration_test.dart). They are
+  // meant to be reset from measured scores once real runs are on the server
+  // (npm run report:passage), which is why both can be overridden without a
+  // deploy.
   passage: {
     stages: [
       { id: 'piglet', at: 0 },
-      { id: 'juvenile', at: num('PASSAGE_JUVENILE_AT', 1_500) },
-      { id: 'razorback', at: num('PASSAGE_RAZORBACK_AT', 6_000) },
+      { id: 'juvenile', at: num('PASSAGE_JUVENILE_AT', 1_200) },
+      { id: 'razorback', at: num('PASSAGE_RAZORBACK_AT', 4_000) },
     ] as Array<{ id: string; at: number }>,
     // The shop: what each level of each ability costs in points, the first
     // entry unlocking it. The ids are the app's AbilityKind names. Priced
