@@ -3,7 +3,9 @@ name: dgd-reward-check
 description: Decide whether a proposed DGD reward, prize, bonus, airdrop, referral payout, leaderboard prize, or "credit" can ship, and what it would cost. Use this whenever anyone asks whether users can earn, be paid, be rewarded, or be credited DGD — or points, credits, tokens, or anything convertible to DGD — for playing games, taking quizzes, referring friends, inviting people, signing up, posting to social, topping a leaderboard, or any other activity. Also use it whenever someone proposes moving a reward off-app, onto the website, into the browser, or simply "not mentioning it in the app" in order to make it acceptable, or proposes syncing app progress to a web reward. Covers Apple App Store guideline 3.1.5(v) and the DGD decisions already recorded. Use it even when the question sounds purely commercial or purely technical, because the answer almost always turns on where the earning happens rather than where the money moves.
 ---
 
-# Can we reward DGD for this?
+# dgd-reward-check
+
+*Can we reward DGD for this?*
 
 This skill answers one recurring family of questions at Digital Gold: *may we
 give users DGD (or anything convertible to it) for doing something?*
@@ -58,8 +60,8 @@ Five versions of this question have been worked through and recorded.
 one, say so and give the recorded reasoning rather than re-deriving it, which risks
 landing somewhere subtly different and undermining a decision already taken.
 
-**Appendix B** holds the engineering facts that constrain answers — what the app actually emits, what the arcade server actually trusts, what the
-on-screen disclaimers actually say. Check it before asserting anything about
+**Appendix B** holds the engineering facts that constrain answers — what the
+app actually emits, what the arcade server actually trusts, what the on-screen disclaimers actually say. Check it before asserting anything about
 how the app behaves. Several proposals that sound fine collide with one of
 these, and the collision is usually the most useful thing you can tell someone.
 
@@ -239,7 +241,7 @@ inside the app. A referral at least has an off-app leg; a top score has none.
 - It cannot stay unmentioned: it gets announced on the site or socials, and
   winners talk.
 
-Plus **R2** (see `app-facts.md`): scores are client-asserted, so a top-scorer
+Plus **R2** (see Appendix B): scores are client-asserted, so a top-scorer
 prize goes to whoever edits the request first.
 
 ### 4. Move the arcade to the web, pay DGD in the browser, carry app progress over (answered 25 Sep 2026: first half clean, carryover self-defeating)
@@ -383,8 +385,7 @@ Data Safety change, not just a feature.
 `https://developer.apple.com/app-store/review/guidelines/`.
 
 Guidelines change without notice. If a proposal turns on wording that is not
-here, fetch the live page and quote what you read, then add it below with the
-date. "I did not check that clause" is a fine answer; recalling one is not.
+here, fetch the live page, quote what you read, and say you checked it live. "I did not check that clause" is a fine answer; recalling one is not.
 
 ---
 
