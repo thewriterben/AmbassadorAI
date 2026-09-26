@@ -1,4 +1,4 @@
-# Answered already — five versions of the question
+# Answered already — six versions of the question
 
 Each of these was worked through and recorded in
 `arcade/B1-DECISION-2026-09-21.md`. If a new proposal matches one, use the
@@ -120,3 +120,17 @@ Costs: the in-app viral loop, and only that. Does not settle Play's
 incentivised-installs and financial-services policies, or the securities and tax
 treatment of paying DGD for referrals at all — those move off the launch
 critical path rather than getting answered.
+
+## 6. Validation credits, not disclosed at all (answered 26 Sep 2026: no — declined as a design request)
+
+The only recorded version that puts the **developer account** at risk rather
+than the app. 2.3.1(a) prohibits hidden or undocumented features; 2.3.1(b) and
+5.6 escalate dishonest or manipulative conduct to program removal.
+
+It also does not work: credits are either visible (disclosed) or invisible (no
+behavioural effect); DGD payouts leave a trail; and it falsifies the arcade
+disclaimer while concealing from users what they are accruing.
+
+Disclosed alternatives: non-convertible credits described like XP (fine), or a
+DGD-paying validation programme on the website with the app uninvolved (Path A
+shape).

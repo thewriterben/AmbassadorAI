@@ -29,6 +29,24 @@ Apps that store, transmit or exchange cryptocurrency carry organisation
 enrolment and licensing requirements. Relevant because an app that *distributes*
 DGD starts to look like one of these, which is a second front beyond (v).
 
+## 2.3.1 and 5.6 — hidden features and the Developer Code of Conduct
+
+*Verified 26 September 2026.*
+
+2.3.1(a) opens: *"Don't include any hidden, dormant, or undocumented features in
+your app."* It goes on to require that functionality be clear to end users and
+to App Review, and that new features be described specifically in the review
+notes — generic descriptions are rejected.
+
+2.3.1(b) makes egregious or repeated behaviour grounds for removal from the
+Developer Program. 5.6, the Developer Code of Conduct, says repeated manipulative
+or misleading behaviour leads to removal, that apps must not engage in
+manipulative practices within or outside the app, and that non-compliance means
+account termination.
+
+Why it matters here: a disclosed reward programme risks a rejection of one app.
+A concealed one risks the account — every app, update and future submission.
+
 ## 5.3.1 / 5.3.2 — contests and sweepstakes
 
 A contest or sweepstakes must be sponsored by the developer, and its official

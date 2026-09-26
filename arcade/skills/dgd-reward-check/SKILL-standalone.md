@@ -55,7 +55,7 @@ the argument turns on, and the appendix records what was checked and when.
 
 ## Then look up whether it has already been answered
 
-Five versions of this question have been worked through and recorded.
+Six versions of this question have been worked through and recorded.
 **Appendix A** holds them. Read it before answering — if the proposal matches
 one, say so and give the recorded reasoning rather than re-deriving it, which risks
 landing somewhere subtly different and undermining a decision already taken.
@@ -87,6 +87,12 @@ time; people propose this without noticing.
 an unmentioned reward drives no engagement, so it defeats its own purpose; it
 cannot stay unmentioned, because it gets announced on the site or socials and
 winners talk; and it usually requires the disclaimer above to be false.
+
+**"We won't disclose it at all."** Not a stronger version of the above — a
+different category. Hiding a reward from users or App Review moves the exposure
+from the app to the developer account (2.3.1 and 5.6, Appendix C). Do not
+help design a reward to be concealed from users or reviewers. Say so once,
+plainly, without lecturing, and go straight to the disclosed versions.
 
 **A marker the user can delete.** Adding `&src=app` to a URL the user copies to
 their clipboard makes a claim that any motivated user can falsify. Worse than
@@ -169,7 +175,7 @@ Saying "I did not check that clause" is a fine answer; recalling it is not.
 
 ---
 
-# Appendix A — Five versions of the question, already answered
+# Appendix A — Six versions of the question, already answered
 
 Each of these was worked through and recorded in
 `arcade/B1-DECISION-2026-09-21.md`. If a new proposal matches one, use the
@@ -292,6 +298,20 @@ incentivised-installs and financial-services policies, or the securities and tax
 treatment of paying DGD for referrals at all — those move off the launch
 critical path rather than getting answered.
 
+### 6. Validation credits, not disclosed at all (answered 26 Sep 2026: no — declined as a design request)
+
+The only recorded version that puts the **developer account** at risk rather
+than the app. 2.3.1(a) prohibits hidden or undocumented features; 2.3.1(b) and
+5.6 escalate dishonest or manipulative conduct to program removal.
+
+It also does not work: credits are either visible (disclosed) or invisible (no
+behavioural effect); DGD payouts leave a trail; and it falsifies the arcade
+disclaimer while concealing from users what they are accruing.
+
+Disclosed alternatives: non-convertible credits described like XP (fine), or a
+DGD-paying validation programme on the website with the app uninvolved (Path A
+shape).
+
 ---
 
 # Appendix B — What the app and server actually do
@@ -408,6 +428,24 @@ Two features of the text do most of the work:
 Apps that store, transmit or exchange cryptocurrency carry organisation
 enrolment and licensing requirements. Relevant because an app that *distributes*
 DGD starts to look like one of these, which is a second front beyond (v).
+
+### 2.3.1 and 5.6 — hidden features and the Developer Code of Conduct
+
+*Verified 26 September 2026.*
+
+2.3.1(a) opens: *"Don't include any hidden, dormant, or undocumented features in
+your app."* It goes on to require that functionality be clear to end users and
+to App Review, and that new features be described specifically in the review
+notes — generic descriptions are rejected.
+
+2.3.1(b) makes egregious or repeated behaviour grounds for removal from the
+Developer Program. 5.6, the Developer Code of Conduct, says repeated manipulative
+or misleading behaviour leads to removal, that apps must not engage in
+manipulative practices within or outside the app, and that non-compliance means
+account termination.
+
+Why it matters here: a disclosed reward programme risks a rejection of one app.
+A concealed one risks the account — every app, update and future submission.
 
 ### 5.3.1 / 5.3.2 — contests and sweepstakes
 

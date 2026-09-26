@@ -55,7 +55,7 @@ the argument turns on, and the file records what was checked and when.
 
 ## Then look up whether it has already been answered
 
-Five versions of this question have been worked through and recorded. Read
+Six versions of this question have been worked through and recorded. Read
 `references/precedents.md` before answering — if the proposal matches one, say
 so and give the recorded reasoning rather than re-deriving it, which risks
 landing somewhere subtly different and undermining a decision already taken.
@@ -88,6 +88,12 @@ time; people propose this without noticing.
 an unmentioned reward drives no engagement, so it defeats its own purpose; it
 cannot stay unmentioned, because it gets announced on the site or socials and
 winners talk; and it usually requires the disclaimer above to be false.
+
+**"We won't disclose it at all."** Not a stronger version of the above — a
+different category. Hiding a reward from users or App Review moves the exposure
+from the app to the developer account (2.3.1 and 5.6, in `references/rule-text.md`). Do not
+help design a reward to be concealed from users or reviewers. Say so once,
+plainly, without lecturing, and go straight to the disclosed versions.
 
 **A marker the user can delete.** Adding `&src=app` to a URL the user copies to
 their clipboard makes a claim that any motivated user can falsify. Worse than
