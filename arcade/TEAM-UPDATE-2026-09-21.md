@@ -1,5 +1,31 @@
 # Digital Gold app — where we are
 
+> ## Update, 26 September: the invite question is settled on Android
+>
+> **New demo build: `DigitalGold-1.0.6-review.apk`.** Please use this one; the
+> 1.0.5 file has been moved to an `archive` folder.
+>
+> We went with the simplest safe option: **referrals, invite codes and
+> anything that earns DGD now live entirely on digitalgold.co.** The app
+> itself no longer carries a code of any kind.
+>
+> What you'll notice in Invite Friends:
+>
+> - **The share message is the same for everyone** and no longer includes
+>   your username or an invitation code.
+> - **The QR code is the same for everyone** and simply opens the app
+>   download. There's a line under it suggesting you screenshot it and text
+>   it to a friend.
+> - **Copy Invite Link and Copy Invite Code are gone**, and so is the "friend's
+>   username" box on the credentials screen. Friends enter an invite code on
+>   the website instead.
+>
+> Everything else is unchanged. iOS gets the same change next. The one open
+> item is **links to follow our official X / Facebook / LinkedIn pages**: we
+> need DGD to confirm which accounts are the official ones before we add them.
+>
+> The rest of this page is the 21 September update, kept as it was.
+
 **21 September 2026. For the team.** A demo build is attached so you can put
 the app on your own phone and look at it.
 

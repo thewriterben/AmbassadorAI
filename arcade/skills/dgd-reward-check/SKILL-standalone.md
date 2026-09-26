@@ -316,27 +316,28 @@ shape).
 
 # Appendix B — What the app and server actually do
 
-Facts as of **build 1.0.5 (25 September 2026)**. Check these before asserting
+Facts as of **Android 1.0.6 / iOS 1.0.5 (26 September 2026)**. Check these before asserting
 anything about how the app behaves — several proposals that sound fine collide
 with one of them, and the collision is usually the most useful thing to say.
 
 ### What the app emits
 
-Two referral URLs, built in `DigitalGoldSite.kt` (Android) and its iOS
-counterpart:
+**Android 1.0.6 (26 Sep 2026) emits no referral URL at all** — Path A is
+shipped there. Invite Friends sends one fixed message (no username, code or
+link) and shows one QR for everyone, `https://digitalgold.co/app`. No
+friend's-username field, no Copy Invite Link/Code, no "your username is your
+invite code" wording, no App Links, and upgraded installs delete the old
+`dgd.friendCode` key. `ReferralSurfaceGuardTest` fails the build if any of it
+comes back.
 
-- `inviteLinkURL` → `https://digitalgold.co/signup?ref=USERNAME` — Copy Invite
-  Link. **Carries no channel information at all**, byte-identical to a website
-  referral.
-- `appInviteURL` → `https://digitalgold.co/app?ref=USERNAME` — Display QR. An
-  app-download link with a referral code.
+**iOS still carries the 1.0.5 surface until the Mac applies
+`integration/IOS-PATH-A-CHANGE-REQUEST.md`:** Copy Invite Link
+(`/signup?ref=USERNAME`), a per-user QR (`/app?ref=USERNAME`), Copy Invite
+Code, the friend field, and Universal Links that capture `?ref=`. Until that
+lands, answer iOS questions against the old surface.
 
-Surfaced in the member preview: **Get Digital Gold → Credentials → Wallet →
-Receive → Invite Friends**. Any email address and any verification code gets you
-there; nothing is sent and no account is created.
-
-**The username *is* the invite code.** This is why the leaderboard cannot show
-DGD usernames — doing so would publish invite codes.
+**The username *is* the invite code** on the website. This is why the
+leaderboard cannot show DGD usernames — doing so would publish invite codes.
 
 ### What the arcade server trusts — R2
 
