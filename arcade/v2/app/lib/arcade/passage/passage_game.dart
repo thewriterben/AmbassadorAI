@@ -558,24 +558,24 @@ class PassageGame extends FlameGame {
       case SimEventKind.ability:
         switch (e.ability!) {
           case AbilityKind.dash:
-            Audio.instance.fwLift();
+            Audio.instance.abDash();
           case AbilityKind.grapple:
-            Audio.instance.specialFire();
+            Audio.instance.abGrapple();
           case AbilityKind.teleport:
             _pops.add(_Pop(Offset(sim.coinX, e.y), true));
             _pops.add(_Pop(Offset(sim.coinX, sim.coinY), true));
             _trail.clear(); // a blink leaves no wake between the two places
-            Audio.instance.fwBurst();
+            Audio.instance.abBlink();
           case AbilityKind.freeze:
-            Audio.instance.coinFlip();
+            Audio.instance.abFreezeFire();
           case AbilityKind.tractor:
-            Audio.instance.specialCreate();
+            Audio.instance.abTractor();
         }
         HapticFeedback.selectionClick();
         run.tick();
       case SimEventKind.frozeCoin:
         _pops.add(_Pop(Offset(e.x, e.y), false));
-        Audio.instance.ting();
+        Audio.instance.abFreezeHit();
       case SimEventKind.slotChanged:
         run.tick();
     }

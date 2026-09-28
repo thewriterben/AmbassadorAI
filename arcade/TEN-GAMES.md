@@ -599,6 +599,28 @@ with the panel, so a rebuild cannot replay it.
 A test checks that every effect the app lists exists on disk, the boar's
 included.
 
+**Ability sounds, the same day.** The five abilities also borrowed Coin
+Quest's effects. They now have their own, from the same generator. They
+sound like gear rather than like the boar, since they are what the shop
+sells:
+
+| Ability | Sound |
+|---|---|
+| Dash | A sharp rushing whoosh with a rising drive tone |
+| Grapple | A whip crack and a chain rattling out |
+| Blink | A teleport zap: a fast sweep and a sparkle pop |
+| Freeze shot | An icy "pew" leaving the snout, and a crystalline crackle when it freezes its coin |
+| Tractor beam | A warbling hum that swells up |
+
+The spectrograms caught two faults:
+- **Aliasing.** The grapple's and freeze-hit's top bell partials sat above
+  the file's frequency limit and folded back as stray tones. They are now
+  dropped.
+- **An inaudible tractor.** The hum was pitched at 180-240 Hz, which phone
+  speakers barely play. It now sits at 340-450 Hz, with harmonics.
+
+On the Pixel, every ability was fired across three loadouts with no errors.
+
 ### Silver coins re-toned — 2026-09-28
 
 The owner noticed the silver coins read as white, not metal. The render

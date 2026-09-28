@@ -11,6 +11,12 @@ a vault clang for every strike. This writes, into assets/audio/:
                        snorting growl (layered over the game's impact)
   snort_<stage>        a contented snort on touchdown
   stage_up             the fanfare when the boar grows into its next stage
+  ab_dash              dash: a sharp rushing whoosh with a rising drive tone
+  ab_grapple           grapple: a whip crack and a chain rattling out
+  ab_blink             blink: a teleport zap, a fast sweep and a sparkle pop
+  ab_freeze_fire       freeze shot leaving the snout: an icy "pew"
+  ab_freeze_hit        the shot freezing its coin: a crystalline crackle
+  ab_tractor           tractor beam: a warbling hum that swells up
 
 Everything is synthesised, like the rest of the app's effects (see
 gen_cq_audio2.py): 22,050 Hz mono 16-bit, three round-robin takes of
@@ -230,6 +236,127 @@ def stage_up():
     return out
 
 
+# ----------------------------------------------------------------- abilities
+# They fire rarely (every one is on a cooldown or a charge count), so one
+# take each. None is pig-like: these are the powers the shop sells, and they
+# should sound like gear, not like the boar.
+
+def _t(dur):
+    return np.arange(int(dur * SR)) / SR
+
+
+def bell(freqs, dur, decay=6.0):
+    """Short metal: slightly inharmonic partials, each ringing down."""
+    tt = _t(dur)
+    out = np.zeros(len(tt))
+    for k, (ratio, amp) in enumerate([(1, 1.0), (2.76, 0.5), (5.4, 0.25), (8.93, 0.12)]):
+        for f in freqs:
+            hz = f * ratio * PITCH
+            if hz > SR * 0.45:
+                continue  # above Nyquist it would fold back as a stray tone
+            out += amp * np.sin(2 * np.pi * hz * tt) * np.exp(-(decay + 3 * k) * tt)
+    return out
+
+
+def ab_dash():
+    dur = 0.42
+    n = int(dur * SR)
+    tt = _t(dur)
+    # Air rushing past: a band sweeping up, then falling away.
+    centre = 700 + 3800 * np.sin(np.pi * np.clip(tt / 0.32, 0, 1)) ** 0.8
+    rush = sweep_filter(rng.standard_normal(n), centre, 900) * env(n, 0.03, 5.0)
+    # The drive: a buzzy tone sliding up an octave.
+    f = (140 + 140 * np.clip(tt / 0.25, 0, 1) ** 0.7) * PITCH
+    drive = np.sign(np.sin(2 * np.pi * np.cumsum(f) / SR)) * 0.5 + np.sin(2 * np.pi * np.cumsum(f) / SR)
+    drive = formants(drive, [(900, 400, 1.0), (2200, 600, 0.4)], lowpass=3000) * env(n, 0.01, 6.0)
+    return rush / np.max(np.abs(rush)) + 0.5 * drive / np.max(np.abs(drive))
+
+
+def ab_grapple():
+    dur = 0.6
+    n = int(dur * SR)
+    out = np.zeros(n)
+    # The whip: a very short, bright crack.
+    crack = sweep_filter(rng.standard_normal(n), np.full(n, 3200.0), 1400) * env(n, 0.001, 70.0)
+    out += 1.2 * crack / np.max(np.abs(crack))
+    # The chain paying out: clinks, quick at first and slowing, each a small
+    # bell a little different in pitch.
+    t0 = 0.03
+    gap = 0.028
+    i = 0
+    while t0 < dur - 0.08:
+        start = int(t0 * SR)
+        clink = bell([1900 + 260 * ((i * 7) % 5)], 0.08, decay=38.0)
+        m = min(len(clink), n - start)
+        out[start:start + m] += 0.55 * (0.85 ** (i * 0.5)) * clink[:m]
+        t0 += gap
+        gap *= 1.12
+        i += 1
+    return out
+
+
+def ab_blink():
+    dur = 0.36
+    n = int(dur * SR)
+    tt = _t(dur)
+    # Out of here: a sine swept down fast, ring-modulated, then back in:
+    # a quick sweep up ending in a pop.
+    f = np.where(tt < 0.14, 1600 - 1300 * (tt / 0.14), 300 + 2600 * np.clip((tt - 0.14) / 0.12, 0, 1) ** 1.5) * PITCH
+    zap = np.sin(2 * np.pi * np.cumsum(f) / SR) * (0.6 + 0.4 * np.sin(2 * np.pi * 55 * tt))
+    zap *= np.where(tt < 0.14, 1 - 0.4 * tt / 0.14, 0.6 + 0.4 * np.clip((tt - 0.14) / 0.12, 0, 1)) * env(n, 0.004, 1.5)
+    pop_at = int(0.26 * SR)
+    sparkle = bell([2637], dur - 0.26, decay=18.0)
+    out = zap / np.max(np.abs(zap))
+    out[pop_at:pop_at + len(sparkle)] += 0.8 * sparkle / np.max(np.abs(sparkle))
+    return out
+
+
+def ab_freeze_fire():
+    dur = 0.3
+    n = int(dur * SR)
+    tt = _t(dur)
+    # A "pew": a clear tone dropping fast, with a glassy overtone and a puff.
+    f = (2400 * np.exp(-9 * tt) + 700) * PITCH
+    ph = np.cumsum(f) / SR
+    tone = np.sin(2 * np.pi * ph) + 0.35 * np.sin(2 * np.pi * 2.7 * ph)
+    puff = sweep_filter(rng.standard_normal(n), np.full(n, 5000.0), 1500) * env(n, 0.002, 30.0)
+    return tone * env(n, 0.003, 6.0) + 0.25 * puff / np.max(np.abs(puff))
+
+
+def ab_freeze_hit():
+    dur = 0.7
+    n = int(dur * SR)
+    out = np.zeros(n)
+    # Ice forming: a cluster of high glassy chimes landing close together,
+    # over a thin crackle.
+    for i, (f, at) in enumerate([(2960, 0.0), (3520, 0.025), (4190, 0.05), (3136, 0.09), (4700, 0.13)]):
+        c = bell([f], dur - at, decay=9.0 + 2 * i)
+        start = int(at * SR)
+        out[start:start + len(c)] += (0.9 - 0.12 * i) * c[:n - start]
+    crackle = rng.standard_normal(n) * (rng.random(n) < 0.04)
+    crackle = sweep_filter(crackle, np.full(n, 6000.0), 2000) * env(n, 0.002, 7.0)
+    return out / np.max(np.abs(out)) + 0.5 * crackle / (np.max(np.abs(crackle)) or 1)
+
+
+def ab_tractor():
+    dur = 1.0
+    n = int(dur * SR)
+    tt = _t(dur)
+    # A hum that swells in and warbles: two detuned tones with a slow
+    # vibrato and their harmonics, the pitch rising a little as it locks.
+    # Pitched where a phone speaker can play it: the first version sat at
+    # 180-240 Hz, which phones barely reproduce, and would have been all
+    # but silent.
+    base = (340 + 110 * np.clip(tt / 0.6, 0, 1)) * PITCH
+    vib = 1 + 0.035 * np.sin(2 * np.pi * 7.5 * tt)
+    ph1 = np.cumsum(base * vib) / SR
+    ph2 = np.cumsum(base * 1.012 * vib) / SR
+    hum = (np.sin(2 * np.pi * ph1) + np.sin(2 * np.pi * ph2) + 0.55 * np.sin(2 * np.pi * 2 * ph1)
+           + 0.35 * np.sin(2 * np.pi * 3 * ph2) + 0.2 * np.sin(2 * np.pi * 4 * ph1))
+    shape = np.sin(np.pi * np.clip(tt / dur, 0, 1)) ** 0.6
+    return formants(hum, [(700, 300, 1.0), (1600, 500, 0.5)], lowpass=3500) * shape
+
+
 def main():
     os.makedirs(OUT, exist_ok=True)
     written = []
@@ -242,6 +369,16 @@ def main():
         written.append(f"snort_{stage}")
     write("stage_up", stage_up(), peak_db=-2.0)
     written.append("stage_up")
+    for name, fn, peak in [
+        ("ab_dash", ab_dash, -3.0),
+        ("ab_grapple", ab_grapple, -3.0),
+        ("ab_blink", ab_blink, -3.0),
+        ("ab_freeze_fire", ab_freeze_fire, -4.0),
+        ("ab_freeze_hit", ab_freeze_hit, -3.5),
+        ("ab_tractor", ab_tractor, -3.0),
+    ]:
+        write(name, fn(), peak_db=peak)
+        written.append(name)
     print(f"wrote {len(written)} effects to {OUT}")
 
 

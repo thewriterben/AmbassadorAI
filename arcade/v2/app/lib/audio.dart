@@ -60,6 +60,8 @@ class Audio extends ChangeNotifier with WidgetsBindingObserver {
     'flap_razorback_1.wav', 'flap_razorback_2.wav', 'flap_razorback_3.wav',
     'grunt_razorback_1.wav', 'grunt_razorback_2.wav', 'grunt_razorback_3.wav', 'snort_razorback.wav',
     'stage_up.wav',
+    'ab_dash.wav', 'ab_grapple.wav', 'ab_blink.wav',
+    'ab_freeze_fire.wav', 'ab_freeze_hit.wav', 'ab_tractor.wav',
   ];
 
   static const _coreFiles = [
@@ -379,6 +381,17 @@ class Audio extends ChangeNotifier with WidgetsBindingObserver {
 
   /// The boar has grown into its next stage.
   void stageUp() => play('stage_up.wav', volume: 0.85, minGapMs: 2000);
+
+  // When Pigs Fly's abilities, one sound each (tools/gen_pigs_sfx.py). They
+  // sound like gear, not like the boar: they are what the shop sells.
+  void abDash() => play('ab_dash.wav', volume: 0.8, minGapMs: 200);
+  void abGrapple() => play('ab_grapple.wav', volume: 0.8, minGapMs: 200);
+  void abBlink() => play('ab_blink.wav', volume: 0.8, minGapMs: 200);
+  void abFreezeFire() => play('ab_freeze_fire.wav', volume: 0.7, minGapMs: 200);
+
+  /// The freeze shot reaching its coin.
+  void abFreezeHit() => play('ab_freeze_hit.wav', volume: 0.75, minGapMs: 200);
+  void abTractor() => play('ab_tractor.wav', volume: 0.75, minGapMs: 500);
 
   // ---------------------------------------------------------------- music
 

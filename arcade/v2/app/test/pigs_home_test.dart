@@ -60,6 +60,9 @@ void main() {
       expect(Audio.instance.allSfx, containsAll(['flap_${stage}_1.wav', 'grunt_${stage}_3.wav', 'snort_$stage.wav']));
     }
     expect(Audio.instance.allSfx, contains('stage_up.wav'));
+    expect(Audio.instance.allSfx, containsAll([
+      for (final a in ['dash', 'grapple', 'blink', 'freeze_fire', 'freeze_hit', 'tractor']) 'ab_$a.wav',
+    ]));
   });
 
   test('the snapshot carries the shop and the loadout', () {
