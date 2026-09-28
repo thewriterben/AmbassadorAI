@@ -594,7 +594,17 @@ The owner then asked for the home screen's hero coin to match, and it does
 - the same star flares at the rim as they cross the middle
 
 The float, the chime on each sweep and the tap-to-flip are unchanged. The
-leaderboard's first-place medal still uses the original `coin_gold.png`.
+leaderboard's first-place medal, and its empty-board coin, followed the same
+day, so every gold coin in the app is now `coin_gold_shiny.png`. The original
+`coin_gold.png` stays in the repo as the source render, unused by the app.
+
+The leaderboard's third-place rose-gold medal followed too
+(`tools/gen_rose_coin.py`). It is made from the gold render through a
+rose-gold ramp: plum-brown grooves, a warm pink-copper body and a pale blush
+at the top. It stays rose gold rather than becoming the game's copper, since
+the medals are precious metals. The original is kept in `tools/source/`.
+Every coin in the app, the game's three and the leaderboard's three, now
+shares the one lit render.
 
 **The flare, redone.** The owner didn't like the first flare, two stroked
 lines that read as a plus sign laid on the coin. It is now light

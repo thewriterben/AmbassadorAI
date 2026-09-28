@@ -1,8 +1,9 @@
-"""Makes coin_gold_shiny.png: When Pigs Fly's gold coin, polished.
+"""Makes coin_gold_shiny.png: the app's polished gold coin.
 
-The shared coin_gold.png is also the brand's hero coin on the home screen
-and the leaderboard's first-place medal, so it is left as it is; this is a
-separate, shinier copy for the game only. Like the copper
+Made first for When Pigs Fly, then taken up by the home screen's hero coin
+and the leaderboard's first-place medal, so every gold coin in the app is
+this one. The original coin_gold.png is kept, unused by the app, as the
+source render. Like the copper
 (gen_copper_coin.py) it maps the gold render's brightness through a colour
 ramp: deep amber in the grooves, rich saturated gold in the body, and a
 near-white warm glint at the top. The wider range, darker shadows and
