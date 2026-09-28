@@ -138,6 +138,41 @@ abilities and are not in the ledger; they have no value outside the game.
 Prices and growth thresholds match the phone game's, but the two are separate
 ledgers: nothing earned on the phone counts here.
 
+## 5a. Top 100 boards and their prizes (DGD's decision, 2026-09-28)
+
+Four boards: **When Pigs Fly** and **Coin Quest**, each **daily** (UTC day) and
+**yearly** (UTC calendar year), 100 places each.
+
+| Board | Ranked by | Each winner (`rules.json`) |
+|---|---|---|
+| When Pigs Fly, daily / yearly | best single verified flight score in the period | $5.00 / $50.00 validation credit |
+| Coin Quest, daily / yearly | sum of the best verified *winning* score on each level in the period | $5.00 / $50.00 validation credit |
+
+- **The prize** is a *non-transferable DGD validation credit*, recorded in its
+  own unit (`USD_VALIDATION_CREDIT`, cents) alongside, never mixed with, DGD.
+  What it may be spent on, how it is delivered and how long it lasts are
+  counsel's and DGD's to define (rules page placeholders).
+- **Order**: value, then who reached it first, then account id, so exactly
+  100 win. Too-fast runs and players under review are off the board.
+- **Eligibility** is stored from each sign-in token (`players.eligible`).
+  Ineligible players keep their place; the prize goes to the next eligible.
+- **Settlement**: the server settles every closed day and year at start and
+  every 10 minutes (`settleBoards`, also `POST /admin/boards/settle`); each
+  period is settled once (`board_settlements`) and each prize can be
+  recorded once (ledger UNIQUE).
+- **Every prize is held.** A person at DGD reviews the run(s) behind it
+  (`admin.mjs review`, `runs <sub>`, `board <game> <period> <at>`) and
+  approves or voids. Prizes are not bounded by the DGD daily caps; their cost
+  is fixed by the number of places. Batches are per unit
+  (`admin.mjs batch --credit`).
+- **Cost at the top end**: 2 games × 100 × $5 × 365 = **$365,000 a year**,
+  plus 2 × 100 × $50 = **$10,000** for the yearly boards.
+- **Why review matters most here.** Firsts cap what any player can accrue;
+  ranked prizes pay whoever is best every day. Replay proves a run obeyed the
+  game, not that a person played it — the test autopilot flies 300–600.
+  One verified person per account (DGD's `eligible`) and review of every
+  winner are what stand between the prize pool and a bot farm.
+
 ## 6. Payout tooling — the server never pays
 
 Ledger statuses: `would_award` (dry run) → `owed` → `batched` → `settled`;
@@ -148,8 +183,9 @@ OPERATOR="Jane Ops" ADMIN_TOKEN=... ARCADE_URL=https://digitalgold.co/arcade/api
   review                         held entries, held/banned players, flagged runs
   approve <entry> | void <entry> [reason]
   player <sub> ok|held|banned [reason]
-  batch [note]                   every owed entry into a new open batch
-  export <batch> [file]          one row per player: sub, entries, amount
+  settle-boards | board <game> <day|year> <at> | runs <sub>
+  batch [--credit] [note]        every owed entry of one unit (DGD, or --credit) into a new open batch
+  export <batch> [file]          one row per player: sub, unit, entries, amount
   settle <batch> <reference>     after DGD has paid, with DGD's own payment reference
   cancel <batch>                 back to owed
   ledger [file] | audit
@@ -220,7 +256,12 @@ This arcade exists because the phone app may not reward play (App Review
    DGD sets `eligible` in the token.
 3. **Prize and skill-contest law** where players are. When Pigs Fly is a
    game of skill with a seeded layout; counsel should confirm that framing.
-4. **Tax** thresholds and what DGD collects to meet them.
+   The Top 100 boards are ranked prize contests: official-rules content,
+   any state registration or bonding thresholds (the yearly pool alone is
+   $10,000), and what a "validation credit" is legally.
+4. **Tax** thresholds and what DGD collects to meet them. A daily Top 100
+   winner can pass common reporting thresholds within a year ($5 × 365 =
+   $1,825 per board).
 5. **Payout**: destination, KYC threshold, who runs `settle`.
 6. **DGD's legal character**: what paying it for play means.
 7. **Privacy notice**: the server stores `sub`, a handle, run times, moves

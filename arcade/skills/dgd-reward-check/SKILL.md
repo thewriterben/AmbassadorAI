@@ -55,7 +55,7 @@ the argument turns on, and the file records what was checked and when.
 
 ## Then look up whether it has already been answered
 
-Seven versions of this question have been worked through and recorded. Read
+Eight versions of this question have been worked through and recorded. Read
 `references/precedents.md` before answering — if the proposal matches one, say
 so and give the recorded reasoning rather than re-deriving it, which risks
 landing somewhere subtly different and undermining a decision already taken.

@@ -153,3 +153,18 @@ helps by landing on games: guest play, rewards disclosed in one line (not
 hidden, not the headline), a rules page, and no special treatment of app
 visitors. Any later proposal to add reward wording, parameters, a WebView, or
 placement on a results screen moves it back to exposed.
+
+## 8. Top 100 per day and per year, with a validation credit (answered 28 Sep 2026: web only, built in test mode)
+
+Off Apple's turf structurally (web, no app activity, neutral link), but the
+reward changes kind: firsts cap what anyone can accrue; ranked prizes pay the
+best every day. DGD chose: both games with separate daily and yearly boards
+(400 places), a non-transferable validation credit ($5 daily, $50 yearly),
+repeat winners allowed, every winner reviewed.
+
+What it does not settle: bots and multiple accounts (replay proves the game
+was obeyed, not that a person played — review and one-person-one-account are
+the controls); contest, prize-promotion and tax law (counsel); whether a
+"validation credit" is value (precedent 2 — the name is not the question);
+cost ($365,000 a year daily at the top end, $10,000 yearly). The app link must
+stay neutral and the boards must not become the landing's headline.
