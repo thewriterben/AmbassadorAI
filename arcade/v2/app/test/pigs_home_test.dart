@@ -8,6 +8,8 @@ import 'package:puzzle_pack/audio.dart';
 import 'package:puzzle_pack/arcade/cabinet/cabinet.dart';
 import 'package:puzzle_pack/arcade/passage/abilities.dart';
 import 'package:puzzle_pack/arcade/passage/passage_game.dart';
+import 'package:puzzle_pack/arcade/passage/boar.dart';
+import 'package:puzzle_pack/arcade/passage/pigs_dev.dart';
 import 'package:puzzle_pack/arcade/passage/pigs_home_screen.dart';
 import 'package:puzzle_pack/arcade/progress.dart';
 
@@ -63,6 +65,20 @@ void main() {
     expect(Audio.instance.allSfx, containsAll([
       for (final a in ['dash', 'grapple', 'blink', 'freeze_fire', 'freeze_hit', 'tractor']) 'ab_$a.wav',
     ]));
+  });
+
+  test('the DEV stage steps both ways and wraps', () {
+    expect(PigsDev.step(BoarStage.juvenile, -1), BoarStage.piglet);
+    expect(PigsDev.step(BoarStage.piglet, -1), BoarStage.razorback);
+    expect(PigsDev.step(BoarStage.razorback, 1), BoarStage.piglet);
+    expect(PigsDev.step(BoarStage.piglet, 1), BoarStage.juvenile);
+  });
+
+  test('outside a DEV build the boar that flies is always the player own stage', () {
+    // Tests run without DGD_DEV, like a store build.
+    p.apply(shop(), persist: false); // a juvenile
+    expect(PigsDev.stage, isNull);
+    expect(PigsDev.effective, BoarStage.juvenile);
   });
 
   test('the snapshot carries the shop and the loadout', () {

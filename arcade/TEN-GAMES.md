@@ -547,6 +547,28 @@ wide. It now wraps.
 - **One fix:** the confirmation message sat over the Fly button for four
   seconds. It is now shorter and lifted clear.
 
+### Picking the boar's stage in DEV, both ways — 2026-09-28
+
+The owner wanted to start as the piglet. DEV could only step the stage
+forward, the choice was lost on restart, and the front room always showed
+the player's own stage. On the test phone that was a juvenile, cached from
+a local-server session that the no-backend DEV build can never refresh.
+
+`PigsDev` (`pigs_dev.dart`) now holds the DEV stage choice:
+- **Saved on the device.** A stage picked for testing survives a restart.
+- **Picked from the front room.** DEV builds show a ◀ stage ▶ row under the
+  boar card, plus Reset to go back to the player's own stage.
+- **Stepped both ways in play.** The in-game DEV menu has "Previous boar
+  stage" beside "Next".
+- **Visible.** The boar card shows the boar that will actually fly, labelled
+  "FLYING AS (DEV)" when it isn't the player's own.
+
+Without DGD_DEV none of it is read: the boar that flies is always the
+player's own, and a test pins that. Verified on the Pixel: juvenile, one
+step back to piglet, the app force-stopped and relaunched, still piglet, and
+the flight started as the piglet. "Use my own" became "Reset" because the
+longer label ran off the phone's edge.
+
 ### An easier variant, behind a DEV toggle — 2026-09-28
 
 The simulated players say the standard passage is hard: most runs end before

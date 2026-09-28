@@ -8,6 +8,7 @@ import '../cabinet/cabinet.dart';
 import '../progress.dart';
 import 'abilities.dart';
 import 'boar.dart';
+import 'pigs_dev.dart';
 import 'grow_up.dart';
 import 'eras.dart';
 import 'passage_game.dart';
@@ -28,18 +29,11 @@ class _PassageScreenState extends State<PassageScreen> {
   /// the three builders below are first called.
   PassageGame? _game;
 
-  /// The DEV menu's stage choice, kept across "Fly again" so a stage being
-  /// looked at does not reset every run. Null means the player's own boar.
-  static BoarStage? _devStage;
-
   /// DEV: fly the easier variant (PassageTuning.easy) from the next run, to
   /// judge whether the standard passage is too hard. Kept across runs, like
   /// the other DEV choices; off for everyone else.
   static bool _devEasy = false;
 
-  /// The boar this player has grown, as the server last said. Read when a
-  /// run is built, so a stage reached on one run's claim flies on the next.
-  static BoarStage get _ownStage => BoarStage.fromId(ArcadeProgress.instance.passageStage) ?? BoarStage.piglet;
 
   /// DEV loadouts, cycled from the menu, for trying abilities without
   /// unlocking them. Index 0 means the player's own loadout from the shop.
@@ -80,7 +74,9 @@ class _PassageScreenState extends State<PassageScreen> {
       musicTrack: Audio.trackPigs,
       builder: (run) => _game = PassageGame(
         run: run,
-        stage: _devStage ?? _ownStage,
+        // The player's own boar, as the server last said (so a stage reached
+        // on one run's claim flies on the next), unless DEV has picked one.
+        stage: PigsDev.effective,
         loadout: _loadout,
         tuning: _devEasy ? PassageTuning.easy : PassageTuning.standard,
       ),
@@ -108,7 +104,11 @@ class _PassageScreenState extends State<PassageScreen> {
         'Difficulty (next run): ${_devEasy ? 'standard' : 'easier'}': () => _devEasy = !_devEasy,
         'Next boar stage': () {
           final g = _game;
-          if (g != null) _devStage = g.devNextStage();
+          if (g != null) PigsDev.set(g.devStepStage(1));
+        },
+        'Previous boar stage': () {
+          final g = _game;
+          if (g != null) PigsDev.set(g.devStepStage(-1));
         },
         // Loadouts apply from the next run: a run's abilities are fixed when
         // it starts, the way the shop's will be.

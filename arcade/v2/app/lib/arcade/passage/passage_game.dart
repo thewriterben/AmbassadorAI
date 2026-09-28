@@ -629,8 +629,12 @@ class PassageGame extends FlameGame {
   }
 
   /// Cycles the boar through its three stages, mid-run.
-  BoarStage devNextStage() {
-    stage = BoarStage.values[(stage.index + 1) % BoarStage.values.length];
+  BoarStage devNextStage() => devStepStage(1);
+
+  /// Moves the boar [by] stages (negative is back toward the piglet),
+  /// wrapping at the ends, mid-run.
+  BoarStage devStepStage(int by) {
+    stage = BoarStage.values[(stage.index + by) % BoarStage.values.length];
     if (_laidOut) {
       final spec = BoarSpec.all[stage]!;
       sim.devSetBody(spec.bodyRadius, spec.bodyHalfLength);

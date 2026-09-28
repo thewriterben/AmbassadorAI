@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
 import '../../audio.dart';
+import '../../dev.dart';
 import '../../theme.dart';
 import '../progress.dart';
 import 'abilities.dart';
 import 'boar.dart';
 import 'passage_screen.dart';
+import 'pigs_dev.dart';
 
 /// When Pigs Fly's front room: the boar you have grown, the abilities you
 /// have unlocked and the two you are taking up, and the button that flies.
@@ -36,6 +38,26 @@ class _PigsHomeScreenState extends State<PigsHomeScreen> {
   void initState() {
     super.initState();
     Audio.instance.setTrack(Audio.trackPigs);
+    // The DEV stage choice is kept on the device; show it once it is read.
+    PigsDev.load().then((_) {
+      if (mounted) setState(() {});
+    });
+  }
+
+  Future<void> _devStep(int by) async {
+    await PigsDev.set(PigsDev.step(PigsDev.effective, by));
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _devOwn() async {
+    await PigsDev.set(null);
+    if (mounted) setState(() {});
+  }
+
+  /// Returning from a run: the in-game DEV menu may have changed the stage.
+  Future<void> _flyAndRefresh() async {
+    await _fly();
+    if (mounted) setState(() {});
   }
 
   @override
@@ -125,6 +147,10 @@ class _PigsHomeScreenState extends State<PigsHomeScreen> {
                   padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
                   children: [
                     _BoarCard(p: _p, showProgress: shop),
+                    if (Dev.enabled) ...[
+                      const SizedBox(height: 10),
+                      _DevStageRow(onStep: _devStep, onOwn: _devOwn),
+                    ],
                     if (shop) ...[
                       const SizedBox(height: 18),
                       _Loadout(ids: _p.passageLoadout),
@@ -182,7 +208,7 @@ class _PigsHomeScreenState extends State<PigsHomeScreen> {
                     width: double.infinity,
                     height: 52,
                     child: FilledButton(
-                      onPressed: _fly,
+                      onPressed: _flyAndRefresh,
                       child: const Text('Fly', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),
                     ),
                   ),
@@ -215,7 +241,9 @@ class _BoarCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final stage = BoarStage.fromId(p.passageStage) ?? BoarStage.piglet;
+    // The boar that will fly. In a DEV build that may be a stage picked for
+    // testing, and then the progress below is still the player's own.
+    final stage = PigsDev.effective;
     final next = BoarStage.fromId(p.passageNextStage);
     final nextAt = p.passageNextAt;
     final span = nextAt == null ? 1 : (nextAt - p.passageStageAt).clamp(1, 1 << 31);
@@ -231,7 +259,7 @@ class _BoarCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('YOUR BOAR', style: _kicker),
+                Text(PigsDev.stage == null ? 'YOUR BOAR' : 'FLYING AS (DEV)', style: _kicker),
                 const SizedBox(height: 4),
                 Text(
                   stage.label,
@@ -407,6 +435,56 @@ class _AbilityRow extends StatelessWidget {
                       : Text('${a.owned ? 'Level ${a.level + 1}' : 'Unlock'} · ${_fmt(cost)}'),
                 ),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// DEV: step the boar to fly back or forward, or reset to the player's own.
+class _DevStageRow extends StatelessWidget {
+  final void Function(int by) onStep;
+  final VoidCallback onOwn;
+  const _DevStageRow({required this.onStep, required this.onOwn});
+
+  @override
+  Widget build(BuildContext context) {
+    final picked = PigsDev.stage;
+    return Container(
+      padding: const EdgeInsets.fromLTRB(10, 4, 6, 4),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppTheme.warning.withValues(alpha: 0.5)),
+      ),
+      child: Row(
+        children: [
+          Text('DEV STAGE', style: _kicker.copyWith(color: AppTheme.warning)),
+          const Spacer(),
+          IconButton(
+            tooltip: 'Previous stage',
+            onPressed: () => onStep(-1),
+            icon: const Icon(Icons.chevron_left_rounded, color: AppTheme.text),
+          ),
+          SizedBox(
+            width: 86,
+            child: Text(
+              PigsDev.effective.label,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.text),
+            ),
+          ),
+          IconButton(
+            tooltip: 'Next stage',
+            onPressed: () => onStep(1),
+            icon: const Icon(Icons.chevron_right_rounded, color: AppTheme.text),
+          ),
+          // "Reset", not "Use my own": the longer label ran off the edge of a
+          // phone. It goes back to the player's own, grown boar.
+          TextButton(
+            onPressed: picked == null ? null : onOwn,
+            style: TextButton.styleFrom(visualDensity: VisualDensity.compact),
+            child: const Text('Reset'),
           ),
         ],
       ),
