@@ -70,7 +70,7 @@ class _PassageScreenState extends State<PassageScreen> {
       gameId: 'passage',
       title: 'When Pigs Fly',
       kicker: 'ONE TAP',
-      musicTrack: Audio.trackLevel,
+      musicTrack: Audio.trackPigs,
       builder: (run) => _game = PassageGame(run: run, stage: _devStage ?? _ownStage, loadout: _loadout),
       hudBuilder: (context, run) => _Hud(game: _game!),
       overlayBuilder: (context, run) => _Overlay(game: _game!),
@@ -78,6 +78,7 @@ class _PassageScreenState extends State<PassageScreen> {
       resultBuilder: (context, result) => _Result(result: result, game: _game!),
       devActions: () => {
         'Skip to the landing': () => _game?.devSkipToLanding(),
+        'Next era (see its city)': () => _game?.devNextEra(),
         'End short, here': () => _game?.devEndShort(),
         'Full momentum': () => _game?.devMaxMomentum(),
         'Hitbox: ${PassageGame.devShowHitbox ? 'hide' : 'show'}': () =>

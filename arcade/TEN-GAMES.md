@@ -173,7 +173,7 @@ pacing without replacing it with something that does the same work.**
 | Server | `passage` added to the mini-game allow-list; XP `stars × 12`, plus 24 for a full passage, plus `min(12, score ÷ 50)` for coins. The passage bonus keys off stars, not eras reached — reaching 2009 is not flying through it |
 | Min round | 4 s — the shortest legitimate run is a player who taps once and never again, which measures at ~5.3 s and is asserted in the test |
 | Tests | `test/passage_test.dart` — layout reachability, gap floor, the star rule, that a player who stops tapping lands rather than dies, and the coin rules below |
-| Art | The coins are the DGD coin renders Coin Quest ships (`coin_gold`, `coin_silver`, `coin_copper`). The boar is three pixel-art sheets, `boar_{piglet,juvenile,razorback}.png` (placeholders, see below). Everything else is drawn from primitives. Nothing resembling any existing game's look |
+| Art | The coins are the DGD coin renders Coin Quest ships (`coin_gold`, `coin_silver`, `coin_copper`). The boar is the owner's art, three sheets `boar_{piglet,juvenile,razorback}.png` imported by `tool/art/import_boars.py` (see "Final boar art"). The era skylines and gates are drawn in code. Nothing resembling any existing game's look |
 
 ## What playing it on a Pixel found, 2026-09-20
 
@@ -311,9 +311,16 @@ piggy-bank tell.
 
 | Stage | Look | Sheet frame | Drawn at |
 |---|---|---|---|
-| Piglet | Small, golden-blond with cream humbug stripes and blond tufts, stubby wings | 48 px | 5.6 hitbox radii |
-| Juvenile | Filled out, bristly medium fur shifting from brown to gold, a bristle ridge, small tusks | 72 px | 6.6 |
-| Razorback | Full size: gold coat, spined crest, a flowing amber mane over the shoulders, large tusks, battle scars, a red eye, big bronze dragon wings | 108 px | 7.8 |
+| Piglet | Small and chunky: earthy brown with darker back stripes, golden-blond tufts, big shiny eyes, first tusks, stubby wings | 48 px | 5.6 hitbox radii |
+| Juvenile | Filled out, bristly brown, head carried low; a tall dark crest turning gold at the tips, magenta eyes, proper tusks | 72 px | 6.6 |
+| Razorback | Full size, head low: a burnished gold coat, a shaggy mane and crest dark at the roots and gold at the tips, two pairs of tusks, battle scars, a red eye, big bronze dragon wings | 108 px | 7.8 |
+
+*Revised 2026-09-27 from three reference boars the owner supplied, one per
+stage. The coat now goes brown → gold as the boar grows, where it was golden
+throughout. The juvenile and razorback carry their heads low, charging. The
+references are described in words in `WHEN-PIGS-FLY-ART-BRIEF.md` and are not
+in the repository (other people's work); the placeholders were redrawn toward
+them.*
 
 **The hitbox does not grow.** The simulation still flies the coin's circle.
 The razorback a player spent weeks growing must never be harder to fit
@@ -539,6 +546,154 @@ wide. It now wraps.
   and paid.
 - **One fix:** the confirmation message sat over the Fly button for four
   seconds. It is now shorter and lifted clear.
+
+### Music — 2026-09-27
+
+"Flight of the Swine", the owner's own track (2:36), is the game's music. It
+starts in the front room and carries on into the flight without a break,
+since both use the same track and the switch to it is a no-op. Leaving the
+front room hands back to the menu bed. Before, the game borrowed Coin Quest's
+level bed.
+
+**Preparing it** (`assets/audio/music_pigs.mp3`, 2.5 MB):
+- from the 48 kHz WAV, encoded at 128 kbps MP3, which plays on iOS as well as
+  Android
+- loudness measured and brought down linearly from −8.5 LUFS to about −20,
+  where the other beds sit (−19 to −22), because all music plays at one
+  volume. At its original level it would have been roughly four times louder
+  than the rest of the app. The source's slight overs (+0.3 dBTP) are gone
+  with the gain.
+- a 20 ms fade in and a 1.5 s fade out, so the loop restarts gently. The
+  source ends at full level rather than fading.
+
+A full passage is shorter than the track, so most runs never reach the loop.
+If the owner wants it to loop perfectly, a version made to loop (matching
+ends, or a crossfaded tail) would drop straight in.
+
+**Verified on the Pixel from the phone's audio system:**
+- the pre-run screen and the flight run a looping 44.1 kHz stereo player
+- the older beds are 22 kHz mono, so that is this track
+- home returns to the 22 kHz menu bed
+
+A test checks the file ships. The source WAV stays with the owner; only the
+encoded MP3 is in the repository.
+
+### Final boar art — 2026-09-27
+
+The owner made the boars, one flying pose per stage, and they replace the
+generated placeholders:
+
+| Stage | Look |
+|---|---|
+| Piglet | A chunky striped piglet in brown and gold, on small white angel wings |
+| Juvenile | A golden boar on broad golden feathered wings, tusks in |
+| Razorback | A scaled golden razorback with a shaggy mane, great curved tusks, on golden dragon wings |
+
+The wings tell the growth story as much as the coat does: angel, bird,
+dragon.
+
+**Import.** `tool/art/import_boars.py` turns each image into the sheet
+contract. It:
+- mirrors the image to face right
+- drops the detached sparkles (a flood fill on a shrunk mask)
+- crops the boar into a square 320 px frame
+- builds the eight frames: a small bob across the wing cycle, a red-tinted hurt
+  frame, and a gently stretched dash frame
+
+The originals are kept in `tool/art/source/` so the sheets can be rebuilt.
+Since the art is a single pose, the wingbeat is a squash-and-stretch the
+renderer adds on every flap.
+
+**The art is sampled smoothly now.** It is detailed rather than on a strict
+pixel grid, and nearest-neighbour shimmered as it scaled and pitched.
+
+**Placement, measured on a grid.** The frames are cropped close, so each
+stage is drawn smaller in hitbox radii than the padded placeholders were: 4.2,
+6.0 and 6.6. The chunky piglet stays small and the razorback is clearly the
+biggest.
+
+**Hitbox.** The capsules fit the new bodies. The razorback's heavier body
+takes the old coin's full height (radius 1.0, half-run 0.75); the others keep
+0.9. No stage is harder to fit through a gap than the coin was, and the
+steady-player guard still flies every stage clean.
+
+**Verified on the Pixel** with the hitbox shown: the front-room portrait, and
+each stage in flight and landing.
+
+### Era skylines — 2026-09-27
+
+The sky behind the passage now carries a city for each era, in silhouette
+(`lib/arcade/passage/city.dart`). They are evocative, not portraits, by the
+owner's choice: period architecture says where and when without drawing any
+specific building. That avoids the likeness questions a few famous buildings
+carry, and it can't be wrong about a date.
+
+| Era | Scene |
+|---|---|
+| 1816 | London: gabled terraces with smoking chimney pots, church spires, domes |
+| 1873 | An American city: brick blocks with cornices, mansard roofs, spires |
+| 1913 | New York: brick with rooftop water tanks, the first skyscrapers |
+| 1923 | Berlin: sawtooth factories and smoking stacks, tenements, few lit windows |
+| 1933 | A Depression-era American city: Art Deco setbacks, many dark windows |
+| 1944 | Bretton Woods: mountains, pines and a grand hotel. The agreement was made at a resort, not in a city |
+| 1971 | Washington: low and classical (the height limit), domes and pediments among trees |
+| 1979 | A late-seventies downtown: brutalist blocks and glass under fluorescent light |
+| 2009 | A glass city at night with aviation lights, and a faint grid across the sky. The first block was not mined anywhere in particular |
+
+**How it's drawn.**
+- Two parallax layers, a hazy far skyline on a higher horizon and a darker
+  near one, both scroll slower than the gates.
+- A building takes the style of the era in play when it passes mid-screen, so
+  each new city rolls in from the right as the era changes.
+- Each building is drawn once into a cached picture. Per frame the skyline is
+  a few picture draws, plus smoke in 1816 and 1923 and a few blinking lights.
+- Lit windows are held dim, so they are never mistaken for coins.
+
+**Found in the first on-device pass.** At first scale the whole city was a
+strip of rooftops half behind the navigation bar, and the chimney smoke read
+as bubbles. Heights were roughly doubled, the far layer raised, and the smoke
+made smaller and fainter.
+
+**Tests.**
+- every era has a city in both layers
+- the skyline has no holes
+- nothing reaches into the top of the screen
+- 1944 is mountains, pines and a hotel and nothing else
+- the same seed builds the same city
+- every era draws
+
+A labelled sheet of all nine, rendered by the game itself, is in
+`v2/dist/shots/pigs-cities.png`. DEV menu: "Next era (see its city)" jumps
+to the start of the next era.
+
+### Era gates — 2026-09-27
+
+The gates were one brushed-metal pillar throughout. They are now built from
+the materials of their era, so the passage belongs to the city behind it
+(`passage_gates.dart`):
+
+| Era | Gate |
+|---|---|
+| 1816 | Fluted Portland-stone columns with volutes |
+| 1873 | Cast-iron columns, banded, with a flared head |
+| 1913 | Riveted steel I-beams with lattice bracing |
+| 1923 | Brick factory chimneys, sooty at the mouth, with an iron band |
+| 1933 | Art Deco pillars: dark stone, brass flutes, a brass chevron and stepped head |
+| 1944 | Timber posts bound with iron straps, on stone caps |
+| 1971 | White marble columns |
+| 1979 | Board-marked concrete with rain stains |
+| 2009 | Dark glass with cyan edge light and circuit traces |
+
+**What doesn't change, whatever the material:**
+- the collision rectangle. Every gate draws inside it and never beyond, and
+  the texture is clipped to its block. The first render showed the steel
+  lattice spilling into the opening.
+- the amber lip at the opening, which is still the one thing that says where
+  the gap is at a glance.
+- a body lighter than the skyline behind, so a gate never sinks into the city.
+
+Each gate is drawn once into a cached picture when it first comes into view.
+A labelled sheet of all nine is in `v2/dist/shots/pigs-gates.png`.
 
 ### Phase 5, tuning and final art — tooling built 2026-09-24
 

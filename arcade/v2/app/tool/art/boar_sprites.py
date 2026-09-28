@@ -38,22 +38,27 @@ def ramp(*hs):
 
 # ------------------------------------------------------------------ palettes
 R = {
-    # piglet: golden-blond with cream humbug stripes, pink snout
-    "p_fur": ramp("#3b2410", "#6d4a1f", "#9a6d2e", "#c49448", "#e6bc68", "#fbe29c"),
-    "p_stripe": ramp("#e8d3a0", "#f8ecc8", "#fffbe8"),
+    # The coat runs brown to gold across the stages (owner's direction,
+    # 2026-09-27, from three reference boars): an earthy brown piglet with
+    # golden-blond tufts, a brown juvenile whose dark crest is going gold at
+    # the tips, and a razorback whose coat has turned gold under a
+    # dark-rooted, gold-tipped mane.
+    # piglet: earthy brown, darker back stripes, golden-blond tufts
+    "p_fur": ramp("#241208", "#472614", "#6e3e22", "#8e5430", "#b0703f", "#cf9360"),
+    "p_tuft": ramp("#6a4a18", "#b88a38", "#e8c068", "#fbe4a0"),
     "p_snout": ramp("#4d2622", "#8c4c42", "#c47e6c", "#e8ab96", "#f8d0c0"),
     "p_wing": ramp("#5a3020", "#94583a", "#c8845a", "#eeb088", "#ffd8b8"),
     "p_bone": ramp("#4a2c12", "#8c5a24", "#c89040", "#f0c878"),
     # juvenile: bristly brown shifting to gold
-    "j_fur": ramp("#26170c", "#4f321a", "#7d5428", "#a8783a", "#cfa050", "#ecc878"),
-    "j_ridge": ramp("#1c1008", "#3e2612", "#6a4420", "#946430", "#c08c44"),
+    "j_fur": ramp("#1e120a", "#3e2414", "#643a1e", "#87522a", "#a87038", "#c89050"),
+    "j_ridge": ramp("#0e0a14", "#1e1628", "#342840", "#4c3c44", "#8a6a3a", "#d4a840"),
     "j_snout": ramp("#3a1e18", "#6e3c32", "#a0645a", "#c8907e", "#e2b4a0"),
     "j_wing": ramp("#2a1008", "#4e2012", "#7a341c", "#a44e28", "#c87040"),
     "j_bone": ramp("#3a2410", "#6e4a1e", "#a8782e", "#dcae50"),
     # razorback: glorious gold, amber crest and cape, bronze dragon wings
-    "r_fur": ramp("#3a2206", "#6e420e", "#a46a14", "#d89c22", "#f5c843", "#fff0a0"),
-    "r_cape": ramp("#260c02", "#521e04", "#86360a", "#b85812", "#e0801c", "#f8b040"),
-    "r_crest": ramp("#2a1002", "#5c2806", "#94460c", "#cc7416", "#f4a82c", "#ffe08a"),
+    "r_fur": ramp("#2e1c08", "#5a3c12", "#8a6220", "#b48a30", "#d6b048", "#f0d27a"),
+    "r_cape": ramp("#1a120a", "#3a2a14", "#6a4e1e", "#a07c2a", "#d4ac3c", "#f8dc78"),
+    "r_crest": ramp("#140e08", "#2e2210", "#5a4418", "#a08028", "#e0b840", "#fff0a0"),
     "r_snout": ramp("#3a1a10", "#6a3622", "#9c5a3a", "#c4845c", "#e0aa80"),
     "r_wing": ramp("#2a0c06", "#541a0c", "#842c12", "#b0441a", "#d8642a", "#f08a40"),
     "r_bone": ramp("#3c2406", "#76480e", "#b47a18", "#e8b030", "#fce078"),
@@ -181,10 +186,15 @@ class Canvas:
             u = 1 - t
             return (u * u * x0 + 2 * u * t * x1 + t * t * x2, u * u * y0 + 2 * u * t * y1 + t * t * y2)
 
+        # base_end: shade from `base` at the root to this at the tip, for
+        # hair that is dark at the root and light at the end.
+        base0 = kw.pop("base", 0.55)
+        base1 = kw.pop("base_end", base0)
         first = None
         for i in range(steps):
             t0, t1 = i / steps, (i + 1) / steps
-            lid = self.seg(at(t0), at(t1), w0 + (w1 - w0) * t0, w0 + (w1 - w0) * t1, rmp, group, **kw)
+            b = base0 + (base1 - base0) * (t0 + t1) / 2
+            lid = self.seg(at(t0), at(t1), w0 + (w1 - w0) * t0, w0 + (w1 - w0) * t1, rmp, group, base=b, **kw)
             if first is None:
                 first = lid
             else:
@@ -250,11 +260,12 @@ STAGES = {
     "piglet": dict(
         S=32, fur="p_fur", snout="p_snout", wingc="p_wing", bone="p_bone",
         body=[(0.44, 0.60, 0.25, 0.185)],
-        head=(0.70, 0.54, 0.17, 0.165), snout_e=(0.865, 0.60, 0.065, 0.062), disc=(0.925, 0.60, 0.022, 0.05),
+        head=(0.705, 0.535, 0.19, 0.18), snout_e=(0.88, 0.60, 0.065, 0.062), disc=(0.94, 0.60, 0.022, 0.05),
         ear_far=[(0.62, 0.45), (0.615, 0.35), (0.67, 0.43)], ear=[(0.655, 0.44), (0.68, 0.33), (0.735, 0.43)],
-        eye=(0.76, 0.495), eye_kind="big",
+        eye=(0.765, 0.475), eye_kind="big",
+        tusk=[(0.885, 0.64), (0.915, 0.63), (0.905, 0.595)], tusk_w=(1.3, 0.7),
         legs=dict(front=(0.60, 0.70), rear=(0.31, 0.70), far_dx=0.035, tuck=(-0.06, 0.10), stand_y=0.875, w=2.6, w_end=2.2),
-        tail=[(0.20, 0.56), (0.13, 0.52), (0.155, 0.47)], tail_w=1.2,
+        tail=[(0.20, 0.56), (0.13, 0.52), (0.12, 0.45)], tail_w=1.2, tail_tuft="p_fur",
         wing=dict(sh=(0.46, 0.45), arm=0.16, fingers=[0.27, 0.21], offs=[15, -45], hip=(-0.13, 0.04), arm_w=1.3),
         slot=(0.33, 0.46, 3),
     ),
@@ -263,11 +274,13 @@ STAGES = {
         body=[(0.42, 0.60, 0.27, 0.17), (0.54, 0.555, 0.16, 0.145)],
         head=(0.725, 0.575, 0.13, 0.125), snout_e=(0.87, 0.625, 0.085, 0.058), disc=(0.945, 0.625, 0.018, 0.048),
         ear_far=[(0.63, 0.49), (0.615, 0.385), (0.67, 0.47)], ear=[(0.665, 0.48), (0.665, 0.37), (0.725, 0.465)],
-        eye=(0.765, 0.535), eye_kind="mid",
-        tusk=[(0.885, 0.67), (0.925, 0.655), (0.915, 0.60)], tusk_w=(1.6, 0.8),
+        eye=(0.765, 0.535), eye_kind="angry", head_drop=0.045,
+        tusk=[(0.875, 0.675), (0.955, 0.655), (0.925, 0.585)], tusk_w=(2.0, 0.8),
         legs=dict(front=(0.61, 0.69), rear=(0.30, 0.70), far_dx=0.035, tuck=(-0.07, 0.11), stand_y=0.885, w=3.4, w_end=2.8),
-        tail=[(0.16, 0.57), (0.10, 0.60), (0.08, 0.66)], tail_w=1.4,
-        ridge=dict(start=(0.69, 0.46), end=(0.25, 0.465), h=(0.035, 0.06), n=11, rmp="j_ridge"),
+        tail=[(0.16, 0.57), (0.10, 0.60), (0.08, 0.66)], tail_w=1.4, tail_tuft="j_ridge",
+        # A tall dark crest from the lowered crown over the hump, the colour
+        # at its tips starting to turn gold.
+        crest=dict(start=(0.69, 0.47), end=(0.25, 0.47), h=(0.07, 0.16), n=12, rmp="j_ridge", peak=0.62),
         wing=dict(sh=(0.50, 0.44), arm=0.18, fingers=[0.30, 0.25, 0.18], offs=[15, -28, -70], hip=(-0.15, 0.05), arm_w=1.8),
         slot=(0.28, 0.46, 4),
     ),
@@ -276,11 +289,11 @@ STAGES = {
         body=[(0.33, 0.605, 0.165, 0.13), (0.44, 0.625, 0.20, 0.13), (0.55, 0.55, 0.19, 0.19)],
         head=(0.725, 0.605, 0.12, 0.11), snout_e=(0.855, 0.65, 0.095, 0.056), disc=(0.94, 0.65, 0.016, 0.045),
         ear_far=[(0.63, 0.51), (0.605, 0.42), (0.66, 0.49)], ear=[(0.665, 0.505), (0.645, 0.41), (0.71, 0.495)],
-        eye=(0.755, 0.585), eye_kind="fierce",
+        eye=(0.755, 0.585), eye_kind="fierce", head_drop=0.05,
         tusk=[(0.865, 0.695), (0.975, 0.66), (0.905, 0.555)], tusk_w=(2.6, 0.9),
         tusk2=[(0.83, 0.685), (0.87, 0.67), (0.865, 0.62)], tusk2_w=(1.6, 0.7),
         legs=dict(front=(0.60, 0.69), rear=(0.28, 0.69), far_dx=0.035, tuck=(-0.08, 0.12), stand_y=0.90, w=5.0, w_end=3.4),
-        tail=[(0.16, 0.56), (0.10, 0.62), (0.085, 0.70)], tail_w=1.5, tail_tuft=True,
+        tail=[(0.16, 0.56), (0.10, 0.62), (0.085, 0.70)], tail_w=1.5, tail_tuft="r_crest",
         crest=dict(start=(0.71, 0.49), end=(0.30, 0.46), h=(0.08, 0.19), n=9, rmp="r_crest", peak=0.62),
         cape=dict(root0=(0.68, 0.47), root1=(0.42, 0.42), n=11, fall=0.27, back=0.09, w=3.4),
         wedge=[(0.64, 0.53), (0.78, 0.575), (0.90, 0.61), (0.905, 0.685), (0.78, 0.705), (0.66, 0.70)],
@@ -378,8 +391,39 @@ def frame_box(st):
     return F, S // 6, S // 4
 
 
+HEAD_KEYS_BOX = ("head", "snout_e", "disc")
+HEAD_KEYS_PTS = ("ear_far", "ear", "tusk", "tusk2", "wedge")
+
+
+def _drop_head(st):
+    """A copy of the stage with the head lowered by st['head_drop']: the
+    charging carriage of the references, snout down, brow forward."""
+    d = st.get("head_drop", 0)
+    if not d:
+        return st
+    st = dict(st)
+    for k in HEAD_KEYS_BOX:
+        u, v, *rest = st[k]
+        st[k] = (u, v + d, *rest)
+    for k in HEAD_KEYS_PTS:
+        if k in st:
+            st[k] = [(u, v + d) for (u, v) in st[k]]
+    u, v = st["eye"]
+    st["eye"] = (u, v + d)
+    st["snarl"] = (0.80, 0.69 + d)
+    if "scars" in st:
+        (a, b) = st["scars"][2]
+        st["scars"] = st["scars"][:2] + [((a[0], a[1] + d), (b[0], b[1] + d))]
+    if "crest" in st:
+        cr = dict(st["crest"])
+        u, v = cr["start"]
+        cr["start"] = (u, v + d * 0.8)
+        st["crest"] = cr
+    return st
+
+
 def frame(stage, fi):
-    st = STAGES[stage]
+    st = _drop_head(STAGES[stage])
     S = st["S"]
     F, ox, oy = frame_box(st)
     c = Canvas(F, S)
@@ -395,12 +439,13 @@ def frame(stage, fi):
     c.curve(tp, st["tail_w"] * 1.3, st["tail_w"], fur, "tail", base=0.55)
     if st.get("tail_tuft"):
         tx, ty = tp[2]
-        c.ellipse(tx, ty + 1, 1.8, 2.8, R["r_crest"], "tail", bias=-0.1)
+        c.ellipse(tx, ty + 1, 1.8, 2.8, R[st["tail_tuft"]], "tail", bias=-0.1)
 
     if stage == "juvenile":
         bristle = lambda x, y: -0.22 if (h32(x, y) > 0.78 or h32(x, y - 1) > 0.86) else 0.0
     elif stage == "razorback":
-        bristle = lambda x, y: -0.16 if h32(x // 1, y // 2) > 0.8 else 0.0
+        # Mottled and weathered: dark flecks, and a few paler ones.
+        bristle = lambda x, y: -0.2 if h32(x, y // 2) > 0.78 else (0.1 if h32(x, y, 4) > 0.93 else 0.0)
     else:
         bristle = None
     for (u, v, ru, rv) in st["body"]:
@@ -411,21 +456,22 @@ def frame(stage, fi):
     if stage == "piglet":
         for (u, v, hgt) in ((0.30, 0.435, 0.05), (0.38, 0.418, 0.06), (0.53, 0.42, 0.05)):
             x, y = P(u, v)
-            c.poly([(x - 1.2, y + 1.5), (x + 0.3, y - hgt * S), (x + 1.4, y + 1.5)], fur, "body",
-                   inten=lambda x_, y_: 0.9)
-        # humbug stripes
+            c.poly([(x - 1.2, y + 1.5), (x + 0.3, y - hgt * S), (x + 1.4, y + 1.5)], R["p_tuft"], "body",
+                   inten=lambda x_, y_: 0.75)
+        # Darker stripes slanting back across the back and flank.
         body = st["body"][0]
         bx, by = P(body[0], body[1])
         rx, ry = body[2] * S, body[3] * S
         pts = []
-        for sv in (-0.35, 0.05, 0.45):
-            for x in range(int(bx - rx * 0.85), int(bx + rx * 0.55)):
-                y = by + sv * ry + math.sin(x * 0.55) * 0.5
-                if ((x + 0.5 - bx) / rx) ** 2 + ((y - by) / ry) ** 2 < 0.8:
+        for k in range(4):
+            x0 = bx - rx * 0.55 + k * rx * 0.36
+            for i in range(int(ry * 0.9)):
+                x, y = x0 - i * 0.45, by - ry * 0.75 + i
+                if ((x + 0.5 - bx) / rx) ** 2 + ((y - by) / ry) ** 2 < 0.75:
                     pts.append((x, y))
-        c.decal(pts, R["p_stripe"], 0.0, absolute=0.5)
+        c.decal(pts, fur, -0.3)
 
-    if "ridge" in st:
+    if "ridge" in st:  # superseded by the crest; kept for older stage specs
         rd = st["ridge"]
         (u0, v0), (u1, v1) = rd["start"], rd["end"]
         for k in range(rd["n"]):
@@ -458,8 +504,9 @@ def frame(stage, fi):
             fall = cp["fall"] * (0.75 + 0.5 * r) * (1 - 0.35 * abs(f - 0.4))
             end = (rx - cp["back"] * (0.6 + 0.6 * h32(k, 5, 9)), ry + fall)
             ctrl = (rx + 0.02, ry + fall * 0.35)
+            # Dark at the root, gold at the tip.
             c.curve([P(rx, ry), P(*ctrl), P(*end)], cp["w"], 1.0, R["r_cape"], f"cape{k % 2}",
-                    base=0.55 + 0.2 * (1 - f) + (0.12 if k % 2 else -0.08), steps=8)
+                    base=0.18, base_end=0.8 + (0.1 if k % 2 else -0.05), steps=8)
     if "scars" in st:
         for (a, b) in st["scars"][:2]:
             _scar(c, P(*a), P(*b))
@@ -498,11 +545,11 @@ def frame(stage, fi):
     if "crest" in st:
         _crest(c, st, P, back=False)
     if stage == "piglet":
-        # a blond tuft on the crown
+        # a golden-blond tuft on the crown
         x, y = P(0.70, 0.40)
         for k, (dx, hgt) in enumerate(((-1.5, 2.5), (0, 3.5), (1.5, 2.2))):
-            c.poly([(x + dx - 1, y + 1.2), (x + dx + 0.6, y - hgt), (x + dx + 1, y + 1.2)], fur, "head",
-                   inten=lambda x_, y_: 0.95)
+            c.poly([(x + dx - 1, y + 1.2), (x + dx + 0.6, y - hgt), (x + dx + 1, y + 1.2)], R["p_tuft"], "head",
+                   inten=lambda x_, y_: 0.85)
 
     # face
     ex, ey = P(*st["eye"])
@@ -512,9 +559,19 @@ def frame(stage, fi):
         c.dot(ex, ey, EYE)
         c.dot(ex + 1, ey - 1, EYE)
     elif kind == "big":
-        for dx, dy in ((0, 0), (1, 0), (0, 1), (1, 1)):
-            c.dot(ex + dx, ey + dy, EYE)
+        # Big and shiny, like the first reference: the piglet is cute.
+        for dx in range(3):
+            for dy in range(3):
+                c.dot(ex + dx - 1, ey + dy, EYE)
         c.dot(ex, ey, GLINT)
+        c.dot(ex - 1, ey + 2, (90, 60, 50))
+    elif kind == "angry":
+        # Glowing magenta under a heavy brow, as in the second reference.
+        c.dot(ex, ey, (200, 20, 110))
+        c.dot(ex + 1, ey, (255, 110, 180))
+        c.dot(ex, ey + 1, (110, 8, 60))
+        for dx, dy in ((-1, -2), (0, -1), (1, -1), (2, 0)):
+            c.dot(ex + dx, ey + dy, EYE)
     elif kind == "mid":
         c.dot(ex, ey, EYE)
         c.dot(ex + 1, ey, EYE)
@@ -530,7 +587,7 @@ def frame(stage, fi):
         for dx, dy in ((-2, -2), (-1, -2), (0, -1), (1, -1), (2, -1)):
             c.dot(ex + dx, ey + dy, EYE)
         # snarl
-        mx, my = P(0.80, 0.69)
+        mx, my = P(*st.get("snarl", (0.80, 0.69)))
         for dx in range(4):
             c.dot(mx + dx, my - dx * 0.3, (40, 14, 6))
     if "scars" in st:

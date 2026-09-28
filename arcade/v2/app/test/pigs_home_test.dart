@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:puzzle_pack/arcade/api.dart';
+import 'package:puzzle_pack/audio.dart';
 import 'package:puzzle_pack/arcade/cabinet/cabinet.dart';
 import 'package:puzzle_pack/arcade/passage/abilities.dart';
 import 'package:puzzle_pack/arcade/passage/passage_game.dart';
@@ -42,6 +45,11 @@ void main() {
           'loadout': loadout,
         },
       };
+
+  test('the game has its own music, and the file is there', () {
+    expect(Audio.trackPigs, isNot(Audio.trackLevel));
+    expect(File('assets/audio/${Audio.trackPigs}').existsSync(), isTrue);
+  });
 
   test('the snapshot carries the shop and the loadout', () {
     p.apply(shop(owned: {'dash': 2}, loadout: ['dash']), persist: false);

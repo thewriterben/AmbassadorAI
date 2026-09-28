@@ -14,6 +14,7 @@ extension PassageRender on PassageGame {
     if (!_laidOut) return;
     _sky(canvas);
     _strata(canvas);
+    _city?.render(canvas, scrollX, _t);
     _pillars(canvas);
     _pickupsLayer(canvas);
     _shotLayer(canvas);
@@ -300,6 +301,22 @@ extension PassageRender on PassageGame {
           [0.0, 0.62, 1.0],
         ),
     );
+    // 2009: a faint grid across the sky, the network the era is about. It
+    // fades in over the crossing into the last era.
+    final net = (_eraF - (eras.length - 2)).clamp(0.0, 1.0);
+    if (net > 0) {
+      final line = Paint()
+        ..strokeWidth = 1
+        ..color = const Color(0xFFBFE0FF).withValues(alpha: 0.05 * net);
+      final step = _w * 0.11;
+      final off = (scrollX * 0.08) % step;
+      for (var x = -off; x < _w; x += step) {
+        canvas.drawLine(Offset(x, 0), Offset(x, _h * 0.7), line);
+      }
+      for (var y = step * 0.5; y < _h * 0.7; y += step) {
+        canvas.drawLine(Offset(0, y), Offset(_w, y), line);
+      }
+    }
   }
 
   /// Three parallax layers of horizontal rules. They read as distance and as
@@ -330,53 +347,17 @@ extension PassageRender on PassageGame {
     }
   }
 
+  /// The gates, each in its era's materials (see `passage_gates.dart`),
+  /// drawn from a picture recorded the first time the gate comes into view.
   void _pillars(Canvas canvas) {
-    final body = Paint();
-    final cap = Paint()..color = AppTheme.accent.withValues(alpha: 0.75);
     for (final g in _gates) {
       final gx = _coinX + (g.worldX - scrollX);
       if (gx < -_gateW * 2 || gx > _w + _gateW * 2) continue;
-      final left = gx - _gateW / 2;
-      final top = g.gapY - g.gapH / 2;
-      final bottom = g.gapY + g.gapH / 2;
-
-      // Brushed metal, and brighter than it looks like it should be on a
-      // monitor. The first pass ran #16181C → #2E3238 and on the phone the
-      // pillars all but vanished into the sky — only the amber lip was
-      // visible, so the gap read as a floating line rather than an opening.
-      body.shader = Gradient.linear(
-        Offset(left, 0),
-        Offset(left + _gateW, 0),
-        [
-          const Color(0xFF32373F),
-          const Color(0xFF767F8D),
-          const Color(0xFF2A2E35),
-        ],
-        [0.0, 0.34, 1.0],
-      );
-
-      final r = Radius.circular(_gateW * 0.16);
-      canvas.drawRRect(
-        RRect.fromRectAndCorners(
-          Rect.fromLTRB(left, -_h * 0.1, left + _gateW, top),
-          bottomLeft: r,
-          bottomRight: r,
-        ),
-        body,
-      );
-      canvas.drawRRect(
-        RRect.fromRectAndCorners(
-          Rect.fromLTRB(left, bottom, left + _gateW, _h * 1.1),
-          topLeft: r,
-          topRight: r,
-        ),
-        body,
-      );
-      // The amber lip is the only thing that tells you where the opening is
-      // at a glance, so it gets the accent colour and nothing else does.
-      final lip = _h * 0.0045;
-      canvas.drawRect(Rect.fromLTRB(left, top - lip, left + _gateW, top), cap);
-      canvas.drawRect(Rect.fromLTRB(left, bottom, left + _gateW, bottom + lip), cap);
+      final pic = g.pic ??= _gatePicture(g);
+      canvas.save();
+      canvas.translate(gx - _gateW / 2, 0);
+      canvas.drawPicture(pic);
+      canvas.restore();
     }
   }
 
@@ -481,17 +462,17 @@ extension PassageRender on PassageGame {
   /// The boar, centred on the hitbox and pitched with its climb and fall.
   /// Returns false when this stage's sheet is not loaded.
   ///
-  /// Drawn with nearest-neighbour sampling so the pixels stay pixels at any
-  /// scale; the sheets are exported at 4x so a rotated frame still reads.
+  /// Drawn from the owner's art, sampled smoothly, with a squash on each flap.
   bool _boar(Canvas canvas, double alpha) {
     final frames = _boarFrames[stage];
     if (frames == null) return false;
     final spec = BoarSpec.all[stage]!;
     final side = _coinR * spec.sizeInRadii;
     final frame = _boarFrame();
+    // Smooth sampling: the art is detailed and not on a strict pixel grid,
+    // and nearest-neighbour shimmered as it scaled and pitched.
     final paint = Paint()
-      ..filterQuality = FilterQuality.none
-      ..isAntiAlias = false
+      ..filterQuality = FilterQuality.medium
       ..color = const Color(0xFFFFFFFF).withValues(alpha: alpha);
 
     canvas.save();
@@ -513,6 +494,14 @@ extension PassageRender on PassageGame {
       final y = landing ? min(_coinY, _groundY - (spec.footV - spec.anchorV) * side) : _coinY;
       canvas.translate(_coinX, y);
       canvas.rotate(tilt);
+      // The wingbeat: each flap squashes the boar a little and lets it go
+      // over a fifth of a second. The art is a single pose, so this is what
+      // makes a tap look like a stroke of the wings.
+      final since = _t - _flapAt;
+      if (!landing && since >= 0 && since < 0.22) {
+        final k = 1 - since / 0.22;
+        canvas.scale(1 - 0.05 * k, 1 + 0.07 * k);
+      }
       frames[frame].render(canvas,
           position: Vector2(-spec.anchorU * side, -spec.anchorV * side), size: Vector2.all(side), overridePaint: paint);
     }

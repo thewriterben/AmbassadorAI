@@ -29,6 +29,21 @@ class _PigsHomeScreenState extends State<PigsHomeScreen> {
 
   ArcadeProgress get _p => ArcadeProgress.instance;
 
+  // The game's own music starts in the front room and carries on into the
+  // flight unbroken (the same track, so the cabinet's switch is a no-op),
+  // and hands back to the menu bed on the way out.
+  @override
+  void initState() {
+    super.initState();
+    Audio.instance.setTrack(Audio.trackPigs);
+  }
+
+  @override
+  void dispose() {
+    Audio.instance.setTrack(Audio.trackMenu);
+    super.dispose();
+  }
+
   Future<void> _fly() async {
     Audio.instance.tap();
     await Navigator.push(context, MaterialPageRoute(builder: (_) => const PassageScreen()));

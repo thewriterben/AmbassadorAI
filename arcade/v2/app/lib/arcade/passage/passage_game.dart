@@ -12,9 +12,11 @@ import '../../theme.dart';
 import '../cabinet/cabinet.dart';
 import 'abilities.dart';
 import 'boar.dart';
+import 'city.dart';
 import 'eras.dart';
 
 part 'passage_abilities.dart';
+part 'passage_gates.dart';
 part 'passage_render.dart';
 
 /// When Pigs Fly — the one-tap flyer, game 1 of the new catalogue. Its id
@@ -109,6 +111,10 @@ class _Gate {
   /// overlapping it for several frames; without this it would be charged on
   /// every one of them.
   bool struck = false;
+
+  /// The gate drawn in its era's materials, recorded on first sight. See
+  /// `passage_gates.dart`.
+  Picture? pic;
 
   _Gate({
     required this.worldX,
@@ -418,6 +424,9 @@ class PassageGame extends FlameGame {
   static const grappleSpeed = 1.5;
   double get _abilitySpeed => _t < _dashUntil ? dashSpeed : (_grapple != null ? grappleSpeed : 1.0);
 
+  /// The era skylines behind the passage. Rebuilt with the layout.
+  CityScape? _city;
+
   late List<Pickup> _pickups;
   final List<_Spill> _spills = [];
   final List<_Pop> _pops = [];
@@ -666,6 +675,11 @@ class PassageGame extends FlameGame {
         ));
       }
     }
+    if (_laidOut) {
+      for (final g in _gates) {
+        g.pic?.dispose();
+      }
+    }
     _gates = gates;
     _lastGateX = gates.last.worldX;
     _totalX = _lastGateX + _calmRun;
@@ -714,7 +728,23 @@ class PassageGame extends FlameGame {
       }
     }
     _pickups = pickups;
+
+    _city?.dispose();
+    _city = CityScape(
+      w: _w,
+      h: _h,
+      // The roll-out after touchdown scrolls a little past the passage.
+      totalScroll: _totalX + _w * 2,
+      eraAt: _eraFor,
+      eraTints: [for (final e in eras) Color(e.tint)],
+      bg: AppTheme.bg,
+      warm: AppTheme.accent,
+      seed: seed ?? _rnd.nextInt(1 << 20),
+    );
   }
+
+  @visibleForTesting
+  CityScape? get city => _city;
 
   /// Scroll speed at the current point of the passage. Rises gently — the
   /// ramp is in the gaps, not mainly in the speed, because speed is the one
@@ -1114,6 +1144,29 @@ class PassageGame extends FlameGame {
     return stage;
   }
 
+  /// Jumps to just before the first gate of the next era, in its opening,
+  /// so each era's city can be looked at without flying to it.
+  void devNextEra() {
+    if (!_laidOut || phase != PassagePhase.flying) return;
+    _started = true;
+    final next = eraNotifier.value + 1;
+    if (next >= eras.length) return;
+    final g = _gates.firstWhere((g) => g.era == next);
+    // An era begins 0.8 of a gate spacing before its first gate (see
+    // [_eraFor]); land just inside it, with the gate still well ahead.
+    scrollX = g.worldX - _spacing * 0.75;
+    eraNotifier.value = next;
+    for (final x in _gates) {
+      if (x.worldX < scrollX) x.passed = true;
+    }
+    gatesCleared = _gates.where((x) => x.passed).length;
+    erasCleared = next;
+    _coinY = g.gapY;
+    _vy = 0;
+    _invUntil = _t + 1.5;
+    run.tick();
+  }
+
   /// Full momentum, to look at the fast passage without earning it.
   void devMaxMomentum() {
     momentum = 1;
@@ -1136,6 +1189,10 @@ class PassageGame extends FlameGame {
 
   @override
   void onRemove() {
+    _city?.dispose();
+    for (final g in _gates) {
+      g.pic?.dispose();
+    }
     eraNotifier.dispose();
     super.onRemove();
   }

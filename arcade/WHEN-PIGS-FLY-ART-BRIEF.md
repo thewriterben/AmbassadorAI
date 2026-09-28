@@ -1,5 +1,10 @@
 # When Pigs Fly — boar art brief
 
+> **Delivered 2026-09-27.** The owner made the three boars, which are now in
+> the game (TEN-GAMES.md, "Final boar art"). This brief stays as the spec for
+> any further poses: a true wing cycle, landing and standing frames. The
+> current art is a single flying pose per stage, and the game fakes the rest.
+
 Final sprite art for the player character of *When Pigs Fly*, game 1 of the
 DGD Arcade v2 catalogue (design: `TEN-GAMES.md`, "When Pigs Fly"). The game
 ships today with generated placeholder sheets. The art below replaces them
@@ -7,7 +12,8 @@ file for file. No code changes are needed if the sheet layout is kept.
 
 **Placeholders to beat:** `v2/dist/shots/boar-sheets.png`, a preview of all
 three sheets, and `v2/dist/shots/pigs-*.png`, the placeholders in the game on
-a Pixel 9a.
+a Pixel 9a. The placeholders were redrawn toward the owner's references on
+2026-09-27. They set out the colour arc and the carriage, but not the finish.
 
 ## The character
 
@@ -22,11 +28,43 @@ only thing that says "piggy bank", so it has to read at game size. Nothing
 else should turn it into a bank: no padlock, no dollar signs, no coins
 spilling out of it at rest.
 
-| Stage | Description (the owner's words, condensed) |
+| Stage | Description (the owner's words, condensed, with the colour arc below) |
 |---|---|
-| **Piglet** | Small wild-boar piglet with tufts of golden-blond fur. Wild piglets are striped, so cream humbug stripes along the flank are welcome. Small, stubby wings. Cute rather than fierce. |
-| **Juvenile** | Filled out, with bristly, medium-length fur whose colour is shifting from brown toward gold. Small tusks have come in. A bristle ridge along the spine. Wings grown to working size. |
-| **Razorback** | Full-size razorback, fierce and intense. A glorious golden coat, a luxurious crest along the spine, and a cape-like mane flowing back over the shoulders. Large curved tusks. Battle-scarred on the flank and face. Large, dragon-like wings with finger bones and a scalloped membrane. |
+| **Piglet** | Small, chunky wild-boar piglet: a big head, big shiny eyes, a pink snout disc and the first nubs of tusks. An earthy brown coat with darker stripes across the back, and tufts of golden-blond fur on the crown and along the spine. A short tail with a tuft. Small, stubby wings. Cute rather than fierce. |
+| **Juvenile** | Filled out, with bristly, medium-length brown fur. The head is carried low, brow forward, as if about to charge. A tall, dark bristle crest runs from the crown over the shoulders, and its tips are starting to turn gold. Glowing magenta eyes under a heavy brow, and tusks that have come in properly. Wings grown to working size. |
+| **Razorback** | Full size, hulking, fierce and intense. A massive shoulder hump, the head carried low. The coat has turned gold, a burnished and weathered gold rather than a bright yellow. A luxurious, shaggy mane and crest over the neck and shoulders, dark at the roots and gold at the tips, falling like a cape. Two pairs of large curved tusks. Battle scars on the flank and across the face, and a small red eye. Large, dragon-like wings with finger bones and a scalloped membrane. |
+
+**The colour arc.** The coat goes from brown to gold as the boar grows. The
+piglet is brown with only its blond tufts golden. The juvenile is still brown,
+with gold creeping into the tips of its crest. The razorback's coat has turned
+gold, framed by a mane whose roots stay dark. Gold is the reward for growing up.
+
+## Visual direction, from the owner's references
+
+The owner supplied three reference boars, one per stage. They aren't in the
+repository, because they are other people's work; the owner will send them
+with this brief. They are for direction: proportion, carriage, mood and level
+of detail. **Nothing may be traced, copied or closely paraphrased from them.**
+Everything below describes what to take from them.
+
+- **Piglet reference:** a round, chunky pixel-art piglet in a three-quarter
+  view. Take the body proportions (a head nearly as big as the body, short
+  sturdy legs), the large glossy eyes with a single highlight, the soft
+  shading, and the friendliness.
+- **Juvenile reference:** a pixel-art boar in a low, forward-leaning charge.
+  Take the carriage (the head dropped below the line of the back, the weight
+  on the front legs), the tall, dark, spiky crest as the dominant silhouette
+  feature, the glowing eyes under a scowl, and the big curved tusks rising
+  from the lower jaw.
+- **Razorback reference:** a large, painterly boar with a heavy, shaggy mane
+  and a mottled, weathered coat. Take the mass (a huge shoulder hump,
+  hindquarters that fall away), the texture (a mane made of locks rather
+  than a solid shape), the multiple tusks, and the sense of age and battle.
+  The references show more detail than the other two; the final razorback
+  should be the most detailed of the three, within the same pixel style.
+
+The references are ground poses and face left. The game needs flight poses
+with wings, facing right. Mirror the direction, not the art.
 
 **Style.** "32-bit" pixel art in the sense of the high-colour console era:
 crisp pixels, a considered limited palette per stage, shading by hand-placed
@@ -35,9 +73,10 @@ edges, painted gradients or blur. The game draws the sheets with
 nearest-neighbour sampling, so what is delivered is what is seen.
 
 **It must read against the game's sky,** a near-black navy grading to deep
-blue, tinted per era toward amber, plum and teal. Gold on navy is the point.
-Keep the darkest outline colours warm (dark brown, not black) so the silhouette
-doesn't vanish.
+blue, tinted per era toward amber, plum and teal. Gold on navy is the point for
+the razorback. The brown piglet and juvenile are harder: give them warm
+highlights along the top of the body and a selective outline. Keep the darkest
+outline colours warm (dark brown, not black) so the silhouette doesn't vanish.
 
 **Originality.** The design must not resemble any existing game's boar,
 pig or winged-pig character. That is the part of an arcade homage that
