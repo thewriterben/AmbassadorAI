@@ -547,6 +547,23 @@ wide. It now wraps.
 - **One fix:** the confirmation message sat over the Fly button for four
   seconds. It is now shorter and lifted clear.
 
+### Silver coins re-toned — 2026-09-28
+
+The owner noticed the silver coins read as white, not metal. The render
+Coin Quest shipped sat almost entirely at the top of the brightness range
+(median 234 of 255, against 175 for gold), with broad blown-out areas.
+Remapping its brightness only turned those areas into blotches, because the
+shading was not there to recover.
+
+`coin_silver.png` is now made from the gold coin's render instead
+(`tools/gen_silver_coin.py`). The coins are the same design with full
+shading, so the script takes the gold's brightness, lifts the midtones
+slightly, and adds a cool blue-grey cast. Median brightness is 209: brighter
+than gold, as silver should be, but with real shadow and highlight.
+
+The originals are kept in `tools/source/`. The file is also the
+leaderboard's second-place medal, which improves the same way.
+
 ### Music — 2026-09-27
 
 "Flight of the Swine", the owner's own track (2:36), is the game's music. It
