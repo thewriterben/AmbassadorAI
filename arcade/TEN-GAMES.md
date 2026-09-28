@@ -617,6 +617,61 @@ The juvenile's body matched the old art to the pixel, 173px wide in the
 standing frame, so its BoarSpec is unchanged. Verified on the Pixel: a DEV
 flight as the juvenile cycles all four drawings with the head steady.
 
+### Pose sheets: the importer is ready — 2026-09-28
+
+The four frames after the wingbeat (hurt, dash, land, stand) are still made
+from the wingbeat drawings:
+- **Hurt:** a wing frame tinted red.
+- **Dash:** the folded frame stretched sideways.
+- **Land:** the wings-up frame.
+- **Stand:** the folded frame.
+
+The tools now take drawn ones, so the owner's drawings drop in.
+
+**What to draw.** One sheet per stage, in the same form as the wingbeat
+sheets: white background, labels anywhere, any grid, facing either way. Four
+poses in reading order:
+1. **Hurt:** a flinch, struck.
+2. **Dash:** wings swept back, stretched for speed.
+3. **Land:** braking just above the ground, legs reaching down, wings
+   raised.
+4. **Stand:** on the ground, wings folded. This is the pose on the
+   front-room card and in the growing-up moment.
+
+Drawing it at the same size as the wingbeat helps, but isn't required. A
+sheet of only some poses works too.
+
+**How it goes in.**
+
+    python tool/art/split_frames.py poses.jpg tool/art/source/boar_juvenile \
+        --ref tool/art/source/boar_juvenile_cycle_1.png --names hurt,dash,land,stand --holes
+
+This writes `boar_juvenile_hurt.png` and the rest. `import_boars.py` uses
+each drawn pose in place of the made one, and reports which are drawn and
+which are still made.
+
+- **`--ref` registers the poses to the stage's wingbeat,** not to each other,
+  so the boar doesn't jump when it switches to a pose. Each pose is tried at
+  sizes from 0.8× to 1.2× and both ways round, matched on the head. The
+  sheet is then drawn at the median of those sizes, since a sheet is drawn
+  at one size. Frame by frame, one test frame came out 2% off.
+- **The poses take the wingbeat's crop and scale** and don't widen it, so the
+  placement numbers in boar.dart stay right. A pose that reaches past the
+  frame's margin is reported as cut off. A drawn stand moves the foot line,
+  so check_sheets.py runs again after it.
+
+**Tested with stand-in poses** (the juvenile's own wingbeat sheet fed back
+in as a pose sheet):
+- **Same size:** every pose landed exactly on its wingbeat frame (IoU 1.000,
+  zero offset).
+- **Shrunk to 85% and re-saved as JPEG:** the scale was recovered as 1.175
+  against a true 1.176, within 2px.
+- **Imported end to end:** each stand-in pose sat within a pixel of its
+  wingbeat frame in the finished sheet (IoU 0.98).
+- **With no pose files:** all three sheets rebuild byte-identical.
+
+The stand-ins were removed afterwards.
+
 ### Wingbeat timing to fit the drawings — 2026-09-28
 
 The wing cycle used to run at a frame rate: 8 drawings a second while

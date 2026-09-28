@@ -33,6 +33,22 @@ N + 4 frames, and boar.dart must say so for N other than four
 (BoarFrames(6)). The single pose given on the command line is not used for
 that stage.
 
+The four frames after the wing cycle (hurt, dash, land, stand) can be drawn
+too: tool/art/source/boar_{stage}_{hurt,dash,land,stand}.png, any of them.
+Each drawn one replaces the one made from the wingbeat. They come from a
+pose sheet, split and registered to the wingbeat by split_frames.py:
+
+    python tool/art/split_frames.py poses.jpg tool/art/source/boar_juvenile \
+        --ref tool/art/source/boar_juvenile_cycle_1.png --names hurt,dash,land,stand
+
+(add --holes for the juvenile and razorback, as for their wingbeats; for a
+sheet of only some poses, --frames and --names say which, in reading order).
+The poses are cropped and scaled with the wingbeat's box, not a box of their
+own, so adding them moves nothing: the placement numbers in boar.dart stay
+right, and a pose that reaches past the frame's margin is reported as cut
+off. Standing is the frame footV is measured on, so a drawn stand means
+running check_sheets.py again.
+
 Then run tool/art/check_sheets.py for the hoof line, and set the placement
 numbers in BoarSpec.
 """
@@ -230,48 +246,63 @@ def to_frame(img):
     return sq.resize((FRAME, FRAME), Image.LANCZOS)
 
 
-def to_frames(imgs):
+def to_frames(imgs, extra=()):
     """Several drawings of one boar, cropped alike to the box that holds all
     of them and centred as to_frame does, so a body that does not move
-    between drawings does not move between frames either."""
+    between drawings does not move between frames either. [extra] drawings
+    (the poses) are cropped with the same box, without widening it; what of
+    them falls outside the frame is cut off, and reported."""
     boxes = [im.getchannel("A").getbbox() for im in imgs]
     box = (min(b[0] for b in boxes), min(b[1] for b in boxes), max(b[2] for b in boxes), max(b[3] for b in boxes))
+    w, h = box[2] - box[0], box[3] - box[1]
+    side = int(max(w, h) * PAD)
+    at = ((side - w) // 2 - box[0], (side - h) // 2 - box[1])
     out = []
-    for im in imgs:
-        im = im.crop(box)
-        side = int(max(im.size) * PAD)
+    for im in [*imgs, *extra]:
         sq = Image.new("RGBA", (side, side), (0, 0, 0, 0))
-        sq.paste(im, ((side - im.width) // 2, (side - im.height) // 2), im)
+        sq.paste(im, at, im)
+        cut = int((np.array(im.getchannel("A")) > 0).sum() - (np.array(sq.getchannel("A")) > 0).sum())
+        if cut > 0:
+            print(f"  warning: {cut} px of a drawing fall outside its frame and are cut off")
         out.append(sq.resize((FRAME, FRAME), Image.LANCZOS))
     return out
 
 
+POSES = ("hurt", "dash", "land", "stand")
+
+
 def drawn_cycle(stage, facing):
-    """The owner's drawn wingbeat for [stage], mirrored and de-sparkled, or
-    None if the stage has none."""
+    """The owner's drawn wingbeat for [stage], mirrored and de-sparkled, and
+    whichever of its poses are drawn (a dict by name), as frames; or None
+    if the stage has no drawn wingbeat."""
     paths = []
     while os.path.exists(p := os.path.join(HERE, "source", f"boar_{stage}_cycle_{len(paths) + 1}.png")):
         paths.append(p)
     if len(paths) < 2:
         return None
-    imgs = []
-    for p in paths:
+    def load(p):
         im = Image.open(p).convert("RGBA")
         if facing == "left":
             im = im.transpose(Image.FLIP_LEFT_RIGHT)
-        imgs.append(main_component(im)[0])
-    return to_frames(imgs)
+        return main_component(im)[0]
+
+    names = [n for n in POSES if os.path.exists(os.path.join(HERE, "source", f"boar_{stage}_{n}.png"))]
+    frames = to_frames([load(p) for p in paths], [load(os.path.join(HERE, "source", f"boar_{stage}_{n}.png")) for n in names])
+    return frames[:len(paths)], dict(zip(names, frames[len(paths):]))
 
 
-def drawn_sheet(cycle, stage):
+def drawn_sheet(cycle, stage, poses=None):
     """The sheet from a drawn wingbeat. The drawings are the cycle frames,
-    in order, starting wings-up (the owner's sheets do); the rest
-    borrow from them: hurt is the second tinted red, dash the most folded
-    one (DRAWN_FOLDED) stretched along the line of flight, landing the
-    wings-up one (braking), and standing the folded one."""
+    in order, starting wings-up (the owner's sheets do); then the poses,
+    each as drawn if it is in [poses], else borrowed from the wingbeat:
+    hurt the second drawing tinted red, dash the most folded one
+    (DRAWN_FOLDED) stretched along the line of flight, landing the wings-up
+    one (braking), and standing the folded one."""
+    poses = poses or {}
     up, mid = cycle[0], cycle[1]
     fold = cycle[DRAWN_FOLDED.get(stage, 3)]
-    frames = [*cycle, hurt(mid), dash(fold), up, fold]
+    made = {"hurt": hurt(mid), "dash": dash(fold), "land": up, "stand": fold}
+    frames = [*cycle, *[poses[n] if n in poses else made[n] for n in POSES]]
     out = Image.new("RGBA", (FRAME * len(frames), FRAME), (0, 0, 0, 0))
     for i, f in enumerate(frames):
         out.paste(f, (i * FRAME, 0), f)
@@ -324,11 +355,15 @@ def main():
     args = ap.parse_args()
     frames = {}
     for stage, src in zip(STAGES, args.sources):
-        cycle = drawn_cycle(stage, args.facing)
-        if cycle:
+        drawn = drawn_cycle(stage, args.facing)
+        if drawn:
+            cycle, poses = drawn
             frames[stage] = cycle[0]
-            drawn_sheet(cycle, stage).save(os.path.join(OUT, f"boar_{stage}.png"))
-            print(f"{stage}: drawn wingbeat (source/boar_{stage}_cycle_1..{len(cycle)}.png) -> boar_{stage}.png")
+            drawn_sheet(cycle, stage, poses).save(os.path.join(OUT, f"boar_{stage}.png"))
+            made = ", ".join(n for n in POSES if n not in poses)
+            print(f"{stage}: drawn wingbeat (source/boar_{stage}_cycle_1..{len(cycle)}.png)"
+                  f", drawn poses: {', '.join(poses) or 'none'}"
+                  f"{f', made from the wingbeat: {made}' if made else ''} -> boar_{stage}.png")
             continue
         img = Image.open(src).convert("RGBA")
         if args.facing == "left":

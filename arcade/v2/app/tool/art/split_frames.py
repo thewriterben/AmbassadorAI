@@ -46,6 +46,7 @@ All frames come out on one canvas size, so the importer can crop them alike.
 """
 import argparse
 import os
+import sys
 from collections import deque
 
 import numpy as np
@@ -271,17 +272,85 @@ def head_match(ref, img, reach):
     return min((cost(dx, dy), dx, dy) for dx in range(bx - 4, bx + 5) for dy in range(by - 4, by + 5))
 
 
+def scaled(cell, s):
+    if s == 1.0:
+        return cell
+    h, w = cell.shape[:2]
+    return np.array(Image.fromarray(cell, "RGBA").resize((round(w * s), round(h * s)), Image.LANCZOS))
+
+
+def register_to(ref, cells, names, prefix):
+    """Registers each frame to [ref], an already registered frame of the
+    same boar (its wingbeat's first), and writes it on [ref]'s canvas: the
+    pose sheets, drawn apart from the wingbeat, whose poses must sit exactly
+    where the flying boar does or it jumps each time one shows. A separate
+    sheet may be drawn at another size, so the frames are also scaled to
+    match the head: each is tried at a few sizes and both ways round, the
+    best refined, and then all are drawn at the median of their best sizes,
+    since a sheet is drawn at one size (alone, one frame of a test sheet
+    shrunk to 85% came out 2% off)."""
+    ch, cw = ref.shape[:2]
+    rx, ry = lower_centroid(ref)
+    reach = max(ch, cw) // 10
+
+    def place(c, x, y):
+        canvas = Image.new("RGBA", (cw, ch), (0, 0, 0, 0))
+        canvas.paste(Image.fromarray(c, "RGBA"), (x, y))
+        return np.array(canvas)
+
+    def fit(c):
+        h, w = c.shape[:2]
+        bx, by = (cw - w) // 2, (ch - h) // 2
+        cx, cy = lower_centroid(place(c, bx, by))
+        gx, gy = bx + round(rx - cx), by + round(ry - cy)
+        cost, hx, hy = head_match(ref, place(c, gx, gy), reach)
+        return cost, gx + hx, gy + hy
+
+    best = []
+    for cell in cells:
+        tries = []
+        for flip in (False, True):
+            base = cell[:, ::-1].copy() if flip else cell
+            for s in (0.8, 0.9, 1.0, 1.1, 1.2):
+                tries.append((*fit(scaled(base, s)), flip, s))
+        _, _, _, flip, s0 = min(tries, key=lambda t: t[0])
+        base = cell[:, ::-1].copy() if flip else cell
+        for s in (s0 - 0.05, s0 - 0.025, s0 + 0.025, s0 + 0.05):
+            tries.append((*fit(scaled(base, s)), flip, s))
+        best.append(min(tries, key=lambda t: t[0])[3:])
+    s = round(float(np.median([b[1] for b in best])), 4)
+
+    for name, cell, (flip, _) in zip(names, cells, best):
+        c = scaled(cell[:, ::-1].copy() if flip else cell, s)
+        _, x, y = fit(c)
+        out = place(c, x, y)
+        path = f"{prefix}_{name}.png"
+        Image.fromarray(out, "RGBA").save(path)
+        clipped = (c[:, :, 3] > 0).sum() - (out[:, :, 3] > 0).sum()
+        note = (", turned round" if flip else "") + (f", {clipped} px CUT OFF by the canvas" if clipped > 0 else "")
+        print(f"{name}: scaled {s:.3f}, at {x:+d},{y:+d}{note} -> {path}")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("sheet")
     ap.add_argument("prefix")
     ap.add_argument("--frames", type=int, default=4)
     ap.add_argument("--holes", action="store_true")
+    ap.add_argument("--ref", help="register to this frame (a wingbeat's first) instead of the sheet's own first")
+    ap.add_argument("--names", help="comma-separated names for the frames, in reading order, instead of 1..N")
     args = ap.parse_args()
     img = np.array(Image.open(args.sheet).convert("RGB"))
     erase_label_rows(img)
     cells = [knock_out(cut(img, f), holes=args.holes) for f in find_frames(img, args.frames)]
     prefix = args.prefix
+    names = args.names.split(",") if args.names else [str(i) for i in range(1, len(cells) + 1)]
+    if len(names) != len(cells):
+        sys.exit(f"{len(names)} names for {len(cells)} frames")
+    os.makedirs(os.path.dirname(prefix) or ".", exist_ok=True)
+    if args.ref:
+        register_to(np.array(Image.open(args.ref).convert("RGBA")), cells, names, prefix)
+        return
 
     M = max(max(c.shape[:2]) for c in cells) // 3  # room round each frame for the shifts
     reach = M // 2
@@ -295,8 +364,7 @@ def main():
 
     ref = place(cells[0], 0, 0)
     rx, ry = lower_centroid(ref)
-    os.makedirs(os.path.dirname(prefix) or ".", exist_ok=True)
-    for i, cell in enumerate(cells, 1):
+    for i, (name, cell) in enumerate(zip(names, cells), 1):
         dx = dy = 0
         turned = False
         if i > 1:
@@ -308,10 +376,10 @@ def main():
                 cost, hx, hy = head_match(ref, place(c, gx, gy), reach)
                 tries.append((cost, flip, gx + hx, gy + hy, c))
             cost, turned, dx, dy, cell = min(tries, key=lambda t: t[0])
-        path = f"{prefix}_{i}.png"
+        path = f"{prefix}_{name}.png"
         Image.fromarray(place(cell, dx, dy), "RGBA").save(path)
         note = ", turned round" if turned else ""
-        print(f"frame {i}: shifted {dx:+d},{dy:+d}{note} -> {path}")
+        print(f"frame {name}: shifted {dx:+d},{dy:+d}{note} -> {path}")
 
 
 if __name__ == "__main__":
