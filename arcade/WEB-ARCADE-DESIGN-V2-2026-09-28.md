@@ -256,4 +256,12 @@ powershell tools/e2e/run_all.ps1          # both games in headless Chrome
 ```
 
 The production client is the same build command **without** `ARCADE_DEV_AUTH`.
-`puzzle-app-v2` must be a sibling folder, on branch `web/replayable-passage` or later.
+`puzzle-app-v2` must be a sibling folder at the current V2 build: branch
+`v2/ten-games`, commit `62296ce` or later (which includes
+`web/replayable-passage`). Built against `62296ce` on 2026-09-28: new boar art
+with room for the wings, the boar's and the abilities' own sounds, polished
+coins, and the growing-up moment (played on the web when a verified flight's
+points carry the boar into its next stage). That build also adds an easier
+passage behind a DEV toggle; the web always flies the standard one, which is
+the only one the server replays. Its simulation numbers for the standard
+passage are unchanged: all 324 recorded transcripts still replay identically.
