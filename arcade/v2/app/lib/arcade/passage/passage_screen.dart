@@ -8,6 +8,7 @@ import '../cabinet/cabinet.dart';
 import '../progress.dart';
 import 'abilities.dart';
 import 'boar.dart';
+import 'grow_up.dart';
 import 'eras.dart';
 import 'passage_game.dart';
 
@@ -83,6 +84,14 @@ class _PassageScreenState extends State<PassageScreen> {
         'Full momentum': () => _game?.devMaxMomentum(),
         'Hitbox: ${PassageGame.devShowHitbox ? 'hide' : 'show'}': () =>
             PassageGame.devShowHitbox = !PassageGame.devShowHitbox,
+        // Growing up only happens against a server, on a run that crosses
+        // a line; this shows the moment on its own, from the stage flying
+        // now to the next (or piglet to juvenile, from a razorback).
+        'Preview growing up': () {
+          final at = _game?.stage ?? BoarStage.piglet;
+          final to = at == BoarStage.razorback ? BoarStage.juvenile : BoarStage.values[at.index + 1];
+          showGrowUp(context, from: BoarStage.values[to.index - 1], to: to);
+        },
         'Next boar stage': () {
           final g = _game;
           if (g != null) _devStage = g.devNextStage();
@@ -735,7 +744,7 @@ class GrowthPanel extends StatelessWidget {
           child: Row(
             children: [
               BoarPortrait(stage: grew ?? stage, size: 58),
-              if (grew != null) const _StageUpSound(),
+              if (grew != null) _GrowUpOnce(to: grew),
               const SizedBox(width: 10),
               Expanded(
                 child: Column(
@@ -781,21 +790,27 @@ class GrowthPanel extends StatelessWidget {
   }
 }
 
-/// Plays the stage-up fanfare once, when the growth panel first shows that
-/// the boar grew. A widget rather than a call in the builder so it cannot
-/// replay on every rebuild of the panel.
-class _StageUpSound extends StatefulWidget {
-  const _StageUpSound();
+/// Plays the growing-up moment (grow_up.dart) once, when the growth panel
+/// first shows that the boar grew. A widget rather than a call in the
+/// builder so it cannot replay on every rebuild of the panel; the moment
+/// plays the stage-up fanfare itself, at its reveal.
+class _GrowUpOnce extends StatefulWidget {
+  final BoarStage to;
+  const _GrowUpOnce({required this.to});
 
   @override
-  State<_StageUpSound> createState() => _StageUpSoundState();
+  State<_GrowUpOnce> createState() => _GrowUpOnceState();
 }
 
-class _StageUpSoundState extends State<_StageUpSound> {
+class _GrowUpOnceState extends State<_GrowUpOnce> {
   @override
   void initState() {
     super.initState();
-    Audio.instance.stageUp();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final from = BoarStage.values[max(0, widget.to.index - 1)];
+      showGrowUp(context, from: from, to: widget.to);
+    });
   }
 
   @override

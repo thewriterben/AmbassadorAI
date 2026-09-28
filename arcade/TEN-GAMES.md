@@ -27,7 +27,7 @@ specific audiovisual expression, so none of that is going anywhere near this.
 
 | # | Origin | Working name | Mechanic | Scope | State |
 |---|---|---|---|---|---|
-| 1 | *(new)* | **Passage** | One tap, fly a corridor, land it | 9 eras, finite | **Built** |
+| 1 | *(new)* | **When Pigs Fly** (was Passage; id `passage`) | One tap, fly a corridor, land it | 9 eras, finite | **Built** |
 | 2 | Space Invaders | **Assay Line** | Fixed shooter, descending ranks | Endless | Proposed |
 | 3 | Pac-Man | **Vault Floor** | Maze collect-and-evade | 16 levels | Proposed |
 | 4 | Frogger | **Cold Transit** | Lane crossing under timing | 16 levels | Proposed |
@@ -546,6 +546,37 @@ wide. It now wraps.
   and paid.
 - **One fix:** the confirmation message sat over the Fly button for four
   seconds. It is now shorter and lifted clear.
+
+### Growing up — 2026-09-28
+
+The moment the boar reaches its next stage was only a fanfare and an amber
+panel on the results sheet. It is now an animation over the results
+(`grow_up.dart`, about 3.2 s):
+1. The old stage stands in a glowing white silhouette and flickers between
+   its own shape and the new one. The swaps come faster and faster as the
+   glow swells.
+2. A white flash.
+3. The new stage appears in full colour, settling from a little large, with
+   sparkles (the shared glint) bursting out round it. The stage-up fanfare
+   plays, with "Your boar grew into a juvenile!" and "It flies as a
+   juvenile from your next run."
+
+Taps are ignored until the reveal, so the build-up can't be skipped by
+accident. After it, a tap closes the moment; otherwise it closes itself. It
+opens once per growth, from a widget that mounts with the panel, so
+rebuilding the panel can't replay it.
+
+Growth only happens against a server, so the DEV menu has "Preview growing
+up", which plays the moment from the current stage to the next.
+
+**Found on the Pixel:** the first build's text drew with Flutter's yellow
+double underline, which is what text gets outside a Material. The moment now
+sits on a transparent Material, and the dim behind it was deepened so the
+screen underneath doesn't read through.
+
+**Tests** check that it builds up in silhouette, reveals the right stage
+and line, ignores taps before the reveal, closes by itself, and opens once
+from the panel.
 
 ### The replay refactor, merged — 2026-09-28
 

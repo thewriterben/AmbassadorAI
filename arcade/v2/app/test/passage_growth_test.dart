@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:puzzle_pack/arcade/passage/boar.dart';
+import 'package:puzzle_pack/arcade/passage/grow_up.dart';
 import 'package:puzzle_pack/arcade/passage/passage_screen.dart';
 import 'package:puzzle_pack/arcade/progress.dart';
 
@@ -67,6 +68,24 @@ void main() {
     await pump(tester);
     expect(find.text('Your boar grew into a juvenile.'), findsOneWidget);
     expect(find.text('It flies as a juvenile from your next run.'), findsOneWidget);
+  });
+
+  testWidgets('growing opens the growing-up moment, once', (tester) async {
+    p.setPassageForTest(lifetime: 4100, stage: 'juvenile', stageAt: 4000, nextStage: 'razorback', nextAt: 18000);
+    p.passageClaim = const PassageClaim(credited: 300, grewInto: 'juvenile');
+    await pump(tester);
+    await tester.pump(); // the post-frame callback
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.byType(GrowUpMoment), findsOneWidget);
+    final moment = tester.widget<GrowUpMoment>(find.byType(GrowUpMoment));
+    expect((moment.from, moment.to), (BoarStage.piglet, BoarStage.juvenile));
+    // A rebuild of the panel does not open a second one.
+    p.apply({}, persist: false);
+    await tester.pump();
+    expect(find.byType(GrowUpMoment), findsOneWidget);
+    await tester.pump(GrowUpMoment.duration);
+    await tester.pumpAndSettle();
+    expect(find.byType(GrowUpMoment), findsNothing);
   });
 
   testWidgets('a practice flight is called one, not silently ignored', (tester) async {
