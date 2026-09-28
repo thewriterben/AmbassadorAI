@@ -37,8 +37,19 @@ from PIL import Image, ImageEnhance
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.normpath(os.path.join(HERE, "..", "..", "assets", "images"))
 STAGES = ["piglet", "juvenile", "razorback"]
-FRAME = 320  # px per square frame in the sheet
+FRAME = 448  # px per square frame in the sheet
+
+# The frame's side as a multiple of the art's larger dimension. The art sits
+# in the middle; the rest is headroom for the wings to swing into. At the
+# first, gentle beat 1.08 was enough; the bigger beat needs this. Changing it
+# changes where the boar sits in the frame: BoarSpec in boar.dart has to be
+# rescaled with it (sizes up by the ratio, anchors toward 0.5 by it).
+PAD = 1.5
 FRAMES = 8
+
+# WINGS was measured on frames padded by this much; split_wings maps it onto
+# the current PAD, so the padding can change without re-measuring.
+WINGS_PAD = 1.08
 
 # Each wing: the region to lift off (a polygon in fractions of the frame,
 # drawn above the line where the wing meets the back, so the root stays on
@@ -77,7 +88,11 @@ WINGS = {
 # Wing angle per frame, degrees: positive lowers the wing tip. Frames 0-3 are
 # the beat (up, level, down, folding back); 4 hurt; 5 dash; 6 landing; 7 at
 # rest.
-WING_ANGLES = [-14, 0, 26, 8, 6, 14, -16, 0]
+WING_ANGLES = [-30, 0, 48, 14, 8, 18, -32, 0]
+
+# How far from the shoulder (fraction of the frame) the fan that fills the
+# root of a turned wing reaches. See posed().
+ROOT_FAN = 0.10
 
 
 def main_component(img, keep=0.02, scale=4):
@@ -127,9 +142,14 @@ def split_wings(frame, stage):
     body = frame.copy()
     wings = []
     arr = np.array(frame)
+    k = WINGS_PAD / PAD
+
+    def at(x, y):
+        return ((0.5 + (x - 0.5) * k) * FRAME, (0.5 + (y - 0.5) * k) * FRAME)
+
     for w in WINGS.get(stage, []):
         m = Image.new("L", frame.size, 0)
-        ImageDraw.Draw(m).polygon([(x * FRAME, y * FRAME) for x, y in w["poly"]], fill=255)
+        ImageDraw.Draw(m).polygon([at(x, y) for x, y in w["poly"]], fill=255)
         mask = np.array(m) > 0
         if w.get("key") == "white":
             # Everything in the region that is not the warm brown and gold of
@@ -147,7 +167,7 @@ def split_wings(frame, stage):
         b[mask, 3] = 0
         body = Image.fromarray(b, "RGBA")
         ys, xs = np.nonzero(mask)
-        px, py = w["pivot"][0] * FRAME, w["pivot"][1] * FRAME
+        px, py = at(*w["pivot"])
         # PIL turns counter-clockwise for a positive angle: that lowers the
         # tip of a wing reaching up and back (to the left), and raises one
         # reaching up and forward, so the sign follows the tip's side.
@@ -157,16 +177,29 @@ def split_wings(frame, stage):
 
 
 def posed(body, wings, angle):
-    """The body with its wings turned by [angle]. Each wing is laid down
-    twice: first as it was drawn (at rest), then turned. On the upstroke the
-    turned wing lifts clear of the wing's own lower edge, and without the
-    rest copy underneath, that edge — which lay across the back and the
-    tail — left a sliver of sky through the body. The rest copy fills it
-    with the wing's own feathers, the way a real wing's far side would."""
+    """The body with its wings turned by [angle].
+
+    Turning a wing about its shoulder opens a wedge at the root between
+    where it was drawn and where it now is, and on the upstroke that wedge
+    showed sky through the back. It is filled with a fan: the same wing at
+    the in-between angles, kept only close to the shoulder (fading out by
+    ROOT_FAN), laid under the turned wing. Near the pivot a wing barely
+    moves, so the fan is feathers, not a ghost. (A copy of the whole resting
+    wing did the same job at the first, gentle beat; at the bigger one it
+    showed as a second wing.)"""
     out = Image.new("RGBA", body.size, (0, 0, 0, 0))
+    yy, xx = np.mgrid[0:body.size[1], 0:body.size[0]]
     for layer, pivot, sign in wings:
-        if angle < 0:
-            out.alpha_composite(layer)
+        if angle < 0:  # upstroke only: on the downstroke the wedge is sky above the back
+            d = np.hypot(xx - pivot[0], yy - pivot[1]) / (ROOT_FAN * FRAME)
+            fade = np.clip((1.0 - d) / 0.35, 0.0, 1.0)
+            steps = max(2, int(abs(angle) / 3))
+            for i in range(steps):
+                a = angle * i / steps
+                t = layer.rotate(sign * a, resample=Image.BICUBIC, center=pivot)
+                arr = np.array(t)
+                arr[:, :, 3] = (arr[:, :, 3] * fade).astype(np.uint8)
+                out.alpha_composite(Image.fromarray(arr, "RGBA"))
         out.alpha_composite(layer.rotate(sign * angle, resample=Image.BICUBIC, center=pivot))
     out.alpha_composite(body)
     return out
@@ -175,7 +208,7 @@ def posed(body, wings, angle):
 def to_frame(img):
     """Crop to the art and centre it in a square with 4% margin."""
     img = img.crop(img.getchannel("A").getbbox())
-    side = int(max(img.size) * 1.08)
+    side = int(max(img.size) * PAD)
     sq = Image.new("RGBA", (side, side), (0, 0, 0, 0))
     sq.paste(img, ((side - img.width) // 2, (side - img.height) // 2), img)
     return sq.resize((FRAME, FRAME), Image.LANCZOS)

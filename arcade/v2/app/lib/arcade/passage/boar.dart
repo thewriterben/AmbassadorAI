@@ -105,33 +105,34 @@ class BoarSpec {
   });
 
   static const all = {
-    // Frames are cropped close to the art, wings included, so these sizes are
-    // smaller than the old placeholders' (5.6 / 6.6 / 7.8), which carried a
-    // wide margin. Anchors are the middle of the body, measured on a grid.
+    // Frames hold the art at 1/1.5 of their side, the rest being room for the
+    // wings to beat into (tool/art/import_boars.py, PAD). Anchors are the
+    // middle of the body, measured on a grid at the old padding of 1.08 and
+    // rescaled with it; the boar is drawn the same size as before.
     BoarStage.piglet: BoarSpec(
       file: 'boar_piglet.png',
-      sizeInRadii: 4.2,
-      anchorU: 0.555,
-      anchorV: 0.62,
-      footV: 0.963,
+      sizeInRadii: 5.83,
+      anchorU: 0.54,
+      anchorV: 0.586,
+      footV: 0.833,
       name: 'Piglet',
       bodyHalfLength: 0.35,
     ),
     BoarStage.juvenile: BoarSpec(
       file: 'boar_juvenile.png',
-      sizeInRadii: 6.0,
-      anchorU: 0.57,
-      anchorV: 0.63,
-      footV: 0.891,
+      sizeInRadii: 8.33,
+      anchorU: 0.55,
+      anchorV: 0.594,
+      footV: 0.782,
       name: 'Juvenile',
       bodyHalfLength: 0.5,
     ),
     BoarStage.razorback: BoarSpec(
       file: 'boar_razorback.png',
-      sizeInRadii: 6.6,
-      anchorU: 0.57,
-      anchorV: 0.635,
-      footV: 0.856,
+      sizeInRadii: 9.17,
+      anchorU: 0.55,
+      anchorV: 0.597,
+      footV: 0.756,
       name: 'Razorback',
       bodyRadius: 1.0,
       bodyHalfLength: 0.75,
@@ -150,7 +151,8 @@ class BoarPortrait extends StatelessWidget {
   /// The part of a frame the boar actually occupies when standing, as
   /// fractions: frames carry headroom for raised wings, and drawn whole the
   /// standing boar filled barely half a 58 px portrait on device.
-  static const _crop = Rect.fromLTWH(0.02, 0.02, 0.96, 0.96);
+  /// The art fills the middle 1/1.5 of each frame (import_boars.py, PAD).
+  static const _crop = Rect.fromLTWH(0.155, 0.155, 0.69, 0.69);
 
   @override
   Widget build(BuildContext context) {

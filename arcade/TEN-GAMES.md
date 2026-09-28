@@ -618,6 +618,13 @@ The originals are kept in `tool/art/source/` so the sheets can be rebuilt.
 - **The tap:** each tap jumps the cycle to wings-up, so the next frames beat
   them down as the boar rises. This replaces the squash-and-stretch the
   renderer used to fake a wingbeat.
+- **Bigger beat** (2026-09-28, owner's request): the wings swing 30° up and
+  48° down from the drawn pose, up from 14° and 26°. Frames gained headroom
+  for it: the art now fills 1/1.5 of the frame instead of 1/1.08, and
+  BoarSpec was rescaled so the boar draws the same size. At this size, the
+  resting-wing underlay showed as a ghost second wing. The root wedge is now
+  filled with a fan of the wing at in-between angles, kept near the shoulder
+  and used on the upstroke only.
 
 **The art is sampled smoothly now.** It is detailed rather than on a strict
 pixel grid, and nearest-neighbour shimmered as it scaled and pitched.
