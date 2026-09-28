@@ -356,6 +356,22 @@ set, and it does not key off `NODE_ENV`) and **`ARCADE_SECRET` is still unset**
 — it signs the single-use question tokens, and without a real value the server's
 authority over XP is decorative.
 
+### The web arcade (digitalgold.co/arcade) — V2, 28 September 2026
+
+A separate codebase and database from the phone arcade, signed in with a
+digitalgold.co account. **Coin Quest and When Pigs Fly are replay-verified**:
+the server issues the seed (and, for When Pigs Fly, the boar stage and
+abilities) and replays the recorded moves or inputs itself. The knowledge
+check is graded on the server. Rewards are **firsts only**, in **dry run at
+zero**; a flight faster than real time or a too-fast Coin Quest run is held
+for review. Payout tooling batches `owed` entries and records DGD's own
+payment reference; the server never pays. The phone app never links to it
+and no progress crosses from app to web.
+
+So "reward on the web" proposals start from a verifiable base for those two
+games and the quiz — but **not** for the phone arcade's other mini-games,
+whose scores are still client-asserted even on the web.
+
 ### Identity and the leaderboard decision
 
 The arcade uses **assigned handles** and deliberately does not know the DGD
