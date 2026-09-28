@@ -94,7 +94,10 @@ extension PassageRender on PassageGame {
           ),
       );
     }
-    if (_spriteCoin(canvas, c, r, kind, alpha: alpha)) return;
+    if (_spriteCoin(canvas, c, r, kind, alpha: alpha)) {
+      if (gold) _glint(canvas, c, r, alpha);
+      return;
+    }
     canvas.drawCircle(
       c,
       r,
@@ -147,6 +150,47 @@ extension PassageRender on PassageGame {
         ..strokeWidth = r * 0.13
         ..color = const Color(0xFF6E3F0C).withValues(alpha: 0.85 * alpha),
     );
+  }
+
+  /// Light catching a gold coin: every couple of seconds a bright diagonal
+  /// band sweeps across the face, and as it crosses the middle a small star
+  /// flares at the rim. Phased by where the coin is on screen, so a row of
+  /// coins shimmers in turn rather than all at once.
+  void _glint(Canvas canvas, Offset c, double r, double alpha) {
+    const period = 2.2, sweep = 0.45;
+    final phase = ((_t + c.dx / _w * 0.9) % period) / sweep;
+    if (phase > 1) return;
+    canvas.save();
+    canvas.clipPath(Path()..addOval(Rect.fromCircle(center: c, radius: r * 0.96)));
+    // Two streaks across the face, a broad one and a thin one just behind
+    // it, slanting down to the left. The gradient runs across the streaks,
+    // so the light sits in a narrow slice of it; spread over the whole
+    // gradient, the first version washed the entire coin white.
+    final x = c.dx - r * 1.8 + phase * r * 3.6;
+    const clear = Color(0x00FFF4D0);
+    final peak = const Color(0xFFFFF4D0).withValues(alpha: 0.6 * alpha);
+    final band = Paint()
+      ..blendMode = BlendMode.plus
+      ..shader = Gradient.linear(
+        Offset(x - r * 0.9, c.dy - r * 0.35),
+        Offset(x + r * 0.9, c.dy + r * 0.35),
+        [clear, clear, peak, clear, clear, peak.withValues(alpha: 0.35 * alpha), clear, clear],
+        const [0.0, 0.40, 0.47, 0.54, 0.58, 0.62, 0.66, 1.0],
+      );
+    canvas.drawRect(Rect.fromCircle(center: c, radius: r), band);
+    canvas.restore();
+    // The flare, strongest mid-sweep.
+    final f = (1 - (phase - 0.5).abs() * 2).clamp(0.0, 1.0);
+    if (f <= 0) return;
+    final at = c.translate(r * 0.42, -r * 0.46);
+    final ray = r * (0.35 + 0.45 * f);
+    final star = Paint()
+      ..strokeCap = StrokeCap.round
+      ..strokeWidth = r * 0.09
+      ..color = const Color(0xFFFFFBEA).withValues(alpha: 0.9 * f * alpha);
+    canvas.drawLine(at.translate(-ray, 0), at.translate(ray, 0), star);
+    canvas.drawLine(at.translate(0, -ray), at.translate(0, ray), star);
+    canvas.drawCircle(at, r * 0.1 * f, star);
   }
 
   void _pickupsLayer(Canvas canvas) {

@@ -605,7 +605,9 @@ class PassageGame extends FlameGame {
   /// coin.
   Future<void> _loadCoinSprites() async {
     const files = {
-      PickupKind.gold: 'coin_gold.png',
+      // The game's own polished gold (tools/gen_shiny_gold_coin.py); the
+      // shared coin_gold.png stays as the brand's hero coin.
+      PickupKind.gold: 'coin_gold_shiny.png',
       PickupKind.silver: 'coin_silver.png',
       PickupKind.copper: 'coin_copper.png',
     };

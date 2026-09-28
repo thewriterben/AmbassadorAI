@@ -573,6 +573,21 @@ as polished metal. Median brightness is 137, darker than silver and gold as
 copper is. Only When Pigs Fly uses the copper coin. All three metals now
 share one lighting, so they read as a set.
 
+**Gold, shinier, the same day.** The shared `coin_gold.png` is also the
+brand's hero coin on the home screen and the leaderboard's first-place
+medal, so it was left alone. The game uses its own `coin_gold_shiny.png`
+instead (`tools/gen_shiny_gold_coin.py`):
+- the gold render through a colour ramp: deep amber in the grooves, rich
+  saturated gold, and a near-white warm top
+- every 2.2 s, light catches it: two narrow streaks sweep across the face
+  and a small star flares at the rim
+- the sweep is phased by the coin's position on screen, so a row of coins
+  shimmers in turn
+
+The first streak spread its light across the whole gradient and washed the
+coin white; it now sits in a narrow slice. Whether the brand coin should get
+the same polish is the owner's call.
+
 ### Music — 2026-09-27
 
 "Flight of the Swine", the owner's own track (2:36), is the game's music. It
