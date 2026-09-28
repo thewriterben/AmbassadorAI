@@ -425,16 +425,39 @@ class _HeroCoinState extends State<_HeroCoin> with TickerProviderStateMixin {
                     ],
                   ),
                 ),
+                // The polished gold and its glint, the same as When Pigs
+                // Fly's coins (tools/gen_shiny_gold_coin.py, and _glint in
+                // passage_render.dart): two narrow streaks of light, a broad
+                // one and a thin one just behind it, where this used to be a
+                // single soft band.
                 ShaderMask(
                   blendMode: BlendMode.srcATop,
                   shaderCallback: (rect) => LinearGradient(
-                    begin: Alignment(x - 0.5, -1),
-                    end: Alignment(x + 0.5, 1),
-                    colors: const [Color(0x00FFFFFF), Color(0x80FFFFFF), Color(0x00FFFFFF)],
-                    stops: const [0.35, 0.5, 0.65],
+                    begin: Alignment(x - 0.9, -0.35),
+                    end: Alignment(x + 0.9, 0.35),
+                    colors: const [
+                      Color(0x00FFF4D0),
+                      Color(0x00FFF4D0),
+                      Color(0xB3FFF4D0),
+                      Color(0x00FFF4D0),
+                      Color(0x00FFF4D0),
+                      Color(0x55FFF4D0),
+                      Color(0x00FFF4D0),
+                      Color(0x00FFF4D0),
+                    ],
+                    stops: const [0.0, 0.40, 0.47, 0.54, 0.58, 0.62, 0.66, 1.0],
                   ).createShader(rect),
-                      child: Image.asset('assets/images/coin_gold.png', width: s, height: s),
+                      child: Image.asset('assets/images/coin_gold_shiny.png', width: s, height: s),
                     ),
+                // The star at the rim, strongest as the streaks cross the
+                // middle of the coin.
+                if (t > 0 && t < 1)
+                  IgnorePointer(
+                    child: CustomPaint(
+                      size: Size(s, s),
+                      painter: _FlarePainter((1 - (t - 0.5).abs() * 2).clamp(0.0, 1.0)),
+                    ),
+                  ),
                   ],
                 ),
               ),
@@ -444,6 +467,30 @@ class _HeroCoinState extends State<_HeroCoin> with TickerProviderStateMixin {
       },
     );
   }
+}
+
+/// A four-point star, the glint's flare, at the upper right of the coin.
+class _FlarePainter extends CustomPainter {
+  final double f;
+  _FlarePainter(this.f);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (f <= 0) return;
+    final r = size.width / 2;
+    final at = size.center(Offset.zero).translate(r * 0.42, -r * 0.46);
+    final ray = r * (0.25 + 0.35 * f);
+    final star = Paint()
+      ..strokeCap = StrokeCap.round
+      ..strokeWidth = r * 0.05
+      ..color = const Color(0xFFFFFBEA).withValues(alpha: 0.9 * f);
+    canvas.drawLine(at.translate(-ray, 0), at.translate(ray, 0), star);
+    canvas.drawLine(at.translate(0, -ray), at.translate(0, ray), star);
+    canvas.drawCircle(at, r * 0.06 * f, star);
+  }
+
+  @override
+  bool shouldRepaint(_FlarePainter old) => old.f != f;
 }
 
 /// Sound / music toggles as small glass buttons.

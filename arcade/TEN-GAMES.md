@@ -585,8 +585,16 @@ instead (`tools/gen_shiny_gold_coin.py`):
   shimmers in turn
 
 The first streak spread its light across the whole gradient and washed the
-coin white; it now sits in a narrow slice. Whether the brand coin should get
-the same polish is the owner's call.
+coin white; it now sits in a narrow slice.
+
+The owner then asked for the home screen's hero coin to match, and it does
+(`main.dart`, `_HeroCoin`):
+- it now shows `coin_gold_shiny.png`
+- its sheen, once a single soft band, is now the same two narrow streaks
+- the same star flares at the rim as they cross the middle
+
+The float, the chime on each sweep and the tap-to-flip are unchanged. The
+leaderboard's first-place medal still uses the original `coin_gold.png`.
 
 ### Music — 2026-09-27
 
