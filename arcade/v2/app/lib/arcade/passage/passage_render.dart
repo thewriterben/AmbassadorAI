@@ -179,18 +179,9 @@ extension PassageRender on PassageGame {
       );
     canvas.drawRect(Rect.fromCircle(center: c, radius: r), band);
     canvas.restore();
-    // The flare, strongest mid-sweep.
+    // The flare, strongest mid-sweep, turning a little as it comes and goes.
     final f = (1 - (phase - 0.5).abs() * 2).clamp(0.0, 1.0);
-    if (f <= 0) return;
-    final at = c.translate(r * 0.42, -r * 0.46);
-    final ray = r * (0.35 + 0.45 * f);
-    final star = Paint()
-      ..strokeCap = StrokeCap.round
-      ..strokeWidth = r * 0.09
-      ..color = const Color(0xFFFFFBEA).withValues(alpha: 0.9 * f * alpha);
-    canvas.drawLine(at.translate(-ray, 0), at.translate(ray, 0), star);
-    canvas.drawLine(at.translate(0, -ray), at.translate(0, ray), star);
-    canvas.drawCircle(at, r * 0.1 * f, star);
+    paintSparkle(canvas, c.translate(r * 0.42, -r * 0.46), r * 0.8, f * alpha, spin: (phase - 0.5) * 0.5);
   }
 
   void _pickupsLayer(Canvas canvas) {

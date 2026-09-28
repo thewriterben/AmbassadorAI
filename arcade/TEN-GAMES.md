@@ -596,6 +596,14 @@ The owner then asked for the home screen's hero coin to match, and it does
 The float, the chime on each sweep and the tap-to-flip are unchanged. The
 leaderboard's first-place medal still uses the original `coin_gold.png`.
 
+**The flare, redone.** The owner didn't like the first flare, two stroked
+lines that read as a plus sign laid on the coin. It is now light
+(`lib/arcade/sparkle.dart`, shared by the game's coins and the home coin):
+- a soft glowing core
+- four long rays tapering to fine points and fading outward
+- four short, faint rays on the diagonals
+- all added as light rather than painted over, turning slightly as it flares
+
 ### Music — 2026-09-27
 
 "Flight of the Swine", the owner's own track (2:36), is the game's music. It

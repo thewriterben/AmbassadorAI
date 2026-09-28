@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 
 import 'arcade/leaderboard_screen.dart';
 import 'arcade/passage/pigs_home_screen.dart';
+import 'arcade/sparkle.dart';
 import 'arcade/progress.dart';
 import 'arcade/settings_screen.dart';
 import 'audio.dart';
@@ -469,24 +470,15 @@ class _HeroCoinState extends State<_HeroCoin> with TickerProviderStateMixin {
   }
 }
 
-/// A four-point star, the glint's flare, at the upper right of the coin.
+/// The glint's flare at the upper right of the coin (see arcade/sparkle.dart).
 class _FlarePainter extends CustomPainter {
   final double f;
   _FlarePainter(this.f);
 
   @override
   void paint(Canvas canvas, Size size) {
-    if (f <= 0) return;
     final r = size.width / 2;
-    final at = size.center(Offset.zero).translate(r * 0.42, -r * 0.46);
-    final ray = r * (0.25 + 0.35 * f);
-    final star = Paint()
-      ..strokeCap = StrokeCap.round
-      ..strokeWidth = r * 0.05
-      ..color = const Color(0xFFFFFBEA).withValues(alpha: 0.9 * f);
-    canvas.drawLine(at.translate(-ray, 0), at.translate(ray, 0), star);
-    canvas.drawLine(at.translate(0, -ray), at.translate(0, ray), star);
-    canvas.drawCircle(at, r * 0.06 * f, star);
+    paintSparkle(canvas, size.center(Offset.zero).translate(r * 0.42, -r * 0.46), r * 0.62, f, spin: (1 - f) * 0.25);
   }
 
   @override
