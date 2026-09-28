@@ -197,7 +197,7 @@ extension PassageRender on PassageGame {
       if (sx < -_coinR * 3 || sx > _w + _coinR * 3) continue;
       if (p.frozenAt(_t)) {
         // Frozen by a shot: an icy ring, fading in its last second.
-        final left = (p._clockResume - _t).clamp(0.0, 1.0);
+        final left = (p.clockResume - _t).clamp(0.0, 1.0);
         canvas.drawCircle(
           Offset(sx, p.yAt(_t)),
           _pickR(p.kind) * 1.45,
@@ -290,7 +290,7 @@ extension PassageRender on PassageGame {
       if (s.taken) continue;
       final sx = _coinX + (s.worldX - scrollX);
       // Fade over the last stretch of its life so it does not blink out.
-      final left = (PassageGame._spillLife - s.age) / 0.6;
+      final left = (PassageSim.spillLife - s.age) / 0.6;
       _smallCoin(canvas, Offset(sx, s.y), _coinR * 0.6, PickupKind.copper, alpha: left.clamp(0.0, 1.0));
     }
   }
@@ -388,7 +388,7 @@ extension PassageRender on PassageGame {
     for (final g in _gates) {
       final gx = _coinX + (g.worldX - scrollX);
       if (gx < -_gateW * 2 || gx > _w + _gateW * 2) continue;
-      final pic = g.pic ??= _gatePicture(g);
+      final pic = (g.renderCache ??= _gatePicture(g)) as Picture;
       canvas.save();
       canvas.translate(gx - _gateW / 2, 0);
       canvas.drawPicture(pic);

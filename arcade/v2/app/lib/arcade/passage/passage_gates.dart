@@ -21,7 +21,7 @@ part of 'passage_game.dart';
 /// and a body lighter than the skyline behind, so a gate never sinks into
 /// the city. Each gate is drawn once into a cached [Picture].
 extension PassageGates on PassageGame {
-  Picture _gatePicture(_Gate g) {
+  Picture _gatePicture(SimGate g) {
     final rec = PictureRecorder();
     final c = Canvas(rec);
     final top = g.gapY - g.gapH / 2, bottom = g.gapY + g.gapH / 2;

@@ -547,6 +547,23 @@ wide. It now wraps.
 - **One fix:** the confirmation message sat over the Fly button for four
   seconds. It is now shorter and lifted clear.
 
+### The replay refactor, merged — 2026-09-28
+
+A separate piece of work for the web arcade moved the game's rules into a
+pure, seeded, fixed-step simulation (`lib/arcade/passage/sim/`), so a server
+can replay a run from its seed and taps and reach the same score to the last
+bit. It lived on `web/replayable-passage` (9c3f74a) while `v2/ten-games`
+gained eight commits: the bigger wingbeat, the polished coins and medals,
+the sparkle, the home coin, and the boar's sounds.
+
+It is now merged into `v2/ten-games` (85a84af). One file conflicted,
+`passage_game.dart`: the boar's sounds had been added to the flap, strike
+and touchdown code the refactor had moved into the simulation. They now play
+from the simulation's `flapped`, `struck` and `touchdown` events. Everything
+else merged cleanly. Analyze is clean and all 128 tests pass, including the
+refactor's replay-equals-live checks across seeds, frame rates and every
+ability.
+
 ### The boar's sounds — 2026-09-28
 
 The boar borrowed Coin Quest's sounds: a UI tap on every flap and a vault
