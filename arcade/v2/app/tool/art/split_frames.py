@@ -1,84 +1,202 @@
-"""Splits a 2x2 sheet of hand-drawn animation frames into registered,
+"""Splits a sheet of hand-drawn animation frames into registered,
 transparent frames, ready for import_boars.py.
 
     python tool/art/split_frames.py sheet.jpg tool/art/source/boar_piglet_cycle
+    python tool/art/split_frames.py sheet.jpg tool/art/source/boar_juvenile_cycle --holes
+    python tool/art/split_frames.py sheet.jpg tool/art/source/boar_razorback_cycle --holes --frames 6
 
-writes boar_piglet_cycle_1.png .. _4.png (reading order: top-left, top-right,
-bottom-left, bottom-right).
+writes boar_piglet_cycle_1.png .. _N.png, in reading order (rows top to
+bottom, each left to right). --frames is how many drawings the sheet holds
+(default 4).
 
-The owner's sheets are drawn on white, with a "FRAME n" label above each
-frame, and saved as JPEG. For each frame this:
+The owner's sheets are drawn on white, with a "Frame n" label by each
+frame, and saved as JPEG: the piglet's in a 2x2 grid with the labels above,
+the juvenile's in a 2x2 grid with them below, the razorback's in a 3x2 grid
+with two-line labels below, a wing of its first frame reaching over into
+the second's columns. This:
 
-  1. cuts the cell out of the 2x2 grid (split at the blank gutters);
-  2. erases the label: its letters are neutral grey-black, where the art's
-     darkest outlines are tinted (purple-brown), so it goes by colour, and
-     only in the band above the art;
-  3. makes the white background transparent by flood-filling from the cell's
-     edges through near-white (so white inside the art, such as the wings,
-     is untouched), then trims the light JPEG fringe off the outline;
-  4. registers the frames on the body: the part below the wings is the same
-     drawing in every frame, so each frame is shifted to line its body up
-     with the first. Without it the whole pig jitters as the frames cycle.
+  1. erases labels that have rows to themselves: a strip of rows, blank
+     above and below, all neutral grey (the art is tinted). Done first,
+     since a label strip between two rows of art would otherwise join them;
+  2. finds the frames as shapes, not grid cells: the N largest connected
+     shapes on the sheet are the boars, and a smaller one (a sparkle, a
+     puff, a stray tip) goes with the boar nearest it, unless it is neutral
+     grey, which is a label beside the art (the piglet's) and is dropped.
+     The razorback's sheet has no clean gutter between its first two frames,
+     so a grid cannot cut it;
+  3. makes the white background transparent by flood-filling from the
+     frame's edges through near-white (so white inside the art, such as the
+     piglet's wings, is untouched), then trims the light JPEG fringe off the
+     outline. With --holes, white the fill cannot reach goes too, the gaps
+     inside a curled tail or a tusk's curve, down to a few dozen pixels
+     (smaller is a highlight). Only for art with no white of its own; the
+     piglet's white feathers hold pockets of the same colour and size;
+  4. turns every frame to face the way the first one does: the razorback's
+     second row faces the other way. Each frame is tried both ways round
+     and kept the way its head matches the first frame's better;
+  5. registers the frames on the head: the front of the lower body (the
+     sheets face left) is the part a wingbeat does not move, so each frame
+     is shifted to line its head up with the first's. Without it the whole
+     boar jitters as the frames cycle. The centroid of the lower body is
+     the first guess; legs tucked up in a compact frame move it (the
+     juvenile's came out 38px off on the centroid alone), so the match
+     searches round it.
 
-All four come out on one canvas size, so the importer can crop them alike.
+All frames come out on one canvas size, so the importer can crop them alike.
 """
+import argparse
 import os
-import sys
 from collections import deque
 
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageFilter
 
 
-def gutters(profile, min_len):
-    """Runs of (nearly) empty rows or columns, as (start, end)."""
-    out, start = [], None
+def blocks(profile, gap=4):
+    """Runs of rows (or columns) with content, split at >= [gap] blank ones."""
+    out, start, blank, last = [], None, 0, 0
     for i, v in enumerate(profile):
-        if v <= 2 and start is None:
-            start = i
-        if v > 2 and start is not None:
-            if i - start >= min_len:
-                out.append((start, i))
-            start = None
-    if start is not None and len(profile) - start >= min_len:
+        if v > 2:
+            if start is None:
+                start = i
+            blank, last = 0, i
+        else:
+            blank += 1
+            if start is not None and blank >= gap:
+                out.append((start, last + 1))
+                start = None
+    if start is not None:
         out.append((start, len(profile)))
     return out
 
 
-def split_points(profile, n_cells):
-    """Where to cut: the middle of the widest interior gutters."""
-    gs = [g for g in gutters(profile, 6) if g[0] > 0 and g[1] < len(profile)]
-    gs.sort(key=lambda g: g[1] - g[0], reverse=True)
-    cuts = sorted((a + b) // 2 for a, b in gs[: n_cells - 1])
-    return [0] + cuts + [len(profile)]
+def neutral_share(px):
+    """How much of a set of RGB pixels is neutral grey."""
+    px = px.astype(int)
+    return ((px.max(axis=1) - px.min(axis=1)) < 30).mean() if len(px) else 0.0
 
 
-def erase_label(a, band=70):
-    """Erases the label above the art.
-
-    Its letters are neutral grey-black (the art's darkest outlines are
-    tinted), so their dark cores find the label's box; within that box only,
-    neutral pixels up to light grey are painted white. Keeping to the box
-    matters: the first version cleared every neutral pixel in the band, and
-    took the pale grey tip off a wing that reaches up beside the label."""
-    top = a[:band].astype(int)
-    mx, mn = top.max(axis=2), top.min(axis=2)
-    neutral = (mx - mn) < 22
-    cores = neutral & (mx < 130)
-    ys, xs = np.nonzero(cores)
-    if len(xs) == 0:
-        return a
-    y0, y1 = max(0, ys.min() - 4), min(band, ys.max() + 5)
-    x0, x1 = max(0, xs.min() - 4), min(top.shape[1], xs.max() + 5)
-    box = np.zeros_like(neutral)
-    box[y0:y1, x0:x1] = True
-    top[box & neutral & (mx < 215)] = 255
-    a[:band] = top.astype(np.uint8)
-    return a
+def erase_label_rows(img, max_height=160):
+    """Whitens strips of rows that hold only labels. [max_height] allows a
+    two-line label run together (the razorback's last, 114 rows)."""
+    nonwhite = img.min(axis=2) < 235
+    for y0, y1 in blocks(nonwhite.sum(axis=1)):
+        if y1 - y0 <= max_height and neutral_share(img[y0:y1][nonwhite[y0:y1]]) > 0.9:
+            img[max(0, y0 - 2):y1 + 2] = 255
 
 
-def knock_out(a):
-    """RGBA with the background flood-filled out from the edges."""
+def components(mask):
+    """8-connected components of [mask]: a label map, and each one's size."""
+    h, w = mask.shape
+    lab = np.zeros((h, w), np.int32)
+    sizes = [0]
+    for y in range(h):
+        for x in range(w):
+            if mask[y, x] and not lab[y, x]:
+                cur = len(sizes)
+                lab[y, x] = cur
+                q, n = deque([(y, x)]), 0
+                while q:
+                    cy, cx = q.popleft()
+                    n += 1
+                    for dy in (-1, 0, 1):
+                        for dx in (-1, 0, 1):
+                            ny, nx = cy + dy, cx + dx
+                            if 0 <= ny < h and 0 <= nx < w and mask[ny, nx] and not lab[ny, nx]:
+                                lab[ny, nx] = cur
+                                q.append((ny, nx))
+                sizes.append(n)
+    return lab, sizes
+
+
+def shrink(mask, scale=4):
+    h, w = mask.shape
+    return np.array(Image.fromarray(mask.astype(np.uint8) * 255).resize((w // scale, h // scale), Image.BOX)) > 40
+
+
+def grow(lab, full_size):
+    """A label map shrunk by shrink(), back at full size, grown a few pixels
+    so the thin outline the shrinking lost is labelled too."""
+    out = Image.fromarray(lab.astype(np.uint8)).resize(full_size, Image.NEAREST)
+    for _ in range(3):
+        grown = out.filter(ImageFilter.MaxFilter(5))
+        out = Image.fromarray(np.where(np.array(out) == 0, np.array(grown), np.array(out)).astype(np.uint8))
+    return np.array(out)
+
+
+def find_frames(img, n, scale=4):
+    """The n drawings on the sheet, each as (y0, x0, y1, x1, mask), in
+    reading order. Found on a copy shrunk by [scale], where a sparkle stays
+    apart from its boar."""
+    nonwhite = img.min(axis=2) < 235
+    lab, sizes = components(shrink(nonwhite, scale))
+    big = sorted(range(1, len(sizes)), key=lambda i: sizes[i], reverse=True)[:n]
+    boxes = {}
+    for i in range(1, len(sizes)):
+        ys, xs = np.nonzero(lab == i)
+        boxes[i] = (ys.min(), xs.min(), ys.max() + 1, xs.max() + 1)
+    owner = np.zeros(len(sizes), np.int32)
+    for k, i in enumerate(big, 1):
+        owner[i] = k
+    full = (img.shape[1], img.shape[0])
+    for i in range(1, len(sizes)):
+        if owner[i]:
+            continue
+        y0, x0, y1, x1 = boxes[i]
+        piece = np.kron(lab[y0:y1, x0:x1] == i, np.ones((scale, scale), bool))
+        region = (slice(y0 * scale, y1 * scale), slice(x0 * scale, x1 * scale))
+        if neutral_share(img[region][piece & nonwhite[region]]) > 0.9:
+            continue  # a label beside the art
+        cy, cx = (y0 + y1) / 2, (x0 + x1) / 2
+
+        def dist(b):
+            by0, bx0, by1, bx1 = boxes[b]
+            return max(by0 - cy, 0, cy - by1) + max(bx0 - cx, 0, cx - bx1)
+
+        owner[i] = big.index(min(big, key=dist)) + 1
+    who = grow(owner[lab], full)
+    frames = []
+    for k in range(1, n + 1):
+        m = (who == k) & nonwhite
+        ys, xs = np.nonzero(m)
+        frames.append((ys.min(), xs.min(), ys.max() + 1, xs.max() + 1, m))
+    # Reading order: into rows by where they sit, then left to right.
+    frames.sort(key=lambda f: (f[0] + f[2]) / 2)
+    height = np.median([f[2] - f[0] for f in frames])
+    rows, row = [], [frames[0]]
+    for f in frames[1:]:
+        if (f[0] + f[2]) / 2 - (row[-1][0] + row[-1][2]) / 2 > height / 2:
+            rows.append(row)
+            row = []
+        row.append(f)
+    rows.append(row)
+    return [f for r in rows for f in sorted(r, key=lambda f: f[1])]
+
+
+def cut(img, frame, pad=12):
+    """The frame on white: its box with a margin, everything not its own
+    painted out (a neighbour's wing tip reaching into the box), and any
+    label letters that came with it. The piglet's "FRAME 1" sits close
+    enough to a wing tip to join it on the shrunk copy; at full size each
+    letter is a shape of its own, all grey, where everything of the boar's
+    (tusks, outline) joins the boar."""
+    y0, x0, y1, x1, m = frame
+    h, w = m.shape
+    y0, x0, y1, x1 = max(0, y0 - pad), max(0, x0 - pad), min(h, y1 + pad), min(w, x1 + pad)
+    out = img[y0:y1, x0:x1].copy()
+    out[~m[y0:y1, x0:x1]] = 255
+    nonwhite = out.min(axis=2) < 235
+    lab, sizes = components(nonwhite)
+    biggest = max(sizes)
+    for i, n in enumerate(sizes):
+        if i and n < biggest * 0.02 and neutral_share(out[lab == i]) > 0.9:
+            out[lab == i] = 255
+    return out
+
+
+def knock_out(a, holes=False, min_hole=30):
+    """RGBA with the background flood-filled out from the edges (and, with
+    [holes], every enclosed patch of it at least [min_hole] pixels too)."""
     h, w, _ = a.shape
     ai = a.astype(int)
     bgish = (ai.min(axis=2) > 226) & ((ai.max(axis=2) - ai.min(axis=2)) < 24)
@@ -101,6 +219,10 @@ def knock_out(a):
             if 0 <= ny < h and 0 <= nx < w and bgish[ny, nx] and not bg[ny, nx]:
                 bg[ny, nx] = True
                 q.append((ny, nx))
+    if holes:
+        lab, sizes = components(bgish & ~bg)
+        big = [i for i, s in enumerate(sizes) if i and s >= min_hole]
+        bg |= np.isin(lab, big)
     # The JPEG fringe: light pixels touching the background, twice over.
     for _ in range(2):
         edge = np.zeros_like(bg)
@@ -108,47 +230,88 @@ def knock_out(a):
         edge[:-1] |= bg[1:]
         edge[:, 1:] |= bg[:, :-1]
         edge[:, :-1] |= bg[:, 1:]
-        fringe = edge & ~bg & (ai.min(axis=2) > 185)
-        bg |= fringe
-    out = np.dstack([a, np.where(bg, 0, 255).astype(np.uint8)])
-    return out
+        bg |= edge & ~bg & (ai.min(axis=2) > 185)
+    return np.dstack([a, np.where(bg, 0, 255).astype(np.uint8)])
 
 
-def body_anchor(rgba, below):
-    """Where the body is: the centroid of the opaque pixels below row
-    `below` (under the wings), and the lowest opaque row."""
+def lower_centroid(rgba):
+    """The centroid of the lower half of the art: a first guess at where the
+    body is."""
     m = rgba[:, :, 3] > 0
-    m[:below] = False
     ys, xs = np.nonzero(m)
-    return xs.mean(), ys.mean(), ys.max()
+    m[: (ys.min() + ys.max()) // 2] = False
+    ys, xs = np.nonzero(m)
+    return xs.mean(), ys.mean()
+
+
+def head_match(ref, img, reach):
+    """How well, and with what shift, [img]'s head lines up with [ref]'s:
+    the offset within [reach] where [img] best matches the head region of
+    [ref] (the front 45% and lower 60% of its art; the sheets face left) in
+    colour and outline. Returns (cost, dx, dy)."""
+    rf, im = ref.astype(float), img.astype(float)
+    ys, xs = np.nonzero(ref[:, :, 3] > 0)
+    y0, y1, x0, x1 = ys.min(), ys.max() + 1, xs.min(), xs.max() + 1
+    hy0, hx1 = int(y0 + (y1 - y0) * 0.40), int(x0 + (x1 - x0) * 0.45)
+    R = rf[hy0:y1, x0:hx1]
+    ra = R[:, :, 3] > 0
+    H, W = im.shape[:2]
+
+    def cost(dx, dy):
+        ya, xa = hy0 - dy, x0 - dx
+        if ya < 0 or xa < 0 or ya + R.shape[0] > H or xa + R.shape[1] > W:
+            return float("inf")
+        C = im[ya:ya + R.shape[0], xa:xa + R.shape[1]]
+        ca = C[:, :, 3] > 0
+        both = ra & ca
+        colour = np.abs(R[:, :, :3] - C[:, :, :3]).mean(axis=2)[both].mean() if both.any() else 255.0
+        return colour + 200 * (ra ^ ca).mean()
+
+    c, bx, by = min((cost(dx, dy), dx, dy) for dx in range(-reach, reach + 1, 4) for dy in range(-reach, reach + 1, 4))
+    return min((cost(dx, dy), dx, dy) for dx in range(bx - 4, bx + 5) for dy in range(by - 4, by + 5))
 
 
 def main():
-    src, prefix = sys.argv[1], sys.argv[2]
-    img = np.array(Image.open(src).convert("RGB"))
-    nonwhite = img.min(axis=2) < 235
-    xs = split_points(nonwhite.sum(axis=0), 2)
-    ys = split_points(nonwhite.sum(axis=1), 2)
-    cells = []
-    for r in range(2):
-        for c in range(2):
-            cell = img[ys[r]:ys[r + 1], xs[c]:xs[c + 1]].copy()
-            cells.append(knock_out(erase_label(cell)))
+    ap = argparse.ArgumentParser()
+    ap.add_argument("sheet")
+    ap.add_argument("prefix")
+    ap.add_argument("--frames", type=int, default=4)
+    ap.add_argument("--holes", action="store_true")
+    args = ap.parse_args()
+    img = np.array(Image.open(args.sheet).convert("RGB"))
+    erase_label_rows(img)
+    cells = [knock_out(cut(img, f), holes=args.holes) for f in find_frames(img, args.frames)]
+    prefix = args.prefix
 
-    # Register on the body. The wings never reach below ~45% of the cell.
-    below = int(min(c.shape[0] for c in cells) * 0.45)
-    anchors = [body_anchor(c, below) for c in cells]
-    ax0, ay0, _ = anchors[0]
-    shifts = [(round(ax0 - ax), round(ay0 - ay)) for ax, ay, _ in anchors]
-    ch = max(c.shape[0] for c in cells) + 40
-    cw = max(c.shape[1] for c in cells) + 40
-    os.makedirs(os.path.dirname(prefix) or ".", exist_ok=True)
-    for i, (cell, (dx, dy)) in enumerate(zip(cells, shifts), 1):
+    M = max(max(c.shape[:2]) for c in cells) // 3  # room round each frame for the shifts
+    reach = M // 2
+    ch = max(c.shape[0] for c in cells) + 2 * M
+    cw = max(c.shape[1] for c in cells) + 2 * M
+
+    def place(cell, dx, dy):
         canvas = Image.new("RGBA", (cw, ch), (0, 0, 0, 0))
-        canvas.alpha_composite(Image.fromarray(cell, "RGBA"), (20 + dx, 20 + dy))
+        canvas.alpha_composite(Image.fromarray(cell, "RGBA"), (M + dx, M + dy))
+        return np.array(canvas)
+
+    ref = place(cells[0], 0, 0)
+    rx, ry = lower_centroid(ref)
+    os.makedirs(os.path.dirname(prefix) or ".", exist_ok=True)
+    for i, cell in enumerate(cells, 1):
+        dx = dy = 0
+        turned = False
+        if i > 1:
+            tries = []
+            for flip in (False, True):
+                c = cell[:, ::-1].copy() if flip else cell
+                cx, cy = lower_centroid(place(c, 0, 0))
+                gx, gy = round(rx - cx), round(ry - cy)
+                cost, hx, hy = head_match(ref, place(c, gx, gy), reach)
+                tries.append((cost, flip, gx + hx, gy + hy, c))
+            cost, turned, dx, dy, cell = min(tries, key=lambda t: t[0])
         path = f"{prefix}_{i}.png"
-        canvas.save(path)
-        print(f"frame {i}: shifted {dx:+d},{dy:+d} -> {path}")
+        Image.fromarray(place(cell, dx, dy), "RGBA").save(path)
+        note = ", turned round" if turned else ""
+        print(f"frame {i}: shifted {dx:+d},{dy:+d}{note} -> {path}")
 
 
 if __name__ == "__main__":

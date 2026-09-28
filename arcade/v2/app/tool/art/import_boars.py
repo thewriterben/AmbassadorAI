@@ -25,10 +25,13 @@ this:
   6. rebuilds the home-card image from the razorback.
 
 A stage can instead have a drawn wingbeat: tool/art/source/boar_{stage}_cycle_1
-.. _4.png, the owner's frames split out of a sheet by split_frames.py (the
-piglet's, 2026-09-28). Then those four are the wing cycle as drawn, with no
-rig, and the other frames are made from them (see drawn_sheet). The single
-pose given on the command line is not used for that stage.
+.. _N.png, the owner's frames split out of a sheet by split_frames.py (all
+three stages, 2026-09-28: four drawings for the piglet and the juvenile,
+six for the razorback). Then those are the wing cycle as drawn, with no rig,
+and the other frames are made from them (see drawn_sheet); the sheet has
+N + 4 frames, and boar.dart must say so for N other than four
+(BoarFrames(6)). The single pose given on the command line is not used for
+that stage.
 
 Then run tool/art/check_sheets.py for the hoof line, and set the placement
 numbers in BoarSpec.
@@ -95,6 +98,13 @@ WINGS = {
 # the beat (up, level, down, folding back); 4 hurt; 5 dash; 6 landing; 7 at
 # rest.
 WING_ANGLES = [-30, 0, 48, 14, 8, 18, -32, 0]
+
+# For a drawn wingbeat: which drawing (from 0, in cycle order) has the wings
+# most tucked in, for standing and the dash. The piglet's is its last,
+# folding in; the juvenile's its third, "low/compact" (its last is the
+# upstroke, wings raised again); the razorback's its fourth of six, "fully
+# down and folding".
+DRAWN_FOLDED = {"piglet": 3, "juvenile": 2, "razorback": 3}
 
 # How far from the shoulder (fraction of the frame) the fan that fills the
 # root of a turned wing reaches. See posed().
@@ -239,8 +249,10 @@ def to_frames(imgs):
 def drawn_cycle(stage, facing):
     """The owner's drawn wingbeat for [stage], mirrored and de-sparkled, or
     None if the stage has none."""
-    paths = [os.path.join(HERE, "source", f"boar_{stage}_cycle_{i}.png") for i in range(1, 5)]
-    if not all(os.path.exists(p) for p in paths):
+    paths = []
+    while os.path.exists(p := os.path.join(HERE, "source", f"boar_{stage}_cycle_{len(paths) + 1}.png")):
+        paths.append(p)
+    if len(paths) < 2:
         return None
     imgs = []
     for p in paths:
@@ -251,15 +263,16 @@ def drawn_cycle(stage, facing):
     return to_frames(imgs)
 
 
-def drawn_sheet(cycle):
-    """The sheet from a drawn wingbeat. The drawings go up, level, down,
-    folding in, the order of the cycle frames; the rest borrow from them:
-    hurt is the level frame tinted red, dash the folded one stretched along
-    the line of flight, landing the wings-up one (braking), and standing the
-    folded one."""
-    up, mid, down, fold = cycle
-    frames = [up, mid, down, fold, hurt(mid), dash(fold), up, fold]
-    out = Image.new("RGBA", (FRAME * FRAMES, FRAME), (0, 0, 0, 0))
+def drawn_sheet(cycle, stage):
+    """The sheet from a drawn wingbeat. The drawings are the cycle frames,
+    in order, starting wings-up (the owner's sheets do); the rest
+    borrow from them: hurt is the second tinted red, dash the most folded
+    one (DRAWN_FOLDED) stretched along the line of flight, landing the
+    wings-up one (braking), and standing the folded one."""
+    up, mid = cycle[0], cycle[1]
+    fold = cycle[DRAWN_FOLDED.get(stage, 3)]
+    frames = [*cycle, hurt(mid), dash(fold), up, fold]
+    out = Image.new("RGBA", (FRAME * len(frames), FRAME), (0, 0, 0, 0))
     for i, f in enumerate(frames):
         out.paste(f, (i * FRAME, 0), f)
     return out
@@ -314,8 +327,8 @@ def main():
         cycle = drawn_cycle(stage, args.facing)
         if cycle:
             frames[stage] = cycle[0]
-            drawn_sheet(cycle).save(os.path.join(OUT, f"boar_{stage}.png"))
-            print(f"{stage}: drawn wingbeat (source/boar_{stage}_cycle_1..4.png) -> boar_{stage}.png")
+            drawn_sheet(cycle, stage).save(os.path.join(OUT, f"boar_{stage}.png"))
+            print(f"{stage}: drawn wingbeat (source/boar_{stage}_cycle_1..{len(cycle)}.png) -> boar_{stage}.png")
             continue
         img = Image.open(src).convert("RGBA")
         if args.facing == "left":

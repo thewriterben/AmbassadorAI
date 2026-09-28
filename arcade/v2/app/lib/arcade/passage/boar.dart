@@ -10,8 +10,9 @@
 ///
 /// ## The sheet contract
 ///
-/// Each stage is one PNG: a single row of [BoarFrame.count] square frames,
-/// facing right, the frame side being the image height. Final art replaces
+/// Each stage is one PNG: a single row of square frames ([BoarFrames.count]
+/// of them, eight for a four-drawing wingbeat), facing right, the frame side
+/// being the image height. Final art replaces
 /// these files without a code change as long as it keeps that layout and
 /// roughly the placements in [BoarSpec] — or updates the numbers there.
 ///
@@ -21,10 +22,13 @@
 /// `tool/art/import_boars.py`, which mirrors it to face right, drops the
 /// detached sparkles, cuts the wings out and turns them about their
 /// shoulders to build the eight frames: a real wingbeat, a red-tinted hurt
-/// frame, a swept dash frame and a braking landing frame. The piglet's
-/// wingbeat is drawn instead (2026-09-28): four frames by the owner, split
-/// out of their sheet by `tool/art/split_frames.py` and used as drawn, the
-/// other frames borrowing from them. The old generated placeholders came
+/// frame, a swept dash frame and a braking landing frame. The piglet's and
+/// the juvenile's wingbeats are drawn instead (2026-09-28): four frames each
+/// by the owner, split out of their sheets by `tool/art/split_frames.py`
+/// and used as drawn, the other frames borrowing from them. The razorback's
+/// wingbeat is drawn too, in six (so its sheet has ten frames). None of the
+/// stages uses the rig now; it stays in the importer for new art that comes
+/// as a single pose. The old generated placeholders came
 /// from `tool/art/boar_sprites.py`.
 library;
 
@@ -48,21 +52,27 @@ enum BoarStage {
   String get label => BoarSpec.all[this]!.name;
 }
 
-/// Frame indices within every sheet.
-abstract final class BoarFrame {
-  /// Wing cycle: up, mid, down, recovery.
-  static const cycle = [0, 1, 2, 3];
-  static const hurt = 4;
+/// Frame indices within a stage's sheet: the wing cycle first, then four
+/// poses.
+class BoarFrames {
+  /// How many drawings the wingbeat has. Four, starting wings-up; the
+  /// razorback's owner-drawn beat has six.
+  final int cycleLength;
+  const BoarFrames([this.cycleLength = 4]);
 
-  /// Swept-back wings. Reserved for the dash ability (phase 3).
-  static const dash = 5;
+  /// Wing cycle, in order, from wings-up.
+  List<int> get cycle => List.generate(cycleLength, (i) => i);
+  int get hurt => cycleLength;
+
+  /// Swept-back wings, for the dash ability.
+  int get dash => cycleLength + 1;
 
   /// Wings braking, legs down: the last metres before touchdown.
-  static const land = 6;
+  int get land => cycleLength + 2;
 
   /// Wings folded, standing on the ground.
-  static const stand = 7;
-  static const count = 8;
+  int get stand => cycleLength + 3;
+  int get count => cycleLength + 4;
 }
 
 class BoarSpec {
@@ -96,6 +106,9 @@ class BoarSpec {
   /// radius into a pillar before a strike registered.
   final double bodyRadius, bodyHalfLength;
 
+  /// The layout of this stage's sheet.
+  final BoarFrames frames;
+
   const BoarSpec({
     required this.file,
     required this.sizeInRadii,
@@ -105,6 +118,7 @@ class BoarSpec {
     required this.name,
     this.bodyRadius = 0.9,
     required this.bodyHalfLength,
+    this.frames = const BoarFrames(),
   });
 
   static const all = {
@@ -118,7 +132,7 @@ class BoarSpec {
       anchorU: 0.54,
       anchorV: 0.586,
       // The drawn wingbeat's folded frame, which is also the standing one.
-      footV: 0.824,
+      footV: 0.828,
       name: 'Piglet',
       bodyHalfLength: 0.35,
     ),
@@ -136,10 +150,13 @@ class BoarSpec {
       sizeInRadii: 9.17,
       anchorU: 0.55,
       anchorV: 0.597,
-      footV: 0.756,
+      // The drawn "fully down and folding" frame, which is also the
+      // standing one.
+      footV: 0.77,
       name: 'Razorback',
       bodyRadius: 1.0,
       bodyHalfLength: 0.75,
+      frames: BoarFrames(6),
     ),
   };
 }
@@ -149,8 +166,9 @@ class BoarSpec {
 class BoarPortrait extends StatelessWidget {
   final BoarStage stage;
   final double size;
-  final int frame;
-  const BoarPortrait({super.key, required this.stage, this.size = 56, this.frame = BoarFrame.stand});
+  /// The frame to show; null is the standing one.
+  final int? frame;
+  const BoarPortrait({super.key, required this.stage, this.size = 56, this.frame});
 
   /// The part of a frame the boar actually occupies when standing, as
   /// fractions: frames carry headroom for raised wings, and drawn whole the
@@ -161,18 +179,21 @@ class BoarPortrait extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final f = size / _crop.width; // one frame's side at this zoom
+    final spec = BoarSpec.all[stage]!;
+    final count = spec.frames.count;
+    final frame = this.frame ?? spec.frames.stand;
     return SizedBox.square(
       dimension: size,
       child: ClipRect(
         child: OverflowBox(
           alignment: Alignment.topLeft,
-          maxWidth: f * BoarFrame.count,
+          maxWidth: f * count,
           maxHeight: f,
           child: Transform.translate(
             offset: Offset(-(frame + _crop.left) * f, -_crop.top * f),
             child: Image.asset(
-              'assets/images/${BoarSpec.all[stage]!.file}',
-              width: f * BoarFrame.count,
+              'assets/images/${spec.file}',
+              width: f * count,
               height: f,
               fit: BoxFit.fill,
               filterQuality: FilterQuality.medium,

@@ -583,6 +583,101 @@ for the piglet only.
   stepped through. It cycles the four drawings with the body steady. The
   juvenile and razorback sheets came out unchanged.
 
+### The juvenile's drawn wingbeat — 2026-09-28
+
+The owner sent the juvenile's wingbeat in the same form, labelled "rest/high,
+downstroke, low/compact, upstroke". Only the razorback still has the rig.
+Three differences from the piglet's sheet needed changes to the splitter:
+
+- **Labels under the art.** The splitter now clears, across the whole sheet
+  and before cutting, any strip of rows that holds only grey text. Otherwise
+  a label between two rows of art passes for part of the gap between cells.
+  The piglet-style box erase still runs for labels above the art. It stays
+  off for this sheet: its wing tops hold hundreds of dark grey outline
+  pixels that it would take for letters.
+- **A closed gap in the tail's curl.** The flood fill can't reach that white.
+  `--holes` clears every patch of background, and is only for art with no
+  white of its own. The piglet's white feathers have pockets of the same
+  colour and size.
+- **A compact frame with tucked legs.** Its body centroid registered it 38px
+  too high, so the boar lurched every wingbeat. The centroid is now only a
+  first guess. It is refined by matching the head, the front of the lower
+  body that a wingbeat does not move, against frame 1.
+
+  The piglet was re-split with the same fixes. Its registration moved by a
+  pixel or two, and its foot line is now 0.828. Its frames 3 and 4 get back
+  the outline along the top of the far wing, which the old box erase had
+  cut off: that wing sits just under the middle label.
+
+The dust puff in the downstroke frame is dropped by the importer as a
+detached speck. Hurt, dash, landing and standing are built as for the
+piglet, except that the folded drawing is per stage (`DRAWN_FOLDED`): the
+compact third frame for the juvenile, because its fourth is wings-up again.
+The juvenile's body matched the old art to the pixel, 173px wide in the
+standing frame, so its BoarSpec is unchanged. Verified on the Pixel: a DEV
+flight as the juvenile cycles all four drawings with the head steady.
+
+### The razorback's drawn wingbeat, in six — 2026-09-28
+
+The owner's razorback sheet has six drawings, in a 3×2 grid with two-line
+labels underneath:
+
+1. high up and spread
+2. mid-downward stroke
+3. low-down stroke, a full cup
+4. fully down and folding
+5. mid-upward stroke
+6. re-lifting
+
+With this sheet, no stage uses the wing rig any more. It stays in the
+importer for new art that arrives as a single pose.
+
+**Splitting by shape, not by grid.** Frame 1's right wing crosses into frame
+2's columns, so there is no gutter to cut at. The frames of the second row
+also face right, where the first row faces left. `split_frames.py` now works
+for any sheet this way:
+- Label strips are cleared first. A label strip can be up to 160 rows, since
+  a two-line label can run together.
+- The N largest shapes on the sheet are the boars (`--frames N`, default 4).
+  A smaller shape goes to the nearest boar, unless it is grey. Grey is a
+  label, or the juvenile's dust puff, and is dropped.
+- Grey letters that join a boar only on the shrunk copy are removed at full
+  size.
+- `--holes` now leaves enclosed pockets smaller than 30 pixels (a
+  highlight).
+- Every frame is tried both ways round and kept the way its head matches
+  frame 1's. Frames 4–6 came out turned round, as they should.
+- Registration is by the head, as before, starting from the centroid of the
+  lower half of the art.
+
+The piglet and juvenile came through the new path within a few pixels of
+before. One real difference: the piglet's frame 1 was committed with the tip
+of its far wing as a broken ghost, left by the old label erase. It is whole
+now, and the "FRAME 1" letters beside it are gone. The earlier note's "the
+wing tip survives" was wrong.
+
+**A cycle length per stage.** `BoarFrame`, with its fixed indices, became
+`BoarFrames(cycleLength)` on each `BoarSpec`. A sheet is the cycle and then
+hurt, dash, land and stand, so the razorback's `BoarFrames(6)` sheet has 10
+frames:
+- The flap resets to wings-up whatever the length.
+- The wing rate scales with the length, so every stage beats its wings in the
+  same time.
+- `BoarPortrait` finds the standing frame from the spec.
+- `check_sheets.py` reads the length out of boar.dart.
+- A new test flies the razorback and checks all six drawings show and no
+  frame index runs past its sheet.
+
+**Placement.** Frame 1 is the drawing the old razorback art was made from:
+its body band measures 180px against the old 182. The size and anchors stand.
+Standing is now the "fully down and folding" drawing, so footV moves from
+0.756 to 0.77. The home card, built from the razorback's first frame, is the
+same wings-spread drawing.
+
+**Verified on the Pixel:** a DEV flight as the razorback, recorded, runs
+through all six drawings with the head steady. The front-room portrait shows
+the standing frame from the 10-frame sheet.
+
 ### Picking the boar's stage in DEV, both ways — 2026-09-28
 
 The owner wanted to start as the piglet. DEV could only step the stage

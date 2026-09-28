@@ -379,9 +379,10 @@ class PassageGame extends FlameGame {
       try {
         final img = await images.load(e.value.file);
         final side = img.height.toDouble();
-        if ((img.width / img.height).round() != BoarFrame.count) continue;
+        final count = e.value.frames.count;
+        if ((img.width / img.height).round() != count) continue;
         _boarFrames[e.key] = [
-          for (var i = 0; i < BoarFrame.count; i++)
+          for (var i = 0; i < count; i++)
             Sprite(img, srcPosition: Vector2(i * side, 0), srcSize: Vector2.all(side)),
         ];
       } catch (_) {
@@ -513,7 +514,8 @@ class PassageGame extends FlameGame {
         _flapAt = sim.t;
         // A tap is a downstroke: jump the cycle to the wings-up frame, so the
         // next frames beat them down as the boar rises.
-        _wingPhase = _wingPhase.floorToDouble() + (4 - _wingPhase.floor() % 4);
+        final n = BoarSpec.all[stage]!.frames.cycleLength;
+        _wingPhase = _wingPhase.floorToDouble() + (n - _wingPhase.floor() % n);
         Audio.instance.pigFlap(stage.name);
       case SimEventKind.eraChanged:
         eraNotifier.value = e.value;
@@ -590,12 +592,16 @@ class PassageGame extends FlameGame {
     }
   }
 
-  /// Wingbeats per second, in frames of the four-frame cycle.
+  /// How fast the wing cycle turns, in frames per second. The numbers are
+  /// for a four-drawing beat; a longer one (the razorback's six) steps
+  /// through its drawings faster in proportion, so every stage beats its
+  /// wings in the same time.
   double get _wingRate {
-    if (!started) return 5;
+    final k = BoarSpec.all[stage]!.frames.cycleLength / 4;
+    if (!started) return 5 * k;
     if (phase == PassagePhase.down) return 0;
-    if (phase == PassagePhase.descending) return 4;
-    return _t - _flapAt < 0.28 ? 20 : 8;
+    if (phase == PassagePhase.descending) return 4 * k;
+    return (_t - _flapAt < 0.28 ? 20 : 8) * k;
   }
 
   void _finish() {

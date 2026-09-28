@@ -485,21 +485,21 @@ extension PassageRender on PassageGame {
     );
   }
 
-  /// Which frame of the sheet to draw. See [BoarFrame].
+  /// Which frame of the sheet to draw. See [BoarFrames].
   int _boarFrame() {
-    if (phase == PassagePhase.down) return _phaseT < 0.25 ? BoarFrame.land : BoarFrame.stand;
-    if (phase != PassagePhase.flying && _groundY - _coinY < _coinR * 3.2) return BoarFrame.land;
-    if (_t < _hurtUntil) return BoarFrame.hurt;
-    if (_t < _dashUntil) return BoarFrame.dash;
-    return BoarFrame.cycle[_wingPhase.floor() % BoarFrame.cycle.length];
+    final f = BoarSpec.all[stage]!.frames;
+    if (phase == PassagePhase.down) return _phaseT < 0.25 ? f.land : f.stand;
+    if (phase != PassagePhase.flying && _groundY - _coinY < _coinR * 3.2) return f.land;
+    if (_t < _hurtUntil) return f.hurt;
+    if (_t < _dashUntil) return f.dash;
+    return _wingPhase.floor() % f.cycleLength;
   }
 
   /// The boar, centred on the hitbox and pitched with its climb and fall.
   /// Returns false when this stage's sheet is not loaded.
   ///
-  /// Drawn from the owner's art, sampled smoothly. The wings are rigged in
-  /// the sheet (`tool/art/import_boars.py`), so the frames carry a real
-  /// wingbeat.
+  /// Drawn from the owner's art, sampled smoothly. The frames carry the
+  /// owner's drawn wingbeat (`tool/art/import_boars.py`).
   bool _boar(Canvas canvas, double alpha) {
     final frames = _boarFrames[stage];
     if (frames == null) return false;
@@ -526,7 +526,7 @@ extension PassageRender on PassageGame {
       // it does in flight, so the landing frame is held level and lifted to
       // keep the hooves out of the ground. Without this it sank in and then
       // popped up by most of a radius on touchdown.
-      final landing = frame == BoarFrame.land;
+      final landing = frame == spec.frames.land;
       final tilt = landing ? 0.0 : (_vy / _vMax).clamp(-1.0, 1.0) * 0.30;
       final y = landing ? min(_coinY, _groundY - (spec.footV - spec.anchorV) * side) : _coinY;
       canvas.translate(_coinX, y);

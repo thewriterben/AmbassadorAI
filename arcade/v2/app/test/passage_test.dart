@@ -243,13 +243,13 @@ void main() {
     // pose for every state. The renderer refuses such a sheet and falls back
     // to the coin; this makes the same mistake fail here instead of quietly
     // shipping the coin.
-    test('every stage has a sheet of eight square frames', () {
+    test('every stage has a sheet of square frames, as many as its layout says', () {
       for (final spec in BoarSpec.all.values) {
         final f = File('assets/images/${spec.file}');
         expect(f.existsSync(), isTrue, reason: '${spec.file} is missing');
         final head = ByteData.sublistView(f.readAsBytesSync(), 16, 24);
         final w = head.getUint32(0), h = head.getUint32(4);
-        expect(w, h * BoarFrame.count, reason: '${spec.file} is ${w}x$h');
+        expect(w, h * spec.frames.count, reason: '${spec.file} is ${w}x$h');
       }
     });
 
@@ -271,18 +271,35 @@ void main() {
       g.flap();
       final seen = <int>{};
       _fly(g, run, 0.6, each: (_) => seen.add(g.boarFrame));
-      expect(seen, containsAll(BoarFrame.cycle), reason: 'the wings should beat');
+      final f = BoarSpec.all[g.stage]!.frames;
+      expect(seen, containsAll(f.cycle), reason: 'the wings should beat');
 
       g.strikeForTest();
       g.update(1 / 60);
-      expect(g.boarFrame, BoarFrame.hurt);
+      expect(g.boarFrame, f.hurt);
 
       g.devSkipToLanding();
       var stood = false;
       _fly(g, run, 30, each: (_) {
-        if (g.phase == PassagePhase.down && g.boarFrame == BoarFrame.stand) stood = true;
+        if (g.phase == PassagePhase.down && g.boarFrame == f.stand) stood = true;
       });
       expect(stood, isTrue, reason: 'a landed boar should end standing');
+    });
+
+    test('the razorback beats through all six of its drawings, and only those', () {
+      final run = CabinetRun();
+      final g = PassageGame(run: run, seed: 7, stage: BoarStage.razorback)..onGameResize(_size);
+      final f = BoarSpec.all[BoarStage.razorback]!.frames;
+      expect(f.cycleLength, 6);
+      g.flap();
+      final seen = <int>{};
+      _fly(g, run, 0.6, each: (_) => seen.add(g.boarFrame));
+      expect(seen, containsAll(f.cycle), reason: 'every drawing of the beat should show');
+      expect(seen.every((i) => i < f.count), isTrue, reason: 'no frame past the end of its sheet');
+
+      g.strikeForTest();
+      g.update(1 / 60);
+      expect(g.boarFrame, f.hurt);
     });
   });
 

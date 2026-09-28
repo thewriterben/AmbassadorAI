@@ -15,8 +15,11 @@ import sys
 
 from PIL import Image
 
-FRAMES = 8
-STAND, FLY_MID = 7, 1
+# A sheet is the wing cycle and then four poses (hurt, dash, land, stand);
+# the cycle is four drawings unless boar.dart gives the stage
+# BoarFrames(n), as the razorback's six.
+CYCLE = 4
+FLY_MID = 1
 STAGES = ["piglet", "juvenile", "razorback"]
 HERE = os.path.dirname(os.path.abspath(__file__))
 APP = os.path.normpath(os.path.join(HERE, "..", ".."))
@@ -33,6 +36,8 @@ def current_specs():
             continue
         body = m.group(1)
         out[stage] = {k: float(v) for k, v in re.findall(r"(anchorU|anchorV|footV|sizeInRadii): ([0-9.]+)", body)}
+        cycle = re.search(r"BoarFrames\((\d+)", body)
+        out[stage]["cycle"] = int(cycle.group(1)) if cycle else CYCLE
     return out
 
 
@@ -61,6 +66,8 @@ def check(path, stage, spec):
         errors.append(f"mode is {im.mode}, needs RGBA with a transparent background")
         im = im.convert("RGBA")
     w, h = im.size
+    FRAMES = int((spec or {}).get("cycle", CYCLE)) + 4
+    STAND = FRAMES - 1
     if w != h * FRAMES:
         errors.append(f"{w}x{h}: must be one row of {FRAMES} square frames ({h * FRAMES}x{h})")
         return errors, warns, None
