@@ -21,8 +21,11 @@
 /// `tool/art/import_boars.py`, which mirrors it to face right, drops the
 /// detached sparkles, cuts the wings out and turns them about their
 /// shoulders to build the eight frames: a real wingbeat, a red-tinted hurt
-/// frame, a swept dash frame and a braking landing frame. The old
-/// generated placeholders came from `tool/art/boar_sprites.py`.
+/// frame, a swept dash frame and a braking landing frame. The piglet's
+/// wingbeat is drawn instead (2026-09-28): four frames by the owner, split
+/// out of their sheet by `tool/art/split_frames.py` and used as drawn, the
+/// other frames borrowing from them. The old generated placeholders came
+/// from `tool/art/boar_sprites.py`.
 library;
 
 import 'package:flutter/widgets.dart';
@@ -114,7 +117,8 @@ class BoarSpec {
       sizeInRadii: 5.83,
       anchorU: 0.54,
       anchorV: 0.586,
-      footV: 0.833,
+      // The drawn wingbeat's folded frame, which is also the standing one.
+      footV: 0.824,
       name: 'Piglet',
       bodyHalfLength: 0.35,
     ),

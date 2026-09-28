@@ -24,6 +24,12 @@ this:
      frame, and a landing frame braking with the wings raised;
   6. rebuilds the home-card image from the razorback.
 
+A stage can instead have a drawn wingbeat: tool/art/source/boar_{stage}_cycle_1
+.. _4.png, the owner's frames split out of a sheet by split_frames.py (the
+piglet's, 2026-09-28). Then those four are the wing cycle as drawn, with no
+rig, and the other frames are made from them (see drawn_sheet). The single
+pose given on the command line is not used for that stage.
+
 Then run tool/art/check_sheets.py for the hoof line, and set the placement
 numbers in BoarSpec.
 """
@@ -214,6 +220,67 @@ def to_frame(img):
     return sq.resize((FRAME, FRAME), Image.LANCZOS)
 
 
+def to_frames(imgs):
+    """Several drawings of one boar, cropped alike to the box that holds all
+    of them and centred as to_frame does, so a body that does not move
+    between drawings does not move between frames either."""
+    boxes = [im.getchannel("A").getbbox() for im in imgs]
+    box = (min(b[0] for b in boxes), min(b[1] for b in boxes), max(b[2] for b in boxes), max(b[3] for b in boxes))
+    out = []
+    for im in imgs:
+        im = im.crop(box)
+        side = int(max(im.size) * PAD)
+        sq = Image.new("RGBA", (side, side), (0, 0, 0, 0))
+        sq.paste(im, ((side - im.width) // 2, (side - im.height) // 2), im)
+        out.append(sq.resize((FRAME, FRAME), Image.LANCZOS))
+    return out
+
+
+def drawn_cycle(stage, facing):
+    """The owner's drawn wingbeat for [stage], mirrored and de-sparkled, or
+    None if the stage has none."""
+    paths = [os.path.join(HERE, "source", f"boar_{stage}_cycle_{i}.png") for i in range(1, 5)]
+    if not all(os.path.exists(p) for p in paths):
+        return None
+    imgs = []
+    for p in paths:
+        im = Image.open(p).convert("RGBA")
+        if facing == "left":
+            im = im.transpose(Image.FLIP_LEFT_RIGHT)
+        imgs.append(main_component(im)[0])
+    return to_frames(imgs)
+
+
+def drawn_sheet(cycle):
+    """The sheet from a drawn wingbeat. The drawings go up, level, down,
+    folding in, the order of the cycle frames; the rest borrow from them:
+    hurt is the level frame tinted red, dash the folded one stretched along
+    the line of flight, landing the wings-up one (braking), and standing the
+    folded one."""
+    up, mid, down, fold = cycle
+    frames = [up, mid, down, fold, hurt(mid), dash(fold), up, fold]
+    out = Image.new("RGBA", (FRAME * FRAMES, FRAME), (0, 0, 0, 0))
+    for i, f in enumerate(frames):
+        out.paste(f, (i * FRAME, 0), f)
+    return out
+
+
+def hurt(frame):
+    """Tinted toward red, alpha untouched."""
+    r, g, b, a = frame.split()
+    rgb = Image.blend(Image.merge("RGB", (r, g, b)), Image.new("RGB", frame.size, (255, 60, 50)), 0.35)
+    return Image.merge("RGBA", (*rgb.split(), a))
+
+
+def dash(frame):
+    """Stretched along the line of flight."""
+    w = int(FRAME * 1.05)
+    st = frame.resize((w, int(FRAME * 0.95)), Image.LANCZOS)
+    f = Image.new("RGBA", frame.size, (0, 0, 0, 0))
+    f.paste(st, ((FRAME - w) // 2, int(FRAME * 0.025)), st)
+    return f
+
+
 def sheet(frame, stage):
     body, wings = split_wings(frame, stage)
     frames = []
@@ -226,18 +293,9 @@ def sheet(frame, stage):
             f = Image.new("RGBA", frame.size, (0, 0, 0, 0))
             f.paste(frame, (0, dy), frame)
         elif i == 4:
-            # Hurt: tinted toward red, alpha untouched.
-            r, g, b, a = frame.split()
-            rgb = Image.merge("RGB", (r, g, b))
-            red = Image.new("RGB", frame.size, (255, 60, 50))
-            rgb = Image.blend(rgb, red, 0.35)
-            f = Image.merge("RGBA", (*rgb.split(), a))
+            f = hurt(frame)
         elif i == 5:
-            # Dash: stretched along the line of flight.
-            w = int(FRAME * 1.05)
-            st = frame.resize((w, int(FRAME * 0.95)), Image.LANCZOS)
-            f = Image.new("RGBA", frame.size, (0, 0, 0, 0))
-            f.paste(st, ((FRAME - w) // 2, int(FRAME * 0.025)), st)
+            f = dash(frame)
         frames.append(f)
     out = Image.new("RGBA", (FRAME * FRAMES, FRAME), (0, 0, 0, 0))
     for i, f in enumerate(frames):
@@ -253,6 +311,12 @@ def main():
     args = ap.parse_args()
     frames = {}
     for stage, src in zip(STAGES, args.sources):
+        cycle = drawn_cycle(stage, args.facing)
+        if cycle:
+            frames[stage] = cycle[0]
+            drawn_sheet(cycle).save(os.path.join(OUT, f"boar_{stage}.png"))
+            print(f"{stage}: drawn wingbeat (source/boar_{stage}_cycle_1..4.png) -> boar_{stage}.png")
+            continue
         img = Image.open(src).convert("RGBA")
         if args.facing == "left":
             img = img.transpose(Image.FLIP_LEFT_RIGHT)

@@ -547,6 +547,42 @@ wide. It now wraps.
 - **One fix:** the confirmation message sat over the Fly button for four
   seconds. It is now shorter and lifted clear.
 
+### The piglet's drawn wingbeat — 2026-09-28
+
+The owner drew the piglet's wingbeat as four frames on one 2×2 sheet: white
+background, a "FRAME n" label over each, saved as JPEG. It replaces the
+rigged wingbeat, where the wings were cut out and turned about the shoulder,
+for the piglet only.
+
+- **`tool/art/split_frames.py`** splits the sheet in four steps:
+  1. It cuts the cells at the blank gutters.
+  2. It erases each label. The letters are neutral grey and the art's
+     outlines are tinted, so the colour difference finds the letters.
+     Erasing is kept to the label's own box, because the first version also
+     took the pale tip off frame 1's far wing, which reaches up beside its
+     label.
+  3. It flood-fills the white out from the edges, then trims the JPEG
+     fringe.
+  4. It registers each frame on the body so the pig does not jitter as the
+     frames cycle.
+
+  The sheet and the four split frames are kept in `tool/art/source/`.
+- **`import_boars.py`** uses a stage's drawn frames whenever
+  `boar_{stage}_cycle_1..4.png` exist:
+  - All four frames are cropped to one shared box, so the body stays where
+    it was drawn.
+  - The drawings, in order, are the cycle: up, level, down, folding in.
+  - Hurt is the level frame tinted red.
+  - Dash is the folded frame stretched.
+  - Landing is the wings-up frame.
+  - Standing is the folded frame.
+- **BoarSpec:** the body landed within 3px of the old piglet art, so the size
+  and anchors stand. The foot line moved from 0.833 to 0.824, because
+  standing is now the folded drawing.
+- **Verified on the Pixel:** a DEV flight as the piglet was recorded and
+  stepped through. It cycles the four drawings with the body steady. The
+  juvenile and razorback sheets came out unchanged.
+
 ### Picking the boar's stage in DEV, both ways — 2026-09-28
 
 The owner wanted to start as the piglet. DEV could only step the stage
