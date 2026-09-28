@@ -492,7 +492,7 @@ extension PassageRender on PassageGame {
     if (phase != PassagePhase.flying && _groundY - _coinY < _coinR * 3.2) return f.land;
     if (_t < _hurtUntil) return f.hurt;
     if (_t < _dashUntil) return f.dash;
-    return _wingPhase.floor() % f.cycleLength;
+    return f.cycleFrameAt(_wingPhase - _wingPhase.floorToDouble());
   }
 
   /// The boar, centred on the hitbox and pitched with its climb and fall.

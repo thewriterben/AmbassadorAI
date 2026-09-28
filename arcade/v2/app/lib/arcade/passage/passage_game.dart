@@ -245,8 +245,9 @@ class PassageGame extends FlameGame {
   final Map<PickupKind, Sprite> _coinSprites = {};
   final Map<BoarStage, List<Sprite>> _boarFrames = {};
 
-  /// Wing-cycle position, in frames. Advanced every frame at a rate that
-  /// jumps on every flap, so a tap is visibly a wingbeat.
+  /// Wing-cycle position, in beats: the whole part counts them, the
+  /// fraction is how far through this one. Advanced every frame at a rate
+  /// that jumps on every flap, so a tap is visibly a wingbeat.
   double _wingPhase = 0;
   double _flapAt = -10;
   double _hurtUntil = -1;
@@ -512,10 +513,9 @@ class PassageGame extends FlameGame {
         run.tick();
       case SimEventKind.flap:
         _flapAt = sim.t;
-        // A tap is a downstroke: jump the cycle to the wings-up frame, so the
-        // next frames beat them down as the boar rises.
-        final n = BoarSpec.all[stage]!.frames.cycleLength;
-        _wingPhase = _wingPhase.floorToDouble() + (n - _wingPhase.floor() % n);
+        // A tap is a downstroke: start a fresh beat from wings up, so the
+        // boar beats its wings down as it rises.
+        _wingPhase = _wingPhase.floorToDouble() + 1;
         Audio.instance.pigFlap(stage.name);
       case SimEventKind.eraChanged:
         eraNotifier.value = e.value;
@@ -592,16 +592,17 @@ class PassageGame extends FlameGame {
     }
   }
 
-  /// How fast the wing cycle turns, in frames per second. The numbers are
-  /// for a four-drawing beat; a longer one (the razorback's six) steps
-  /// through its drawings faster in proportion, so every stage beats its
-  /// wings in the same time.
+  /// How fast the wings beat, in beats per second: a tap's beat at the
+  /// stage's flap tempo, then its steady glide beat, slower still before
+  /// the start and on the way down. (It was a frame rate, 20 a second after
+  /// a tap: a whole beat in a fifth of a second, which blurred the
+  /// razorback's six drawings.)
   double get _wingRate {
-    final k = BoarSpec.all[stage]!.frames.cycleLength / 4;
-    if (!started) return 5 * k;
+    final spec = BoarSpec.all[stage]!;
     if (phase == PassagePhase.down) return 0;
-    if (phase == PassagePhase.descending) return 4 * k;
-    return (_t - _flapAt < 0.28 ? 20 : 8) * k;
+    if (!started) return 1 / (spec.glideBeat * 1.4);
+    if (phase == PassagePhase.descending) return 1 / (spec.glideBeat * 1.6);
+    return 1 / (_t - _flapAt < spec.flapBeat ? spec.flapBeat : spec.glideBeat);
   }
 
   void _finish() {

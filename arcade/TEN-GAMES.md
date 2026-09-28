@@ -617,6 +617,49 @@ The juvenile's body matched the old art to the pixel, 173px wide in the
 standing frame, so its BoarSpec is unchanged. Verified on the Pixel: a DEV
 flight as the juvenile cycles all four drawings with the head steady.
 
+### Wingbeat timing to fit the drawings — 2026-09-28
+
+The wing cycle used to run at a frame rate: 8 drawings a second while
+gliding, and 20 a second for 0.28 s after a tap. Every drawing held equally
+long, and a tap's beat lasted a fifth of a second (a tenth of a second on
+top for the razorback's six). The drawn beats flickered past instead of
+reading as a stroke. Now:
+
+- **Holds per drawing** (`BoarFrames.holds`, relative). The extremes hold
+  longer and the in-betweens pass quickly.
+
+  | Stage     | Drawings                                                        | Holds                        |
+  |-----------|-----------------------------------------------------------------|------------------------------|
+  | Piglet    | up, level, down, folding in                                     | 1.3, 0.8, 1.2, 0.7           |
+  | Juvenile  | high, downstroke, compact, upstroke                             | 1.3, 0.7, 1.3, 0.7           |
+  | Razorback | spread, mid-down, full cup, folding, mid-up, re-lifting         | 1.4, 0.7, 1.1, 1.1, 0.8, 0.9 |
+
+- **Beat tempo per stage, in seconds per beat** (`BoarSpec.flapBeat` /
+  `glideBeat`). A tap starts a fresh beat from wings up and plays it at the
+  flap tempo, then the glide beat carries on. Before the start the beat is
+  1.4× the glide; on the way down it's 1.6×.
+
+  | Stage     | Flap | Glide |
+  |-----------|------|-------|
+  | Piglet    | 0.30 | 0.50  |
+  | Juvenile  | 0.36 | 0.62  |
+  | Razorback | 0.44 | 0.78  |
+
+  Bigger boars beat slower, so their size shows in the motion. The piglet's
+  glide is the old half-second beat. `_wingPhase` now counts beats, not
+  frames. The drawing shown comes from how far through the beat it is.
+- **Test:** checks that every stage shows every drawing in order, holds
+  wings-up longer than the next drawing, taps faster than it glides, and
+  beats slower as it grows.
+- **Verified on the Pixel:** the razorback was recorded and stepped through
+  at 15 fps. In the pre-start hover each drawing holds for several samples.
+  After a tap, spread, mid-down, cup, fold and re-lift all show within the
+  0.44 s beat.
+
+These are first numbers, chosen on principle and checked on video. How the
+beat feels in the hand is the owner's call, and every number above is one
+line in `boar.dart`.
+
 ### The razorback's drawn wingbeat, in six — 2026-09-28
 
 The owner's razorback sheet has six drawings, in a 3×2 grid with two-line

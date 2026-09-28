@@ -58,10 +58,30 @@ class BoarFrames {
   /// How many drawings the wingbeat has. Four, starting wings-up; the
   /// razorback's owner-drawn beat has six.
   final int cycleLength;
-  const BoarFrames([this.cycleLength = 4]);
+
+  /// How long each drawing of the beat holds, relative to the others (one
+  /// per drawing; empty is all alike). Drawn animation holds its extremes,
+  /// wings high and the full stroke, and passes quickly through the
+  /// in-betweens: with every drawing held alike, the beat read as a flicker
+  /// rather than a stroke.
+  final List<double> holds;
+  const BoarFrames([this.cycleLength = 4, this.holds = const []]);
 
   /// Wing cycle, in order, from wings-up.
   List<int> get cycle => List.generate(cycleLength, (i) => i);
+
+  /// The drawing showing [beat] of the way through a wingbeat (0 is its
+  /// start, wings up; 1 its end).
+  int cycleFrameAt(double beat) {
+    if (holds.length != cycleLength) return (beat * cycleLength).floor().clamp(0, cycleLength - 1);
+    final total = holds.fold(0.0, (a, b) => a + b);
+    var at = beat * total;
+    for (var i = 0; i < cycleLength; i++) {
+      at -= holds[i];
+      if (at < 0) return i;
+    }
+    return cycleLength - 1;
+  }
   int get hurt => cycleLength;
 
   /// Swept-back wings, for the dash ability.
@@ -106,8 +126,14 @@ class BoarSpec {
   /// radius into a pillar before a strike registered.
   final double bodyRadius, bodyHalfLength;
 
-  /// The layout of this stage's sheet.
+  /// The layout of this stage's sheet, and how long each drawing of the
+  /// wingbeat holds.
   final BoarFrames frames;
+
+  /// Seconds for one wingbeat: the one a tap sets off, and the steady beat
+  /// in between taps. Bigger boars beat slower, so their size reads in the
+  /// motion; the piglet's glide is the old beat, half a second.
+  final double flapBeat, glideBeat;
 
   const BoarSpec({
     required this.file,
@@ -119,6 +145,8 @@ class BoarSpec {
     this.bodyRadius = 0.9,
     required this.bodyHalfLength,
     this.frames = const BoarFrames(),
+    required this.flapBeat,
+    required this.glideBeat,
   });
 
   static const all = {
@@ -135,6 +163,10 @@ class BoarSpec {
       footV: 0.828,
       name: 'Piglet',
       bodyHalfLength: 0.35,
+      // Up, level, down, folding in.
+      frames: BoarFrames(4, [1.3, 0.8, 1.2, 0.7]),
+      flapBeat: 0.30,
+      glideBeat: 0.50,
     ),
     BoarStage.juvenile: BoarSpec(
       file: 'boar_juvenile.png',
@@ -144,6 +176,10 @@ class BoarSpec {
       footV: 0.782,
       name: 'Juvenile',
       bodyHalfLength: 0.5,
+      // Rest/high, downstroke, low/compact, upstroke.
+      frames: BoarFrames(4, [1.3, 0.7, 1.3, 0.7]),
+      flapBeat: 0.36,
+      glideBeat: 0.62,
     ),
     BoarStage.razorback: BoarSpec(
       file: 'boar_razorback.png',
@@ -156,7 +192,11 @@ class BoarSpec {
       name: 'Razorback',
       bodyRadius: 1.0,
       bodyHalfLength: 0.75,
-      frames: BoarFrames(6),
+      // High and spread, mid-down, full cup, fully down and folding, mid-up,
+      // re-lifting.
+      frames: BoarFrames(6, [1.4, 0.7, 1.1, 1.1, 0.8, 0.9]),
+      flapBeat: 0.44,
+      glideBeat: 0.78,
     ),
   };
 }

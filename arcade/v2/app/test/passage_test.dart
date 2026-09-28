@@ -286,6 +286,27 @@ void main() {
       expect(stood, isTrue, reason: 'a landed boar should end standing');
     });
 
+    test('a beat holds its extremes longer than its in-betweens', () {
+      for (final spec in BoarSpec.all.values) {
+        final f = spec.frames;
+        expect(f.holds.length, f.cycleLength, reason: '${spec.name}: one hold per drawing');
+        // Sample one beat finely: every drawing shows, in order, and
+        // wings-up (the first) holds longer than the one after it.
+        final shown = [for (var i = 0; i < 1000; i++) f.cycleFrameAt(i / 1000)];
+        expect(shown.toSet(), f.cycle.toSet(), reason: spec.name);
+        for (var i = 1; i < shown.length; i++) {
+          expect(shown[i], greaterThanOrEqualTo(shown[i - 1]), reason: '${spec.name} runs in order');
+        }
+        final up = shown.where((d) => d == 0).length, next = shown.where((d) => d == 1).length;
+        expect(up, greaterThan(next), reason: '${spec.name}: wings-up holds');
+        expect(spec.flapBeat, lessThan(spec.glideBeat), reason: '${spec.name}: a tap beats faster');
+      }
+      final beats = BoarStage.values.map((s) => BoarSpec.all[s]!.flapBeat).toList();
+      for (var i = 1; i < beats.length; i++) {
+        expect(beats[i], greaterThan(beats[i - 1]), reason: 'bigger boars beat slower');
+      }
+    });
+
     test('the razorback beats through all six of its drawings, and only those', () {
       final run = CabinetRun();
       final g = PassageGame(run: run, seed: 7, stage: BoarStage.razorback)..onGameResize(_size);
