@@ -2,7 +2,8 @@
 
 **Status 2026-09-28: V2 working prototype, rewards in dry run.** Two featured
 games, Coin Quest and When Pigs Fly, both verified by replay; a knowledge
-check; a leaderboard; payout tooling for DGD operations. Every result is
+check; a leaderboard; payout tooling for DGD operations; guest play and a
+rules page, so the phone app's neutral link lands on games (§7, §7a). Every result is
 verified and recorded; every amount is zero; nothing is owed or paid. This
 document is for DGD backend engineering (hosting, sign-in, payout) and for
 counsel (the gates before rewards go live).
@@ -165,7 +166,20 @@ respect the day's caps.
 This arcade exists because the phone app may not reward play (App Review
 3.1.5(v); `B1-DECISION-2026-09-21.md`). So:
 
-- **The phone app never links here** — no button, QR, share text or deep link.
+- **The phone app links here only neutrally** (DGD's choice, 2026-09-28;
+  counsel has the final say). Android 1.0.7's Arcade menu has one item,
+  *"DGD Arcade for Web — Play in your browser"*, that opens exactly
+  `https://digitalgold.co/arcade/` in the phone's own browser. No reward,
+  earn or opportunity wording; no parameters; never a WebView; never on a
+  result screen. Pinned by `WebArcadeLinkTest` in `dgd-native`. iOS follows
+  with its Arcade entry point (`integration/IOS-WEB-ARCADE-LINK.md`).
+- **This site treats app visitors like anyone else.** It never reads the
+  Referer, the User-Agent or any campaign parameter, sends
+  `Referrer-Policy: no-referrer`, and has no app-only anything. A server test
+  fails if a source file starts reading those.
+- **The link lands on games, not on a reward offer.** `/arcade/` is playable
+  as a guest; rewards are disclosed in one line on the landing with the
+  rules a tap away (§7a).
 - **No progress crosses from app to web.** Web boars start as piglets; web
   levels start locked.
 - **No shared identity or database.** The phone arcade has its own handles and
@@ -175,10 +189,33 @@ This arcade exists because the phone app may not reward play (App Review
   game does not depend on the web client.
 - **No attribution** from the app to the web arcade.
 
+## 7a. Guests, the landing, and the rules page
+
+- **Guest play.** A visitor who is not signed in plays both games in full
+  (Coin Quest levels unlock in order; When Pigs Fly flies the piglet with no
+  abilities). Guest games are seeded in the browser and **never sent to the
+  server** — not while playing and not after signing in; there is no endpoint
+  that would accept them. Guest progress is kept in that browser only. A
+  guest can read the leaderboard (`GET /v1/public/leaderboard`) but is never
+  on it. `tools/e2e/e2e_guest.mjs` fails if a guest game makes any request
+  other than the public rules and board.
+- **Signing in is the opt-in** to a verified record, the board, growth and
+  the shop, the knowledge check, and rewards. Guests who tap *Sign in* go to
+  `DGD_SIGNIN_URL` (default `/login?next=/arcade/` — **DGD to confirm**).
+- **Landing.** Leads with the two games. One plain line under the title
+  discloses that signed-in, eligible players can receive DGD for firsts (and
+  that it is test mode while `dry_run` holds), with a *Rules* link.
+- **`/arcade/rules.html`.** Static, readable without the game or JavaScript
+  for its text; the amounts table is filled live from `/v1/rules` so it always
+  matches what the server enforces. Sections marked COUNSEL are placeholders:
+  eligibility, review and appeal, delivery, privacy, sponsor, changes. States
+  plainly that nothing done in the mobile app counts and that Apple and Google
+  are not sponsors.
+
 ## 8. Gates before `dry_run: false` — counsel's, not engineering's
 
-1. **Official rules** at `/arcade`: eligibility, what can be earned, caps,
-   review, no purchase necessary.
+1. **Official rules**: `/arcade/rules.html` has the structure and live
+   figures; counsel writes the sections marked COUNSEL.
 2. **Eligibility**: minimum age, excluded jurisdictions, employee exclusion —
    DGD sets `eligible` in the token.
 3. **Prize and skill-contest law** where players are. When Pigs Fly is a

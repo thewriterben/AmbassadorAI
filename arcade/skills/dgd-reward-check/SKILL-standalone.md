@@ -55,7 +55,7 @@ the argument turns on, and the appendix records what was checked and when.
 
 ## Then look up whether it has already been answered
 
-Six versions of this question have been worked through and recorded.
+Seven versions of this question have been worked through and recorded.
 **Appendix A** holds them. Read it before answering — if the proposal matches
 one, say so and give the recorded reasoning rather than re-deriving it, which risks
 landing somewhere subtly different and undermining a decision already taken.
@@ -175,7 +175,7 @@ Saying "I did not check that clause" is a fine answer; recalling it is not.
 
 ---
 
-# Appendix A — Six versions of the question, already answered
+# Appendix A — Seven versions of the question, already answered
 
 Each of these was worked through and recorded in
 `arcade/B1-DECISION-2026-09-21.md`. If a new proposal matches one, use the
@@ -312,6 +312,25 @@ Disclosed alternatives: non-convertible credits described like XP (fine), or a
 DGD-paying validation programme on the website with the app uninvolved (Path A
 shape).
 
+### 7. Link from the app to the web arcade (answered 28 Sep 2026: neutral only — shipped on Android 1.0.7)
+
+Proposed as an "Enhanced Arcade" link offering "additional features or
+opportunities" and DGD rewards: **exposed** — the app becomes the
+advertisement for the reward, and "Enhanced" makes the in-app arcade the free
+tier of a paying one. "Opportunities" is the renaming trap.
+
+| In the app | Exposure |
+|---|---|
+| Plain `digitalgold.co` link | Clean |
+| Neutral link to `/arcade/` — no reward/earn/enhanced/opportunity wording, bare URL, phone's own browser, menu only, described in review notes | **Grey — DGD chose this; counsel's final say** |
+| Link offering rewards or "opportunities" | Exposed |
+
+Shipped wording: *"DGD Arcade for Web — Play in your browser"*. The web side
+helps by landing on games: guest play, rewards disclosed in one line (not
+hidden, not the headline), a rules page, and no special treatment of app
+visitors. Any later proposal to add reward wording, parameters, a WebView, or
+placement on a results screen moves it back to exposed.
+
 ---
 
 # Appendix B — What the app and server actually do
@@ -329,6 +348,14 @@ friend's-username field, no Copy Invite Link/Code, no "your username is your
 invite code" wording, no App Links, and upgraded installs delete the old
 `dgd.friendCode` key. `ReferralSurfaceGuardTest` fails the build if any of it
 comes back.
+
+**Android 1.0.7 (28 Sep 2026) adds one neutral link** — Arcade menu →
+*"DGD Arcade for Web — Play in your browser"* — to the bare
+`https://digitalgold.co/arcade/`, opened in the phone's own browser. No reward
+wording, no parameters, no WebView, not on any result screen
+(`WebArcadeLinkTest`). This is the "grey tier" DGD chose; any proposal to add
+reward language, parameters or placement near results moves it back to
+exposed.
 
 **iOS still carries the 1.0.5 surface until the Mac applies
 `integration/IOS-PATH-A-CHANGE-REQUEST.md`:** Copy Invite Link
@@ -365,8 +392,11 @@ abilities) and replays the recorded moves or inputs itself. The knowledge
 check is graded on the server. Rewards are **firsts only**, in **dry run at
 zero**; a flight faster than real time or a too-fast Coin Quest run is held
 for review. Payout tooling batches `owed` entries and records DGD's own
-payment reference; the server never pays. The phone app never links to it
-and no progress crosses from app to web.
+payment reference; the server never pays. The phone app links to it only
+neutrally (Android 1.0.7, above) and no progress crosses from app to web.
+Guests can play both games without signing in; guest games are never sent to
+the server. Rewards are disclosed in one line on the landing, with
+`/arcade/rules.html` holding the rules (counsel's sections still placeholders).
 
 So "reward on the web" proposals start from a verifiable base for those two
 games and the quiz — but **not** for the phone arcade's other mini-games,

@@ -14,6 +14,14 @@ invite code" wording, no App Links, and upgraded installs delete the old
 `dgd.friendCode` key. `ReferralSurfaceGuardTest` fails the build if any of it
 comes back.
 
+**Android 1.0.7 (28 Sep 2026) adds one neutral link** — Arcade menu →
+*"DGD Arcade for Web — Play in your browser"* — to the bare
+`https://digitalgold.co/arcade/`, opened in the phone's own browser. No reward
+wording, no parameters, no WebView, not on any result screen
+(`WebArcadeLinkTest`). This is the "grey tier" DGD chose; any proposal to add
+reward language, parameters or placement near results moves it back to
+exposed.
+
 **iOS still carries the 1.0.5 surface until the Mac applies
 `integration/IOS-PATH-A-CHANGE-REQUEST.md`:** Copy Invite Link
 (`/signup?ref=USERNAME`), a per-user QR (`/app?ref=USERNAME`), Copy Invite

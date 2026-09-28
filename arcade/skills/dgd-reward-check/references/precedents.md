@@ -134,3 +134,22 @@ disclaimer while concealing from users what they are accruing.
 Disclosed alternatives: non-convertible credits described like XP (fine), or a
 DGD-paying validation programme on the website with the app uninvolved (Path A
 shape).
+
+## 7. Link from the app to the web arcade (answered 28 Sep 2026: neutral only — shipped on Android 1.0.7)
+
+Proposed as an "Enhanced Arcade" link offering "additional features or
+opportunities" and DGD rewards: **exposed** — the app becomes the
+advertisement for the reward, and "Enhanced" makes the in-app arcade the free
+tier of a paying one. "Opportunities" is the renaming trap.
+
+| In the app | Exposure |
+|---|---|
+| Plain `digitalgold.co` link | Clean |
+| Neutral link to `/arcade/` — no reward/earn/enhanced/opportunity wording, bare URL, phone's own browser, menu only, described in review notes | **Grey — DGD chose this; counsel's final say** |
+| Link offering rewards or "opportunities" | Exposed |
+
+Shipped wording: *"DGD Arcade for Web — Play in your browser"*. The web side
+helps by landing on games: guest play, rewards disclosed in one line (not
+hidden, not the headline), a rules page, and no special treatment of app
+visitors. Any later proposal to add reward wording, parameters, a WebView, or
+placement on a results screen moves it back to exposed.
