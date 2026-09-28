@@ -13,11 +13,16 @@ this:
   2. drops detached specks (sparkles, stray pixels) that are not part of the
      boar, so the frame fits the boar, not its glitter;
   3. crops and centres it in a square frame with a little margin;
-  4. writes an eight-frame sheet (see lib/arcade/passage/boar.dart): the one
-     pose throughout, with a small bob across the wing cycle, a red-tinted
-     hurt frame, and a stretched dash frame. The game adds the rest of the
-     motion (pitch, a wingbeat squash, the glow);
-  5. rebuilds the home-card image from the razorback.
+  4. rigs the wings: each is cut out along the line where it meets the back
+     (WINGS below, measured on a grid) and turned about its shoulder, so the
+     sheet has a real wingbeat — up, level, down, folding back — while the
+     body, and all its detail, stays exactly as drawn. The wings sit behind
+     the body layer, which covers their roots, so a lowered wing tucks behind
+     the back instead of leaving a hole where it was;
+  5. writes the eight-frame sheet (see lib/arcade/passage/boar.dart): the
+     wing cycle with a small bob, a red-tinted hurt frame, a swept-back dash
+     frame, and a landing frame braking with the wings raised;
+  6. rebuilds the home-card image from the razorback.
 
 Then run tool/art/check_sheets.py for the hoof line, and set the placement
 numbers in BoarSpec.
@@ -34,6 +39,45 @@ OUT = os.path.normpath(os.path.join(HERE, "..", "..", "assets", "images"))
 STAGES = ["piglet", "juvenile", "razorback"]
 FRAME = 320  # px per square frame in the sheet
 FRAMES = 8
+
+# Each wing: the region to lift off (a polygon in fractions of the frame,
+# drawn above the line where the wing meets the back, so the root stays on
+# the body), and the shoulder it turns about. "key" lifts only pixels of the
+# wing's own colouring (and their outline) from inside the polygon — the
+# piglet's white feathers, which the polygon alone cannot separate from the
+# gold-striped back they overlap.
+WINGS = {
+    "piglet": [
+        dict(poly=[(0.03, 0.12), (0.22, 0.15), (0.36, 0.28), (0.45, 0.43), (0.44, 0.50), (0.36, 0.49),
+                   (0.18, 0.45), (0.06, 0.37), (0.03, 0.24)], pivot=(0.41, 0.47), key="white"),
+        dict(poly=[(0.60, 0.01), (0.80, 0.01), (0.81, 0.30), (0.74, 0.36), (0.62, 0.36), (0.59, 0.15)],
+             pivot=(0.68, 0.34), key="white"),
+    ],
+    "juvenile": [
+        # Down to just above the tail and the back: the lowest feathers hang to
+        # 0.53, and cut higher they stayed behind as a sliver on the upstroke.
+        dict(poly=[(0.01, 0.06), (0.14, 0.04), (0.30, 0.18), (0.41, 0.29), (0.48, 0.41), (0.49, 0.47),
+                   (0.44, 0.52), (0.38, 0.535), (0.32, 0.53), (0.285, 0.51), (0.24, 0.52), (0.18, 0.50),
+                   (0.02, 0.43)], pivot=(0.45, 0.47)),
+        dict(poly=[(0.59, 0.37), (0.71, 0.22), (0.86, 0.07), (0.99, 0.08), (0.99, 0.31), (0.86, 0.38),
+                   (0.74, 0.43), (0.66, 0.43), (0.61, 0.41)], pivot=(0.64, 0.42)),
+    ],
+    "razorback": [
+        # The membrane's lowest point nearly touches the tail's curl; the cut
+        # runs between them at x = 0.278.
+        dict(poly=[(0.01, 0.11), (0.21, 0.13), (0.38, 0.22), (0.41, 0.33), (0.44, 0.44), (0.46, 0.48),
+                   (0.40, 0.50), (0.30, 0.485), (0.279, 0.49), (0.279, 0.535), (0.25, 0.535), (0.21, 0.52),
+                   (0.09, 0.45), (0.01, 0.30)],
+             pivot=(0.43, 0.47)),
+        dict(poly=[(0.63, 0.43), (0.65, 0.30), (0.70, 0.24), (0.85, 0.15), (0.98, 0.13), (0.93, 0.30),
+                   (0.86, 0.41), (0.77, 0.46), (0.70, 0.46)], pivot=(0.66, 0.45)),
+    ],
+}
+
+# Wing angle per frame, degrees: positive lowers the wing tip. Frames 0-3 are
+# the beat (up, level, down, folding back); 4 hurt; 5 dash; 6 landing; 7 at
+# rest.
+WING_ANGLES = [-14, 0, 26, 8, 6, 14, -16, 0]
 
 
 def main_component(img, keep=0.02, scale=4):
@@ -76,6 +120,58 @@ def main_component(img, keep=0.02, scale=4):
     return Image.fromarray(out, "RGBA"), dropped
 
 
+def split_wings(frame, stage):
+    """The body without its wings, and each wing on its own layer with the
+    sign that lowers its tip."""
+    from PIL import ImageDraw
+    body = frame.copy()
+    wings = []
+    arr = np.array(frame)
+    for w in WINGS.get(stage, []):
+        m = Image.new("L", frame.size, 0)
+        ImageDraw.Draw(m).polygon([(x * FRAME, y * FRAME) for x, y in w["poly"]], fill=255)
+        mask = np.array(m) > 0
+        if w.get("key") == "white":
+            # Everything in the region that is not the warm brown and gold of
+            # the body: the white feathers, their lavender shading and their
+            # dark outline. Keying on "white" alone left the shading and the
+            # outline behind as faint ghost lines where the wing had been.
+            rgb = arr[:, :, :3].astype(int)
+            r, b = rgb[:, :, 0], rgb[:, :, 2]
+            warm = (r > b + 35) & (r > 90)
+            mask &= ~warm
+        mask &= arr[:, :, 3] > 0
+        layer = np.zeros_like(arr)
+        layer[mask] = arr[mask]
+        b = np.array(body)
+        b[mask, 3] = 0
+        body = Image.fromarray(b, "RGBA")
+        ys, xs = np.nonzero(mask)
+        px, py = w["pivot"][0] * FRAME, w["pivot"][1] * FRAME
+        # PIL turns counter-clockwise for a positive angle: that lowers the
+        # tip of a wing reaching up and back (to the left), and raises one
+        # reaching up and forward, so the sign follows the tip's side.
+        sign = 1 if (xs.mean() if len(xs) else px) < px else -1
+        wings.append((Image.fromarray(layer, "RGBA"), (px, py), sign))
+    return body, wings
+
+
+def posed(body, wings, angle):
+    """The body with its wings turned by [angle]. Each wing is laid down
+    twice: first as it was drawn (at rest), then turned. On the upstroke the
+    turned wing lifts clear of the wing's own lower edge, and without the
+    rest copy underneath, that edge — which lay across the back and the
+    tail — left a sliver of sky through the body. The rest copy fills it
+    with the wing's own feathers, the way a real wing's far side would."""
+    out = Image.new("RGBA", body.size, (0, 0, 0, 0))
+    for layer, pivot, sign in wings:
+        if angle < 0:
+            out.alpha_composite(layer)
+        out.alpha_composite(layer.rotate(sign * angle, resample=Image.BICUBIC, center=pivot))
+    out.alpha_composite(body)
+    return out
+
+
 def to_frame(img):
     """Crop to the art and centre it in a square with 4% margin."""
     img = img.crop(img.getchannel("A").getbbox())
@@ -85,9 +181,11 @@ def to_frame(img):
     return sq.resize((FRAME, FRAME), Image.LANCZOS)
 
 
-def sheet(frame):
+def sheet(frame, stage):
+    body, wings = split_wings(frame, stage)
     frames = []
     for i in range(FRAMES):
+        frame = posed(body, wings, WING_ANGLES[i])
         f = frame
         if i in (0, 1, 2, 3):
             # A small bob across the wing cycle: up, level, down, level.
@@ -128,7 +226,7 @@ def main():
         img, dropped = main_component(img)
         fr = to_frame(img)
         frames[stage] = fr
-        sheet(fr).save(os.path.join(OUT, f"boar_{stage}.png"))
+        sheet(fr, stage).save(os.path.join(OUT, f"boar_{stage}.png"))
         print(f"{stage}: {src} -> boar_{stage}.png, {dropped} detached specks dropped")
     # Home card: the razorback, trimmed and squared.
     rb = frames["razorback"]

@@ -19,9 +19,9 @@
 /// juvenile on golden feathered wings, a razorback on golden dragon wings.
 /// Each is a single flying pose, imported into the sheet layout by
 /// `tool/art/import_boars.py`, which mirrors it to face right, drops the
-/// detached sparkles and builds the eight frames: a small bob across the
-/// wing cycle, a red-tinted hurt frame, a stretched dash frame. The wingbeat
-/// itself is a squash-and-stretch the renderer adds on every flap. The old
+/// detached sparkles, cuts the wings out and turns them about their
+/// shoulders to build the eight frames: a real wingbeat, a red-tinted hurt
+/// frame, a swept dash frame and a braking landing frame. The old
 /// generated placeholders came from `tool/art/boar_sprites.py`.
 library;
 

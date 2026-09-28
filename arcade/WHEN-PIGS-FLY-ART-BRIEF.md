@@ -2,8 +2,10 @@
 
 > **Delivered 2026-09-27.** The owner made the three boars, which are now in
 > the game (TEN-GAMES.md, "Final boar art"). This brief stays as the spec for
-> any further poses: a true wing cycle, landing and standing frames. The
-> current art is a single flying pose per stage, and the game fakes the rest.
+> any further poses: hand-drawn wing positions and true landing and standing
+> frames. The current art is a single flying pose per stage. The importer cuts
+> the wings out and turns them to make the wingbeat (TEN-GAMES.md, "Final boar
+> art"); drawn frames would replace that one for one.
 
 Final sprite art for the player character of *When Pigs Fly*, game 1 of the
 DGD Arcade v2 catalogue (design: `TEN-GAMES.md`, "When Pigs Fly"). The game

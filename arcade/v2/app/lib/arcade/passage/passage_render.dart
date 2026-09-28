@@ -462,7 +462,9 @@ extension PassageRender on PassageGame {
   /// The boar, centred on the hitbox and pitched with its climb and fall.
   /// Returns false when this stage's sheet is not loaded.
   ///
-  /// Drawn from the owner's art, sampled smoothly, with a squash on each flap.
+  /// Drawn from the owner's art, sampled smoothly. The wings are rigged in
+  /// the sheet (`tool/art/import_boars.py`), so the frames carry a real
+  /// wingbeat.
   bool _boar(Canvas canvas, double alpha) {
     final frames = _boarFrames[stage];
     if (frames == null) return false;
@@ -494,14 +496,6 @@ extension PassageRender on PassageGame {
       final y = landing ? min(_coinY, _groundY - (spec.footV - spec.anchorV) * side) : _coinY;
       canvas.translate(_coinX, y);
       canvas.rotate(tilt);
-      // The wingbeat: each flap squashes the boar a little and lets it go
-      // over a fifth of a second. The art is a single pose, so this is what
-      // makes a tap look like a stroke of the wings.
-      final since = _t - _flapAt;
-      if (!landing && since >= 0 && since < 0.22) {
-        final k = 1 - since / 0.22;
-        canvas.scale(1 - 0.05 * k, 1 + 0.07 * k);
-      }
       frames[frame].render(canvas,
           position: Vector2(-spec.anchorU * side, -spec.anchorV * side), size: Vector2.all(side), overridePaint: paint);
     }

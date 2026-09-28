@@ -768,6 +768,9 @@ class PassageGame extends FlameGame {
     }
     _vy = _flapImpulse * _lift;
     _flapAt = _t;
+    // A tap is a downstroke: jump the cycle to the wings-up frame, so the
+    // next frames beat them down as the boar rises.
+    _wingPhase = _wingPhase.floorToDouble() + (4 - _wingPhase.floor() % 4);
     // A flap is the player taking the controls back: it lets go of a grapple.
     _grapple = null;
     Audio.instance.tap();

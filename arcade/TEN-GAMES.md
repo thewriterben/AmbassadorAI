@@ -601,8 +601,23 @@ contract. It:
   frame, and a gently stretched dash frame
 
 The originals are kept in `tool/art/source/` so the sheets can be rebuilt.
-Since the art is a single pose, the wingbeat is a squash-and-stretch the
-renderer adds on every flap.
+
+**The wings are rigged** (added the same day, on the owner's request).
+- **The cut:** each wing is cut out of the art along the line where it meets
+  the back, and turned about its shoulder. The cut lines and pivots were
+  measured per stage on a grid. The piglet's white feathers are lifted by
+  colour, since they overlap the gold-striped back.
+- **The beat:** the sheet has a real wingbeat (up, level, down, folding back),
+  plus braking wings for the landing and swept-back wings for the dash. The
+  body and all its detail stay exactly as drawn.
+- **Layering:** wings sit behind the body, which covers their roots.
+- **Upstroke fill:** on the upstroke, a copy of the wing at rest is laid
+  underneath. Without it, the wing's lower edge, which lay across the back and
+  tail, left a sliver of sky through the body. On the razorback the membrane
+  nearly touches the tail's curl, so the cut runs between them.
+- **The tap:** each tap jumps the cycle to wings-up, so the next frames beat
+  them down as the boar rises. This replaces the squash-and-stretch the
+  renderer used to fake a wingbeat.
 
 **The art is sampled smoothly now.** It is detailed rather than on a strict
 pixel grid, and nearest-neighbour shimmered as it scaled and pitched.
