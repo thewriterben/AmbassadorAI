@@ -564,6 +564,15 @@ than gold, as silver should be, but with real shadow and highlight.
 The originals are kept in `tools/source/`. The file is also the
 leaderboard's second-place medal, which improves the same way.
 
+**Copper, the same day.** The copper render was flat and matte beside the
+new silver, with a narrow, dull range and little specular. It is now made
+from the gold coin too (`tools/gen_copper_coin.py`), but through a colour
+ramp rather than a tint: deep brown in shadow, saturated orange in the
+midtones, a warm glint at the top. That contrast is what makes copper read
+as polished metal. Median brightness is 137, darker than silver and gold as
+copper is. Only When Pigs Fly uses the copper coin. All three metals now
+share one lighting, so they read as a set.
+
 ### Music — 2026-09-27
 
 "Flight of the Swine", the owner's own track (2:36), is the game's music. It
