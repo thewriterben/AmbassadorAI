@@ -547,6 +547,41 @@ wide. It now wraps.
 - **One fix:** the confirmation message sat over the Fly button for four
   seconds. It is now shorter and lifted clear.
 
+### The boar's sounds — 2026-09-28
+
+The boar borrowed Coin Quest's sounds: a UI tap on every flap and a vault
+clang on every strike. It now has its own (`tools/gen_pigs_sfx.py`), which
+change as it grows:
+
+| Moment | Piglet | Juvenile | Razorback |
+|---|---|---|---|
+| Flap | A light, feathery flutter | A feathered whoosh | A heavy leathery beat with a low thump |
+| Strike (over the impact) | A squeal | A grunt | A deep snorting growl |
+| Touchdown | A contented snort, pitched to the stage | | |
+| Growing up | A rising bell arpeggio over a shimmer, on the results sheet's grew-into panel | | |
+
+**How they're made.** They are synthesised like the app's other effects:
+22 kHz mono, three round-robin takes of anything that repeats, a tone below
+concert pitch.
+- **Wings:** noise through a band sweeping down over the stroke, with a
+  feather ripple for the feathered wings and a low thump for the dragon's.
+- **Voices:** a pulse train with a pitch contour, through nasal formants
+  (strong near 1 kHz, a dip near 2 kHz), with breath under it.
+
+**Checked by spectrogram, since no one here can listen.** The first pass left
+the grunts as broadband hiss. They are now kept below about 2.5 kHz with the
+breath as a whisper under the voice, and the harmonics show plainly.
+
+**On the Pixel:** the effects player started 33 times in one run with no load
+errors. Whether they sound right is for a human.
+
+**Tuning.** Flaps play quietly (0.42) and spaced by at least 70 ms, since
+players flap constantly. The stage-up plays once, from a widget that mounts
+with the panel, so a rebuild cannot replay it.
+
+A test checks that every effect the app lists exists on disk, the boar's
+included.
+
 ### Silver coins re-toned — 2026-09-28
 
 The owner noticed the silver coins read as white, not metal. The render

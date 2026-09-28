@@ -776,7 +776,7 @@ class PassageGame extends FlameGame {
     _wingPhase = _wingPhase.floorToDouble() + (4 - _wingPhase.floor() % 4);
     // A flap is the player taking the controls back: it lets go of a grapple.
     _grapple = null;
-    Audio.instance.tap();
+    Audio.instance.pigFlap(stage.name);
   }
 
   // --------------------------------------------------------------- update
@@ -1046,6 +1046,7 @@ class PassageGame extends FlameGame {
     _vy = _h * 0.26;
     _strikeFlash = 1;
     Audio.instance.vaultHit();
+    Audio.instance.pigGrunt(stage.name);
     HapticFeedback.mediumImpact();
 
     // Momentum goes, and a handful of points come loose as coins. They are
@@ -1079,6 +1080,7 @@ class PassageGame extends FlameGame {
   }
 
   void _onTouchdown() {
+    Audio.instance.pigSnort(stage.name);
     final full = erasCleared >= eras.length;
     if (full && softLanding) {
       Audio.instance.win();

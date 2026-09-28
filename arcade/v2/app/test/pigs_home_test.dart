@@ -51,6 +51,17 @@ void main() {
     expect(File('assets/audio/${Audio.trackPigs}').existsSync(), isTrue);
   });
 
+  test('every effect the app plays is on disk, the boar sounds included', () {
+    // Sounds are loaded by bare name, so a missing file is silence rather
+    // than an error, and nothing else would notice.
+    final missing = [for (final f in Audio.instance.allSfx) if (!File('assets/audio/$f').existsSync()) f];
+    expect(missing, isEmpty);
+    for (final stage in ['piglet', 'juvenile', 'razorback']) {
+      expect(Audio.instance.allSfx, containsAll(['flap_${stage}_1.wav', 'grunt_${stage}_3.wav', 'snort_$stage.wav']));
+    }
+    expect(Audio.instance.allSfx, contains('stage_up.wav'));
+  });
+
   test('the snapshot carries the shop and the loadout', () {
     p.apply(shop(owned: {'dash': 2}, loadout: ['dash']), persist: false);
     final dash = p.passageAbilities.firstWhere((a) => a.id == 'dash');

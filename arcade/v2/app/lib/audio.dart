@@ -52,6 +52,14 @@ class Audio extends ChangeNotifier with WidgetsBindingObserver {
     'fw_burst_1.wav', 'fw_burst_2.wav', 'fw_burst_3.wav',
     'fw_crackle_1.wav', 'fw_crackle_2.wav', 'fw_crackle_3.wav',
     'fw_finale.wav',
+    // When Pigs Fly: the boar's wings and voice (tools/gen_pigs_sfx.py).
+    'flap_piglet_1.wav', 'flap_piglet_2.wav', 'flap_piglet_3.wav',
+    'grunt_piglet_1.wav', 'grunt_piglet_2.wav', 'grunt_piglet_3.wav', 'snort_piglet.wav',
+    'flap_juvenile_1.wav', 'flap_juvenile_2.wav', 'flap_juvenile_3.wav',
+    'grunt_juvenile_1.wav', 'grunt_juvenile_2.wav', 'grunt_juvenile_3.wav', 'snort_juvenile.wav',
+    'flap_razorback_1.wav', 'flap_razorback_2.wav', 'flap_razorback_3.wav',
+    'grunt_razorback_1.wav', 'grunt_razorback_2.wav', 'grunt_razorback_3.wav', 'snort_razorback.wav',
+    'stage_up.wav',
   ];
 
   static const _coreFiles = [
@@ -356,6 +364,21 @@ class Audio extends ChangeNotifier with WidgetsBindingObserver {
   void fwBurst() => _rr('fw_burst_', 3, volume: 0.80, minGapMs: 70);
   void fwCrackle() => _rr('fw_crackle_', 3, volume: 0.38, minGapMs: 120);
   void fwFinale() => play('fw_finale.wav', volume: 0.85, minGapMs: 1500);
+
+  // When Pigs Fly. [stage] is the boar's stage id: piglet, juvenile or
+  // razorback. Its wings and voice change as it grows.
+
+  /// A wingbeat, on every flap. Quiet and quick: players flap a lot.
+  void pigFlap(String stage) => _rr('flap_${stage}_', 3, volume: 0.42, minGapMs: 70);
+
+  /// The boar's cry on striking a gate, over the impact.
+  void pigGrunt(String stage) => _rr('grunt_${stage}_', 3, volume: 0.75, minGapMs: 300);
+
+  /// A contented snort on touchdown.
+  void pigSnort(String stage) => play('snort_$stage.wav', volume: 0.7, minGapMs: 500);
+
+  /// The boar has grown into its next stage.
+  void stageUp() => play('stage_up.wav', volume: 0.85, minGapMs: 2000);
 
   // ---------------------------------------------------------------- music
 

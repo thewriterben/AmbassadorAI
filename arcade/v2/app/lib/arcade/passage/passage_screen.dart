@@ -735,6 +735,7 @@ class GrowthPanel extends StatelessWidget {
           child: Row(
             children: [
               BoarPortrait(stage: grew ?? stage, size: 58),
+              if (grew != null) const _StageUpSound(),
               const SizedBox(width: 10),
               Expanded(
                 child: Column(
@@ -778,4 +779,25 @@ class GrowthPanel extends StatelessWidget {
       },
     );
   }
+}
+
+/// Plays the stage-up fanfare once, when the growth panel first shows that
+/// the boar grew. A widget rather than a call in the builder so it cannot
+/// replay on every rebuild of the panel.
+class _StageUpSound extends StatefulWidget {
+  const _StageUpSound();
+
+  @override
+  State<_StageUpSound> createState() => _StageUpSoundState();
+}
+
+class _StageUpSoundState extends State<_StageUpSound> {
+  @override
+  void initState() {
+    super.initState();
+    Audio.instance.stageUp();
+  }
+
+  @override
+  Widget build(BuildContext context) => const SizedBox.shrink();
 }
