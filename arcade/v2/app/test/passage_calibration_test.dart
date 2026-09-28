@@ -6,6 +6,7 @@ import 'package:puzzle_pack/arcade/cabinet/cabinet.dart';
 import 'package:puzzle_pack/arcade/passage/boar.dart';
 import 'package:puzzle_pack/arcade/passage/eras.dart';
 import 'package:puzzle_pack/arcade/passage/passage_game.dart';
+import 'package:puzzle_pack/arcade/passage/sim/passage_sim.dart';
 
 /// When Pigs Fly calibration: simulated players flying the real simulation.
 ///
@@ -47,8 +48,11 @@ void main() {
     const n = 40;
     final out = StringBuffer('\nWhen Pigs Fly calibration, $n runs per profile\n');
     final medians = <String, double>{};
+    const tuningId = String.fromEnvironment('TUNING', defaultValue: 'standard');
+    const tuning = tuningId == 'easy' ? PassageTuning.easy : PassageTuning.standard;
+    out.writeln('tuning: ${tuning.id}');
     for (final prof in _Profile.all) {
-      final runs = [for (var s = 0; s < n; s++) _Bot(prof, 1000 + s).fly()];
+      final runs = [for (var s = 0; s < n; s++) _Bot(prof, 1000 + s, tuning: tuning).fly()];
       final scores = [for (final r in runs) r.score]..sort();
       double pct(double q) => scores[((scores.length - 1) * q).round()].toDouble();
       final mean = scores.reduce((a, b) => a + b) / scores.length;
@@ -133,9 +137,10 @@ class _Bot {
   int _lastReserve = PassageGame.startingReserve;
 
   final bool trace;
-  _Bot(this.p, int seed, {this.trace = false, BoarStage stage = BoarStage.piglet}) : rnd = Random(seed) {
+  _Bot(this.p, int seed, {this.trace = false, BoarStage stage = BoarStage.piglet, PassageTuning tuning = PassageTuning.standard})
+      : rnd = Random(seed) {
     run.onEnd = (r) => result = r;
-    g = PassageGame(run: run, seed: seed, stage: stage)..onGameResize(_size);
+    g = PassageGame(run: run, seed: seed, stage: stage, tuning: tuning)..onGameResize(_size);
   }
 
   double get h => _size.y;

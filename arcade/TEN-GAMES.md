@@ -547,6 +547,47 @@ wide. It now wraps.
 - **One fix:** the confirmation message sat over the Fly button for four
   seconds. It is now shorter and lifted clear.
 
+### An easier variant, behind a DEV toggle — 2026-09-28
+
+The simulated players say the standard passage is hard: most runs end before
+the landing the whole game is built around. Whether that is too hard needs
+someone to fly it, so there is now an easier variant to compare against,
+behind the DEV menu's "Difficulty (next run)".
+
+The difficulty knobs moved into a `PassageTuning` passed to the simulation
+(`sim/passage_sim.dart`). `standard` is the game unchanged; `easy` changes
+every knob:
+
+| | Standard | Easy |
+|---|---|---|
+| Opening at the first era / the last | 0.36 / 0.225 of the screen | 0.40 / 0.32 |
+| Scroll speed, and its ramp | 0.52 + 0.20 across the passage | 0.48 + 0.06 |
+| Reserve | 3 | 5 |
+
+The easy values were picked with the calibration bots (40 runs per profile)
+rather than guessed. A first, milder set still left casual players at 0%.
+
+| Whole passage flown | Standard | Easy |
+|---|---|---|
+| Casual | 0% | 10% |
+| Regular | 5% | 50% |
+| Skilled | 25% | 88% |
+
+**Guardrails:**
+- **Never counted.** The tuning is part of a run's transcript: a replay has
+  to be given the same one to reach the same result, and a test checks that
+  the same taps under standard don't reproduce an easy run. Any tuning but
+  standard marks the run tainted, so the web arcade never submits it.
+- **Always visible.** In play an "EASY · DEV" badge sits under the HUD. It
+  first went in the HUD row, where with five reserve dots the score ran into
+  the year.
+- **The HUD fits.** Its reserve dots follow the run's own reserve.
+- **Reproducible.** The calibration report can fly either tuning with
+  `--dart-define=TUNING=easy`.
+
+If flying it shows the standard passage is too hard, the fix is moving the
+standard values toward these; nothing else has to change.
+
 ### Growing up — 2026-09-28
 
 The moment the boar reaches its next stage was only a fanfare and an amber

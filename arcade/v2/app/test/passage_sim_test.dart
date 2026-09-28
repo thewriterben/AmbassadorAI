@@ -16,6 +16,7 @@ import 'package:puzzle_pack/arcade/passage/boar.dart';
 import 'package:puzzle_pack/arcade/passage/passage_game.dart';
 import 'package:puzzle_pack/arcade/passage/sim/boar_body.dart';
 import 'package:puzzle_pack/arcade/passage/sim/dmath.dart';
+import 'package:puzzle_pack/arcade/passage/sim/passage_sim.dart';
 
 const _size = Size(400, 800);
 
@@ -23,9 +24,15 @@ const _size = Size(400, 800);
 /// next opening and falling, fires abilities when they are live. Frame time
 /// jitters between 1/144 and 1/30 s, so the run crosses every frame-rate
 /// case the accumulator has to handle.
-PassageGame _play({required int seed, List<EquippedAbility> loadout = const [], int jitterSeed = 1, Size? fixed}) {
+PassageGame _play({
+  required int seed,
+  List<EquippedAbility> loadout = const [],
+  int jitterSeed = 1,
+  Size? fixed,
+  PassageTuning tuning = PassageTuning.standard,
+}) {
   final run = CabinetRun();
-  final g = PassageGame(run: run, seed: seed, loadout: loadout, fixedSize: fixed)
+  final g = PassageGame(run: run, seed: seed, loadout: loadout, fixedSize: fixed, tuning: tuning)
     ..onGameResize(Vector2(_size.width, _size.height));
   final jitter = Random(jitterSeed);
   // Hover a moment first: idle ticks are part of the transcript.
@@ -47,9 +54,10 @@ PassageGame _play({required int seed, List<EquippedAbility> loadout = const [], 
   return g;
 }
 
-PassageReplayResult _replay(PassageGame g, {Size size = _size}) {
+PassageReplayResult _replay(PassageGame g, {Size size = _size, PassageTuning? tuning}) {
   final spec = BoarSpec.all[g.stage]!;
   return PassageSim.replay(
+    tuning: tuning ?? g.tuning,
     w: size.width,
     h: size.height,
     seed: g.simSeed,
@@ -62,6 +70,39 @@ PassageReplayResult _replay(PassageGame g, {Size size = _size}) {
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  group('the easier variant (DEV only)', () {
+    test('replays exactly, given the same tuning, and is never submittable', () {
+      for (final seed in [3, 7, 2026]) {
+        final g = _play(seed: seed, jitterSeed: seed, tuning: PassageTuning.easy);
+        expect(g.sim.tainted, isTrue, reason: 'an easy run must never reach the web arcade');
+        final r = _replay(g);
+        expect(r.ok, isTrue, reason: 'seed $seed: ${r.error}');
+        expect((r.score, r.stars, r.erasReached), (g.sim.score, g.sim.stars, g.sim.erasReached));
+      }
+    });
+
+    test('the same taps under the standard tuning do not reach the same run', () {
+      final g = _play(seed: 7, jitterSeed: 7, tuning: PassageTuning.easy);
+      final r = _replay(g, tuning: PassageTuning.standard);
+      final same = r.ok && r.score == g.sim.score && r.erasReached == g.sim.erasReached && r.ticks == g.sim.ticks;
+      expect(same, isFalse);
+    });
+
+    test('is easier in every knob, and the standard run is untouched by it', () {
+      const e = PassageTuning.easy, s = PassageTuning.standard;
+      expect(e.gapFracStart, greaterThan(s.gapFracStart));
+      expect(e.gapFracEnd, greaterThan(s.gapFracEnd));
+      expect(e.speedRamp, lessThan(s.speedRamp));
+      expect(e.speedBase, lessThanOrEqualTo(s.speedBase));
+      expect(e.reserve, greaterThan(s.reserve));
+      expect(s.reserve, PassageSim.startingReserve);
+      final std = _play(seed: 11, jitterSeed: 11);
+      expect(std.sim.tainted, isFalse);
+      expect(std.maxReserve, 3);
+      expect(_play(seed: 11, jitterSeed: 11, tuning: PassageTuning.easy).maxReserve, 5);
+    });
+  });
 
   test('a replay of the recorded taps reaches the live result exactly', () {
     for (final seed in [1, 7, 42, 2026, 99991]) {

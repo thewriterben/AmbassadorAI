@@ -127,9 +127,17 @@ class PassageGame extends FlameGame {
     this.stage = BoarStage.piglet,
     List<EquippedAbility> loadout = const [],
     this.fixedSize,
+    this.tuning = PassageTuning.standard,
   }) : _loadout = [...loadout.take(2)] {
     run.onTap = flap;
   }
+
+  /// The difficulty. Standard for every real run; the DEV menu can pick
+  /// the easier variant (see PassageTuning).
+  final PassageTuning tuning;
+
+  /// This run's full reserve, for the HUD's dots.
+  int get maxReserve => tuning.reserve;
 
   PassageSim? _simOrNull;
 
@@ -180,7 +188,7 @@ class PassageGame extends FlameGame {
   // ------------------------------------------------- simulation, read-only
 
   PassagePhase get phase => _laidOut ? sim.phase : PassagePhase.flying;
-  int get reserve => _laidOut ? sim.reserve : startingReserve;
+  int get reserve => _laidOut ? sim.reserve : tuning.reserve;
   int get gatesCleared => _laidOut ? sim.gatesCleared : 0;
   int get erasCleared => _laidOut ? sim.erasCleared : 0;
   int get erasReached => _laidOut ? sim.erasReached : 0;
@@ -425,6 +433,7 @@ class PassageGame extends FlameGame {
       bodyHalfLengthK: spec.bodyHalfLength,
       loadout: _loadout,
       onEvent: _onSimEvent,
+      tuning: tuning,
     );
     _city?.dispose();
     _city = CityScape(

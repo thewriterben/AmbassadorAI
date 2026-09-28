@@ -11,6 +11,7 @@ import 'boar.dart';
 import 'grow_up.dart';
 import 'eras.dart';
 import 'passage_game.dart';
+import 'sim/passage_sim.dart';
 
 /// When Pigs Fly (game id `passage`): the Flutter side. The cabinet supplies
 /// the frame, the pause sheet and the XP submit; everything here is the
@@ -30,6 +31,11 @@ class _PassageScreenState extends State<PassageScreen> {
   /// The DEV menu's stage choice, kept across "Fly again" so a stage being
   /// looked at does not reset every run. Null means the player's own boar.
   static BoarStage? _devStage;
+
+  /// DEV: fly the easier variant (PassageTuning.easy) from the next run, to
+  /// judge whether the standard passage is too hard. Kept across runs, like
+  /// the other DEV choices; off for everyone else.
+  static bool _devEasy = false;
 
   /// The boar this player has grown, as the server last said. Read when a
   /// run is built, so a stage reached on one run's claim flies on the next.
@@ -72,7 +78,12 @@ class _PassageScreenState extends State<PassageScreen> {
       title: 'When Pigs Fly',
       kicker: 'ONE TAP',
       musicTrack: Audio.trackPigs,
-      builder: (run) => _game = PassageGame(run: run, stage: _devStage ?? _ownStage, loadout: _loadout),
+      builder: (run) => _game = PassageGame(
+        run: run,
+        stage: _devStage ?? _ownStage,
+        loadout: _loadout,
+        tuning: _devEasy ? PassageTuning.easy : PassageTuning.standard,
+      ),
       hudBuilder: (context, run) => _Hud(game: _game!),
       overlayBuilder: (context, run) => _Overlay(game: _game!),
       controlsBuilder: (context, run) => _Controls(game: _game!),
@@ -92,6 +103,9 @@ class _PassageScreenState extends State<PassageScreen> {
           final to = at == BoarStage.razorback ? BoarStage.juvenile : BoarStage.values[at.index + 1];
           showGrowUp(context, from: BoarStage.values[to.index - 1], to: to);
         },
+        // Applies from the next run: a run's difficulty is fixed when it
+        // starts, like its abilities.
+        'Difficulty (next run): ${_devEasy ? 'standard' : 'easier'}': () => _devEasy = !_devEasy,
         'Next boar stage': () {
           final g = _game;
           if (g != null) _devStage = g.devNextStage();
@@ -257,7 +271,7 @@ class _Hud extends StatelessWidget {
       children: [
         // Reserve. Not "lives" — nothing in this game dies, and the word
         // shapes what a player expects to happen when it runs out.
-        for (var i = 0; i < PassageGame.startingReserve; i++)
+        for (var i = 0; i < game.maxReserve; i++)
           Padding(
             padding: const EdgeInsets.only(right: 5),
             child: Container(
@@ -356,6 +370,30 @@ class _Overlay extends StatelessWidget {
           ),
         ),
         Positioned.fill(child: _EraBanner(key: ObjectKey(game), game: game)),
+        // So a DEV run on the easier variant can never be mistaken for the
+        // real game, in play or in a screenshot. Below the HUD rather than
+        // in it: with five reserve dots the row had no room, and the score
+        // ran into the year.
+        if (game.tuning.id != 'standard')
+          Positioned(
+            top: MediaQuery.paddingOf(context).top + 58,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                decoration: BoxDecoration(
+                  color: AppTheme.bg.withValues(alpha: 0.6),
+                  borderRadius: BorderRadius.circular(4),
+                  border: Border.all(color: AppTheme.success.withValues(alpha: 0.8)),
+                ),
+                child: Text(
+                  '${game.tuning.id.toUpperCase()} · DEV',
+                  style: const TextStyle(fontFamily: AppTheme.fontMono, fontSize: 10, color: AppTheme.success),
+                ),
+              ),
+            ),
+          ),
         if (!game.started) ...[
           Align(
             alignment: const Alignment(0, 0.44),

@@ -199,6 +199,45 @@ abstract final class SimInput {
   static const ability1 = 2;
 }
 
+/// The difficulty knobs: how wide the openings are at the first era and the
+/// last, how fast the passage scrolls and how much faster it gets, and the
+/// reserve. [standard] is the game; [easy] is a DEV-only variant for judging
+/// whether the standard passage is too hard (TEN-GAMES.md, "An easier
+/// variant"), and is never submitted anywhere (see [PassageSim.tainted]).
+class PassageTuning {
+  final String id;
+  final double gapFracStart, gapFracEnd;
+  final double speedBase, speedRamp;
+  final int reserve;
+
+  const PassageTuning({
+    required this.id,
+    required this.gapFracStart,
+    required this.gapFracEnd,
+    required this.speedBase,
+    required this.speedRamp,
+    required this.reserve,
+  });
+
+  static const standard = PassageTuning(
+    id: 'standard',
+    gapFracStart: 0.36,
+    gapFracEnd: 0.225,
+    speedBase: 0.52,
+    speedRamp: 0.20,
+    reserve: 3,
+  );
+
+  static const easy = PassageTuning(
+    id: 'easy',
+    gapFracStart: 0.40,
+    gapFracEnd: 0.32,
+    speedBase: 0.48,
+    speedRamp: 0.06,
+    reserve: 5,
+  );
+}
+
 class PassageSim {
   /// The only step the simulation ever takes: 120 ticks a second.
   static const double step = 1 / 120;
@@ -206,8 +245,7 @@ class PassageSim {
   // ------------------------------------------------------------ tuning
   // Unchanged from the Flame version; see passage_game.dart for the why.
 
-  static const _gapFracStart = 0.36;
-  static const _gapFracEnd = 0.225;
+  /// The standard reserve. A run's own is [tuning].reserve.
   static const startingReserve = 3;
   static const _invulnerableFor = 1.1;
 
@@ -250,9 +288,14 @@ class PassageSim {
   /// This, the seed and the loadout are the whole transcript.
   final List<List<int>> inputs = [];
 
-  /// Set by any DEV or test shortcut that moves state directly. A tainted
-  /// run cannot be replayed and the web arcade will not submit it.
-  bool tainted = false;
+  /// The difficulty this run flies at. Part of the transcript: a replay
+  /// has to be given the same tuning to reach the same result.
+  final PassageTuning tuning;
+
+  /// Set by any DEV or test shortcut that moves state directly, and by any
+  /// tuning but the standard one. A tainted run is not submitted by the web
+  /// arcade; one moved by a shortcut cannot be replayed either.
+  bool tainted;
 
   PassageSim({
     required this.w,
@@ -262,8 +305,11 @@ class PassageSim {
     required this.bodyHalfLengthK,
     List<EquippedAbility> loadout = const [],
     this.onEvent,
+    this.tuning = PassageTuning.standard,
   })  : slots = [for (final a in loadout.take(2)) AbilitySlot(a)],
-        _spillRnd = Random(seed ^ 0x2545F491) {
+        _spillRnd = Random(seed ^ 0x2545F491),
+        reserve = tuning.reserve,
+        tainted = !identical(tuning, PassageTuning.standard) {
     _layout();
     coinY = h * 0.45;
     groundY = _skyFloor;
@@ -289,7 +335,7 @@ class PassageSim {
   double _creep = 0;
   PassagePhase phase = PassagePhase.flying;
 
-  int reserve = startingReserve;
+  int reserve;
   int gatesCleared = 0;
   int erasCleared = 0;
   int eraIndex = 0;
@@ -345,7 +391,7 @@ class PassageSim {
   double get speedFactor => 1 + maxSpeedBoost * momentum;
   int get multiplier => momentum >= 0.98 ? 3 : (momentum >= 0.5 ? 2 : 1);
   double get progress => totalX == 0 ? 0 : (scrollX / totalX).clamp(0.0, 1.0);
-  double get speed => w * (0.52 + 0.20 * progress) * speedFactor * abilitySpeed;
+  double get speed => w * (tuning.speedBase + tuning.speedRamp * progress) * speedFactor * abilitySpeed;
 
   int get erasReached => started ? (eraIndex + 1).clamp(0, eras.length) : 0;
   bool get softLanding => touchdownSpeed.abs() < softLandingAt && !touchdownScraped;
@@ -374,7 +420,7 @@ class PassageSim {
 
     for (var era = 0; era < eras.length; era++) {
       final eraFrac = eras.length == 1 ? 0.0 : era / (eras.length - 1);
-      final baseGap = h * lerp(_gapFracStart, _gapFracEnd, eraFrac);
+      final baseGap = h * lerp(tuning.gapFracStart, tuning.gapFracEnd, eraFrac);
       for (var i = 0; i < gatesPerEra; i++) {
         final gapH = baseGap * (1 - 0.02 * i);
         final half = gapH / 2;
@@ -846,6 +892,7 @@ class PassageSim {
     required List<EquippedAbility> loadout,
     required List<List<int>> inputs,
     int maxTicks = 120 * 60 * 6,
+    PassageTuning tuning = PassageTuning.standard,
   }) {
     final sim = PassageSim(
       w: w,
@@ -854,6 +901,7 @@ class PassageSim {
       bodyRadiusK: bodyRadiusK,
       bodyHalfLengthK: bodyHalfLengthK,
       loadout: loadout,
+      tuning: tuning,
     );
     var next = 0;
     var lastTick = -1;
