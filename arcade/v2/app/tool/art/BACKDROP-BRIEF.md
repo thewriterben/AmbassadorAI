@@ -178,6 +178,9 @@ same prompts are on a page with a copy button for each.
   had one) is trimmed, when the seam would otherwise show.
 - **Ground above its line:** grass or kerbs rising above the ground line
   are kept, drawn standing over it.
+- **Brightness:** a piece that came out too bright or dark can be adjusted
+  instead of regenerated, with `shade` and `tint` in
+  `tool/art/source/backdrop/tuning.json` (1944's mountains use it).
 
 **What the prompts learned from 1816:**
 - **Several depths in one skyline.** The first far skyline drew three

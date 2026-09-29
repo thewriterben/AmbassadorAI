@@ -49,6 +49,8 @@ ERAS = [
          mid="red-brick commercial blocks with heavy cornices, mansard roofs, cast-iron shopfronts and a church steeple",
          near="rooflines with cornices and chimneys, and telegraph poles with sagging wires",
          column="a cast-iron column with raised bands and a flared, decorated head",
+         # The capital's bands, copied into the shaft, bunched into bamboo.
+         shaft="a plain, smooth cast-iron shaft with no bands, rings or joints",
          column_colour="bottle green, clearly lighter than the city behind it, highlighted on the left",
          ground="brick paving with an iron rail track", ground_colour="dark brown-red brick and grey iron"),
     dict(year=1913, era="A central banking system", setting="New York, 1913",
@@ -57,7 +59,10 @@ ERAS = [
          moon=True,
          colours="muted dark violet-grey and slate",
          far="early skyscrapers and tall brick buildings",
-         mid="brick buildings with wooden water tanks on their roofs and fire escapes, and early steel-framed skyscrapers with ornate tops",
+         # "Ornate tops" came back as the Chrysler and Empire State buildings,
+         # landmarks and, from 1930-31, wrong for 1913.
+         mid="brick buildings with wooden water tanks on their roofs and fire escapes, and early skyscrapers of ten to "
+             "twenty storeys with plain flat or simply stepped tops, no spires and no art deco crowns",
          near="flat rooftops with wooden water tanks, chimneys and roof railings",
          column="a riveted steel I-beam with diagonal lattice bracing",
          column_colour="light blue-grey steel",
@@ -89,7 +94,10 @@ ERAS = [
          sky_detail="a few faint stars, thin cloud, a band of warm dusk glow low down",
          moon=True,
          colours="muted dark blue-green and warm brown",
-         far="dark mountain peaks",
+         # Asked for "dark" peaks, they came darker than the forest in front,
+         # and the depth read backwards.
+         far="pale, hazy blue-grey mountain peaks, clearly lighter than a forest in front would be, fading at their "
+             "base to nearly the colour of the night sky",
          mid="a pine forest with one grand wooden resort hotel with long verandas, not any real hotel",
          near="dark pine treetops",
          column="a timber post bound with iron straps",
@@ -134,7 +142,9 @@ ERAS = [
 ]
 
 MAGENTA = ("Background: everything that is not {what}, including every gap, is one flat solid pure magenta #FF00FF, "
-           "with no shading, gradient, glow, shadow or haze on it. No magenta or pink anywhere in the {art}.")
+           "with no shading, gradient, glow, shadow or haze on it. No magenta, pink or lilac anywhere in the {art}.")
+# Skylines only: 1979's far came with a lilac haze painted between its towers.
+NO_HAZE = "No haze, glow or mist painted behind or between the buildings: the gaps are flat solid #FF00FF only."
 SEAM_ACROSS = ("Seamless: the strip repeats side by side forever, so the right edge must continue exactly into the left "
                "edge: whatever is cut off at the right edge continues at the left edge at the same height, with no gap "
                "or jump.")
@@ -167,6 +177,7 @@ def pieces(e):
             "Layout: everything stands on the bottom edge and fills only the lower 65% of the image; the top 35% is "
             "empty background.",
             MAGENTA.format(what="part of this layer", art="art"),
+            NO_HAZE,
             SEAM_ACROSS,
             NEVER,
         ])),
@@ -180,6 +191,7 @@ def pieces(e):
             "Layout: everything stands on the bottom edge and fills only the lower 65% of the image; the top 35% is "
             "empty background.",
             MAGENTA.format(what="part of this layer", art="art"),
+            NO_HAZE,
             SEAM_ACROSS,
             NEVER,
         ])),
@@ -192,6 +204,7 @@ def pieces(e):
             "Layout: everything stands on the bottom edge and fills only the lower 30% of the image; the top 70% is "
             "empty background.",
             MAGENTA.format(what="part of this layer", art="art"),
+            NO_HAZE,
             SEAM_ACROSS,
             NEVER,
         ])),
@@ -209,9 +222,9 @@ def pieces(e):
         dict(part="shaft", name="Column shaft", aspect="9:16", prompt="\n".join([
             "Create a pixel art game asset: a straight vertical section of the shaft of the same column as the "
             "attached column capital, seen straight on from the front. It must match that column exactly: the same "
-            "material, the same colour, the same palette and pixel size, and the same fluting or banding as the shaft "
-            "visible under that capital, kept plain and simple so it repeats well: at most one thin band. "
-            f"Material: {e['column']}. Colour: {e['column_colour']}.",
+            "material, the same colour, the same palette and pixel size, and the same fluting (if any) as the shaft visible "
+            "under that capital, kept plain and simple so it repeats well: at most one thin band. "
+            f"Material: {e.get('shaft', e['column'])}. Colour: {e['column_colour']}.",
             STYLE,
             "Layout: one shaft, perfectly vertical and centered, running off the top and bottom edges, with no capital, "
             "no base and no ends.",

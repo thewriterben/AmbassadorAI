@@ -681,6 +681,31 @@ the gap and no white patch, alongside the game's own speed streaks. (The
 first install attempt failed because the Pixel had dropped off adb; the
 check was redone once it was plugged back in.)
 
+### Redos: 1913 mid, 1944 far, 1979 far, 1873 shaft — 2026-09-29
+
+A review of all nine eras side by side picked four pieces to redo, and the
+prompt generator took the fixes at the source:
+- **1913 mid:** "ornate tops" had come back as Chrysler- and Empire
+  State-like crowns (landmarks, and from 1930–31). The prompt now asks for
+  plain flat or simply stepped tops, with no spires or deco crowns.
+- **1979 far:** a lilac haze behind the towers showed on the phone. Every
+  skyline prompt now says no haze or glow between the buildings. Tinted
+  pixels went from 7,557 to 56.
+- **1873 shaft:** the capital's bands, copied into the shaft, bunched into
+  bamboo. A per-era `shaft` description now asks for a plain shaft.
+- **1944 far:** "dark mountain peaks" came darker than the forest in front,
+  so the depth read backwards. The redo overshot into near-white daylight
+  snow, as light as the silver coins.
+
+**Rather than a third try at 1944,** `tuning.json` gained `shade` and
+`tint`, applied at import. `{"shade": 0.85, "tint": [50, 70, 105, 0.2]}`
+brings the mountains to a moonlit blue-grey, mean (82, 97, 113). That
+matches the pale forest band in front of them (83, 97, 125) and sits well
+under the coins.
+
+**Verified on the Pixel:** 1944, with silver coins crossing the mountains
+and reading clearly.
+
 ### 2009, drawn: all nine eras — 2026-09-29
 
 The glass city:

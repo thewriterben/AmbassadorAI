@@ -36,7 +36,8 @@ Draw only this one layer: a single row of distant Georgian terraces, church spir
 Colours: muted dark slate blue and blue-grey; hazy and low-contrast, only slightly lighter than the night sky; very few tiny lit windows. No beige, cream, white or pale daytime fog.
 Style: match the attached boar sprite exactly: crisp hard-edged pixels, no anti-aliasing, no blur, limited palette, clean dark outlines, light from the left. If a finished image of this same era is attached, use exactly its palette and pixel size.
 Layout: everything stands on the bottom edge and fills only the lower 65% of the image; the top 35% is empty background.
-Background: everything that is not part of this layer, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta or pink anywhere in the art.
+Background: everything that is not part of this layer, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta, pink or lilac anywhere in the art.
+No haze, glow or mist painted behind or between the buildings: the gaps are flat solid #FF00FF only.
 Seamless: the strip repeats side by side forever, so the right edge must continue exactly into the left edge: whatever is cut off at the right edge continues at the left edge at the same height, with no gap or jump.
 Never include: text, letters, numbers, signs, logos, people, animals, or any recognizable real building or famous landmark.
 ```
@@ -49,7 +50,8 @@ Draw only this one layer: a single row of Georgian brick terraces with rows of c
 Colours: muted dark slate blue and blue-grey; darker than a distant hazy skyline would be, with architectural detail and small warm lit windows scattered sparingly. Keep it darker and duller than a pale stone column, so columns stand out in front of it. No beige, cream, white or pale daytime fog.
 Style: match the attached boar sprite exactly: crisp hard-edged pixels, no anti-aliasing, no blur, limited palette, clean dark outlines, light from the left. If a finished image of this same era is attached, use exactly its palette and pixel size.
 Layout: everything stands on the bottom edge and fills only the lower 65% of the image; the top 35% is empty background.
-Background: everything that is not part of this layer, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta or pink anywhere in the art.
+Background: everything that is not part of this layer, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta, pink or lilac anywhere in the art.
+No haze, glow or mist painted behind or between the buildings: the gaps are flat solid #FF00FF only.
 Seamless: the strip repeats side by side forever, so the right edge must continue exactly into the left edge: whatever is cut off at the right edge continues at the left edge at the same height, with no gap or jump.
 Never include: text, letters, numbers, signs, logos, people, animals, or any recognizable real building or famous landmark.
 ```
@@ -62,7 +64,8 @@ Draw only this one layer: a single low row of rooftops crowded with chimney pots
 Colours: nearly black silhouettes, tinted only faintly toward the night sky; almost no lit windows. No beige, cream, white or pale daytime fog.
 Style: match the attached boar sprite exactly: crisp hard-edged pixels, no anti-aliasing, no blur, limited palette, clean dark outlines, light from the left. If a finished image of this same era is attached, use exactly its palette and pixel size.
 Layout: everything stands on the bottom edge and fills only the lower 30% of the image; the top 70% is empty background.
-Background: everything that is not part of this layer, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta or pink anywhere in the art.
+Background: everything that is not part of this layer, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta, pink or lilac anywhere in the art.
+No haze, glow or mist painted behind or between the buildings: the gaps are flat solid #FF00FF only.
 Seamless: the strip repeats side by side forever, so the right edge must continue exactly into the left edge: whatever is cut off at the right edge continues at the left edge at the same height, with no gap or jump.
 Never include: text, letters, numbers, signs, logos, people, animals, or any recognizable real building or famous landmark.
 ```
@@ -74,18 +77,18 @@ Create a pixel art game asset: the top of one standing column, seen straight on 
 Style: match the attached boar sprite exactly: crisp hard-edged pixels, no anti-aliasing, no blur, limited palette, clean dark outlines, light from the left. If a finished image of this same era is attached, use exactly its palette and pixel size.
 Make it light and crisp: after the coins, it must be the most readable thing in front of a dark night city.
 Layout: one perfectly vertical column, centered. Its capital (the decorative top) spans nearly the full width of the image; the shaft continues straight down out of the bottom edge. Nothing above the capital. No orange, amber or gold trim along its top edge.
-Background: everything that is not the column, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta or pink anywhere in the column.
+Background: everything that is not the column, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta, pink or lilac anywhere in the column.
 Never include: text, letters, numbers, logos, people.
 ```
 
 ### Column shaft (9:16) → `1816_shaft`
 
 ```
-Create a pixel art game asset: a straight vertical section of the shaft of the same column as the attached column capital, seen straight on from the front. It must match that column exactly: the same material, the same colour, the same palette and pixel size, and the same fluting or banding as the shaft visible under that capital, kept plain and simple so it repeats well: at most one thin band. Material: a fluted Portland stone column with a Corinthian capital. Colour: cool pale grey-white stone.
+Create a pixel art game asset: a straight vertical section of the shaft of the same column as the attached column capital, seen straight on from the front. It must match that column exactly: the same material, the same colour, the same palette and pixel size, and the same fluting (if any) as the shaft visible under that capital, kept plain and simple so it repeats well: at most one thin band. Material: a fluted Portland stone column with a Corinthian capital. Colour: cool pale grey-white stone.
 Style: match the attached boar sprite exactly: crisp hard-edged pixels, no anti-aliasing, no blur, limited palette, clean dark outlines, light from the left. If a finished image of this same era is attached, use exactly its palette and pixel size.
 Layout: one shaft, perfectly vertical and centered, running off the top and bottom edges, with no capital, no base and no ends.
 Seamless: the section repeats end to end forever, so the top edge must continue exactly into the bottom edge: the same outline, grooves and bands in line, with no step or jump.
-Background: everything that is not the shaft, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta or pink anywhere in the column.
+Background: everything that is not the shaft, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta, pink or lilac anywhere in the column.
 Never include: text, letters, numbers, logos, people.
 ```
 
@@ -120,7 +123,8 @@ Draw only this one layer: a single row of distant church steeples, mansard roofs
 Colours: muted dark blue and blue-grey with a hint of brick red; hazy and low-contrast, only slightly lighter than the night sky; very few tiny lit windows. No beige, cream, white or pale daytime fog.
 Style: match the attached boar sprite exactly: crisp hard-edged pixels, no anti-aliasing, no blur, limited palette, clean dark outlines, light from the left. If a finished image of this same era is attached, use exactly its palette and pixel size.
 Layout: everything stands on the bottom edge and fills only the lower 65% of the image; the top 35% is empty background.
-Background: everything that is not part of this layer, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta or pink anywhere in the art.
+Background: everything that is not part of this layer, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta, pink or lilac anywhere in the art.
+No haze, glow or mist painted behind or between the buildings: the gaps are flat solid #FF00FF only.
 Seamless: the strip repeats side by side forever, so the right edge must continue exactly into the left edge: whatever is cut off at the right edge continues at the left edge at the same height, with no gap or jump.
 Never include: text, letters, numbers, signs, logos, people, animals, or any recognizable real building or famous landmark.
 ```
@@ -133,7 +137,8 @@ Draw only this one layer: a single row of red-brick commercial blocks with heavy
 Colours: muted dark blue and blue-grey with a hint of brick red; darker than a distant hazy skyline would be, with architectural detail and small warm lit windows scattered sparingly. Keep it darker and duller than a pale stone column, so columns stand out in front of it. No beige, cream, white or pale daytime fog.
 Style: match the attached boar sprite exactly: crisp hard-edged pixels, no anti-aliasing, no blur, limited palette, clean dark outlines, light from the left. If a finished image of this same era is attached, use exactly its palette and pixel size.
 Layout: everything stands on the bottom edge and fills only the lower 65% of the image; the top 35% is empty background.
-Background: everything that is not part of this layer, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta or pink anywhere in the art.
+Background: everything that is not part of this layer, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta, pink or lilac anywhere in the art.
+No haze, glow or mist painted behind or between the buildings: the gaps are flat solid #FF00FF only.
 Seamless: the strip repeats side by side forever, so the right edge must continue exactly into the left edge: whatever is cut off at the right edge continues at the left edge at the same height, with no gap or jump.
 Never include: text, letters, numbers, signs, logos, people, animals, or any recognizable real building or famous landmark.
 ```
@@ -146,7 +151,8 @@ Draw only this one layer: a single low row of rooflines with cornices and chimne
 Colours: nearly black silhouettes, tinted only faintly toward the night sky; almost no lit windows. No beige, cream, white or pale daytime fog.
 Style: match the attached boar sprite exactly: crisp hard-edged pixels, no anti-aliasing, no blur, limited palette, clean dark outlines, light from the left. If a finished image of this same era is attached, use exactly its palette and pixel size.
 Layout: everything stands on the bottom edge and fills only the lower 30% of the image; the top 70% is empty background.
-Background: everything that is not part of this layer, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta or pink anywhere in the art.
+Background: everything that is not part of this layer, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta, pink or lilac anywhere in the art.
+No haze, glow or mist painted behind or between the buildings: the gaps are flat solid #FF00FF only.
 Seamless: the strip repeats side by side forever, so the right edge must continue exactly into the left edge: whatever is cut off at the right edge continues at the left edge at the same height, with no gap or jump.
 Never include: text, letters, numbers, signs, logos, people, animals, or any recognizable real building or famous landmark.
 ```
@@ -158,18 +164,18 @@ Create a pixel art game asset: the top of one standing column, seen straight on 
 Style: match the attached boar sprite exactly: crisp hard-edged pixels, no anti-aliasing, no blur, limited palette, clean dark outlines, light from the left. If a finished image of this same era is attached, use exactly its palette and pixel size.
 Make it light and crisp: after the coins, it must be the most readable thing in front of a dark night city.
 Layout: one perfectly vertical column, centered. Its capital (the decorative top) spans nearly the full width of the image; the shaft continues straight down out of the bottom edge. Nothing above the capital. No orange, amber or gold trim along its top edge.
-Background: everything that is not the column, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta or pink anywhere in the column.
+Background: everything that is not the column, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta, pink or lilac anywhere in the column.
 Never include: text, letters, numbers, logos, people.
 ```
 
 ### Column shaft (9:16) → `1873_shaft`
 
 ```
-Create a pixel art game asset: a straight vertical section of the shaft of the same column as the attached column capital, seen straight on from the front. It must match that column exactly: the same material, the same colour, the same palette and pixel size, and the same fluting or banding as the shaft visible under that capital, kept plain and simple so it repeats well: at most one thin band. Material: a cast-iron column with raised bands and a flared, decorated head. Colour: bottle green, clearly lighter than the city behind it, highlighted on the left.
+Create a pixel art game asset: a straight vertical section of the shaft of the same column as the attached column capital, seen straight on from the front. It must match that column exactly: the same material, the same colour, the same palette and pixel size, and the same fluting (if any) as the shaft visible under that capital, kept plain and simple so it repeats well: at most one thin band. Material: a plain, smooth cast-iron shaft with no bands, rings or joints. Colour: bottle green, clearly lighter than the city behind it, highlighted on the left.
 Style: match the attached boar sprite exactly: crisp hard-edged pixels, no anti-aliasing, no blur, limited palette, clean dark outlines, light from the left. If a finished image of this same era is attached, use exactly its palette and pixel size.
 Layout: one shaft, perfectly vertical and centered, running off the top and bottom edges, with no capital, no base and no ends.
 Seamless: the section repeats end to end forever, so the top edge must continue exactly into the bottom edge: the same outline, grooves and bands in line, with no step or jump.
-Background: everything that is not the shaft, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta or pink anywhere in the column.
+Background: everything that is not the shaft, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta, pink or lilac anywhere in the column.
 Never include: text, letters, numbers, logos, people.
 ```
 
@@ -204,7 +210,8 @@ Draw only this one layer: a single row of distant early skyscrapers and tall bri
 Colours: muted dark violet-grey and slate; hazy and low-contrast, only slightly lighter than the night sky; very few tiny lit windows. No beige, cream, white or pale daytime fog.
 Style: match the attached boar sprite exactly: crisp hard-edged pixels, no anti-aliasing, no blur, limited palette, clean dark outlines, light from the left. If a finished image of this same era is attached, use exactly its palette and pixel size.
 Layout: everything stands on the bottom edge and fills only the lower 65% of the image; the top 35% is empty background.
-Background: everything that is not part of this layer, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta or pink anywhere in the art.
+Background: everything that is not part of this layer, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta, pink or lilac anywhere in the art.
+No haze, glow or mist painted behind or between the buildings: the gaps are flat solid #FF00FF only.
 Seamless: the strip repeats side by side forever, so the right edge must continue exactly into the left edge: whatever is cut off at the right edge continues at the left edge at the same height, with no gap or jump.
 Never include: text, letters, numbers, signs, logos, people, animals, or any recognizable real building or famous landmark.
 ```
@@ -213,11 +220,12 @@ Never include: text, letters, numbers, signs, logos, people, animals, or any rec
 
 ```
 Create a pixel art skyline strip for a side-scrolling mobile game: the main layer of the scene. Setting: New York, 1913.
-Draw only this one layer: a single row of brick buildings with wooden water tanks on their roofs and fire escapes, and early steel-framed skyscrapers with ornate tops, with nothing in front of it and nothing behind it.
+Draw only this one layer: a single row of brick buildings with wooden water tanks on their roofs and fire escapes, and early skyscrapers of ten to twenty storeys with plain flat or simply stepped tops, no spires and no art deco crowns, with nothing in front of it and nothing behind it.
 Colours: muted dark violet-grey and slate; darker than a distant hazy skyline would be, with architectural detail and small warm lit windows scattered sparingly. Keep it darker and duller than a pale stone column, so columns stand out in front of it. No beige, cream, white or pale daytime fog.
 Style: match the attached boar sprite exactly: crisp hard-edged pixels, no anti-aliasing, no blur, limited palette, clean dark outlines, light from the left. If a finished image of this same era is attached, use exactly its palette and pixel size.
 Layout: everything stands on the bottom edge and fills only the lower 65% of the image; the top 35% is empty background.
-Background: everything that is not part of this layer, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta or pink anywhere in the art.
+Background: everything that is not part of this layer, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta, pink or lilac anywhere in the art.
+No haze, glow or mist painted behind or between the buildings: the gaps are flat solid #FF00FF only.
 Seamless: the strip repeats side by side forever, so the right edge must continue exactly into the left edge: whatever is cut off at the right edge continues at the left edge at the same height, with no gap or jump.
 Never include: text, letters, numbers, signs, logos, people, animals, or any recognizable real building or famous landmark.
 ```
@@ -230,7 +238,8 @@ Draw only this one layer: a single low row of flat rooftops with wooden water ta
 Colours: nearly black silhouettes, tinted only faintly toward the night sky; almost no lit windows. No beige, cream, white or pale daytime fog.
 Style: match the attached boar sprite exactly: crisp hard-edged pixels, no anti-aliasing, no blur, limited palette, clean dark outlines, light from the left. If a finished image of this same era is attached, use exactly its palette and pixel size.
 Layout: everything stands on the bottom edge and fills only the lower 30% of the image; the top 70% is empty background.
-Background: everything that is not part of this layer, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta or pink anywhere in the art.
+Background: everything that is not part of this layer, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta, pink or lilac anywhere in the art.
+No haze, glow or mist painted behind or between the buildings: the gaps are flat solid #FF00FF only.
 Seamless: the strip repeats side by side forever, so the right edge must continue exactly into the left edge: whatever is cut off at the right edge continues at the left edge at the same height, with no gap or jump.
 Never include: text, letters, numbers, signs, logos, people, animals, or any recognizable real building or famous landmark.
 ```
@@ -242,18 +251,18 @@ Create a pixel art game asset: the top of one standing column, seen straight on 
 Style: match the attached boar sprite exactly: crisp hard-edged pixels, no anti-aliasing, no blur, limited palette, clean dark outlines, light from the left. If a finished image of this same era is attached, use exactly its palette and pixel size.
 Make it light and crisp: after the coins, it must be the most readable thing in front of a dark night city.
 Layout: one perfectly vertical column, centered. Its capital (the decorative top) spans nearly the full width of the image; the shaft continues straight down out of the bottom edge. Nothing above the capital. No orange, amber or gold trim along its top edge.
-Background: everything that is not the column, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta or pink anywhere in the column.
+Background: everything that is not the column, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta, pink or lilac anywhere in the column.
 Never include: text, letters, numbers, logos, people.
 ```
 
 ### Column shaft (9:16) → `1913_shaft`
 
 ```
-Create a pixel art game asset: a straight vertical section of the shaft of the same column as the attached column capital, seen straight on from the front. It must match that column exactly: the same material, the same colour, the same palette and pixel size, and the same fluting or banding as the shaft visible under that capital, kept plain and simple so it repeats well: at most one thin band. Material: a riveted steel I-beam with diagonal lattice bracing. Colour: light blue-grey steel.
+Create a pixel art game asset: a straight vertical section of the shaft of the same column as the attached column capital, seen straight on from the front. It must match that column exactly: the same material, the same colour, the same palette and pixel size, and the same fluting (if any) as the shaft visible under that capital, kept plain and simple so it repeats well: at most one thin band. Material: a riveted steel I-beam with diagonal lattice bracing. Colour: light blue-grey steel.
 Style: match the attached boar sprite exactly: crisp hard-edged pixels, no anti-aliasing, no blur, limited palette, clean dark outlines, light from the left. If a finished image of this same era is attached, use exactly its palette and pixel size.
 Layout: one shaft, perfectly vertical and centered, running off the top and bottom edges, with no capital, no base and no ends.
 Seamless: the section repeats end to end forever, so the top edge must continue exactly into the bottom edge: the same outline, grooves and bands in line, with no step or jump.
-Background: everything that is not the shaft, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta or pink anywhere in the column.
+Background: everything that is not the shaft, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta, pink or lilac anywhere in the column.
 Never include: text, letters, numbers, logos, people.
 ```
 
@@ -288,7 +297,8 @@ Draw only this one layer: a single row of distant sawtooth factory roofs, tall s
 Colours: muted dark mauve, grey and soot brown; hazy and low-contrast, only slightly lighter than the night sky; very few tiny lit windows. No beige, cream, white or pale daytime fog.
 Style: match the attached boar sprite exactly: crisp hard-edged pixels, no anti-aliasing, no blur, limited palette, clean dark outlines, light from the left. If a finished image of this same era is attached, use exactly its palette and pixel size.
 Layout: everything stands on the bottom edge and fills only the lower 65% of the image; the top 35% is empty background.
-Background: everything that is not part of this layer, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta or pink anywhere in the art.
+Background: everything that is not part of this layer, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta, pink or lilac anywhere in the art.
+No haze, glow or mist painted behind or between the buildings: the gaps are flat solid #FF00FF only.
 Seamless: the strip repeats side by side forever, so the right edge must continue exactly into the left edge: whatever is cut off at the right edge continues at the left edge at the same height, with no gap or jump.
 Never include: text, letters, numbers, signs, logos, people, animals, or any recognizable real building or famous landmark.
 ```
@@ -301,7 +311,8 @@ Draw only this one layer: a single row of tall tenement blocks with only a few l
 Colours: muted dark mauve, grey and soot brown; darker than a distant hazy skyline would be, with architectural detail and small warm lit windows scattered sparingly. Keep it darker and duller than a pale stone column, so columns stand out in front of it. No beige, cream, white or pale daytime fog.
 Style: match the attached boar sprite exactly: crisp hard-edged pixels, no anti-aliasing, no blur, limited palette, clean dark outlines, light from the left. If a finished image of this same era is attached, use exactly its palette and pixel size.
 Layout: everything stands on the bottom edge and fills only the lower 65% of the image; the top 35% is empty background.
-Background: everything that is not part of this layer, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta or pink anywhere in the art.
+Background: everything that is not part of this layer, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta, pink or lilac anywhere in the art.
+No haze, glow or mist painted behind or between the buildings: the gaps are flat solid #FF00FF only.
 Seamless: the strip repeats side by side forever, so the right edge must continue exactly into the left edge: whatever is cut off at the right edge continues at the left edge at the same height, with no gap or jump.
 Never include: text, letters, numbers, signs, logos, people, animals, or any recognizable real building or famous landmark.
 ```
@@ -314,7 +325,8 @@ Draw only this one layer: a single low row of factory roofs, chimneys and short 
 Colours: nearly black silhouettes, tinted only faintly toward the night sky; almost no lit windows. No beige, cream, white or pale daytime fog.
 Style: match the attached boar sprite exactly: crisp hard-edged pixels, no anti-aliasing, no blur, limited palette, clean dark outlines, light from the left. If a finished image of this same era is attached, use exactly its palette and pixel size.
 Layout: everything stands on the bottom edge and fills only the lower 30% of the image; the top 70% is empty background.
-Background: everything that is not part of this layer, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta or pink anywhere in the art.
+Background: everything that is not part of this layer, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta, pink or lilac anywhere in the art.
+No haze, glow or mist painted behind or between the buildings: the gaps are flat solid #FF00FF only.
 Seamless: the strip repeats side by side forever, so the right edge must continue exactly into the left edge: whatever is cut off at the right edge continues at the left edge at the same height, with no gap or jump.
 Never include: text, letters, numbers, signs, logos, people, animals, or any recognizable real building or famous landmark.
 ```
@@ -326,18 +338,18 @@ Create a pixel art game asset: the top of one standing column, seen straight on 
 Style: match the attached boar sprite exactly: crisp hard-edged pixels, no anti-aliasing, no blur, limited palette, clean dark outlines, light from the left. If a finished image of this same era is attached, use exactly its palette and pixel size.
 Make it light and crisp: after the coins, it must be the most readable thing in front of a dark night city.
 Layout: one perfectly vertical column, centered. Its capital (the decorative top) spans nearly the full width of the image; the shaft continues straight down out of the bottom edge. Nothing above the capital. No orange, amber or gold trim along its top edge.
-Background: everything that is not the column, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta or pink anywhere in the column.
+Background: everything that is not the column, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta, pink or lilac anywhere in the column.
 Never include: text, letters, numbers, logos, people.
 ```
 
 ### Column shaft (9:16) → `1923_shaft`
 
 ```
-Create a pixel art game asset: a straight vertical section of the shaft of the same column as the attached column capital, seen straight on from the front. It must match that column exactly: the same material, the same colour, the same palette and pixel size, and the same fluting or banding as the shaft visible under that capital, kept plain and simple so it repeats well: at most one thin band. Material: a tall red-brick factory chimney bound with iron bands, blackened with soot at the top. Colour: dull brick red, clearly lighter than the city behind it.
+Create a pixel art game asset: a straight vertical section of the shaft of the same column as the attached column capital, seen straight on from the front. It must match that column exactly: the same material, the same colour, the same palette and pixel size, and the same fluting (if any) as the shaft visible under that capital, kept plain and simple so it repeats well: at most one thin band. Material: a tall red-brick factory chimney bound with iron bands, blackened with soot at the top. Colour: dull brick red, clearly lighter than the city behind it.
 Style: match the attached boar sprite exactly: crisp hard-edged pixels, no anti-aliasing, no blur, limited palette, clean dark outlines, light from the left. If a finished image of this same era is attached, use exactly its palette and pixel size.
 Layout: one shaft, perfectly vertical and centered, running off the top and bottom edges, with no capital, no base and no ends.
 Seamless: the section repeats end to end forever, so the top edge must continue exactly into the bottom edge: the same outline, grooves and bands in line, with no step or jump.
-Background: everything that is not the shaft, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta or pink anywhere in the column.
+Background: everything that is not the shaft, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta, pink or lilac anywhere in the column.
 Never include: text, letters, numbers, logos, people.
 ```
 
@@ -372,7 +384,8 @@ Draw only this one layer: a single row of distant Art Deco setback towers, with 
 Colours: muted dark brown-red and charcoal; hazy and low-contrast, only slightly lighter than the night sky; very few tiny lit windows. No beige, cream, white or pale daytime fog.
 Style: match the attached boar sprite exactly: crisp hard-edged pixels, no anti-aliasing, no blur, limited palette, clean dark outlines, light from the left. If a finished image of this same era is attached, use exactly its palette and pixel size.
 Layout: everything stands on the bottom edge and fills only the lower 65% of the image; the top 35% is empty background.
-Background: everything that is not part of this layer, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta or pink anywhere in the art.
+Background: everything that is not part of this layer, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta, pink or lilac anywhere in the art.
+No haze, glow or mist painted behind or between the buildings: the gaps are flat solid #FF00FF only.
 Seamless: the strip repeats side by side forever, so the right edge must continue exactly into the left edge: whatever is cut off at the right edge continues at the left edge at the same height, with no gap or jump.
 Never include: text, letters, numbers, signs, logos, people, animals, or any recognizable real building or famous landmark.
 ```
@@ -385,7 +398,8 @@ Draw only this one layer: a single row of Art Deco setback skyscrapers and offic
 Colours: muted dark brown-red and charcoal; darker than a distant hazy skyline would be, with architectural detail and small warm lit windows scattered sparingly. Keep it darker and duller than a pale stone column, so columns stand out in front of it. No beige, cream, white or pale daytime fog.
 Style: match the attached boar sprite exactly: crisp hard-edged pixels, no anti-aliasing, no blur, limited palette, clean dark outlines, light from the left. If a finished image of this same era is attached, use exactly its palette and pixel size.
 Layout: everything stands on the bottom edge and fills only the lower 65% of the image; the top 35% is empty background.
-Background: everything that is not part of this layer, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta or pink anywhere in the art.
+Background: everything that is not part of this layer, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta, pink or lilac anywhere in the art.
+No haze, glow or mist painted behind or between the buildings: the gaps are flat solid #FF00FF only.
 Seamless: the strip repeats side by side forever, so the right edge must continue exactly into the left edge: whatever is cut off at the right edge continues at the left edge at the same height, with no gap or jump.
 Never include: text, letters, numbers, signs, logos, people, animals, or any recognizable real building or famous landmark.
 ```
@@ -398,7 +412,8 @@ Draw only this one layer: a single low row of flat rooftops with water towers an
 Colours: nearly black silhouettes, tinted only faintly toward the night sky; almost no lit windows. No beige, cream, white or pale daytime fog.
 Style: match the attached boar sprite exactly: crisp hard-edged pixels, no anti-aliasing, no blur, limited palette, clean dark outlines, light from the left. If a finished image of this same era is attached, use exactly its palette and pixel size.
 Layout: everything stands on the bottom edge and fills only the lower 30% of the image; the top 70% is empty background.
-Background: everything that is not part of this layer, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta or pink anywhere in the art.
+Background: everything that is not part of this layer, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta, pink or lilac anywhere in the art.
+No haze, glow or mist painted behind or between the buildings: the gaps are flat solid #FF00FF only.
 Seamless: the strip repeats side by side forever, so the right edge must continue exactly into the left edge: whatever is cut off at the right edge continues at the left edge at the same height, with no gap or jump.
 Never include: text, letters, numbers, signs, logos, people, animals, or any recognizable real building or famous landmark.
 ```
@@ -410,18 +425,18 @@ Create a pixel art game asset: the top of one standing column, seen straight on 
 Style: match the attached boar sprite exactly: crisp hard-edged pixels, no anti-aliasing, no blur, limited palette, clean dark outlines, light from the left. If a finished image of this same era is attached, use exactly its palette and pixel size.
 Make it light and crisp: after the coins, it must be the most readable thing in front of a dark night city.
 Layout: one perfectly vertical column, centered. Its capital (the decorative top) spans nearly the full width of the image; the shaft continues straight down out of the bottom edge. Nothing above the capital. No orange, amber or gold trim along its top edge.
-Background: everything that is not the column, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta or pink anywhere in the column.
+Background: everything that is not the column, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta, pink or lilac anywhere in the column.
 Never include: text, letters, numbers, logos, people.
 ```
 
 ### Column shaft (9:16) → `1933_shaft`
 
 ```
-Create a pixel art game asset: a straight vertical section of the shaft of the same column as the attached column capital, seen straight on from the front. It must match that column exactly: the same material, the same colour, the same palette and pixel size, and the same fluting or banding as the shaft visible under that capital, kept plain and simple so it repeats well: at most one thin band. Material: an Art Deco pillar with vertical flutes and a stepped chevron top. Colour: pale stone with muted brass flutes, not bright gold.
+Create a pixel art game asset: a straight vertical section of the shaft of the same column as the attached column capital, seen straight on from the front. It must match that column exactly: the same material, the same colour, the same palette and pixel size, and the same fluting (if any) as the shaft visible under that capital, kept plain and simple so it repeats well: at most one thin band. Material: an Art Deco pillar with vertical flutes and a stepped chevron top. Colour: pale stone with muted brass flutes, not bright gold.
 Style: match the attached boar sprite exactly: crisp hard-edged pixels, no anti-aliasing, no blur, limited palette, clean dark outlines, light from the left. If a finished image of this same era is attached, use exactly its palette and pixel size.
 Layout: one shaft, perfectly vertical and centered, running off the top and bottom edges, with no capital, no base and no ends.
 Seamless: the section repeats end to end forever, so the top edge must continue exactly into the bottom edge: the same outline, grooves and bands in line, with no step or jump.
-Background: everything that is not the shaft, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta or pink anywhere in the column.
+Background: everything that is not the shaft, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta, pink or lilac anywhere in the column.
 Never include: text, letters, numbers, logos, people.
 ```
 
@@ -452,11 +467,12 @@ Never include: text, letters, numbers, signs, logos, people, animals, or any rec
 
 ```
 Create a pixel art skyline strip for a side-scrolling mobile game: the most distant layer. Setting: a mountain resort, 1944.
-Draw only this one layer: a single row of distant dark mountain peaks, with nothing in front of it and nothing behind it.
+Draw only this one layer: a single row of distant pale, hazy blue-grey mountain peaks, clearly lighter than a forest in front would be, fading at their base to nearly the colour of the night sky, with nothing in front of it and nothing behind it.
 Colours: muted dark blue-green and warm brown; hazy and low-contrast, only slightly lighter than the night sky; very few tiny lit windows. No beige, cream, white or pale daytime fog.
 Style: match the attached boar sprite exactly: crisp hard-edged pixels, no anti-aliasing, no blur, limited palette, clean dark outlines, light from the left. If a finished image of this same era is attached, use exactly its palette and pixel size.
 Layout: everything stands on the bottom edge and fills only the lower 65% of the image; the top 35% is empty background.
-Background: everything that is not part of this layer, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta or pink anywhere in the art.
+Background: everything that is not part of this layer, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta, pink or lilac anywhere in the art.
+No haze, glow or mist painted behind or between the buildings: the gaps are flat solid #FF00FF only.
 Seamless: the strip repeats side by side forever, so the right edge must continue exactly into the left edge: whatever is cut off at the right edge continues at the left edge at the same height, with no gap or jump.
 Never include: text, letters, numbers, signs, logos, people, animals, or any recognizable real building or famous landmark.
 ```
@@ -469,7 +485,8 @@ Draw only this one layer: a single row of a pine forest with one grand wooden re
 Colours: muted dark blue-green and warm brown; darker than a distant hazy skyline would be, with architectural detail and small warm lit windows scattered sparingly. Keep it darker and duller than a pale stone column, so columns stand out in front of it. No beige, cream, white or pale daytime fog.
 Style: match the attached boar sprite exactly: crisp hard-edged pixels, no anti-aliasing, no blur, limited palette, clean dark outlines, light from the left. If a finished image of this same era is attached, use exactly its palette and pixel size.
 Layout: everything stands on the bottom edge and fills only the lower 65% of the image; the top 35% is empty background.
-Background: everything that is not part of this layer, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta or pink anywhere in the art.
+Background: everything that is not part of this layer, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta, pink or lilac anywhere in the art.
+No haze, glow or mist painted behind or between the buildings: the gaps are flat solid #FF00FF only.
 Seamless: the strip repeats side by side forever, so the right edge must continue exactly into the left edge: whatever is cut off at the right edge continues at the left edge at the same height, with no gap or jump.
 Never include: text, letters, numbers, signs, logos, people, animals, or any recognizable real building or famous landmark.
 ```
@@ -482,7 +499,8 @@ Draw only this one layer: a single low row of dark pine treetops, with nothing i
 Colours: nearly black silhouettes, tinted only faintly toward the night sky; almost no lit windows. No beige, cream, white or pale daytime fog.
 Style: match the attached boar sprite exactly: crisp hard-edged pixels, no anti-aliasing, no blur, limited palette, clean dark outlines, light from the left. If a finished image of this same era is attached, use exactly its palette and pixel size.
 Layout: everything stands on the bottom edge and fills only the lower 30% of the image; the top 70% is empty background.
-Background: everything that is not part of this layer, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta or pink anywhere in the art.
+Background: everything that is not part of this layer, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta, pink or lilac anywhere in the art.
+No haze, glow or mist painted behind or between the buildings: the gaps are flat solid #FF00FF only.
 Seamless: the strip repeats side by side forever, so the right edge must continue exactly into the left edge: whatever is cut off at the right edge continues at the left edge at the same height, with no gap or jump.
 Never include: text, letters, numbers, signs, logos, people, animals, or any recognizable real building or famous landmark.
 ```
@@ -494,18 +512,18 @@ Create a pixel art game asset: the top of one standing column, seen straight on 
 Style: match the attached boar sprite exactly: crisp hard-edged pixels, no anti-aliasing, no blur, limited palette, clean dark outlines, light from the left. If a finished image of this same era is attached, use exactly its palette and pixel size.
 Make it light and crisp: after the coins, it must be the most readable thing in front of a dark night city.
 Layout: one perfectly vertical column, centered. Its capital (the decorative top) spans nearly the full width of the image; the shaft continues straight down out of the bottom edge. Nothing above the capital. No orange, amber or gold trim along its top edge.
-Background: everything that is not the column, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta or pink anywhere in the column.
+Background: everything that is not the column, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta, pink or lilac anywhere in the column.
 Never include: text, letters, numbers, logos, people.
 ```
 
 ### Column shaft (9:16) → `1944_shaft`
 
 ```
-Create a pixel art game asset: a straight vertical section of the shaft of the same column as the attached column capital, seen straight on from the front. It must match that column exactly: the same material, the same colour, the same palette and pixel size, and the same fluting or banding as the shaft visible under that capital, kept plain and simple so it repeats well: at most one thin band. Material: a timber post bound with iron straps. Colour: weathered warm brown wood with dark iron, clearly lighter than the forest behind it.
+Create a pixel art game asset: a straight vertical section of the shaft of the same column as the attached column capital, seen straight on from the front. It must match that column exactly: the same material, the same colour, the same palette and pixel size, and the same fluting (if any) as the shaft visible under that capital, kept plain and simple so it repeats well: at most one thin band. Material: a timber post bound with iron straps. Colour: weathered warm brown wood with dark iron, clearly lighter than the forest behind it.
 Style: match the attached boar sprite exactly: crisp hard-edged pixels, no anti-aliasing, no blur, limited palette, clean dark outlines, light from the left. If a finished image of this same era is attached, use exactly its palette and pixel size.
 Layout: one shaft, perfectly vertical and centered, running off the top and bottom edges, with no capital, no base and no ends.
 Seamless: the section repeats end to end forever, so the top edge must continue exactly into the bottom edge: the same outline, grooves and bands in line, with no step or jump.
-Background: everything that is not the shaft, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta or pink anywhere in the column.
+Background: everything that is not the shaft, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta, pink or lilac anywhere in the column.
 Never include: text, letters, numbers, logos, people.
 ```
 
@@ -540,7 +558,8 @@ Draw only this one layer: a single row of distant low domes and colonnades, with
 Colours: muted dark brown and warm grey; hazy and low-contrast, only slightly lighter than the night sky; very few tiny lit windows. No beige, cream, white or pale daytime fog.
 Style: match the attached boar sprite exactly: crisp hard-edged pixels, no anti-aliasing, no blur, limited palette, clean dark outlines, light from the left. If a finished image of this same era is attached, use exactly its palette and pixel size.
 Layout: everything stands on the bottom edge and fills only the lower 65% of the image; the top 35% is empty background.
-Background: everything that is not part of this layer, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta or pink anywhere in the art.
+Background: everything that is not part of this layer, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta, pink or lilac anywhere in the art.
+No haze, glow or mist painted behind or between the buildings: the gaps are flat solid #FF00FF only.
 Seamless: the strip repeats side by side forever, so the right edge must continue exactly into the left edge: whatever is cut off at the right edge continues at the left edge at the same height, with no gap or jump.
 Never include: text, letters, numbers, signs, logos, people, animals, or any recognizable real building or famous landmark.
 ```
@@ -553,7 +572,8 @@ Draw only this one layer: a single row of neoclassical government buildings with
 Colours: muted dark brown and warm grey; darker than a distant hazy skyline would be, with architectural detail and small warm lit windows scattered sparingly. Keep it darker and duller than a pale stone column, so columns stand out in front of it. No beige, cream, white or pale daytime fog.
 Style: match the attached boar sprite exactly: crisp hard-edged pixels, no anti-aliasing, no blur, limited palette, clean dark outlines, light from the left. If a finished image of this same era is attached, use exactly its palette and pixel size.
 Layout: everything stands on the bottom edge and fills only the lower 65% of the image; the top 35% is empty background.
-Background: everything that is not part of this layer, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta or pink anywhere in the art.
+Background: everything that is not part of this layer, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta, pink or lilac anywhere in the art.
+No haze, glow or mist painted behind or between the buildings: the gaps are flat solid #FF00FF only.
 Seamless: the strip repeats side by side forever, so the right edge must continue exactly into the left edge: whatever is cut off at the right edge continues at the left edge at the same height, with no gap or jump.
 Never include: text, letters, numbers, signs, logos, people, animals, or any recognizable real building or famous landmark.
 ```
@@ -566,7 +586,8 @@ Draw only this one layer: a single low row of treetops and low rooflines, with n
 Colours: nearly black silhouettes, tinted only faintly toward the night sky; almost no lit windows. No beige, cream, white or pale daytime fog.
 Style: match the attached boar sprite exactly: crisp hard-edged pixels, no anti-aliasing, no blur, limited palette, clean dark outlines, light from the left. If a finished image of this same era is attached, use exactly its palette and pixel size.
 Layout: everything stands on the bottom edge and fills only the lower 30% of the image; the top 70% is empty background.
-Background: everything that is not part of this layer, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta or pink anywhere in the art.
+Background: everything that is not part of this layer, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta, pink or lilac anywhere in the art.
+No haze, glow or mist painted behind or between the buildings: the gaps are flat solid #FF00FF only.
 Seamless: the strip repeats side by side forever, so the right edge must continue exactly into the left edge: whatever is cut off at the right edge continues at the left edge at the same height, with no gap or jump.
 Never include: text, letters, numbers, signs, logos, people, animals, or any recognizable real building or famous landmark.
 ```
@@ -578,18 +599,18 @@ Create a pixel art game asset: the top of one standing column, seen straight on 
 Style: match the attached boar sprite exactly: crisp hard-edged pixels, no anti-aliasing, no blur, limited palette, clean dark outlines, light from the left. If a finished image of this same era is attached, use exactly its palette and pixel size.
 Make it light and crisp: after the coins, it must be the most readable thing in front of a dark night city.
 Layout: one perfectly vertical column, centered. Its capital (the decorative top) spans nearly the full width of the image; the shaft continues straight down out of the bottom edge. Nothing above the capital. No orange, amber or gold trim along its top edge.
-Background: everything that is not the column, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta or pink anywhere in the column.
+Background: everything that is not the column, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta, pink or lilac anywhere in the column.
 Never include: text, letters, numbers, logos, people.
 ```
 
 ### Column shaft (9:16) → `1971_shaft`
 
 ```
-Create a pixel art game asset: a straight vertical section of the shaft of the same column as the attached column capital, seen straight on from the front. It must match that column exactly: the same material, the same colour, the same palette and pixel size, and the same fluting or banding as the shaft visible under that capital, kept plain and simple so it repeats well: at most one thin band. Material: a white marble column with a simple Doric capital. Colour: cool white marble with pale grey veining.
+Create a pixel art game asset: a straight vertical section of the shaft of the same column as the attached column capital, seen straight on from the front. It must match that column exactly: the same material, the same colour, the same palette and pixel size, and the same fluting (if any) as the shaft visible under that capital, kept plain and simple so it repeats well: at most one thin band. Material: a white marble column with a simple Doric capital. Colour: cool white marble with pale grey veining.
 Style: match the attached boar sprite exactly: crisp hard-edged pixels, no anti-aliasing, no blur, limited palette, clean dark outlines, light from the left. If a finished image of this same era is attached, use exactly its palette and pixel size.
 Layout: one shaft, perfectly vertical and centered, running off the top and bottom edges, with no capital, no base and no ends.
 Seamless: the section repeats end to end forever, so the top edge must continue exactly into the bottom edge: the same outline, grooves and bands in line, with no step or jump.
-Background: everything that is not the shaft, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta or pink anywhere in the column.
+Background: everything that is not the shaft, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta, pink or lilac anywhere in the column.
 Never include: text, letters, numbers, logos, people.
 ```
 
@@ -624,7 +645,8 @@ Draw only this one layer: a single row of distant brutalist concrete blocks, gla
 Colours: muted dark brown-grey and concrete grey; hazy and low-contrast, only slightly lighter than the night sky; very few tiny lit windows. No beige, cream, white or pale daytime fog.
 Style: match the attached boar sprite exactly: crisp hard-edged pixels, no anti-aliasing, no blur, limited palette, clean dark outlines, light from the left. If a finished image of this same era is attached, use exactly its palette and pixel size.
 Layout: everything stands on the bottom edge and fills only the lower 65% of the image; the top 35% is empty background.
-Background: everything that is not part of this layer, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta or pink anywhere in the art.
+Background: everything that is not part of this layer, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta, pink or lilac anywhere in the art.
+No haze, glow or mist painted behind or between the buildings: the gaps are flat solid #FF00FF only.
 Seamless: the strip repeats side by side forever, so the right edge must continue exactly into the left edge: whatever is cut off at the right edge continues at the left edge at the same height, with no gap or jump.
 Never include: text, letters, numbers, signs, logos, people, animals, or any recognizable real building or famous landmark.
 ```
@@ -637,7 +659,8 @@ Draw only this one layer: a single row of brutalist concrete office blocks, dark
 Colours: muted dark brown-grey and concrete grey; darker than a distant hazy skyline would be, with architectural detail and small warm lit windows scattered sparingly. Keep it darker and duller than a pale stone column, so columns stand out in front of it. No beige, cream, white or pale daytime fog.
 Style: match the attached boar sprite exactly: crisp hard-edged pixels, no anti-aliasing, no blur, limited palette, clean dark outlines, light from the left. If a finished image of this same era is attached, use exactly its palette and pixel size.
 Layout: everything stands on the bottom edge and fills only the lower 65% of the image; the top 35% is empty background.
-Background: everything that is not part of this layer, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta or pink anywhere in the art.
+Background: everything that is not part of this layer, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta, pink or lilac anywhere in the art.
+No haze, glow or mist painted behind or between the buildings: the gaps are flat solid #FF00FF only.
 Seamless: the strip repeats side by side forever, so the right edge must continue exactly into the left edge: whatever is cut off at the right edge continues at the left edge at the same height, with no gap or jump.
 Never include: text, letters, numbers, signs, logos, people, animals, or any recognizable real building or famous landmark.
 ```
@@ -650,7 +673,8 @@ Draw only this one layer: a single low row of parking-garage roofs and rooftop m
 Colours: nearly black silhouettes, tinted only faintly toward the night sky; almost no lit windows. No beige, cream, white or pale daytime fog.
 Style: match the attached boar sprite exactly: crisp hard-edged pixels, no anti-aliasing, no blur, limited palette, clean dark outlines, light from the left. If a finished image of this same era is attached, use exactly its palette and pixel size.
 Layout: everything stands on the bottom edge and fills only the lower 30% of the image; the top 70% is empty background.
-Background: everything that is not part of this layer, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta or pink anywhere in the art.
+Background: everything that is not part of this layer, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta, pink or lilac anywhere in the art.
+No haze, glow or mist painted behind or between the buildings: the gaps are flat solid #FF00FF only.
 Seamless: the strip repeats side by side forever, so the right edge must continue exactly into the left edge: whatever is cut off at the right edge continues at the left edge at the same height, with no gap or jump.
 Never include: text, letters, numbers, signs, logos, people, animals, or any recognizable real building or famous landmark.
 ```
@@ -662,18 +686,18 @@ Create a pixel art game asset: the top of one standing column, seen straight on 
 Style: match the attached boar sprite exactly: crisp hard-edged pixels, no anti-aliasing, no blur, limited palette, clean dark outlines, light from the left. If a finished image of this same era is attached, use exactly its palette and pixel size.
 Make it light and crisp: after the coins, it must be the most readable thing in front of a dark night city.
 Layout: one perfectly vertical column, centered. Its capital (the decorative top) spans nearly the full width of the image; the shaft continues straight down out of the bottom edge. Nothing above the capital. No orange, amber or gold trim along its top edge.
-Background: everything that is not the column, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta or pink anywhere in the column.
+Background: everything that is not the column, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta, pink or lilac anywhere in the column.
 Never include: text, letters, numbers, logos, people.
 ```
 
 ### Column shaft (9:16) → `1979_shaft`
 
 ```
-Create a pixel art game asset: a straight vertical section of the shaft of the same column as the attached column capital, seen straight on from the front. It must match that column exactly: the same material, the same colour, the same palette and pixel size, and the same fluting or banding as the shaft visible under that capital, kept plain and simple so it repeats well: at most one thin band. Material: a board-marked concrete pillar. Colour: warm light grey concrete.
+Create a pixel art game asset: a straight vertical section of the shaft of the same column as the attached column capital, seen straight on from the front. It must match that column exactly: the same material, the same colour, the same palette and pixel size, and the same fluting (if any) as the shaft visible under that capital, kept plain and simple so it repeats well: at most one thin band. Material: a board-marked concrete pillar. Colour: warm light grey concrete.
 Style: match the attached boar sprite exactly: crisp hard-edged pixels, no anti-aliasing, no blur, limited palette, clean dark outlines, light from the left. If a finished image of this same era is attached, use exactly its palette and pixel size.
 Layout: one shaft, perfectly vertical and centered, running off the top and bottom edges, with no capital, no base and no ends.
 Seamless: the section repeats end to end forever, so the top edge must continue exactly into the bottom edge: the same outline, grooves and bands in line, with no step or jump.
-Background: everything that is not the shaft, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta or pink anywhere in the column.
+Background: everything that is not the shaft, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta, pink or lilac anywhere in the column.
 Never include: text, letters, numbers, logos, people.
 ```
 
@@ -708,7 +732,8 @@ Draw only this one layer: a single row of distant tall glass towers, with nothin
 Colours: muted dark brown and dark amber, never bright gold; hazy and low-contrast, only slightly lighter than the night sky; very few tiny lit windows. No beige, cream, white or pale daytime fog.
 Style: match the attached boar sprite exactly: crisp hard-edged pixels, no anti-aliasing, no blur, limited palette, clean dark outlines, light from the left. If a finished image of this same era is attached, use exactly its palette and pixel size.
 Layout: everything stands on the bottom edge and fills only the lower 65% of the image; the top 35% is empty background.
-Background: everything that is not part of this layer, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta or pink anywhere in the art.
+Background: everything that is not part of this layer, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta, pink or lilac anywhere in the art.
+No haze, glow or mist painted behind or between the buildings: the gaps are flat solid #FF00FF only.
 Seamless: the strip repeats side by side forever, so the right edge must continue exactly into the left edge: whatever is cut off at the right edge continues at the left edge at the same height, with no gap or jump.
 Never include: text, letters, numbers, signs, logos, people, animals, or any recognizable real building or famous landmark.
 ```
@@ -721,7 +746,8 @@ Draw only this one layer: a single row of dense glass towers with many rows of s
 Colours: muted dark brown and dark amber, never bright gold; darker than a distant hazy skyline would be, with architectural detail and small warm lit windows scattered sparingly. Keep it darker and duller than a pale stone column, so columns stand out in front of it. No beige, cream, white or pale daytime fog.
 Style: match the attached boar sprite exactly: crisp hard-edged pixels, no anti-aliasing, no blur, limited palette, clean dark outlines, light from the left. If a finished image of this same era is attached, use exactly its palette and pixel size.
 Layout: everything stands on the bottom edge and fills only the lower 65% of the image; the top 35% is empty background.
-Background: everything that is not part of this layer, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta or pink anywhere in the art.
+Background: everything that is not part of this layer, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta, pink or lilac anywhere in the art.
+No haze, glow or mist painted behind or between the buildings: the gaps are flat solid #FF00FF only.
 Seamless: the strip repeats side by side forever, so the right edge must continue exactly into the left edge: whatever is cut off at the right edge continues at the left edge at the same height, with no gap or jump.
 Never include: text, letters, numbers, signs, logos, people, animals, or any recognizable real building or famous landmark.
 ```
@@ -734,7 +760,8 @@ Draw only this one layer: a single low row of rooftops with antennas and satelli
 Colours: nearly black silhouettes, tinted only faintly toward the night sky; almost no lit windows. No beige, cream, white or pale daytime fog.
 Style: match the attached boar sprite exactly: crisp hard-edged pixels, no anti-aliasing, no blur, limited palette, clean dark outlines, light from the left. If a finished image of this same era is attached, use exactly its palette and pixel size.
 Layout: everything stands on the bottom edge and fills only the lower 30% of the image; the top 70% is empty background.
-Background: everything that is not part of this layer, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta or pink anywhere in the art.
+Background: everything that is not part of this layer, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta, pink or lilac anywhere in the art.
+No haze, glow or mist painted behind or between the buildings: the gaps are flat solid #FF00FF only.
 Seamless: the strip repeats side by side forever, so the right edge must continue exactly into the left edge: whatever is cut off at the right edge continues at the left edge at the same height, with no gap or jump.
 Never include: text, letters, numbers, signs, logos, people, animals, or any recognizable real building or famous landmark.
 ```
@@ -746,18 +773,18 @@ Create a pixel art game asset: the top of one standing column, seen straight on 
 Style: match the attached boar sprite exactly: crisp hard-edged pixels, no anti-aliasing, no blur, limited palette, clean dark outlines, light from the left. If a finished image of this same era is attached, use exactly its palette and pixel size.
 Make it light and crisp: after the coins, it must be the most readable thing in front of a dark night city.
 Layout: one perfectly vertical column, centered. Its capital (the decorative top) spans nearly the full width of the image; the shaft continues straight down out of the bottom edge. Nothing above the capital. No orange, amber or gold trim along its top edge.
-Background: everything that is not the column, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta or pink anywhere in the column.
+Background: everything that is not the column, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta, pink or lilac anywhere in the column.
 Never include: text, letters, numbers, logos, people.
 ```
 
 ### Column shaft (9:16) → `2009_shaft`
 
 ```
-Create a pixel art game asset: a straight vertical section of the shaft of the same column as the attached column capital, seen straight on from the front. It must match that column exactly: the same material, the same colour, the same palette and pixel size, and the same fluting or banding as the shaft visible under that capital, kept plain and simple so it repeats well: at most one thin band. Material: a dark glass pillar with light along its edges and faint circuit lines. Colour: dark teal glass with bright cyan edges.
+Create a pixel art game asset: a straight vertical section of the shaft of the same column as the attached column capital, seen straight on from the front. It must match that column exactly: the same material, the same colour, the same palette and pixel size, and the same fluting (if any) as the shaft visible under that capital, kept plain and simple so it repeats well: at most one thin band. Material: a dark glass pillar with light along its edges and faint circuit lines. Colour: dark teal glass with bright cyan edges.
 Style: match the attached boar sprite exactly: crisp hard-edged pixels, no anti-aliasing, no blur, limited palette, clean dark outlines, light from the left. If a finished image of this same era is attached, use exactly its palette and pixel size.
 Layout: one shaft, perfectly vertical and centered, running off the top and bottom edges, with no capital, no base and no ends.
 Seamless: the section repeats end to end forever, so the top edge must continue exactly into the bottom edge: the same outline, grooves and bands in line, with no step or jump.
-Background: everything that is not the shaft, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta or pink anywhere in the column.
+Background: everything that is not the shaft, including every gap, is one flat solid pure magenta #FF00FF, with no shading, gradient, glow, shadow or haze on it. No magenta, pink or lilac anywhere in the column.
 Never include: text, letters, numbers, logos, people.
 ```
 

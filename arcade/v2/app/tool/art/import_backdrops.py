@@ -51,6 +51,16 @@ era, put tool/art/source/backdrop/tuning.json beside the sources:
 
     {"1816": {"far": {"parallax": 0.1}}}
 
+The same file can dim or tint a piece whose brightness came out wrong,
+rather than regenerating it: "shade" multiplies its colour (0.7 is 30%
+darker), and "tint" [r, g, b, k] then blends it k of the way toward that
+colour:
+
+    {"1944": {"far": {"shade": 0.62, "tint": [40, 60, 90, 0.25]}}}
+
+1944's redone mountains came back near-white snow: daylight against a night
+sky, and as light as the silver coins that fly in front of them.
+
 With --preview, it also writes each era composed as the game shows it at
 landing, sky to ground with a pair of columns, at the reference size, for
 checking before a build.
@@ -509,6 +519,15 @@ def main():
                 continue
             img, note = keyed, f", {key} background cleared"
         img = img.convert("RGBA")
+        look = tuning.get(str(year), {}).get(part, {})
+        if "shade" in look or "tint" in look:
+            a = np.array(img).astype(float)
+            a[:, :, :3] *= look.get("shade", 1.0)
+            if "tint" in look:
+                *rgb, k = look["tint"]
+                a[:, :, :3] = a[:, :, :3] * (1 - k) + np.array(rgb, float) * k
+            img = Image.fromarray(np.clip(a, 0, 255).round().astype(np.uint8), "RGBA")
+            note += f", colour adjusted ({', '.join(f'{k} {v}' for k, v in look.items() if k in ('shade', 'tint'))})"
         if part in ("capital", "shaft"):
             x0, x1 = art_columns(img)
             if (x0, x1) != (0, img.width):
@@ -564,7 +583,7 @@ def main():
         img.save(os.path.join(OUT, name))
         written.add(name)
         spec = {"file": name, **PARTS[part], **({"lip": round(lip, 4)} if lip > 0.01 else {}),
-                **tuning.get(str(year), {}).get(part, {})}
+                **{k: v for k, v in tuning.get(str(year), {}).get(part, {}).items() if k not in ("shade", "tint")}}
         manifest["eras"].setdefault(str(year), {})[part] = spec
         print(f"{year} {part}: {os.path.basename(path)} -> backdrop/{name} {tw}x{th}{note}")
         if part in ("capital", "shaft") and ((year, "capital") in sources) != ((year, "shaft") in sources):
