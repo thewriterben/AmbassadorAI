@@ -681,6 +681,69 @@ the gap and no white patch, alongside the game's own speed streaks. (The
 first install attempt failed because the Pixel had dropped off adb; the
 check was redone once it was plugged back in.)
 
+### Glad landings and the razorback's buck, from Nano Banana Pro — 2026-09-29
+
+The owner made the new poses from the prompts, each from their own drawings
+attached. Against the owner's drawings, the new images match closely: the
+piglet's halo and gold stripes, the juvenile's feathers, the razorback's
+scales and membranes.
+
+**In the sheets** (split with `split_frames.py`, floored on each stage's
+hoof line):
+- **Piglet `landwin`:** eyes squeezed shut with joy, wings up. Scale 0.249,
+  against 0.245 for its close-ups.
+- **Juvenile `landwin`:** a confident grin. It came facing right and was
+  turned round. Scale 0.260, the same as its other poses.
+- **Razorback `landwin`:** a fierce grin, wings wide. The head match said
+  0.444, 17% larger than the other razorback poses, misled by the open
+  grin. An onion skin at 0.378 matched the drawn landing's body exactly, so
+  that is the one used (`--scale 0.378`).
+- **Razorback `stand2`:** crouched and gathered, head down. Scale 0.380.
+
+footV is unchanged for every stage.
+
+**Verified on the Pixel** (razorback, DEV "Skip to the landing", recorded):
+the glad landing comes down on the ground line, then the idle alternates
+the kicked-up and crouched bucks.
+
+**Four more images, not yet placed** (106 and 107 juvenile, 108 razorback,
+110 piglet) look like wing in-betweens. Measured against the wingbeats
+(wing-area IoU), they sit near the wings-high frames: 110 between piglet 4
+and 1, 106 and 107 between juvenile 4 and 1, 108 between razorback 1 and 2.
+Only the piglet's fills that beat's biggest gap. The juvenile's (2 → 3)
+and razorback's (4 → 5) are left. Placement waits on the owner.
+
+### Two new pose slots, and prompts for the boars — 2026-09-29
+
+The owner asked whether to redo the boars with Nano Banana Pro, as the
+backdrops were. **Decided against replacing them.** An animation needs
+frames that match each other exactly, which generated images are weakest at.
+The owner's drawings are also the style reference every backdrop prompt
+matches. Instead, Nano Banana fills gaps, working from the owner's frames
+(attached) in edit mode.
+
+**Two new sheet slots** after `stand` (`BoarFrames.landWin` and
+`standAlt`), so every sheet is the cycle plus six poses:
+- **`landWin`:** the touchdown after the whole passage. The game picks it
+  when every era was flown, and `land` when a run ran out short. Until now
+  the piglet's teary flop played after a win too.
+- **`standAlt`:** a second standing pose. Once down, the boar alternates
+  `stand` and `standAlt` every 0.55 s, as an idle. It's for the razorback's
+  alternating buck the owner described.
+
+Until drawn, the importer repeats `land` and `stand` in the new slots, so
+nothing changes on screen. `check_sheets.py` counts the new layout. A test
+covers the win and short landings and the alternating stand. Checked on the
+Pixel: flight and touchdown still draw.
+
+**Prompts:** `tool/art/BOAR-POSE-PROMPTS.md`.
+- **One shared paragraph:** the same boar as the attached drawings, one
+  boar, full body, white background, no shadow or text.
+- **Happy landings:** one per stage.
+- **The razorback's second buck:** all four hooves planted, crouched,
+  gathering to kick, the other half of the current stand's kick.
+- **Optional in-between wing frames:** for a beat that looks choppy.
+
 ### Redos: 1913 mid, 1944 far, 1979 far, 1873 shaft — 2026-09-29
 
 A review of all nine eras side by side picked four pieces to redo, and the

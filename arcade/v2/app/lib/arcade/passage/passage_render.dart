@@ -518,11 +518,20 @@ extension PassageRender on PassageGame {
     );
   }
 
+  /// Seconds each standing pose holds in the idle.
+  static const _standBeat = 0.55;
+
   /// Which frame of the sheet to draw. See [BoarFrames].
   int _boarFrame() {
     final f = BoarSpec.all[stage]!.frames;
-    if (phase == PassagePhase.down) return _phaseT < 0.25 ? f.land : f.stand;
-    if (phase != PassagePhase.flying && _groundY - _coinY < _coinR * 3.2) return f.land;
+    // A whole passage flown lands glad; a run that ran out short, as it is.
+    final land = sim.erasCleared >= eras.length ? f.landWin : f.land;
+    if (phase == PassagePhase.down) {
+      if (_phaseT < 0.25) return land;
+      // Standing: two poses in turn, a beat each.
+      return ((_phaseT - 0.25) / _standBeat).floor().isEven ? f.stand : f.standAlt;
+    }
+    if (phase != PassagePhase.flying && _groundY - _coinY < _coinR * 3.2) return land;
     if (_t < _hurtUntil) return f.hurt;
     if (_t < _dashUntil) return f.dash;
     return f.cycleFrameAt(_wingPhase - _wingPhase.floorToDouble());

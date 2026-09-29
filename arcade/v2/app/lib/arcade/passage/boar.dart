@@ -52,8 +52,12 @@ enum BoarStage {
   String get label => BoarSpec.all[this]!.name;
 }
 
-/// Frame indices within a stage's sheet: the wing cycle first, then four
-/// poses.
+/// Frame indices within a stage's sheet: the wing cycle first, then six
+/// poses. The last two are for the ground after a landing: [landWin], the
+/// touchdown after a whole passage flown, and [standAlt], a second standing
+/// pose the boar alternates with [stand] (the razorback's buck). Where they
+/// are not drawn, the importer repeats [land] and [stand] in their place, so
+/// every sheet has the same layout.
 class BoarFrames {
   /// How many drawings the wingbeat has. Four, starting wings-up; the
   /// razorback's owner-drawn beat has six.
@@ -92,7 +96,14 @@ class BoarFrames {
 
   /// Wings folded, standing on the ground.
   int get stand => cycleLength + 3;
-  int get count => cycleLength + 4;
+
+  /// The touchdown after flying the whole passage: glad, where [land] (the
+  /// piglet's teary flop) is for a run that ran out short.
+  int get landWin => cycleLength + 4;
+
+  /// Standing, the other half of the idle.
+  int get standAlt => cycleLength + 5;
+  int get count => cycleLength + 6;
 }
 
 class BoarSpec {

@@ -33,9 +33,12 @@ N + 4 frames, and boar.dart must say so for N other than four
 (BoarFrames(6)). The single pose given on the command line is not used for
 that stage.
 
-The four frames after the wing cycle (hurt, dash, land, stand) can be drawn
-too: tool/art/source/boar_{stage}_{hurt,dash,land,stand}.png, any of them.
-Each drawn one replaces the one made from the wingbeat. They come from a
+The six frames after the wing cycle (hurt, dash, land, stand, landwin,
+stand2) can be drawn too: tool/art/source/boar_{stage}_{pose}.png, any of
+them. Each drawn one replaces the one made from the wingbeat. landwin is the
+touchdown after a whole passage (glad, where land may be a teary flop) and
+stand2 a second standing pose the boar alternates with stand; undrawn, they
+repeat land and stand. They come from a
 pose sheet, split and registered to the wingbeat by split_frames.py:
 
     python tool/art/split_frames.py poses.jpg tool/art/source/boar_juvenile \
@@ -276,7 +279,7 @@ def to_frames(imgs, extra=()):
     return out
 
 
-POSES = ("hurt", "dash", "land", "stand")
+POSES = ("hurt", "dash", "land", "stand", "landwin", "stand2")
 
 
 def drawn_cycle(stage, facing):
@@ -310,7 +313,12 @@ def drawn_sheet(cycle, stage, poses=None):
     up, mid = cycle[0], cycle[1]
     fold = cycle[DRAWN_FOLDED.get(stage, 3)]
     made = {"hurt": hurt(mid), "dash": dash(fold), "land": up, "stand": fold}
-    frames = [*cycle, *[poses[n] if n in poses else made[n] for n in POSES]]
+    got = {n: poses.get(n, made.get(n)) for n in ("hurt", "dash", "land", "stand")}
+    # The two later poses repeat land and stand where they are not drawn: a
+    # glad landing that is the landing, a second stand that is the stand.
+    got["landwin"] = poses.get("landwin", got["land"])
+    got["stand2"] = poses.get("stand2", got["stand"])
+    frames = [*cycle, *[got[n] for n in POSES]]
     out = Image.new("RGBA", (FRAME * len(frames), FRAME), (0, 0, 0, 0))
     for i, f in enumerate(frames):
         out.paste(f, (i * FRAME, 0), f)
@@ -349,7 +357,9 @@ def sheet(frame, stage):
         elif i == 5:
             f = dash(frame)
         frames.append(f)
-    out = Image.new("RGBA", (FRAME * FRAMES, FRAME), (0, 0, 0, 0))
+    # The glad landing and the second stand, as the landing and the stand.
+    frames += [frames[6], frames[7]]
+    out = Image.new("RGBA", (FRAME * len(frames), FRAME), (0, 0, 0, 0))
     for i, f in enumerate(frames):
         out.paste(f, (i * FRAME, 0), f)
     return out
@@ -368,10 +378,12 @@ def main():
             cycle, poses = drawn
             frames[stage] = cycle[0]
             drawn_sheet(cycle, stage, poses).save(os.path.join(OUT, f"boar_{stage}.png"))
-            made = ", ".join(n for n in POSES if n not in poses)
+            made = ", ".join(n for n in POSES[:4] if n not in poses)
+            repeated = [n for n in POSES[4:] if n not in poses]
             print(f"{stage}: drawn wingbeat (source/boar_{stage}_cycle_1..{len(cycle)}.png)"
                   f", drawn poses: {', '.join(poses) or 'none'}"
-                  f"{f', made from the wingbeat: {made}' if made else ''} -> boar_{stage}.png")
+                  f"{f', made from the wingbeat: {made}' if made else ''}"
+                  f"{f', repeating land/stand for: {chr(44).join(repeated)}' if repeated else ''} -> boar_{stage}.png")
             continue
         img = Image.open(src).convert("RGBA")
         if args.facing == "left":

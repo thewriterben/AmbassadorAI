@@ -15,7 +15,8 @@ import sys
 
 from PIL import Image
 
-# A sheet is the wing cycle and then four poses (hurt, dash, land, stand);
+# A sheet is the wing cycle and then six poses (hurt, dash, land, stand,
+# land after a whole passage, second stand);
 # the cycle is four drawings unless boar.dart gives the stage
 # BoarFrames(n), as the razorback's six.
 CYCLE = 4
@@ -66,8 +67,8 @@ def check(path, stage, spec):
         errors.append(f"mode is {im.mode}, needs RGBA with a transparent background")
         im = im.convert("RGBA")
     w, h = im.size
-    FRAMES = int((spec or {}).get("cycle", CYCLE)) + 4
-    STAND = FRAMES - 1
+    FRAMES = int((spec or {}).get("cycle", CYCLE)) + 6
+    STAND = FRAMES - 3
     if w != h * FRAMES:
         errors.append(f"{w}x{h}: must be one row of {FRAMES} square frames ({h * FRAMES}x{h})")
         return errors, warns, None

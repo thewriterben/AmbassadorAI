@@ -307,6 +307,24 @@ void main() {
       }
     });
 
+    test('a whole passage lands on the glad frame; a short run on the plain one; standing alternates', () {
+      for (final whole in [true, false]) {
+        final run = CabinetRun();
+        final g = _game(run);
+        final f = BoarSpec.all[g.stage]!.frames;
+        g.flap();
+        _fly(g, run, 0.3);
+        whole ? g.devSkipToLanding() : g.devEndShort();
+        final seen = <int>{};
+        _fly(g, run, 30, each: (_) {
+          if (g.phase != PassagePhase.flying) seen.add(g.boarFrame);
+        });
+        expect(seen, contains(whole ? f.landWin : f.land), reason: whole ? 'whole passage' : 'short run');
+        expect(seen, isNot(contains(whole ? f.land : f.landWin)));
+        expect(seen, containsAll([f.stand, f.standAlt]), reason: 'the standing idle alternates');
+      }
+    });
+
     test('the razorback beats through all six of its drawings, and only those', () {
       final run = CabinetRun();
       final g = PassageGame(run: run, seed: 7, stage: BoarStage.razorback)..onGameResize(_size);
