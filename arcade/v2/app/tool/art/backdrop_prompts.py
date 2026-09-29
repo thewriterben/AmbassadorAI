@@ -16,9 +16,13 @@ import os
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
+# The prompts never lean on the chat's history: Nano Banana grows unreliable
+# over a long chat, so each era starts a new one, and a piece can be
+# redone in yet another. What must match (the era's palette, the capital
+# under a shaft) is attached, not remembered.
 STYLE = ("Style: match the attached boar sprite exactly: crisp hard-edged pixels, no anti-aliasing, no blur, "
-         "limited palette, clean dark outlines, light from the left. Use exactly the same palette and pixel size "
-         "as any images already made in this conversation.")
+         "limited palette, clean dark outlines, light from the left. If a finished image of this same era is "
+         "attached, use exactly its palette and pixel size.")
 
 # Each era as the prompts describe it. "setting" opens every prompt; the rest
 # fill the pieces. Cities are evocative, never portraits: where a famous
@@ -115,7 +119,10 @@ ERAS = [
          ground="concrete pavement with expansion joints", ground_colour="dark grey concrete"),
     dict(year=2009, era="Issuance in code", setting="a glass city at night, 2009",
          sky="an amber-brown night",
-         sky_detail="no stars, a very faint thin square grid of lines across the sky, a warm amber glow low down",
+         # No grid in the image: asked for "a very faint grid", Nano Banana drew
+         # graph paper over the whole sky. The game draws its own faint,
+         # scrolling grid over the 2009 sky.
+         sky_detail="no stars, no lines, no grid and no pattern, only a thin warm haze and a soft amber city glow low down",
          moon=False,
          colours="muted dark brown and dark amber, never bright gold",
          far="tall glass towers",
@@ -144,8 +151,9 @@ def pieces(e):
             STYLE,
             "Content: only sky, with no buildings, no ground and no horizon line. Fill the whole portrait image edge to "
             "edge. Dark and low-contrast, so gold coins and a golden flying boar stand out clearly in front of it. "
-            f"Subtle atmosphere only: {e['sky_detail']}. The top 15% is the same sky with no stars or clouds in it, "
-            "blending smoothly into the rest, with no band, edge or change of colour. {moon}"
+            "The sky is one smooth, continuous gradient from darkest at the very top to lightest at the bottom, with "
+            "no bands, stripes, steps or lines anywhere in it. "
+            f"Subtle atmosphere only: {e['sky_detail']}. {moon}"
             "Nothing bright, gold or yellow-orange above the bottom third.",
             NEVER,
         ])),
@@ -199,10 +207,11 @@ def pieces(e):
             "Never include: text, letters, numbers, logos, people.",
         ])),
         dict(part="shaft", name="Column shaft", aspect="9:16", prompt="\n".join([
-            "Create a pixel art game asset: a straight vertical section of the shaft of the same column as the capital "
-            "made just before in this conversation, seen straight on from the front. It must match that column "
-            "exactly: the same material, the same colour, the same palette and pixel size, and the same fluting or "
-            f"banding as the shaft visible under that capital. Material: {e['column']}. Colour: {e['column_colour']}.",
+            "Create a pixel art game asset: a straight vertical section of the shaft of the same column as the "
+            "attached column capital, seen straight on from the front. It must match that column exactly: the same "
+            "material, the same colour, the same palette and pixel size, and the same fluting or banding as the shaft "
+            "visible under that capital, kept plain and simple so it repeats well: at most one thin band. "
+            f"Material: {e['column']}. Colour: {e['column_colour']}.",
             STYLE,
             "Layout: one shaft, perfectly vertical and centered, running off the top and bottom edges, with no capital, "
             "no base and no ends.",
@@ -236,12 +245,14 @@ FIXES = [
     ("The magenta is shaded or glowing",
      "Make the background one flat solid #FF00FF, with no shading, glow or gradient."),
     ("The style or colours drifted from the earlier images",
-     "Match the palette, colours and pixel size of the earlier images in this conversation exactly."),
+     "Match the palette, colours and pixel size of the attached image of this era exactly."),
     ("The shaft doesn't match the capital",
-     "Redo the shaft in exactly the colour, material and fluting of the shaft under the capital you made earlier."),
+     "Redo the shaft in exactly the colour, material and fluting of the shaft under the attached capital."),
     ("A hard line or band across the sky",
      "Remove the band across the top of the sky. The whole sky is one smooth gradient, darkest at the top, with no "
      "edge, stripe or change of colour anywhere."),
+    ("Lines, a grid or a pattern over the sky",
+     "Remove every line, grid and pattern. The sky is only a smooth gradient with a soft glow low down, nothing else."),
     ("A famous landmark appeared",
      "Remove the famous landmark. Use only ordinary period buildings of the same style, none of them a real building."),
 ]
@@ -256,17 +267,22 @@ def markdown(d):
     out = ["# When Pigs Fly — backdrop prompts", "",
            "Every era's seven pieces for Nano Banana, written out in full: paste as they are. Generated by",
            "`tool/art/backdrop_prompts.py`; the rules behind them are in `BACKDROP-BRIEF.md`.", "",
-           "**Every time:** attach one of the boar drawings (for style) and that era's code-drawn",
-           "background render (for mood). Make an era's pieces in one chat, in the order below: the sky",
-           "sets the palette, and the shaft is matched to the capital just before it. Save each as",
-           "`{year}_{piece}` (`.webp`, `.png` or `.jpg`) in `tool/art/source/backdrop/`, then run",
-           "`python tool/art/import_backdrops.py --preview <folder>`. No cropping: the importer trims",
-           "every piece to shape.", ""]
+           "**Start a new Nano Banana chat for each era.** Long chats stop working properly, so no",
+           "prompt relies on what a chat has already seen: what must match is attached instead.", "",
+           "**Attach to every prompt:** one of the boar drawings (for style) and that era's",
+           "code-drawn background render (for mood). From the second piece on, also attach the era's",
+           "finished sky, so the palette carries over. For the shaft, attach the finished capital.", "",
+           "If a chat misbehaves partway through an era, start another and carry on with the same",
+           "attachments; nothing is lost. Save each image as `{year}_{piece}` (`.webp`, `.png` or `.jpg`)",
+           "in `tool/art/source/backdrop/`, then run `python tool/art/import_backdrops.py --preview",
+           "<folder>`. No cropping: the importer trims every piece to shape.", ""]
     for e in d["eras"]:
         out += [f"## {e['year']}: {e['era']}", "", f"*{e['setting'][0].upper()}{e['setting'][1:]}.*", ""]
         for p in e["pieces"]:
             out += [f"### {p['name']} ({p['aspect']}) → `{e['year']}_{p['part']}`", "", "```", p["prompt"], "```", ""]
-    out += ["## When a result comes back wrong", "", "Reply in the same chat:", ""]
+    out += ["## When a result comes back wrong", "",
+            "Reply in the same chat. If that chat is already long or misbehaving, paste the piece's prompt into a",
+            "new chat with its attachments instead, and add the reply's text to the end of it.", ""]
     for f in d["fixes"]:
         out += [f"**{f['problem']}**", "", "```", f["reply"], "```", ""]
     return "\n".join(out)

@@ -87,6 +87,9 @@ class _PassageScreenState extends State<PassageScreen> {
       devActions: () => {
         'Skip to the landing': () => _game?.devSkipToLanding(),
         'Next era (see its city)': () => _game?.devNextEra(),
+        // From the next run: it starts in the era shown; a tap steps it on.
+        'Start era (next run): ${eras[PassageGame.devStartEra].year}': () =>
+            PassageGame.devStartEra = (PassageGame.devStartEra + 1) % eras.length,
         'End short, here': () => _game?.devEndShort(),
         'Full momentum': () => _game?.devMaxMomentum(),
         'Hitbox: ${PassageGame.devShowHitbox ? 'hide' : 'show'}': () =>

@@ -16,7 +16,7 @@ void main() {
             "far": {"file": "1816_far.png", "band": 0.45, "base": 0.86, "parallax": 0.12},
             "capital": {"file": "1816_capital.png"}
           },
-          "2009": {"ground": {"file": "2009_ground.png", "band": 0.16}}
+          "2009": {"ground": {"file": "2009_ground.png", "band": 0.16, "lip": 0.12}}
         }}''');
       expect(m.byEra.keys, unorderedEquals([0, eras.length - 1]));
       final far = m.byEra[0]![BackdropPart.far]!;
@@ -24,6 +24,8 @@ void main() {
       expect((far.band, far.base, far.parallax), (0.45, 0.86, 0.12));
       expect(m.byEra[0]![BackdropPart.capital]!.file, 'backdrop/1816_capital.png');
       expect(m.byEra[eras.length - 1]![BackdropPart.ground]!.band, 0.16);
+      expect(m.byEra[eras.length - 1]![BackdropPart.ground]!.lip, 0.12);
+      expect(far.lip, 0, reason: 'no lip unless the manifest gives one');
     });
 
     test('skips a year or a part it does not know, rather than failing', () {
@@ -78,6 +80,15 @@ void main() {
       }
       expect(weightOf(eraWeights(4 - fade * 1.01, n, fade), 4), 0);
       expect(weightOf(eraWeights(4 + fade * 1.01, n, fade), 4), 1);
+    });
+
+    test('layers draw solid through the change: the old until halfway, the new from halfway', () {
+      for (var v = 4 - fade; v <= 4 + fade; v += fade / 20) {
+        final a = layerAlphas(eraWeights(v, n, fade));
+        final cover = a.fold(0.0, (c, x) => c + x.$2 - c * x.$2);
+        expect(cover, greaterThanOrEqualTo(1 - 1e-9), reason: 'no see-through gap at $v');
+      }
+      expect(layerAlphas(eraWeights(4.0, n, fade)), [(3, 1.0), (4, 1.0)]);
     });
 
     test('past the last era, the last era', () {

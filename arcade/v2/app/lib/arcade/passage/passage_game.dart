@@ -182,6 +182,11 @@ class PassageGame extends FlameGame {
   /// DEV: draw the collision capsule over the boar.
   static bool devShowHitbox = false;
 
+  /// DEV: the era a run starts in, for looking at a later era's city
+  /// without flying there. Stepping with "Next era" from the menu races the
+  /// game, which keeps running under the sheet.
+  static int devStartEra = 0;
+
   /// Drives the era banner in the Flutter overlay.
   final ValueNotifier<int> eraNotifier = ValueNotifier(-1);
   int get eraIndex => eraNotifier.value;
@@ -537,6 +542,9 @@ class PassageGame extends FlameGame {
     switch (e.kind) {
       case SimEventKind.started:
         run.tick();
+        for (var i = 0; i < devStartEra; i++) {
+          sim.devNextEra();
+        }
       case SimEventKind.flap:
         _flapAt = sim.t;
         // A tap is a downstroke: start a fresh beat from wings up, so the

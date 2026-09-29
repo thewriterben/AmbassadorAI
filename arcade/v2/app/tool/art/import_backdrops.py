@@ -219,6 +219,37 @@ def seam(img, axis):
     return across, float(np.percentile(steps, 99.5))
 
 
+def trim_seam_edges(img, axis, most=0.01):
+    """A repeating part without a drawn line along its joining edges: tries
+    dropping up to [most] of it at each end, and keeps the cut that joins
+    best if it more than halves the step across the seam. 2009's ground had
+    a bright four-pixel rule down its left edge, which would have shown as a
+    stripe at every repeat. Returns the image and how many pixels went."""
+    n = img.width if axis == 1 else img.height
+    k = max(1, int(n * most))
+
+    def cut(a, b):
+        return img.crop((a, 0, img.width - b, img.height)) if axis == 1 else img.crop((0, a, img.width, img.height - b))
+
+    base, usual = seam(img, axis)
+    # Only for a seam that would be flagged: one that already joins is left
+    # alone (the first version trimmed a dozen that joined, to join them
+    # better still, and cut real art).
+    if base <= max(1.5 * usual, 12):
+        return img, 0
+    best = (base, 0, 0)
+    for a in range(0, k + 1, 2):
+        for b in range(0, k + 1, 2):
+            if a or b:
+                v = seam(cut(a, b), axis)[0]
+                if v < best[0]:
+                    best = (v, a, b)
+    v, a, b = best
+    if (a or b) and v < base / 2:
+        return cut(a, b), a + b
+    return img, 0
+
+
 def resize_wrapped(img, size, axis):
     """Resizes a part that repeats along [axis] (1 across, 0 down) with a
     margin of itself wrapped round each end, then crops the margin off, so
@@ -247,6 +278,35 @@ def art_columns(img, share=0.2):
     return (int(cols.min()), int(cols.max()) + 1) if len(cols) else (0, img.width)
 
 
+def fill_column_gaps(img):
+    """A column part with its see-through gaps filled: in each row, clear
+    pixels between the art's first and last are painted the art's own
+    darkest shade. A column is solid in play, so it has to look solid:
+    1913's steel lattice came with the city showing through between the
+    bars, which reads as a way through. Returns the image and how many
+    pixels were filled."""
+    a = np.array(img).copy()
+    op = a[:, :, 3] > 128
+    if not op.any():
+        return img, 0
+    rgb = a[:, :, :3][op].astype(float)
+    lum = rgb.mean(axis=1)
+    dark = rgb[lum <= np.percentile(lum, 8)].mean(axis=0)
+    fill = np.zeros(op.shape, bool)
+    for y in range(a.shape[0]):
+        xs = np.nonzero(op[y])[0]
+        if len(xs) >= 2:
+            fill[y, xs[0]:xs[-1] + 1] = ~op[y, xs[0]:xs[-1] + 1]
+    n = int(fill.sum())
+    if n:
+        # Blend under what is there, so soft edges stay soft.
+        al = a[:, :, 3:4].astype(float) / 255.0
+        mixed = a[:, :, :3] * al + dark * (1 - al)
+        a[fill, :3] = mixed[fill].round().astype(np.uint8)
+        a[fill, 3] = 255
+    return Image.fromarray(a, "RGBA"), n
+
+
 def neck_share(capital):
     """How wide the column is just under the capital, as a share of the
     capital's width: the art's width across its bottom tenth."""
@@ -259,21 +319,33 @@ def neck_share(capital):
 
 def trim_ground(img, spread=6, margin=0.12):
     """The ground without the plain rows off its bottom (everything below
-    the last row whose colours vary, plus a little margin), and without any
-    white or near-white rows above its top edge: 1816's second ground came
-    with a white band across its top 14%, which would have become the ground
-    line."""
+    the last row whose colours vary, plus a little margin), and without the
+    white above its top edge. Returns the image and its lip: how much of it,
+    as a share of its height, stands above the ground line.
+
+    1816's second ground came with a white band across its top 14%, which
+    would have become the ground line; those whole white rows go. 1944's
+    has grass tufts rising above the line into the white: the line is the
+    first row the art spans all the way across, the white above it is made
+    clear, and what stands there (the tufts) is kept as a lip, drawn above
+    the line in play, so the hooves stand on the path and not on the tips
+    of the grass."""
     a = np.array(img.convert("RGB")).astype(float)
-    blank = a.min(axis=2).mean(axis=1) > 225
+    whiteish = (a.min(axis=2) > 200) & ((a.max(axis=2) - a.min(axis=2)) < 30)
+    blank = whiteish.mean(axis=1) > 0.99
     top = 0
     while top < len(blank) - 1 and blank[top]:
         top += 1
+    full = np.nonzero((~whiteish).mean(axis=1) > 0.95)[0]
+    full = full[full >= top]
+    line = int(full[0]) if len(full) else top
     busy = np.nonzero(a.std(axis=(1, 2)) > spread)[0]
-    busy = busy[busy >= top]
-    if not len(busy):
-        return img.crop((0, top, img.width, img.height))
-    keep = min(img.height, top + int((busy.max() - top) * (1 + margin)) + 1)
-    return img.crop((0, top, img.width, keep))
+    busy = busy[busy >= line]
+    bottom = img.height if not len(busy) else min(img.height, line + int((busy.max() - line) * (1 + margin)) + 1)
+    out = np.array(img.convert("RGBA"))
+    out[:line][whiteish[:line]] = 0
+    out = out[top:bottom]
+    return Image.fromarray(out, "RGBA"), (line - top) / (bottom - top)
 
 
 def trim_sky_above(img, margin=0.06):
@@ -287,6 +359,33 @@ def trim_sky_above(img, margin=0.06):
     keep = img.height - top
     top = max(0, top - round(keep * margin / (1 - margin)))
     return img.crop((0, top, img.width, img.height))
+
+
+def trim_frame(img, most=0.04, tol=6):
+    """The image without a flat border drawn round it: from each edge,
+    strips of one even colour, stopping at the first that varies or at
+    [most] of the image. 2009's sky came framed in a 12px dark rule, which
+    would have run along the top of the screen."""
+    a = np.array(img.convert("RGB")).astype(int)
+    h, w, _ = a.shape
+
+    def flat(strip):
+        return strip.std(axis=0).max() < tol
+
+    def depth(get, n):
+        d = 0
+        while d < n * most and flat(get(d)):
+            d += 1
+        return d if d >= 3 else 0
+
+    t = depth(lambda i: a[i], h)
+    b = depth(lambda i: a[h - 1 - i], h)
+    l = depth(lambda i: a[:, i], w)
+    r = depth(lambda i: a[:, w - 1 - i], w)
+    # A frame has all four sides; a sky merely plain at its top has one.
+    if min(t, b, l, r) == 0:
+        return img, 0
+    return img.crop((l, t, w - r, h - b)), max(t, b, l, r)
 
 
 def size_for(part, img):
@@ -374,8 +473,9 @@ def preview(year, parts, path):
     if g:
         dh = round(PARTS["ground"]["band"] * H)
         g = resize_rgba(g, (round(g.width * dh / g.height), dh))
+        top = ground_y - round(parts["ground"].get("lip", 0) * dh)
         for x in range(0, W, g.width):
-            canvas.alpha_composite(g, (x, ground_y))
+            canvas.alpha_composite(g, (x, top))
     canvas.alpha_composite(Image.new("RGBA", (W, round(H * 0.004)), (234, 149, 45, 217)), (0, ground_y))
     canvas.convert("RGB").save(path)
 
@@ -414,6 +514,10 @@ def main():
             if (x0, x1) != (0, img.width):
                 img = img.crop((x0, 0, x1, img.height))
                 note += f", trimmed to the art's width ({x1 - x0}px)"
+        if part in ("capital", "shaft"):
+            img, filled = fill_column_gaps(img)
+            if filled > img.width * img.height * 0.01:
+                note += f", see-through gaps filled with its darkest shade ({filled * 100 // (img.width * img.height)}%)"
         if part == "capital":
             necks[year] = neck_share(img)
         if part == "shaft" and year in necks and necks[year] < 0.97:
@@ -422,11 +526,18 @@ def main():
             padded.paste(img, ((full - img.width) // 2, 0))
             img = padded
             note += f", set to the capital's neck ({necks[year]:.0%} of its width)"
+        lip = 0.0
+        if part == "sky":
+            img, framed = trim_frame(img)
+            if framed:
+                note += f", drawn frame trimmed ({framed}px)"
         if part == "ground":
             before = img.height
-            img = trim_ground(img)
+            img, lip = trim_ground(img)
             if img.height < before * 0.97:
                 note += f", blank rows trimmed ({img.height}/{before} rows kept)"
+            if lip > 0.01:
+                note += f", {lip:.0%} of it stands above the ground line"
         if part in ("far", "mid", "near"):
             before = img.height
             img = trim_sky_above(img)
@@ -436,6 +547,10 @@ def main():
         # above a skyline is part of the composition, so nothing is trimmed.
         tw, th = size_for(part, img)
         axis = 1 if part in ("far", "mid", "near", "ground") else 0 if part == "shaft" else None
+        if axis is not None:
+            img, dropped = trim_seam_edges(img, axis)
+            if dropped:
+                note += f", a drawn line along its joining edges trimmed ({dropped}px)"
         img = resize_wrapped(img, (tw, th), axis) if axis is not None else resize_rgba(img, (tw, th))
         if axis is not None:
             across, usual = seam(img, axis)
@@ -448,7 +563,8 @@ def main():
         name = f"{year}_{part}.png"
         img.save(os.path.join(OUT, name))
         written.add(name)
-        spec = {"file": name, **PARTS[part], **tuning.get(str(year), {}).get(part, {})}
+        spec = {"file": name, **PARTS[part], **({"lip": round(lip, 4)} if lip > 0.01 else {}),
+                **tuning.get(str(year), {}).get(part, {})}
         manifest["eras"].setdefault(str(year), {})[part] = spec
         print(f"{year} {part}: {os.path.basename(path)} -> backdrop/{name} {tw}x{th}{note}")
         if part in ("capital", "shaft") and ((year, "capital") in sources) != ((year, "shaft") in sources):

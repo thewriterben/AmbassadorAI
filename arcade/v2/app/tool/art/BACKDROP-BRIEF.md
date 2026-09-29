@@ -142,11 +142,15 @@ The prompts, every era written out in full, are in
 same prompts are on a page with a copy button for each.
 
 **Every time:**
+- Start a **new Nano Banana chat for each era**. Long chats stop working
+  properly, so no prompt relies on the chat's history.
 - Attach one of the boar drawings, for style, and that era's code-drawn
-  background render, for mood.
-- Make an era's seven pieces in one chat, in the given order: sky, far, mid,
-  near, capital, shaft, ground. The sky sets the palette, and the shaft is
-  matched to the capital made just before it.
+  background render, for mood. From the second piece on, also attach the
+  era's finished sky, so the palette carries over; for the shaft, attach the
+  finished capital.
+- Make the pieces in the given order: sky, far, mid, near, capital, shaft,
+  ground. If a chat misbehaves partway, start another with the same
+  attachments.
 - Save each as `{year}_{piece}` (`.webp`, `.png` or `.jpg`) in
   `tool/art/source/backdrop/`.
 
@@ -169,6 +173,11 @@ same prompts are on a page with a copy button for each.
   width of the neck under the capital.
 - **All pieces:** the magenta is taken out of the art's edges, so pink
   outlines aren't a reason to regenerate.
+- **Skies:** a flat frame drawn round the edges is trimmed.
+- **Repeating pieces:** a drawn line along the joining edges (2009's ground
+  had one) is trimmed, when the seam would otherwise show.
+- **Ground above its line:** grass or kerbs rising above the ground line
+  are kept, drawn standing over it.
 
 **What the prompts learned from 1816:**
 - **Several depths in one skyline.** The first far skyline drew three
@@ -184,5 +193,6 @@ same prompts are on a page with a copy button for each.
   under a cool grey capital. The shaft prompt now asks it to match the
   capital exactly.
 
-The replies for fixing a result in the same chat are at the end of the
-prompts file.
+The replies for fixing a result are at the end of the prompts file. In a
+long or misbehaving chat, paste the piece's prompt into a new chat with its
+attachments and add the reply to the end of it.

@@ -681,6 +681,205 @@ the gap and no white patch, alongside the game's own speed streaks. (The
 first install attempt failed because the Pixel had dropped off adb; the
 check was redone once it was plugged back in.)
 
+### 2009, drawn: all nine eras — 2026-09-29
+
+The glass city:
+- **Columns:** dark teal glass with cyan edge light and circuit traces.
+- **Far and mid:** dense towers with lit windows and red aviation lights.
+- **Near:** rooftops with dishes and antennas.
+- **Ground:** a dark floor of circuit lines.
+- **Sky:** a heavily dithered amber-brown night.
+
+**Every era is now the owner's art: 63 images, 16 MB.**
+
+**The 2009 sky prompt.** "A very faint thin square grid of lines" came
+back as graph paper every time. The prompt now asks for no lines, grid or
+pattern. The game's own faint, scrolling 2009 grid is now drawn over a
+drawn sky rather than hidden under it (`_net`), so the network still shows,
+and moving.
+
+**A prompt bug, fixed.** Since the band fix, all nine sky prompts carried a
+literal `{moon}` (a missing f-string), with the moon instruction lost.
+The "top 15%" wording, which probably invited the flat bands, is replaced by
+"one smooth, continuous gradient, no bands, stripes, steps or lines".
+
+**Two importer additions:**
+- **`trim_frame`:** strips a flat border drawn round a sky. The 2009 sky
+  came framed in a dark rule, which would have run along the top of the
+  screen.
+- **`trim_seam_edges`:** a repeating piece whose seam would be flagged
+  tries dropping up to 1% at each joining edge, and keeps the cut if it
+  more than halves the step. 2009's ground had a bright cyan rule down its
+  left edge; 1816's cobbles lose 28px. A first version ran on every piece,
+  trimmed a dozen that already joined, and took six minutes; it now runs
+  only on flagged seams.
+
+**The era crossfade, fixed.** Starting in 2009 put the run right at the
+change from 1979. With both eras' layers at their crossfade weights (half
+each), the sky showed through both cities, and the whole skyline went pale
+and ghosted, as it would at every era change in play. Layers now draw at
+twice their weight, up to full (`layerAlphas`, tested): the new era fades
+in over a still solid old one, which then fades out under a solid new one.
+
+**Verified on the Pixel:** a run started in 2009. The city is solid and
+dense, the teal columns read clearly, the coins stand out, and the landing
+comes down on the circuit floor.
+
+### 1979, drawn — 2026-09-29
+
+A late-seventies downtown:
+- **Columns:** board-marked concrete with a flared cap.
+- **Far and mid:** brutalist slabs, dark glass towers, and tower cranes with
+  red aviation lights.
+- **Near:** rooftop machinery (fans, vents, pipes).
+- **Ground:** cracked concrete panels with expansion joints.
+- **Sky:** a brown haze with a low copper moon.
+
+**The cranes' fine lattices came through clean.** The whole-image magenta
+unmixing clears the tiny enclosed gaps the flood fill can't reach, and no
+pixel is left strongly magenta.
+
+**One art note:** Nano Banana painted a mauve haze behind some far
+buildings, partly blended with the magenta. About 1.7% of the far layer
+keeps a mild lilac tint (a cast around 20). Clearing it would also clear
+genuinely mauve art (1923), so it stays. A redo of the far layer would
+remove it.
+
+**Verified on the Pixel:** a run started in 1979. The concrete columns
+read clearly against the slabs and cranes, and the coins stand out. The
+lilac haze does show on the phone, as a pinkish patch behind the
+left-hand towers in some frames: a far-layer redo is worth it. Eight eras
+are drawn: 56 images, 13 MB.
+
+### 1971, drawn — 2026-09-29
+
+The low classical capital:
+- **Columns:** white fluted marble with a Doric capital.
+- **Far:** pale domes and a colonnade.
+- **Mid:** pedimented, colonnaded government buildings with domes and
+  sculpted pediments, all of a similar height.
+- **Near:** low roofs and cypresses.
+- **Ground:** pale stone paving.
+- **Sky:** an amber-brown evening with a few stars.
+
+It imported with no changes and no magenta left. Verified on the Pixel: a
+run started in 1971 (DEV start era). The marble columns are the brightest
+things after the coins and read clearly against the brown stone city.
+Seven eras are drawn: 49 images, 12 MB.
+
+### 1944, drawn, and a ground that stands above its line — 2026-09-29
+
+The mountain resort:
+- **Columns:** timber posts with iron straps under a carved capital with a
+  pine cone.
+- **Far:** dark mountains with lit windows.
+- **Mid:** a grand wooden hotel with verandas in pines (not any real hotel).
+- **Near:** dark pine tops.
+- **Ground:** a gravel path at a lawn's edge.
+- **Sky:** a warm brown dusk.
+
+**The ground's lip.** Its grass tufts rise above the flat line into the
+white. Trimmed as before, the tuft rows would have become the top of the
+strip, and the boar would land on the tips of the grass, floating about 2%
+of the screen above the path. `trim_ground` now:
+- takes the ground line as the first row the art spans all the way across;
+- clears the white above it;
+- keeps what stands there as a lip, `lip` in the manifest (the share of the
+  strip above the line).
+
+The game draws the strip that much higher (`BackdropLayer.lip`), so the
+line sits on the ground line and the tufts stand over it. This one is 14%.
+The other eras' grounds have no lip, and a manifest test covers the field.
+
+**Verified on the Pixel:** DEV start era 1944. In flight, the timber columns
+read against the mountains and the hotel, and the coins stand out. Ending
+short in 1944, the pig lands on the path. Six eras are drawn: 42 images.
+
+### 1933, drawn, and a DEV start era — 2026-09-29
+
+The fifth era, a Depression-era American city:
+- **Columns:** Art Deco, cream stone with brass flutes under a stepped
+  chevron capital.
+- **Far and mid:** Deco setback towers, reddish-brown against darker slabs.
+- **Near:** rooftops with water towers.
+- **Ground:** cracked asphalt.
+- **Sky:** a dark red-brown haze with a low, dim moon.
+
+It imported with no changes and no magenta left. The brass flutes are
+olive-gold; they're thin stripes and read as the column, not as coins.
+
+**DEV "Start era (next run)".** Stepping a run to a later era with "Next
+era" failed on every try past the third: the DEV sheet doesn't pause the
+game, so the boar crashes while it's open. A new row sets which era the
+next run starts in (a tap steps it on), jumping there on the first flap.
+It's a static, so it resets when the app restarts.
+
+The row's label only updates when the screen rebuilds (after a run), like
+the Difficulty row's. The tap itself takes effect at once.
+
+**Verified on the Pixel:** a run started in 1933. The columns read clearly
+against the towers, the coins stand out, and the water towers sit in the
+near layer. Five eras are drawn: 35 images.
+
+### 1923, drawn — 2026-09-29
+
+Berlin in smog, the fourth era:
+- **Columns:** brick chimneys, sooty at the top, with iron bands.
+- **Far:** domes and tall stacks.
+- **Mid:** tenements with fire escapes, sawtooth factories and smoke plumes.
+- **Near:** factory silhouettes.
+- **Ground:** stone setts.
+- **Sky:** a mauve sky with clouds, a moon and a red glow low down.
+
+**The mauve palette survived the magenta cleanup.** The art's own purple
+cast raises the allowance, so the far layer stays mauve-grey (76, 50, 63)
+and no pixel is left strongly magenta. The imported smoke plumes stay part
+of the mid layer.
+
+**The sky:** the owner asked whether the sky's edges join. They don't
+need to: the sky is drawn once, to cover, and never tiles or scrolls. Its
+moon goes against the prompt's "No moon" for 1923, but it reads well and
+was kept. Most of the red glow sits behind the city.
+
+**Verified on the Pixel:** 1923 in flight. The chimney columns read clearly
+against the smog, and the coins stand out.
+
+**Getting there took several tries.** The DEV sheet doesn't pause the game,
+so the piglet crashes while it's open. Easier difficulty and quick taps
+got through.
+
+The phone's DEV difficulty went back to standard later: the 1933 check
+ran without the EASY badge. Four eras are drawn: 28 images.
+
+### 1913, drawn — 2026-09-29
+
+The third era, made one new chat per era:
+- **Columns:** a riveted steel lattice.
+- **Far and mid:** early towers and tall brick buildings.
+- **Near:** rooftops with wooden water tanks and railings.
+- **Ground:** granite slabs.
+- **Sky:** a violet dusk.
+
+**Columns are filled solid.** The lattice came with magenta in its gaps,
+so the city would have shown through the column between the bars. In play
+a column is solid, and a see-through one reads as a way through. The
+importer now fills, row by row, any clear pixels between a column part's
+first and last art pixel with the art's own darkest shade (8th percentile),
+blended under soft edges. The 1913 capital's gaps were 17% of it and the
+shaft's 26%. It applies to every era: 1873's openwork capital picked up a
+1% dark-green fill, and 1816's capital changed only at a few edge pixels.
+
+**One content problem:** the mid skyline has crowns that read as the
+Chrysler and Empire State buildings. Those are 1930–31 designs, so they're
+landmarks and anachronisms for 1913. A redo with the "famous landmark"
+fix-up would put it right. The sky again has a flat top band, softer this
+time, dithered into the rest.
+
+**Verified on the Pixel:** DEV "Next era" twice into 1913, as the piglet.
+The filled lattice columns read as solid steel against the towers, the
+water tanks sit in the near layer, the coins stand out, and the landing
+comes down on the granite. Three eras are drawn: 21 images, 5.3 MB.
+
 ### 1873, drawn — 2026-09-29
 
 The owner's second era, from the full-era prompts:

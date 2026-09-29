@@ -13,15 +13,16 @@ extension PassageRender on PassageGame {
   void renderWorld(Canvas canvas) {
     if (!_laidOut) return;
     _sky(canvas);
-    final drawn = _backdrop.isEmpty ? null : eraWeights(_eraF, eras.length, _backdropFade);
+    final drawn = _backdrop.isEmpty ? null : layerAlphas(eraWeights(_eraF, eras.length, _backdropFade));
     var skyCover = 0.0;
     for (final (e, a) in drawn ?? const <(int, double)>[]) {
       if (_backdrop.image(e, BackdropPart.sky) == null) continue;
       _backdrop.drawSky(canvas, e, a, _w, _h);
       skyCover += a;
     }
+    _net(canvas);
     // The drift lines belong to the code-drawn sky; a drawn one has its own.
-    _strata(canvas, 1 - skyCover);
+    _strata(canvas, 1 - min(1.0, skyCover));
     for (final (e, a) in drawn ?? const <(int, double)>[]) {
       _backdrop.drawStrip(canvas, e, BackdropPart.far, a, scrollX, _w, _h);
     }
@@ -357,8 +358,13 @@ extension PassageRender on PassageGame {
           [0.0, 0.62, 1.0],
         ),
     );
-    // 2009: a faint grid across the sky, the network the era is about. It
-    // fades in over the crossing into the last era.
+  }
+
+  /// 2009: a faint grid across the sky, the network the era is about. It
+  /// fades in over the crossing into the last era. Drawn after a drawn sky,
+  /// so it stays: the image itself carries no grid (asked for one, the
+  /// image generator drew graph paper).
+  void _net(Canvas canvas) {
     final net = (_eraF - (eras.length - 2)).clamp(0.0, 1.0);
     if (net > 0) {
       final line = Paint()
@@ -430,7 +436,7 @@ extension PassageRender on PassageGame {
         ),
     );
     if (!_backdrop.isEmpty) {
-      for (final (e, a) in eraWeights(_eraF, eras.length, _backdropFade)) {
+      for (final (e, a) in layerAlphas(eraWeights(_eraF, eras.length, _backdropFade))) {
         _backdrop.drawGround(canvas, e, a, scrollX, _groundY, _w, _h);
       }
     }

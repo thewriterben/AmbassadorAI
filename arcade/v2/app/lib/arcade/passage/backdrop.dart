@@ -46,7 +46,11 @@ class BackdropLayer {
   /// Under `assets/images/`, the way Flame loads it.
   final String file;
   final double band, base, parallax;
-  const BackdropLayer({required this.file, this.band = 1, this.base = 1, this.parallax = 0});
+
+  /// For the ground: how much of the strip, as a share of its height,
+  /// stands above the ground line (grass or kerbs rising above the path).
+  final double lip;
+  const BackdropLayer({required this.file, this.band = 1, this.base = 1, this.parallax = 0, this.lip = 0});
 }
 
 class BackdropManifest {
@@ -77,6 +81,7 @@ class BackdropManifest {
           band: (s['band'] as num?)?.toDouble() ?? 1,
           base: (s['base'] as num?)?.toDouble() ?? 1,
           parallax: (s['parallax'] as num?)?.toDouble() ?? 0,
+          lip: (s['lip'] as num?)?.toDouble() ?? 0,
         );
       }
       if (m.isNotEmpty) out[era] = m;
@@ -106,6 +111,15 @@ List<(int, double)> eraWeights(double v, int count, double fade) {
   }
   return [(v.floor().clamp(0, count - 1), 1.0)];
 }
+
+/// The opacity to draw each era's layers at, from its [eraWeights] weight:
+/// twice the weight, up to full. Drawn old era first, the new one fades in
+/// over a still solid old one, which then fades out under a solid new one.
+/// Drawn at the weights themselves, both were half see-through at the
+/// change, and the sky showed through both cities: on the phone the whole
+/// skyline went pale and ghosted at every era change.
+List<(int, double)> layerAlphas(List<(int, double)> weights) =>
+    [for (final (e, w) in weights) (e, min(1.0, 2 * w))];
 
 class DrawnBackdrop {
   final BackdropManifest manifest;
@@ -193,13 +207,13 @@ class DrawnBackdrop {
     _tileAcross(canvas, img, alpha, scroll * l.parallax, l.base * h - dh, dw, dh, w);
   }
 
-  /// The era's ground strip, hanging from the ground line and scrolling
-  /// with the gates.
+  /// The era's ground strip, hanging from the ground line (its lip, if
+  /// any, standing above it) and scrolling with the gates.
   void drawGround(Canvas canvas, int era, double alpha, double scroll, double groundY, double w, double h) {
     final img = image(era, BackdropPart.ground), l = layer(era, BackdropPart.ground);
     if (img == null || l == null || alpha <= 0) return;
     final dh = l.band * h, dw = img.width * dh / img.height;
-    _tileAcross(canvas, img, alpha, scroll, groundY, dw, dh, w);
+    _tileAcross(canvas, img, alpha, scroll, groundY - l.lip * dh, dw, dh, w);
   }
 
   void _tileAcross(Canvas canvas, Image img, double alpha, double off, double top, double dw, double dh, double w) {
