@@ -159,8 +159,8 @@ class BoarSpec {
       sizeInRadii: 5.83,
       anchorU: 0.54,
       anchorV: 0.586,
-      // The drawn wingbeat's folded frame, which is also the standing one.
-      footV: 0.828,
+      // The owner's drawn stand, placed on the wingbeat's hoof line.
+      footV: 0.821,
       name: 'Piglet',
       bodyHalfLength: 0.35,
       // Up, level, down, folding in.

@@ -681,6 +681,92 @@ the gap and no white patch, alongside the game's own speed streaks. (The
 first install attempt failed because the Pixel had dropped off adb; the
 check was redone once it was plugged back in.)
 
+### The juvenile's drawn landing — 2026-09-28
+
+Wings raised high, forelegs reaching down, a weary look and a sweat drop.
+It is kept as `boar_juvenile_land_drawn.jpg` and went in with:
+
+    python tool/art/split_frames.py tool/art/source/boar_juvenile_land_drawn.jpg tool/art/source/boar_juvenile \
+        --frames 1 --ref tool/art/source/boar_juvenile_cycle_1.png --names land --holes \
+        --floor tool/art/source/boar_juvenile_cycle_3.png
+
+**Placement:**
+- **Size:** the head match found 0.263 unaided, the same as the hurt
+  (0.260) and dash (0.263), so no `--scale` was needed. The head is weary
+  but not drooped the way the piglet's was.
+- **Floor:** `cycle_3` is the compact drawing, the juvenile's standing frame
+  for now. A drawn stand should be floored on the same line.
+
+footV is unchanged (the checker reads 0.781 against 0.782). Verified on the
+Pixel: DEV "Skip to the landing", recorded. It comes in wings-high and
+touches down on the ground line, then settles into the stand. Still made
+from the wingbeat for the juvenile: stand.
+
+### The juvenile's drawn dash — 2026-09-28
+
+The owner's "adult boar dash": golden wings swept flat back, head down in a
+charge, speed streaks trailing. It is kept as
+`boar_juvenile_dash_drawn.jpg` and went in like the hurt (`--names dash
+--holes`) at 0.263. The tusks, snout and eye sit on the flying frame's. The
+streaks joined to the wings and body stay; the loose ones drop like
+sparkles. Verified on the Pixel: dashed and paused within the dash window,
+it shows the charge alongside the game's speed streaks. Still made from the
+wingbeat for the juvenile: land and stand.
+
+### The juvenile's drawn hurt — 2026-09-28
+
+The owner's "adult boar hurt": a tumble, body curled and rotated about 30°,
+eyes squeezed shut, red impact marks, and loose feathers flying. The golden
+feathered wings make it the juvenile's. The razorback's wings are membrane.
+It is kept as `boar_juvenile_hurt_drawn.jpg` and went in with:
+
+    python tool/art/split_frames.py tool/art/source/boar_juvenile_hurt_drawn.jpg tool/art/source/boar_juvenile \
+        --frames 1 --ref tool/art/source/boar_juvenile_cycle_1.png --names hurt --holes
+
+The rotated body was a worry for the head match, but it placed well:
+- **Size:** 0.260, the same size as the wingbeat.
+- **Head:** the tusks and snout sit on the flying frame's.
+- **Body:** its centre of mass is within 13px of the flying frame's, so the
+  curl tumbles about the same point.
+
+The impact marks and feathers are detached, so the importer drops them like
+sparkles. Verified on the Pixel: after a strike, the juvenile shows the
+tumble for the hurt window, in place, then returns to its wingbeat. Still
+made from the wingbeat for the juvenile: dash, land and stand.
+
+### The piglet's drawn stand: the piglet is fully drawn — 2026-09-28
+
+The last pose is the piglet standing, wings folded flat along its back, with
+the same smile as in flight. It came at a different zoom from the close-ups
+(the image is about half their width). It is kept as
+`boar_piglet_stand_drawn.jpg` and went in with:
+
+    python tool/art/split_frames.py tool/art/source/boar_piglet_stand_drawn.jpg tool/art/source/boar_piglet \
+        --frames 1 --ref tool/art/source/boar_piglet_cycle_1.png --names stand \
+        --floor tool/art/source/boar_piglet_cycle_4.png
+
+**How it was placed:**
+- **Size by head match.** The face is the flying face, so the match sized it
+  unaided, at 0.482. An onion skin over the flying frame lines up the head
+  and body.
+- **Floored on the same hoof line as the landing,** so the two share a
+  ground and the landing needs no re-split.
+
+**Foot line.** The checker measures the stand's hooves at 0.821, against the
+0.828 in boar.dart. A pose scaled by about half has softer hoof tips, which
+the checker's alpha > 32 reads a few pixels higher. Left alone, the standing
+piglet would have sunk about 3px, so footV is now 0.821.
+
+**The piglet is fully drawn** by the owner: four wingbeat drawings, hurt,
+dash, land and stand. Nothing in its sheet is made from other frames any
+more. The front-room card and the growing-up moment show the drawn stand.
+
+**Verified on the Pixel:**
+- **Front room:** the card shows the drawn stand.
+- **Touchdown**, recorded with DEV "Skip to the landing": flying, then the
+  teary flop on the ground line, then the stand. All on one line, with no
+  jump.
+
 ### The piglet's drawn landing — 2026-09-28
 
 The third drawn pose is the piglet's landing: flopped on its belly with its
@@ -706,9 +792,9 @@ The command used:
         --frames 1 --ref tool/art/source/boar_piglet_cycle_1.png --names land \
         --scale 0.245 --floor tool/art/source/boar_piglet_cycle_4.png
 
-`cycle_4` is the folded drawing, which is also the piglet's standing frame
-for now. **When a drawn stand arrives, re-split the landing with
-`--floor boar_piglet_stand.png`**, so the two share a ground line.
+`cycle_4` is the folded drawing, which was also the piglet's standing frame
+at the time. The drawn stand that followed was floored on the same line, so
+the two share a ground.
 
 **The falling feathers** are detached from the boar, so the importer drops
 them like sparkles. Keeping them would need an exception in
