@@ -175,6 +175,26 @@ Four boards: **When Pigs Fly** and **Coin Quest**, each **daily** (UTC day) and
   game, not that a person played it — the test autopilot flies 300–600.
   One verified person per account (DGD's `eligible`) and review of every
   winner are what stand between the prize pool and a bot farm.
+- **Speed.** The boards are kept, not computed on each read: when a run is
+  verified clean, its score updates the player's per-level best and total for
+  that day and year (`board_level_bests`, `board_totals`, one indexed write,
+  ~0.6 ms). A board is then read by walking an index in board order. Measured
+  on 20,000 players and 200,000 runs per game (`tools/bench_boards.mjs`):
+
+  | | computed from runs (before) | kept (now) |
+  |---|---|---|
+  | a day board | ~7,000 ms | ~1 ms |
+  | a year board | longer still (not waited for) | ~1 ms |
+  | settling a day, both games | — | ~4 ms |
+  | rebuilding every board from the runs | — | ~9 s, once |
+
+  Holding or banning a player takes them off every board at once (the read
+  joins `players.status`); restoring them puts them back. The server rebuilds
+  the tables at start if they are empty and runs exist (the first start after
+  this upgrade); `POST /admin/boards/rebuild` (`admin.mjs rebuild-boards`,
+  audited) does it on demand, e.g. after a manual fix to `runs`. A test holds
+  the kept boards equal to the definition computed from the runs, before and
+  after a rebuild.
 
 ## 5b. The reviewer console and its signals
 
@@ -233,7 +253,7 @@ OPERATOR="Jane Ops" ADMIN_TOKEN=... ARCADE_URL=https://digitalgold.co/arcade/api
   review                         held entries, held/banned players, flagged runs
   approve <entry> | void <entry> [reason]
   player <sub> ok|held|banned [reason]
-  settle-boards | board <game> <day|year> <at> | runs <sub> | run <id> | signals [game] [days]
+  settle-boards | rebuild-boards | board <game> <day|year> <at> | runs <sub> | run <id> | signals [game] [days]
   batch [--credit] [note]        every owed entry of one unit (DGD, or --credit) into a new open batch
   export <batch> [file]          one row per player: sub, unit, entries, amount
   settle <batch> <reference>     after DGD has paid, with DGD's own payment reference
