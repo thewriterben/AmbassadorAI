@@ -409,3 +409,15 @@ points carry the boar into its next stage). That build also adds an easier
 passage behind a DEV toggle; the web always flies the standard one, which is
 the only one the server replays. Its simulation numbers for the standard
 passage are unchanged: all 324 recorded transcripts still replay identically.
+
+**Music (2026-09-29).** Built against branch `v2/music-in-games` (`4050ed0`
+= `62296ce` + the music change): music plays only inside a game. The
+landing, the knowledge check, the boards and the record are silent; Coin
+Quest plays Quest Tune (the owner's track) from its level list through every
+level; When Pigs Fly plays its own track on its screen and in flight. Screens
+claim a track and give it back (`Audio.claimMusic`), so leaving a game fades
+its music out. `tools/e2e/e2e_music.mjs` checks what actually sounds in
+Chrome (6/6). Because Quest Tune streams for a while, the game-opening e2e
+pages wait for `networkidle2` rather than `networkidle0`. The same change is
+merged onto the art work in `v2/ten-games-music` (`baf2bd1`), ready to become
+`v2/ten-games` when that branch is free.
