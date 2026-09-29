@@ -304,7 +304,7 @@ def scaled(cell, s):
     return np.array(Image.fromarray(cell, "RGBA").resize((round(w * s), round(h * s)), Image.LANCZOS))
 
 
-def register_to(ref, cells, names, prefix):
+def register_to(ref, cells, names, prefix, scale=None, floor=None):
     """Registers each frame to [ref], an already registered frame of the
     same boar (its wingbeat's first), and writes it on [ref]'s canvas: the
     pose sheets, drawn apart from the wingbeat, whose poses must sit exactly
@@ -316,7 +316,15 @@ def register_to(ref, cells, names, prefix):
     shrunk to 85% came out 2% off). The sizes tried are round a first
     estimate from how much art there is, so a pose drawn much bigger (the
     piglet's hurt came as a close-up four times the wingbeat's size) is
-    found too."""
+    found too.
+
+    [scale] skips the size search, for a pose the head match cannot size:
+    the piglet's landing, head drooped and turned, came out 18% too big.
+    The owner's close-ups are drawn at one zoom, so the size found for
+    another pose of the same set is the one to give. [floor] is a frame
+    whose lowest row the drawing's lowest row is set on, for a pose on the
+    ground (landing, standing): the game stands that frame's hoof line on
+    the ground, so the pose is placed by it, not by a head that droops."""
     ch, cw = ref.shape[:2]
     rx, ry = lower_centroid(ref)
     reach = max(ch, cw) // 10
@@ -338,6 +346,10 @@ def register_to(ref, cells, names, prefix):
     guess = float(np.median([np.sqrt(area / (c[:, :, 3] > 0).sum()) for c in cells]))
     best = []
     for cell in cells:
+        if scale:
+            costs = [(fit(scaled(cell[:, ::-1].copy() if f else cell, scale))[0], f) for f in (False, True)]
+            best.append((min(costs)[1], scale))
+            continue
         tries = []
         for flip in (False, True):
             base = cell[:, ::-1].copy() if flip else cell
@@ -348,11 +360,14 @@ def register_to(ref, cells, names, prefix):
         for s in (s0 * k for k in (0.95, 0.975, 1.025, 1.05)):
             tries.append((*fit(scaled(base, s)), flip, s))
         best.append(min(tries, key=lambda t: t[0])[3:])
-    s = round(float(np.median([b[1] for b in best])), 4)
+    s = scale or round(float(np.median([b[1] for b in best])), 4)
+    ground = np.nonzero((floor[:, :, 3] > 0).any(axis=1))[0].max() if floor is not None else None
 
     for name, cell, (flip, _) in zip(names, cells, best):
         c = scaled(cell[:, ::-1].copy() if flip else cell, s)
         _, x, y = fit(c)
+        if ground is not None:
+            y = ground - np.nonzero((c[:, :, 3] > 0).any(axis=1))[0].max()
         out = place(c, x, y)
         path = f"{prefix}_{name}.png"
         Image.fromarray(out, "RGBA").save(path)
@@ -369,6 +384,8 @@ def main():
     ap.add_argument("--holes", action="store_true")
     ap.add_argument("--ref", help="register to this frame (a wingbeat's first) instead of the sheet's own first")
     ap.add_argument("--names", help="comma-separated names for the frames, in reading order, instead of 1..N")
+    ap.add_argument("--scale", type=float, help="with --ref: this size, not one searched for")
+    ap.add_argument("--floor", help="with --ref: set each frame's lowest row on this frame's (a pose on the ground)")
     args = ap.parse_args()
     img = np.array(Image.open(args.sheet).convert("RGB"))
     erase_label_rows(img)
@@ -379,7 +396,8 @@ def main():
         sys.exit(f"{len(names)} names for {len(cells)} frames")
     os.makedirs(os.path.dirname(prefix) or ".", exist_ok=True)
     if args.ref:
-        register_to(np.array(Image.open(args.ref).convert("RGBA")), cells, names, prefix)
+        floor = np.array(Image.open(args.floor).convert("RGBA")) if args.floor else None
+        register_to(np.array(Image.open(args.ref).convert("RGBA")), cells, names, prefix, args.scale, floor)
         return
 
     M = max(max(c.shape[:2]) for c in cells) // 3  # room round each frame for the shifts

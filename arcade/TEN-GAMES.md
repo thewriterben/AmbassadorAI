@@ -675,11 +675,53 @@ change.
 The dust wake is kept, as the owner drew it. Still made from the wingbeat
 for the piglet: land and stand.
 
-**Verified on the Pixel:** the piglet dashed and the game was paused within
-the dash window. It shows the drawn pose with its dust wake, the sky through
+**Verified on the Pixel (dash):** the piglet dashed and the game was paused
+within the dash window. It shows the drawn pose with its dust wake, the sky through
 the gap and no white patch, alongside the game's own speed streaks. (The
 first install attempt failed because the Pixel had dropped off adb; the
 check was redone once it was plugged back in.)
+
+### The piglet's drawn landing — 2026-09-28
+
+The third drawn pose is the piglet's landing: flopped on its belly with its
+legs tucked and head drooped, a tear, a sweat drop, and two feathers coming
+loose. It is kept as `boar_piglet_land_drawn.jpg`.
+
+**Placing a grounded pose.** The head match alone got it wrong: the drooped,
+turned head read as a bigger boar. It came out at scale 0.290 against 0.245
+for the hurt and dash, visibly too big and hovering above the hoof line.
+Two new `--ref` options fix it:
+- **`--scale`** fixes the size. The owner's close-ups are drawn at one zoom,
+  so the hurt and dash's 0.245 is used. The snouts measure within 7% across
+  the three, the landing's being narrowed by the turn.
+- **`--floor FRAME`** puts the drawing's lowest row on that frame's lowest
+  row. The game stands the landing frame's hoof line (footV, measured on the
+  standing frame) on the ground, so a grounded pose is placed by the ground,
+  not by a head that droops. The horizontal position still comes from the
+  head match.
+
+The command used:
+
+    python tool/art/split_frames.py tool/art/source/boar_piglet_land_drawn.jpg tool/art/source/boar_piglet \
+        --frames 1 --ref tool/art/source/boar_piglet_cycle_1.png --names land \
+        --scale 0.245 --floor tool/art/source/boar_piglet_cycle_4.png
+
+`cycle_4` is the folded drawing, which is also the piglet's standing frame
+for now. **When a drawn stand arrives, re-split the landing with
+`--floor boar_piglet_stand.png`**, so the two share a ground line.
+
+**The falling feathers** are detached from the boar, so the importer drops
+them like sparkles. Keeping them would need an exception in
+`main_component`.
+
+**Shown on every touchdown.** The pose shows on the approach and for the
+first quarter-second after touchdown, then the stand. That includes a
+triumphant full passage ("You flew the whole passage"), so the tearful
+flop plays after a win too. That's the owner's call.
+
+**Verified on the Pixel:** DEV "Skip to the landing", recorded. The flop
+touches down on the ground line, neither hovering nor sunk, then gives way
+to the standing pose. Still made from the wingbeat for the piglet: stand.
 
 ### Pose sheets: the importer is ready — 2026-09-28
 
