@@ -197,6 +197,40 @@ def cut(img, frame, pad=12):
     return out
 
 
+def erase_shadow(a):
+    """Paints out a ground shadow drawn under the hooves: one flat colour
+    (the juvenile's rearing stand has (127, 96, 104), with no variation at
+    all), the commonest colour along the bottom of the art, and its soft
+    edge, which is that colour blended into the white. The hooves standing
+    in it are darker and varied, so they stay. Only from the shadow's top
+    row down, so the same colour higher up the boar is safe."""
+    ai = a.astype(int)
+    nonwhite = ai.min(axis=2) < 235
+    ys = np.nonzero(nonwhite.any(axis=1))[0]
+    top, bottom = ys.min(), ys.max()
+    b0 = bottom - (bottom - top) // 12
+    band = ai[b0:bottom + 1][nonwhite[b0:bottom + 1]]
+    keys, counts = np.unique(band // 4, axis=0, return_counts=True)
+    colour = keys[np.argmax(counts)] * 4 + 2
+    flat = np.abs(ai - colour).max(axis=2) < 14
+    rows = np.nonzero(flat.sum(axis=1) > 0.03 * a.shape[1])[0]
+    if not len(rows):
+        return a
+    # Distance from the line white -> shadow colour, and how far along it;
+    # a little past the colour too (t up to 1.15), for the shadow's darker
+    # rim, (112, 96, 99) against (129, 98, 106), which left a line under
+    # the hooves that the floor then stood on the ground. The hooves are far
+    # darker (t 1.3 and more).
+    v, c = ai - 255, (colour - 255).astype(float)
+    t = (v * c).sum(axis=2) / (c * c).sum()
+    resid = np.abs(v - np.clip(t, 0, 1.15)[:, :, None] * c).max(axis=2)
+    shadow = (resid < 20) & (t > 0.08) & (t < 1.15)
+    shadow[:rows.min()] = False
+    out = a.copy()
+    out[shadow] = 255
+    return out
+
+
 def knock_out(a, holes=False, min_hole=30, warm_share=0.005):
     """RGBA with the background flood-filled out from the edges, and the
     enclosed patches of it at least [min_hole] pixels that are background
@@ -304,7 +338,7 @@ def scaled(cell, s):
     return np.array(Image.fromarray(cell, "RGBA").resize((round(w * s), round(h * s)), Image.LANCZOS))
 
 
-def register_to(ref, cells, names, prefix, scale=None, floor=None):
+def register_to(ref, cells, names, prefix, scale=None, floor=None, center=False):
     """Registers each frame to [ref], an already registered frame of the
     same boar (its wingbeat's first), and writes it on [ref]'s canvas: the
     pose sheets, drawn apart from the wingbeat, whose poses must sit exactly
@@ -324,7 +358,11 @@ def register_to(ref, cells, names, prefix, scale=None, floor=None):
     another pose of the same set is the one to give. [floor] is a frame
     whose lowest row the drawing's lowest row is set on, for a pose on the
     ground (landing, standing): the game stands that frame's hoof line on
-    the ground, so the pose is placed by it, not by a head that droops."""
+    the ground, so the pose is placed by it, not by a head that droops.
+    [center] (with [floor] and [scale]) places it across by its centre of
+    mass over [floor]'s instead of by the head, and keeps it facing as
+    drawn: for a pose whose head the match cannot use at all, the
+    juvenile's rearing stand with its snout to the sky."""
     ch, cw = ref.shape[:2]
     rx, ry = lower_centroid(ref)
     reach = max(ch, cw) // 10
@@ -346,6 +384,9 @@ def register_to(ref, cells, names, prefix, scale=None, floor=None):
     guess = float(np.median([np.sqrt(area / (c[:, :, 3] > 0).sum()) for c in cells]))
     best = []
     for cell in cells:
+        if scale and center:
+            best.append((False, scale))
+            continue
         if scale:
             costs = [(fit(scaled(cell[:, ::-1].copy() if f else cell, scale))[0], f) for f in (False, True)]
             best.append((min(costs)[1], scale))
@@ -368,6 +409,9 @@ def register_to(ref, cells, names, prefix, scale=None, floor=None):
         _, x, y = fit(c)
         if ground is not None:
             y = ground - np.nonzero((c[:, :, 3] > 0).any(axis=1))[0].max()
+        if center:
+            fx = np.nonzero(floor[:, :, 3] > 0)[1].mean()
+            x = int(round(fx - np.nonzero(c[:, :, 3] > 0)[1].mean()))
         out = place(c, x, y)
         path = f"{prefix}_{name}.png"
         Image.fromarray(out, "RGBA").save(path)
@@ -386,10 +430,15 @@ def main():
     ap.add_argument("--names", help="comma-separated names for the frames, in reading order, instead of 1..N")
     ap.add_argument("--scale", type=float, help="with --ref: this size, not one searched for")
     ap.add_argument("--floor", help="with --ref: set each frame's lowest row on this frame's (a pose on the ground)")
+    ap.add_argument("--center", action="store_true", help="with --floor and --scale: place across by centre of mass, not the head")
+    ap.add_argument("--shadow", action="store_true", help="erase a flat ground shadow drawn under the hooves")
     args = ap.parse_args()
     img = np.array(Image.open(args.sheet).convert("RGB"))
     erase_label_rows(img)
-    cells = [knock_out(cut(img, f), holes=args.holes) for f in find_frames(img, args.frames)]
+    cells = [cut(img, f) for f in find_frames(img, args.frames)]
+    if args.shadow:
+        cells = [erase_shadow(c) for c in cells]
+    cells = [knock_out(c, holes=args.holes) for c in cells]
     prefix = args.prefix
     names = args.names.split(",") if args.names else [str(i) for i in range(1, len(cells) + 1)]
     if len(names) != len(cells):
@@ -397,7 +446,9 @@ def main():
     os.makedirs(os.path.dirname(prefix) or ".", exist_ok=True)
     if args.ref:
         floor = np.array(Image.open(args.floor).convert("RGBA")) if args.floor else None
-        register_to(np.array(Image.open(args.ref).convert("RGBA")), cells, names, prefix, args.scale, floor)
+        if args.center and (floor is None or not args.scale):
+            sys.exit("--center needs --floor and --scale")
+        register_to(np.array(Image.open(args.ref).convert("RGBA")), cells, names, prefix, args.scale, floor, args.center)
         return
 
     M = max(max(c.shape[:2]) for c in cells) // 3  # room round each frame for the shifts

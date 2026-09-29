@@ -681,6 +681,125 @@ the gap and no white patch, alongside the game's own speed streaks. (The
 first install attempt failed because the Pixel had dropped off adb; the
 check was redone once it was plugged back in.)
 
+### The razorback's drawn stand: bucking — every frame is drawn — 2026-09-28
+
+The razorback's stand is the buck the owner described: weight on the
+forelegs, hind legs kicked up behind, wings folded, and the same fierce face
+as in flight. It came at half the close-ups' width (1024 against 2000). It
+is kept as `boar_razorback_stand_drawn.jpg` and went in with:
+
+    python tool/art/split_frames.py tool/art/source/boar_razorback_stand_drawn.jpg tool/art/source/boar_razorback \
+        --frames 1 --ref tool/art/source/boar_razorback_cycle_1.png --names stand --holes \
+        --floor tool/art/source/boar_razorback_cycle_4.png
+
+**Placement:**
+- **Size:** the face is the flying face, so the head match sized it unaided,
+  at 0.736. That is twice the close-ups' 0.375, as the half-width image
+  predicts.
+- **Floor:** the front hooves are its lowest point, on the same hoof line as
+  the landing.
+
+footV is unchanged at 0.77.
+
+**The owner has now drawn every frame in the game:** three wingbeats (4, 4
+and 6 drawings) and all three stages' hurt, dash, land and stand. Nothing
+is made from other frames any more. The rig, tint and stretch code stays in
+`import_boars.py` for new art that comes as a single pose.
+
+**Verified on the Pixel:**
+- **Front room:** the card shows the buck.
+- **Touchdown:** DEV "Skip to the landing", recorded. It lands wings-spread,
+  then drops into the buck on the same ground line, with no jump.
+
+### The razorback's drawn landing — 2026-09-28
+
+Wings raised and spread wide, forelegs reaching down, the same fierce face
+as in flight. It is kept as `boar_razorback_land_drawn.jpg` and went in
+with:
+
+    python tool/art/split_frames.py tool/art/source/boar_razorback_land_drawn.jpg tool/art/source/boar_razorback \
+        --frames 1 --ref tool/art/source/boar_razorback_cycle_1.png --names land --holes \
+        --floor tool/art/source/boar_razorback_cycle_4.png
+
+**Placement:**
+- **Size:** 0.375 by head match, beside the hurt's 0.380 and the dash's
+  0.375.
+- **Floor:** on the hoof line of `cycle_4`, the "fully down and folding"
+  drawing that is the razorback's stand for now. A drawn stand should be
+  floored on the same line.
+- **Nothing cut off:** the wing tips reach the drawing's top corners but fit
+  the frame.
+
+footV is unchanged at 0.77. Verified on the Pixel: DEV "Skip to the
+landing", recorded. It comes in wings-spread, touches down on the ground
+line, then folds into the stand, with no jump. Still made from the wingbeat
+for the razorback: stand. The owner's note: it will buck forward.
+
+### The razorback's drawn dash — 2026-09-28
+
+Teeth gritted, wings swept flat back, gold speed streaks trailing. It is
+kept as `boar_razorback_dash_drawn.jpg` and went in like the hurt
+(`--names dash --holes`) at 0.375, beside the hurt's 0.380. The tusks and
+snout sit on the flying frame's. The streaks joined to the body and wings
+stay; the loose ones drop out. Verified on the Pixel: dashed and paused
+within the dash window, it shows the charge alongside the game's speed
+streaks. Still made from the wingbeat for the razorback: land and stand.
+
+### The razorback's drawn hurt — 2026-09-28
+
+Eyes squeezed shut, tears, red impact slashes across the flank, and loose
+scales flying. It is kept as `boar_razorback_hurt_drawn.jpg` and went in
+like the others (`--names hurt --holes`, ref `boar_razorback_cycle_1.png`).
+Size by head match, 0.380. The head, tusks and body sit on the flying
+frame's.
+
+The red slashes are drawn onto the body, so they stay. The loose X marks
+and scales drop out like sparkles. Verified on the Pixel: after a strike,
+the razorback shows the hurt pose for the hurt window, in place, then
+returns to its wingbeat. Still made from the wingbeat for the razorback:
+dash, land and stand. The owner's note: its stand will buck forward.
+
+### The juvenile's drawn stand: rearing — the juvenile is fully drawn — 2026-09-28
+
+The owner gave the juvenile a bolder stand than the piglet's: rearing on its
+hind legs, forelegs up, wings spread high and snout to the sky. It is kept as
+`boar_juvenile_stand_drawn.jpg`. The owner's note for the razorback is that
+its stand will buck forward instead.
+
+It went in with:
+
+    python tool/art/split_frames.py tool/art/source/boar_juvenile_stand_drawn.jpg tool/art/source/boar_juvenile \
+        --frames 1 --ref tool/art/source/boar_juvenile_cycle_1.png --names stand --holes \
+        --shadow --scale 0.262 --floor tool/art/source/boar_juvenile_cycle_3.png --center
+
+Two new splitter options:
+
+- **`--shadow`** erases a ground shadow drawn under the hooves. This one is a
+  flat ellipse, (127, 96, 104) with no variation, joined to the hooves, so
+  it would have come in as part of the boar and been stood on the ground in
+  place of the hooves. The splitter takes the commonest colour along the
+  bottom of the art and whitens it, with its blend into the white, from the
+  shadow's top row down. The first version left the shadow's slightly
+  darker rim, (112, 96, 99), as a line under the hooves, and the floor stood
+  that on the ground, 9px low. The test now reaches a little past the
+  shadow colour (t up to 1.15). The hooves are far darker (t 1.3 and more),
+  so they stay.
+- **`--center`** (with `--floor` and `--scale`) places the pose across by its
+  centre of mass over the floor frame's, not by the head, and keeps it
+  facing as drawn. With the snout pointing up, there is no head to match.
+  The size, 0.262, is the juvenile close-ups' (hurt 0.260, dash and
+  landing 0.263), since this image has the same width.
+
+The stand is floored on the same line as the landing. footV reads 0.779
+against 0.782, so it is left. **The juvenile is fully drawn** by the owner:
+wingbeat, hurt, dash, land and stand.
+
+**Verified on the Pixel:**
+- **Front room:** the card shows the rearing stand with its wings whole
+  inside the portrait crop.
+- **Touchdown:** DEV "Skip to the landing", recorded. It comes in
+  wings-high, touches down, then rears up on the ground line, with no jump.
+
 ### The juvenile's drawn landing — 2026-09-28
 
 Wings raised high, forelegs reaching down, a weary look and a sweat drop.
