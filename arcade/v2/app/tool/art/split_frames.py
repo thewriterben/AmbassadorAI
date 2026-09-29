@@ -27,10 +27,12 @@ the second's columns. This:
   3. makes the white background transparent by flood-filling from the
      frame's edges through near-white (so white inside the art, such as the
      piglet's wings, is untouched), then trims the light JPEG fringe off the
-     outline. With --holes, white the fill cannot reach goes too, the gaps
-     inside a curled tail or a tusk's curve, down to a few dozen pixels
-     (smaller is a highlight). Only for art with no white of its own; the
-     piglet's white feathers hold pockets of the same colour and size;
+     outline. White the fill cannot reach goes too where it is edged with
+     warm colour (sky between a belly and its dust), and with --holes all
+     of it, the gaps inside a curled tail or a tusk's curve, down to a few
+     dozen pixels (smaller is a highlight). --holes is only for art with no
+     white of its own; the piglet's white feathers hold pockets of the same
+     colour and size;
   4. turns every frame to face the way the first one does: the razorback's
      second row faces the other way. Each frame is tried both ways round
      and kept the way its head matches the first frame's better;
@@ -195,9 +197,18 @@ def cut(img, frame, pad=12):
     return out
 
 
-def knock_out(a, holes=False, min_hole=30):
-    """RGBA with the background flood-filled out from the edges (and, with
-    [holes], every enclosed patch of it at least [min_hole] pixels too)."""
+def knock_out(a, holes=False, min_hole=30, warm_share=0.005):
+    """RGBA with the background flood-filled out from the edges, and the
+    enclosed patches of it at least [min_hole] pixels that are background
+    too: with [holes] all of them; without, the big ones edged with warm
+    colour (fur, dust), which are sky showing through. The piglet's dash
+    has a gap between its belly and the dust it kicks up, about 2% of the
+    boar, half its rim warm; every pocket of white in its feathers is edged
+    in lavender (at most 8% of the rim warm). Size tells it from a
+    highlight against fur, such as the one on the snout (0.04%, which the
+    first version of this rule punched out): the gap must be at least
+    [warm_share] of the boar, a share rather than pixels because a
+    close-up is knocked out at full size."""
     h, w, _ = a.shape
     ai = a.astype(int)
     bgish = (ai.min(axis=2) > 226) & ((ai.max(axis=2) - ai.min(axis=2)) < 24)
@@ -220,10 +231,24 @@ def knock_out(a, holes=False, min_hole=30):
             if 0 <= ny < h and 0 <= nx < w and bgish[ny, nx] and not bg[ny, nx]:
                 bg[ny, nx] = True
                 q.append((ny, nx))
-    if holes:
-        lab, sizes = components(bgish & ~bg)
-        big = [i for i, s in enumerate(sizes) if i and s >= min_hole]
-        bg |= np.isin(lab, big)
+    lab, sizes = components(bgish & ~bg)
+    opaque = ~bg
+    boar = opaque.sum()
+    for i, n in enumerate(sizes):
+        if not i or n < min_hole or (not holes and n < warm_share * boar):
+            continue
+        m = lab == i
+        if not holes:
+            rim = np.zeros_like(m)
+            rim[1:] |= m[:-1]
+            rim[:-1] |= m[1:]
+            rim[:, 1:] |= m[:, :-1]
+            rim[:, :-1] |= m[:, 1:]
+            rim &= ~m & opaque
+            px = ai[rim]
+            if not len(px) or ((px[:, 0] - px[:, 2]) > 20).mean() < 0.25:
+                continue
+        bg |= m
     # The JPEG fringe: light pixels touching the background, twice over.
     for _ in range(2):
         edge = np.zeros_like(bg)
@@ -288,7 +313,10 @@ def register_to(ref, cells, names, prefix):
     match the head: each is tried at a few sizes and both ways round, the
     best refined, and then all are drawn at the median of their best sizes,
     since a sheet is drawn at one size (alone, one frame of a test sheet
-    shrunk to 85% came out 2% off)."""
+    shrunk to 85% came out 2% off). The sizes tried are round a first
+    estimate from how much art there is, so a pose drawn much bigger (the
+    piglet's hurt came as a close-up four times the wingbeat's size) is
+    found too."""
     ch, cw = ref.shape[:2]
     rx, ry = lower_centroid(ref)
     reach = max(ch, cw) // 10
@@ -306,16 +334,18 @@ def register_to(ref, cells, names, prefix):
         cost, hx, hy = head_match(ref, place(c, gx, gy), reach)
         return cost, gx + hx, gy + hy
 
+    area = (ref[:, :, 3] > 0).sum()
+    guess = float(np.median([np.sqrt(area / (c[:, :, 3] > 0).sum()) for c in cells]))
     best = []
     for cell in cells:
         tries = []
         for flip in (False, True):
             base = cell[:, ::-1].copy() if flip else cell
-            for s in (0.8, 0.9, 1.0, 1.1, 1.2):
+            for s in (guess * k for k in (0.8, 0.9, 1.0, 1.1, 1.2)):
                 tries.append((*fit(scaled(base, s)), flip, s))
         _, _, _, flip, s0 = min(tries, key=lambda t: t[0])
         base = cell[:, ::-1].copy() if flip else cell
-        for s in (s0 - 0.05, s0 - 0.025, s0 + 0.025, s0 + 0.05):
+        for s in (s0 * k for k in (0.95, 0.975, 1.025, 1.05)):
             tries.append((*fit(scaled(base, s)), flip, s))
         best.append(min(tries, key=lambda t: t[0])[3:])
     s = round(float(np.median([b[1] for b in best])), 4)

@@ -617,6 +617,70 @@ The juvenile's body matched the old art to the pixel, 173px wide in the
 standing frame, so its BoarSpec is unchanged. Verified on the Pixel: a DEV
 flight as the juvenile cycles all four drawings with the head steady.
 
+### The piglet's drawn hurt — 2026-09-28
+
+The first drawn pose is the piglet's hurt: a flinch with a squint, gritted
+teeth, and dust flying. It came as a single close-up, about four times the
+wingbeat's size, with no label. It is kept as
+`tool/art/source/boar_piglet_hurt_drawn.jpg` and went in with:
+
+    python tool/art/split_frames.py tool/art/source/boar_piglet_hurt_drawn.jpg tool/art/source/boar_piglet \
+        --frames 1 --ref tool/art/source/boar_piglet_cycle_1.png --names hurt
+
+It needed two fixes:
+
+- **Scale.** The size search covered 0.8× to 1.2× only. It now searches
+  round a first estimate from how much art there is (the square root of the
+  opaque-area ratio), so any size is found. This one came out at 0.245. An
+  onion skin over the flying frames shows the snout, body, hooves and tail
+  in place.
+- **A false "cut off" warning, and thinned edges.** The importer pasted each
+  drawing with its own alpha as the mask. That squares a partial alpha, so
+  the soft edges of a pose scaled to fit came out thinner, and the cut-off
+  check counted them as lost. Drawings are now cropped straight into the
+  frame square, and cut-off pixels are counted by position. The sheets from
+  solid drawings are byte-identical to before.
+
+The dust specks around the flinch are detached, so the importer drops them
+like sparkles. The drawn hurt has no red tint; the strike's red screen wash
+still shows. Verified on the Pixel: the piglet flown into a pillar shows the
+flinch for the hurt window, in place, with no jump from the flying frames.
+Still made from the wingbeat for the piglet: dash, land and stand.
+
+### The piglet's drawn dash — 2026-09-28
+
+The second drawn pose is the piglet's dash: wings swept back, speed streaks,
+and a dust wake trailing from the hooves. It came as a close-up like the
+hurt one, is kept as `boar_piglet_dash_drawn.jpg`, and went in the same way
+(`--names dash`) at scale 0.244. It lines up with the flying frames on the
+snout, eye and ear.
+
+**One fix.** Between the belly and the dust wake is a gap of white, the sky
+through the dust. The dust closes it off, so the flood fill left it as a
+solid white patch. `--holes` would clear it, but would also punch out the
+pockets of white in the piglet's feathers. Instead, `knock_out` now clears
+by default any enclosed white that is:
+- **edged with warm colour** (fur, dust): at least a quarter of its rim.
+  Every feather pocket is edged in lavender, with at most 8% of its rim
+  warm. The dash gap's rim is about half warm.
+- **big**: at least 0.5% of the boar. The gap is about 2%. The first
+  version had no size test and punched out the white highlight on top of
+  the snout (0.04%), which is edged by fur too.
+
+The size is a share rather than pixels, because a close-up is knocked out at
+full size. With the rule in place, the piglet's wingbeat and hurt re-split
+byte-identical. The juvenile and razorback use `--holes`, which this doesn't
+change.
+
+The dust wake is kept, as the owner drew it. Still made from the wingbeat
+for the piglet: land and stand.
+
+**Verified on the Pixel:** the piglet dashed and the game was paused within
+the dash window. It shows the drawn pose with its dust wake, the sky through
+the gap and no white patch, alongside the game's own speed streaks. (The
+first install attempt failed because the Pixel had dropped off adb; the
+check was redone once it was plugged back in.)
+
 ### Pose sheets: the importer is ready — 2026-09-28
 
 The four frames after the wingbeat (hurt, dash, land, stand) are still made

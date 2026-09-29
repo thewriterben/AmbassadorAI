@@ -256,15 +256,23 @@ def to_frames(imgs, extra=()):
     box = (min(b[0] for b in boxes), min(b[1] for b in boxes), max(b[2] for b in boxes), max(b[3] for b in boxes))
     w, h = box[2] - box[0], box[3] - box[1]
     side = int(max(w, h) * PAD)
-    at = ((side - w) // 2 - box[0], (side - h) // 2 - box[1])
+    # The square each drawing is cut to, in its own coordinates.
+    sq_box = (box[0] - (side - w) // 2, box[1] - (side - h) // 2)
+    sq_box = (*sq_box, sq_box[0] + side, sq_box[1] + side)
     out = []
     for im in [*imgs, *extra]:
-        sq = Image.new("RGBA", (side, side), (0, 0, 0, 0))
-        sq.paste(im, at, im)
-        cut = int((np.array(im.getchannel("A")) > 0).sum() - (np.array(sq.getchannel("A")) > 0).sum())
+        # Cropped straight to the square, and not pasted with its own alpha
+        # as the mask: that squares a partial alpha, and thinned the soft
+        # edges of a pose scaled to fit. The colour under clear pixels is
+        # cleared, as the paste left it, so the sheets from solid drawings
+        # come out as before.
+        a = np.array(im.crop(sq_box))
+        a[a[:, :, 3] == 0] = 0
+        ys, xs = np.nonzero(np.array(im.getchannel("A")) > 0)
+        cut = int(((xs < sq_box[0]) | (xs >= sq_box[2]) | (ys < sq_box[1]) | (ys >= sq_box[3])).sum())
         if cut > 0:
             print(f"  warning: {cut} px of a drawing fall outside its frame and are cut off")
-        out.append(sq.resize((FRAME, FRAME), Image.LANCZOS))
+        out.append(Image.fromarray(a, "RGBA").resize((FRAME, FRAME), Image.LANCZOS))
     return out
 
 
