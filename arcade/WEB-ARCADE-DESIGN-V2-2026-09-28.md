@@ -104,6 +104,9 @@ a DGD password or cookie and stores only `sub` plus an **assigned handle**
 | `BANK_PATH` | the knowledge-check bank (default `./bank`; server only) |
 | `ADMIN_TOKEN` | ≥ 32 chars; absent = every admin path answers 404 |
 | `REWARDS_LIVE_ACK` | must equal `counsel-approved-rewards-live` for `dry_run: false` |
+| `NETWORK_HASH_KEY` | optional, ≥ 32 chars; enables the keyed network hash for the shared-network signal (§5b) |
+| `TRUST_PROXY=1` | behind DGD's reverse proxy: read the client address from `X-Forwarded-For` |
+| `REVIEW_DIR` | optional; serves the reviewer console (`build/review`) at `/arcade/review/` |
 
 ## 5. Rewards
 
@@ -173,6 +176,53 @@ Four boards: **When Pigs Fly** and **Coin Quest**, each **daily** (UTC day) and
   One verified person per account (DGD's `eligible`) and review of every
   winner are what stand between the prize pool and a bot farm.
 
+## 5b. The reviewer console and its signals
+
+Every Top 100 prize, and every first from a held run or player, waits for a
+person. The **reviewer console** (`client/lib/review/`, its own build,
+`build/review`, served at `/arcade/review/` when `REVIEW_DIR` is set) is where
+they work:
+
+- **Queue**: every held entry, flagged ones first, with its amount.
+- **Entry**: the plain-language flags, the account's signals, the run(s)
+  behind it (for a Coin Quest prize, the best winning run on each level), and
+  Approve / Void (with a reason) / Hold this player. Every decision is in the
+  audit log under the reviewer's name.
+- **Watch a run**: the console runs the same simulation as the server with the
+  run's seed, stage, abilities and inputs, and draws it plainly — openings,
+  coins, the boar's collision capsule, each flap — with play at 1–8×,
+  scrubbing, and a timeline of every flap (red: within 67 ms of the last).
+  Coin Quest steps through the board swap by swap. At the top it says whether
+  its own result matches the server's; they must agree.
+
+The token and name are held in memory for the tab only, never stored or put
+in a URL. The console's files hold no secrets; its data needs `ADMIN_TOKEN`.
+DGD may prefer to serve it only on an internal network.
+
+**Signals** (`server/src/signals.ts`) — hints for a person, never verdicts;
+nothing is held, voided or paid because of them:
+
+| Signal | Flagged when | Why |
+|---|---|---|
+| Fast flaps | > 10% of flaps within 67 ms of the last | people cannot sustain it; our transcript bot does it on 40–90% of flaps |
+| Flap rate | > 8 a second over the flight | the same, averaged |
+| One rhythm | > 35% of intervals within ±1 tick of one value | timer-driven play repeats itself |
+| Coin Quest pace | < 900 ms a move on average | fast, though above the hard 300 ms hold |
+| New account | first seen < 2 days before the winning run | throwaway accounts |
+| Round the clock | play in ≥ 20 hours of the day in a week | people sleep |
+| Shared network | ≥ 2 other accounts played from the same network in the period | account farms |
+| Score disagreement | the browser reported a different score from the replay | tampering, or a bug |
+
+**The thresholds are uncalibrated**: there is no real play yet, only our own
+bots. `GET /admin/signals?game=&days=` gives their distribution over recent
+runs; move them once real players have played for a few weeks.
+
+**Network**: with `NETWORK_HASH_KEY` set (≥ 32 chars), the server keeps a
+keyed HMAC of the network each run started from (IPv4 /24, IPv6 /48) — not the
+address — and clears it after 90 days. Behind DGD's proxy set `TRUST_PROXY=1`
+so it reads `X-Forwarded-For`. Unset, nothing is recorded and the shared-network
+signal is simply absent. The rules page's privacy section says so.
+
 ## 6. Payout tooling — the server never pays
 
 Ledger statuses: `would_award` (dry run) → `owed` → `batched` → `settled`;
@@ -183,7 +233,7 @@ OPERATOR="Jane Ops" ADMIN_TOKEN=... ARCADE_URL=https://digitalgold.co/arcade/api
   review                         held entries, held/banned players, flagged runs
   approve <entry> | void <entry> [reason]
   player <sub> ok|held|banned [reason]
-  settle-boards | board <game> <day|year> <at> | runs <sub>
+  settle-boards | board <game> <day|year> <at> | runs <sub> | run <id> | signals [game] [days]
   batch [--credit] [note]        every owed entry of one unit (DGD, or --credit) into a new open batch
   export <batch> [file]          one row per player: sub, unit, entries, amount
   settle <batch> <reference>     after DGD has paid, with DGD's own payment reference
@@ -265,7 +315,8 @@ This arcade exists because the phone app may not reward play (App Review
 5. **Payout**: destination, KYC threshold, who runs `settle`.
 6. **DGD's legal character**: what paying it for play means.
 7. **Privacy notice**: the server stores `sub`, a handle, run times, moves
-   and inputs, and quiz answers.
+   and inputs, quiz answers, and (if enabled) a keyed network hash for 90
+   days; staff may watch replays of winning runs.
 
 `REWARDS_LIVE_ACK` must also be set by whoever deploys, so a `rules.json` edit
 alone cannot start owing money.
