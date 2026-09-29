@@ -13,8 +13,24 @@ extension PassageRender on PassageGame {
   void renderWorld(Canvas canvas) {
     if (!_laidOut) return;
     _sky(canvas);
-    _strata(canvas);
-    _city?.render(canvas, scrollX, _t);
+    final drawn = _backdrop.isEmpty ? null : eraWeights(_eraF, eras.length, _backdropFade);
+    var skyCover = 0.0;
+    for (final (e, a) in drawn ?? const <(int, double)>[]) {
+      if (_backdrop.image(e, BackdropPart.sky) == null) continue;
+      _backdrop.drawSky(canvas, e, a, _w, _h);
+      skyCover += a;
+    }
+    // The drift lines belong to the code-drawn sky; a drawn one has its own.
+    _strata(canvas, 1 - skyCover);
+    for (final (e, a) in drawn ?? const <(int, double)>[]) {
+      _backdrop.drawStrip(canvas, e, BackdropPart.far, a, scrollX, _w, _h);
+    }
+    _city?.render(canvas, scrollX, _t, hide: drawn == null ? null : _backdrop.hasSkyline);
+    for (final part in const [BackdropPart.mid, BackdropPart.near]) {
+      for (final (e, a) in drawn ?? const <(int, double)>[]) {
+        _backdrop.drawStrip(canvas, e, part, a, scrollX, _w, _h);
+      }
+    }
     _pillars(canvas);
     _pickupsLayer(canvas);
     _shotLayer(canvas);
@@ -311,6 +327,11 @@ extension PassageRender on PassageGame {
   }
 
   /// Fractional position through the era list, for tinting.
+  /// Half the width of the crossfade between two eras' drawn backdrops, in
+  /// eras (see [eraWeights]): a third of a screen of scrolling either side
+  /// of the change.
+  double get _backdropFade => _w * 0.33 / (gatesPerEra * _spacing + _eraGap);
+
   double get _eraF {
     final block = gatesPerEra * _spacing + _eraGap;
     final v = (scrollX - _leadIn + _spacing * 0.8) / block;
@@ -357,7 +378,8 @@ extension PassageRender on PassageGame {
   /// Three parallax layers of horizontal rules. They read as distance and as
   /// a ledger at the same time, which is the only visual pun in the game and
   /// is quiet enough to survive being noticed.
-  void _strata(Canvas canvas) {
+  void _strata(Canvas canvas, [double fade = 1]) {
+    if (fade <= 0) return;
     const layers = [
       (0.10, 0.030, 7),
       (0.24, 0.055, 5),
@@ -365,7 +387,7 @@ extension PassageRender on PassageGame {
     ];
     for (final (speed, alpha, count) in layers) {
       final paint = Paint()
-        ..color = AppTheme.text.withValues(alpha: alpha)
+        ..color = AppTheme.text.withValues(alpha: alpha * fade)
         ..strokeWidth = _h * 0.0016;
       final period = _w * 0.55;
       final off = (scrollX * speed) % period;
@@ -407,6 +429,11 @@ extension PassageRender on PassageGame {
           [const Color(0xFF23262B), const Color(0xFF0C0D0F)],
         ),
     );
+    if (!_backdrop.isEmpty) {
+      for (final (e, a) in eraWeights(_eraF, eras.length, _backdropFade)) {
+        _backdrop.drawGround(canvas, e, a, scrollX, _groundY, _w, _h);
+      }
+    }
     canvas.drawRect(
       Rect.fromLTRB(0, _groundY, _w, _groundY + _h * 0.004),
       Paint()..color = AppTheme.accent.withValues(alpha: 0.85),

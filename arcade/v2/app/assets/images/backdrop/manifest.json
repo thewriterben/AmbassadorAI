@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "eras": {
+    "1816": {
+      "capital": {
+        "file": "1816_capital.png"
+      },
+      "far": {
+        "file": "1816_far.png",
+        "band": 0.45,
+        "base": 0.86,
+        "parallax": 0.12
+      },
+      "ground": {
+        "file": "1816_ground.png",
+        "band": 0.16
+      },
+      "mid": {
+        "file": "1816_mid.png",
+        "band": 0.4,
+        "base": 1.0,
+        "parallax": 0.3
+      },
+      "near": {
+        "file": "1816_near.png",
+        "band": 0.2,
+        "base": 1.0,
+        "parallax": 0.55
+      },
+      "sky": {
+        "file": "1816_sky.png",
+        "band": 1.0
+      },
+      "shaft": {
+        "file": "1816_shaft.png"
+      }
+    },
+    "1873": {
+      "capital": {
+        "file": "1873_capital.png"
+      },
+      "far": {
+        "file": "1873_far.png",
+        "band": 0.45,
+        "base": 0.86,
+        "parallax": 0.12
+      },
+      "ground": {
+        "file": "1873_ground.png",
+        "band": 0.16
+      },
+      "mid": {
+        "file": "1873_mid.png",
+        "band": 0.4,
+        "base": 1.0,
+        "parallax": 0.3
+      },
+      "near": {
+        "file": "1873_near.png",
+        "band": 0.2,
+        "base": 1.0,
+        "parallax": 0.55
+      },
+      "sky": {
+        "file": "1873_sky.png",
+        "band": 1.0
+      },
+      "shaft": {
+        "file": "1873_shaft.png"
+      }
+    }
+  }
+}

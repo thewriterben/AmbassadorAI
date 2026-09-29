@@ -12,6 +12,7 @@ import '../../theme.dart';
 import '../cabinet/cabinet.dart';
 import '../sparkle.dart';
 import 'abilities.dart';
+import 'backdrop.dart';
 import 'boar.dart';
 import 'city.dart';
 import 'eras.dart';
@@ -255,6 +256,13 @@ class PassageGame extends FlameGame {
   /// The era skylines behind the passage. Rebuilt with the layout.
   CityScape? _city;
 
+  /// The owner's drawn backdrops, where there are any (see `backdrop.dart`).
+  /// Empty until the manifest has loaded, and for good if it lists nothing.
+  DrawnBackdrop _backdrop = DrawnBackdrop(BackdropManifest.empty);
+
+  /// The era whose neighbourhood [_backdrop] last loaded.
+  int _backdropEra = -1;
+
   final List<_Pop> _pops = [];
 
   /// Recent boar positions, as (distance flown, height), for the wake.
@@ -372,6 +380,17 @@ class PassageGame extends FlameGame {
     // coins itself.
     unawaited(_loadCoinSprites());
     unawaited(_loadBoarSheets());
+    unawaited(_loadBackdrop());
+  }
+
+  Future<void> _loadBackdrop() async {
+    final m = await BackdropManifest.load();
+    if (m.byEra.isEmpty) return;
+    _backdrop = DrawnBackdrop(m)
+      // Gates already drawn in the code-drawn columns are redrawn with the
+      // art once it arrives.
+      ..onLoaded = _disposeGatePictures;
+    _backdropEra = -1;
   }
 
   /// One image per stage, one row of square frames. See `boar.dart`.
@@ -483,6 +502,13 @@ class PassageGame extends FlameGame {
     if (eraNotifier.value < 0) {
       eraNotifier.value = 0;
       run.tick();
+    }
+
+    // Hold the drawn backdrops of this era and its neighbours only.
+    final era = _eraF.floor();
+    if (era != _backdropEra && !_backdrop.isEmpty) {
+      _backdropEra = era;
+      _backdrop.keep({for (var e = era - 1; e <= era + 1; e++) if (e >= 0 && e < eras.length) e}, images);
     }
 
     // A long frame must never be a long step (see the history of this file:

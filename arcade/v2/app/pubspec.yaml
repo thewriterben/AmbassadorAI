@@ -31,6 +31,9 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/
+    # Drawn backdrops (lib/arcade/passage/backdrop.dart): a folder is not
+    # included by its parent's entry.
+    - assets/images/backdrop/
     - assets/audio/
     # The question bank ships only with the server (arcade/server/data),
     # never in the client (plan §5.1).

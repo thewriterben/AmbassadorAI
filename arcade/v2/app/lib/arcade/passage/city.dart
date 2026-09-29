@@ -266,7 +266,9 @@ class CityScape {
   @visibleForTesting
   double parallaxOf(int layer) => _layers[layer].parallax;
 
-  void render(Canvas canvas, double scroll, double t) {
+  /// [hide] leaves out the buildings of the eras it returns true for: those
+  /// with a drawn skyline (see `backdrop.dart`).
+  void render(Canvas canvas, double scroll, double t, {bool Function(int era)? hide}) {
     for (final layer in _layers) {
       final off = scroll * layer.parallax;
       // The far layer stands on a higher horizon, so it shows above the near
@@ -275,6 +277,7 @@ class CityScape {
       for (final b in layer.buildings) {
         final sx = b.x - off;
         if (sx > w || sx + b.w < 0) continue;
+        if (hide != null && hide(b.era)) continue;
         final pic = b.pic ??= _record(b, layer);
         canvas.save();
         canvas.translate(sx, base);

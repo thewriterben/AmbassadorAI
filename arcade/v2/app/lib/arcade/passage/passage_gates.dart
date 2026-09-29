@@ -37,6 +37,8 @@ extension PassageGates on PassageGame {
   /// One half of a gate, from [y0] to [y1]. The capital (or cornice, or
   /// plate) is at the end facing the opening: [y1] for the upper half.
   void _gateBlock(Canvas c, int era, double y0, double y1, {required bool capAtEnd}) {
+    // The owner's drawn column, where the era has one (see `backdrop.dart`).
+    if (_backdrop.drawColumn(c, era, y0, y1, _gateW, capAtEnd: capAtEnd)) return;
     final gw = _gateW;
     final capY = capAtEnd ? y1 : y0;
     final into = capAtEnd ? -1.0 : 1.0; // from the cap into the body
