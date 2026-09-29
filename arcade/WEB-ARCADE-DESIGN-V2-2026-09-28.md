@@ -88,11 +88,19 @@ a DGD password or cookie and stores only `sub` plus an **assigned handle**
 
 ## 4. Deploying at /arcade
 
+**The deployment kit is `deploy/`, and its runbook is
+[`deploy/DEPLOY.md`](deploy/DEPLOY.md)**: the API image, an optional nginx
+image, a one-host compose file, nginx snippets for digitalgold.co's own
+server (CSP, rate limit, proxy), systemd units, nightly backups with restore,
+and `tools/deploy_check.mjs` to run after every deploy. Tested end to end on
+a local Docker stack (§4a).
+
 | Path | Serves |
 |---|---|
 | `/arcade/` | `build/web` (static; built with `--base-href /arcade/ --no-web-resources-cdn`) |
 | `/arcade/api/*` | the rewards server (reverse proxy to `PORT`, default 8790) |
-| `/arcade/api/admin/*` | operations; needs `ADMIN_TOKEN`. DGD may prefer to expose it only on an internal network. |
+| `/arcade/api/admin/*` | operations; needs `ADMIN_TOKEN`. The kit answers 404 here from outside; operators use an SSH tunnel to the API port. |
+| `/arcade/review/` | the reviewer console; likewise never public in the kit |
 | `/api/arcade/token` | **DGD's** endpoint above, on the main site |
 
 | Variable | |
@@ -107,6 +115,30 @@ a DGD password or cookie and stores only `sub` plus an **assigned handle**
 | `NETWORK_HASH_KEY` | optional, ≥ 32 chars; enables the keyed network hash for the shared-network signal (§5b) |
 | `TRUST_PROXY=1` | behind DGD's reverse proxy: read the client address from `X-Forwarded-For` |
 | `REVIEW_DIR` | optional; serves the reviewer console (`build/review`) at `/arcade/review/` |
+| `HOST` | address to listen on (production default `0.0.0.0` for containers; `127.0.0.1` on a host behind nginx) |
+| `*_FILE` | `DGD_TOKEN_PUBLIC_KEY_FILE`, `ADMIN_TOKEN_FILE`, `NETWORK_HASH_KEY_FILE`: read the secret from a file (Docker secrets, and the PEM, which an env file cannot hold); setting both forms is refused |
+
+### 4a. What was tested on the local Docker stack (29 September)
+
+Both images built; compose up with a throwaway staging key (never DGD's):
+
+- **Refuses to start** with no configuration (dev auth, no key): exit 1, reasons printed.
+- **`deploy_check.mjs`**: 27/27 — page, game code, CanvasKit as `application/wasm`,
+  gzip, health with the database answering, dry run, CSP / nosniff /
+  no-referrer, and 404 from outside for the admin API, the reviewer console,
+  dev sign-in and path tricks.
+- **The production build in Chrome under the CSP** (`e2e_deploy.mjs`): renders,
+  no violations, no page errors, no request to any other origin. It caught one
+  real problem, now fixed: the rules page's inline script (moved to `rules.js`).
+- **Signed in through nginx**: a token, a run started and finished and
+  verified; the network hash recorded from nginx's address, **not** from a
+  spoofed `X-Forwarded-For`; the admin API refused through the public port
+  even with the admin token, and answered on the operator port.
+- **Rate limit**: 80 simultaneous requests from one address: 40 served, 40 × 429.
+- **Backup while running, then restore**: checksum and integrity checked;
+  the old database moved aside; the server came back healthy. Also on a
+  400,000-run database: 25 MB gzipped in ~6 s; a corrupted copy refused.
+- Containers run read-only, non-root, all capabilities dropped.
 
 ## 5. Rewards
 
