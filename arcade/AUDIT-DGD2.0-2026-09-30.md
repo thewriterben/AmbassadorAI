@@ -74,3 +74,74 @@ with the define, analyzer, and the host and secret scans. Report:
    check on the Pixel.
 4. The artefact checks from the v1.0.8 audit: hashes, a size note, and
    `strings` checks on the shipped `libapp.so`.
+
+
+---
+
+## Second pass: the design return (redesign), 2026-09-30
+
+**Scope.** The design return of 2026-09-30 applied to both halves:
+- arcade v2 `4e7c607..7fc97da`: the redesign (`50a8009`) and the
+  `dgd/arcade` entry channel (`7fc97da`);
+- dgd-native `18d4a67..a0fba92` on `dgd-2.0`: the bottom bar, Market, the
+  Arcade and Account tabs, and the restyled Join, Log in and Invite.
+
+The reviewer was a separate agent with no hand in the code (the same
+exception to the policy as above). The fix pass is dgd-native `f04b884`.
+
+| ID | Sev | State | What |
+|---|---|---|---|
+| R1 | HIGH | fixed `f04b884` | The committed AAR was still v1 1.0.8, so a build of `a0fba92` would open the old arcade from every card. Now `arcade-repo` holds the **clean-room build of v2 `7fc97da`**, with A and B byte-identical (6/6 AARs) and PROVENANCE committed. A 2.x build refuses a PROVENANCE that is not v2 |
+| R2 | MEDIUM | fixed | The full-size price could lose its last digits, with no ellipsis, on a narrow phone or at large text. It now sizes itself to the card |
+| R3 | MEDIUM | fixed | The status detail and the market cap wrap instead of being cut off |
+| R4 | MEDIUM | fixed | A double tap started two arcade activities on one engine, one of them blank. Opening is now debounced (checked on the Pixel) |
+| R5 | MEDIUM | fixed | The Account card showed preview headers and step lines outside the preview. It now carries only what home had: the coin, the name and the locked button |
+| R6 | MEDIUM | **open, docs** | Review and store notes describe the old layout. They must be rewritten before any reviewed track (internal testing has no review): `RC-1.0.7-2026-09-29.md:17`, `RC-1.0.8-2026-09-29.md:121-123`, `integration/IOS-WEB-ARCADE-LINK.md` rule 4, the draft notes in `B1-B3-CATEGORY-AND-PURCHASE.md`, `INTEGRATION.md:172`, dgd-native `HANDOVER_FACTS.md:40` and `android/README.md:88` |
+| R7 | LOW | fixed | The CTA's accessibility hint is back on the button |
+| R8 | LOW | fixed | The Stats pill, step pills, address actions and the help button are 44 dp |
+| R9 | LOW | part-fixed | Back on a tab returns Home, and Back in the preview steps back. **Open:** a warm open briefly shows the last arcade screen and then a page transition. It is an arcade change, left for the next clean-room build |
+| R10 | LOW | fixed | Refresh is throttled to one request per ten seconds |
+| R11 | INFO | owner | The Facebook and LinkedIn logos are the return's white versions (Meta prefers Facebook Blue), and X uses Hugeicons' mark. Both are the design's choice; confirm |
+| R12 | INFO | open | The Settings record text is the designer's wording; check it against the Data safety answers. "Star N recorded" means recorded on the phone. `registerDesignLicences` says the licences appear on a licence page the arcade does not show; the notices still ship as assets |
+
+**What holds**, per the reviewer:
+- The channel can only be driven by the app's own code: the arcade
+  activity is not exported, and no intent data is parsed.
+- No new request, URL, WebView or define, and the DEV guards are intact.
+- `LockedCopy.kt` is unchanged.
+- The web-arcade link keeps its rules: neutral copy, a bare URL, the
+  external browser, and no result screen.
+- No referral surface.
+- Every asset is byte-identical to the return, and the licences ship.
+- No prize-style celebration.
+- All 68 new strings pass `compliance_lint --strict`.
+
+**Runner on the redesigned arcade** (`03e121d`, v2 `7fc97da` mirrored): PASS, 11 of 11:
+- the server's 39 tests;
+- the app tests: plain 183, loopback 192, demo 184;
+- 9 more network cases with the define;
+- the analyzer, and the host and secret scans.
+
+Report: `redteam-runs/20260930T223223Z-03e121d/report.md`.
+
+## The artefacts
+
+Built on this Windows host against the clean-room arcade; the provenance gate
+passed with no override. The files are in
+`C:\src\dgd-native\android\dist-2.0.0\`:
+
+| File | sha256 | Bytes |
+|---|---|---|
+| `DigitalGold-2.0.0-unsigned.aab` (for Play, signed by DGD) | `fe22caa16cdc8536e01ee9a0af1af964a6e32188fa9672303a6837827d009594` | 64,752,897 |
+| `DigitalGold-2.0.0-review.apk` (debug-signed, `2.0.0-review`, code 200) | `d253c3719f604a4d752aa2cf1c40b73f04e520526748b5bb5d6dc9caa424b8e4` | 72,275,537 |
+
+- **The arcade inside:** clean-room v2 `7fc97da`, with
+  `DGD_APP_TAB=true DGD_DEMO=true` (`ARCADE-PROVENANCE.md` beside the
+  files).
+- **Native:** 95 unit tests pass.
+- **Not yet run:** the instrumented first-run test. It resets app data, so
+  it needs an emulator, not the test phone.
+- **Not reproduced:** the native half has not been rebuilt in the native
+  clean-room container, as the v1.0.8 audit did.
+- **Still to do before a reviewed track:** R6, and a clean-room reproduction
+  of the native half.
