@@ -24,7 +24,8 @@ void main() {
   Audio.instance.init();
   Progress.instance.load();
   ArcadeProgress.instance.load();
-  Audio.instance.setTrack(Audio.trackMenu);
+  // No music here: the arcade's menus are silent, and each game claims its
+  // own track (Audio.claimMusic).
   runApp(const ArcadeApp());
 }
 

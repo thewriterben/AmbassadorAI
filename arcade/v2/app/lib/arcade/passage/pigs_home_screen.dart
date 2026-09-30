@@ -33,12 +33,14 @@ class _PigsHomeScreenState extends State<PigsHomeScreen> {
   ArcadeProgress get _p => ArcadeProgress.instance;
 
   // The game's own music starts in the front room and carries on into the
-  // flight unbroken (the same track, so the cabinet's switch is a no-op),
-  // and hands back to the menu bed on the way out.
+  // flight unbroken (the cabinet claims the same track), and fades out on
+  // the way back to the arcade's silent menu.
+  late final int _music;
+
   @override
   void initState() {
     super.initState();
-    Audio.instance.setTrack(Audio.trackPigs);
+    _music = Audio.instance.claimMusic(Audio.trackPigs);
     // The DEV stage choice is kept on the device; show it once it is read.
     PigsDev.load().then((_) {
       if (mounted) setState(() {});
@@ -64,7 +66,7 @@ class _PigsHomeScreenState extends State<PigsHomeScreen> {
 
   @override
   void dispose() {
-    Audio.instance.setTrack(Audio.trackMenu);
+    Audio.instance.releaseMusic(_music);
     super.dispose();
   }
 

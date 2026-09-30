@@ -789,6 +789,24 @@ for the next in-between.
 
 All 167 tests pass.
 
+### Music only inside a game, merged into Arcade 2.0 — 2026-09-29
+
+`v2/music-in-games` (4050ed0) is merged into `v2/ten-games`. The arcade's
+menus are silent. Coin Quest plays Quest Tune from the level map through
+every level, and When Pigs Fly plays its own track in the front room and
+in flight.
+
+One conflict, in `pigs_home_screen.dart`: the front room keeps its DEV
+stage load and its onboarding load, and now claims its track with
+`claimMusic`.
+
+**Checked on the Pixel through the audio mixer** (`dumpsys
+media.audio_flinger`, the app's active tracks): home is silent, the Pigs
+front room plays, it's silent back home, the Coin Quest map plays, and it's
+silent again. The player state in `dumpsys audio` reports `idle` even while
+the music plays, so it can't be used for this check; the mixer's `Active`
+column can. All 173 tests pass.
+
 ### A DEV autopilot, and a full passage on the phone — 2026-09-29
 
 The release-build pass couldn't reach a full nine-era flight, because

@@ -183,16 +183,22 @@ class CabinetScreenState extends State<CabinetScreen> with WidgetsBindingObserve
   /// view rather than leaving the finished run on screen.
   int _runCount = 0;
 
+  /// The game's music, held while the cabinet is on screen and given back
+  /// when it closes (to the game's own front room, or to a silent menu).
+  late final int _music;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _music = Audio.instance.claimMusic(widget.musicTrack);
     _start();
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    Audio.instance.releaseMusic(_music);
     run.dispose();
     super.dispose();
   }
@@ -204,7 +210,6 @@ class CabinetScreenState extends State<CabinetScreen> with WidgetsBindingObserve
     _paused = false;
     _settling = false;
     _round = ArcadeProgress.instance.startMini(widget.gameId);
-    Audio.instance.setTrack(widget.musicTrack);
   }
 
   /// Backgrounding pauses the run rather than letting it play on unseen.
