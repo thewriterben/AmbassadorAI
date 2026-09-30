@@ -15,8 +15,8 @@ puzzle-app v1 tag `embed-android-1.0.8` (`99a5c36`).
 | `dist-1.0.8-rc2/DigitalGold-1.0.8-unsigned.aab` | 57,175,121 | `2F768698B79944EBB777FAD8D0B8EC8D83446709293A7FBF911901102297ED95` | **Play.** Unsigned; DGD signs it with the upload key. |
 | `dist-1.0.8-rc2/DigitalGold-1.0.8-review.apk` | 64,127,176 | `46573FFE09BB7E302B557E6C772397807CAC92523EAE582B132A4984FDA99378` | Installing and looking. Debug-signed, `1.0.8-review`. |
 
-**If rc1 was already uploaded to Play**, versionCode 8 is used up. Bump to
-9 before uploading rc2.
+rc1 was never uploaded to Play (confirmed 2026-09-30), so versionCode 8
+stands for rc2.
 
 ### What differs from rc1
 
