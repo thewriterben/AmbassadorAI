@@ -1,11 +1,8 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'arcade/leaderboard_screen.dart';
 import 'arcade/passage/pigs_home_screen.dart';
-import 'arcade/sparkle.dart';
 import 'arcade/progress.dart';
 import 'arcade/settings_screen.dart';
 import 'audio.dart';
@@ -13,9 +10,15 @@ import 'match3/model/levels.dart';
 import 'match3/progress.dart';
 import 'match3/ui/level_map.dart';
 import 'theme.dart';
+import 'ui_kit.dart';
+import 'arcade/entry.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  registerDesignLicences();
+  // Inside the DGD app, the app says which screen to open (arcade/entry.dart).
+  ArcadeEntry.home = () => const HomeScreen();
+  ArcadeEntry.listen();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent,
@@ -34,7 +37,9 @@ class ArcadeApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) => ArcadeEntry.takePending());
     return MaterialApp(
+      navigatorKey: ArcadeEntry.navigator,
       title: AppTheme.appName,
       theme: AppTheme.data,
       debugShowCheckedModeBanner: false,
@@ -43,7 +48,10 @@ class ArcadeApp extends StatelessWidget {
   }
 }
 
-/// DGD Arcade home: Explorer track — XP, badges, three games.
+/// DGD Arcade home, as the 2026-09-30 design return draws it: a header with
+/// the sound and music buttons, Coin Quest's card with its board and its Play
+/// button, the stars row, When Pigs Fly's card (the return drew Coin Quest
+/// alone; this card follows the same rules), settings, and the notice.
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -55,155 +63,234 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
+      backgroundColor: AppTheme.bg,
+      body: SafeArea(
+        // Same cap as the host app's ticker column, and for the same
+        // reason: embedded in the DGD app at targetSdk 36, Android hands
+        // this a ~1280dp-wide window on any tablet or unfolded foldable,
+        // whatever the manifest asks for. Uncapped, the game cards become
+        // metre-wide bars with their icon at one end and their arrow at
+        // the other. The game boards are unaffected — they size
+        // themselves from the shorter edge already.
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 520),
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(24, 16, 24, 28),
+              children: [
+                ScreenHeader(
+                  title: 'Arcade',
+                  subtitle: 'Discover through play.',
+                  // Inside the DGD app the arcade is its own screen, and the
+                  // design gives it a back button to the app. Standalone it is
+                  // the app, and there is nothing behind it to go back to.
+                  onBack: Audio.inAppTab ? () => SystemNavigator.pop() : null,
+                  actions: const [_AudioToggles()],
+                ),
+                const SizedBox(height: 22),
+                ListenableBuilder(
+                  listenable: Progress.instance,
+                  builder: (_, __) => _CoinQuestCard(onPlay: () => _open(context, const LevelMapScreen())),
+                ),
+                const SizedBox(height: 16),
+                ListenableBuilder(
+                  listenable: Progress.instance,
+                  builder: (_, __) => _StarsRow(stars: Progress.instance.totalStars, of: levels.length * 3),
+                ),
+                const SizedBox(height: 12),
+                // When Pigs Fly (id `passage`) ships in the demo build as well as the dev one. It
+                // needs no backend — `startMini` no-ops without a server and
+                // the run simply pays no XP — so the reason the old games were
+                // cut from the demo does not apply to it. If it should be held
+                // back from a tester build after all, wrap this card in
+                // `if (!Dev.demoBuild)`; nothing else has to change.
+                RowCard(
+                  leading: Image.asset('assets/images/card_pigs.png', width: 34, height: 34),
+                  title: 'When Pigs Fly',
+                  subtitle: 'Fly a winged piggy bank through nine eras of money, and land it.',
+                  onTap: () => _open(context, const PigsHomeScreen()),
+                ),
+                // XP, level and the standings link all come from the server.
+                // Without one the bar would sit at level 1 with an OFFLINE chip
+                // and a leaderboard link that goes nowhere.
+                if (!ArcadeProgress.noBackend) ...[
+                  const SizedBox(height: 12),
+                  const _XpBar(),
+                ],
+                const SizedBox(height: 22),
+                const Center(
+                  child: Text('More games coming soon', style: TextStyle(fontSize: 14, color: AppTheme.body)),
+                ),
+                const SizedBox(height: 22),
+                // Settings carries the two data-deletion controls, which both
+                // stores expect to be reachable from inside the app.
+                RowCard(
+                  leading: const HugeIcon('settings2', size: 20, color: AppTheme.body),
+                  title: 'Settings and your data',
+                  onTap: () => _open(context, const SettingsScreen()),
+                ),
+                const SizedBox(height: 26),
+                // Verbatim, as the design return requires. When Pigs Fly's own
+                // screens say the same of its points and coins.
+                const InfoNotice('Educational only. XP and badges have no monetary value.'),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Coin Quest's card: kicker, name, three words, the board, and Play.
+class _CoinQuestCard extends StatelessWidget {
+  final VoidCallback onPlay;
+  const _CoinQuestCard({required this.onPlay});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        color: AppTheme.card,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppTheme.border),
+      ),
+      child: Column(
         children: [
-          Positioned.fill(child: Image.asset('assets/images/bg_dark.png', fit: BoxFit.cover)),
-          SafeArea(
-            // Same cap as the host app's ticker column, and for the same
-            // reason: embedded in the DGD app at targetSdk 36, Android hands
-            // this a ~1280dp-wide window on any tablet or unfolded foldable,
-            // whatever the manifest asks for. Uncapped, the game cards become
-            // metre-wide bars with their icon at one end and their arrow at
-            // the other. The game boards are unaffected — they size
-            // themselves from the shorter edge already.
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 520),
-                child: ListView(
-                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 28),
-                  children: [
-                    Row(
-                      children: [
-                        Image.asset('assets/images/logo_orange.png', width: 28, height: 28),
-                        const SizedBox(width: 10),
-                        const Text('Digital Gold',
-                            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppTheme.text)),
-                        const Text(' .CO', style: TextStyle(fontSize: 15, color: AppTheme.muted)),
-                        const Spacer(),
-                        const _AudioToggles(),
-                      ],
-                    ),
-                    const SizedBox(height: 18),
-                    const Center(child: _HeroCoin(size: 150)),
-                    const SizedBox(height: 12),
-                    const _Kicker('PROOF OF PLAY'),
-                    const SizedBox(height: 10),
-                    RichText(
-                      text: const TextSpan(
-                        style: TextStyle(
-                            fontFamily: AppTheme.fontSans,
-                            fontSize: 34,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: -1.3,
-                            height: 1.05,
-                            color: AppTheme.text),
-                        children: [
-                          TextSpan(text: 'DGD '),
-                          TextSpan(
-                              text: 'Arcade',
-                              style: TextStyle(
-                                  fontFamily: AppTheme.fontSerif,
-                                  fontStyle: FontStyle.italic,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppTheme.accent)),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    const Text('Match the coins, or fly two centuries of monetary history.',
-                        style: TextStyle(fontSize: 14, color: AppTheme.body, height: 1.4)),
-                    const SizedBox(height: 16),
-                    // XP, level and the standings link all come from the server.
-                    // Without one the bar would sit at level 1 with an OFFLINE chip
-                    // and a leaderboard link that goes nowhere.
-                    if (!ArcadeProgress.noBackend) ...[
-                      const _XpBar(),
-                      const SizedBox(height: 18),
+          // The upper part carries a faint warm light from the lower middle,
+          // as drawn; the footer with the button is the plain card colour.
+          Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topRight,
+                end: Alignment.bottomLeft,
+                colors: [Color(0xFF232323), Color(0xFF171717), Color(0xFF1B1916)],
+                stops: [0.0, 0.45, 1.0],
+              ),
+            ),
+            padding: const EdgeInsets.fromLTRB(24, 30, 16, 26),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('MATCH-3 · ${levels.length} LEVELS',
+                          style: const TextStyle(
+                              fontFamily: AppTheme.fontMono, fontSize: 12, letterSpacing: 1.1, color: AppTheme.body)),
+                      const SizedBox(height: 16),
+                      const Text('Coin Quest',
+                          style: TextStyle(
+                              fontSize: 40, fontWeight: FontWeight.w600, height: 1.08, letterSpacing: -1.2, color: AppTheme.text)),
+                      const SizedBox(height: 22),
+                      const Text('Match.\nLearn.\nExplore.',
+                          style: TextStyle(fontSize: 15, height: 1.4, color: AppTheme.body)),
                     ],
-                    // Two of the eventual catalogue. Still no section heading and
-                    // no leading numbers — those arrive when there are enough
-                    // games for the list to need navigating.
-                    ListenableBuilder(
-                      listenable: Progress.instance,
-                      builder: (_, __) => _GameCard(
-                        title: 'Coin Quest: Digital Gold',
-                        kicker: 'MATCH-3',
-                        blurb: 'Match the coins. ${Progress.instance.totalStars}/${levels.length * 3} stars.',
-                        asset: 'assets/images/piece_gold.png',
-                        primary: true,
-                        onTap: () => _open(context, const LevelMapScreen()),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    // When Pigs Fly (id `passage`) ships in the demo build as well as the dev one. It
-                    // needs no backend — `startMini` no-ops without a server and
-                    // the run simply pays no XP — so the reason the old games were
-                    // cut from the demo does not apply to it. If it should be held
-                    // back from a tester build after all, wrap this card in
-                    // `if (!Dev.demoBuild)`; nothing else has to change.
-                    _GameCard(
-                      title: 'When Pigs Fly',
-                      kicker: 'ONE TAP',
-                      blurb: 'Fly a winged piggy bank through nine eras of money, and land it.',
-                      asset: 'assets/images/card_pigs.png',
-                      onTap: () => _open(context, const PigsHomeScreen()),
-                    ),
-                    const SizedBox(height: 18),
-                    Center(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                        decoration: AppTheme.glass(radius: 999, outline: AppTheme.border),
-                        child: const Text('More games coming soon',
-                            style: TextStyle(
-                                fontFamily: AppTheme.fontMono,
-                                fontSize: 11,
-                                letterSpacing: 1.1,
-                                color: AppTheme.muted)),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    // Settings carries the two data-deletion controls, which both
-                    // stores expect to be reachable from inside the app. It sits
-                    // by the disclaimer because that is where people look for
-                    // privacy and legal controls — and because the header row is
-                    // already full: a third button there overflows by 26px on a
-                    // 432pt-wide screen, which widget_test catches.
-                    //
-                    // Kept compact deliberately. A default TextButton's 48pt tap
-                    // target plus its own padding pushed the no-monetary-value
-                    // disclaimer off the bottom of the first screen, and that line
-                    // is a compliance statement — it has to be readable without
-                    // scrolling. The tap target is still 36pt, above the 24pt
-                    // minimum for a secondary text link.
-                    Center(
-                      child: TextButton(
-                        style: TextButton.styleFrom(
-                          minimumSize: const Size(0, 36),
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        ),
-                        onPressed: () {
-                          Audio.instance.tap();
-                          Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen()));
-                        },
-                        child: const Text('Settings and your data',
-                            style: TextStyle(
-                                fontFamily: AppTheme.fontMono,
-                                fontSize: 11,
-                                letterSpacing: 0.8,
-                                color: AppTheme.muted)),
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    const Center(
-                      child: Text('Educational only. XP, points, coins and badges have no monetary value.',
-                          style: TextStyle(fontFamily: AppTheme.fontMono, fontSize: 10, color: AppTheme.dim)),
-                    ),
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.only(top: 64),
+                  child: _BoardArt(size: 150),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+            child: SizedBox(
+              width: double.infinity,
+              height: 48,
+              child: FilledButton(
+                onPressed: onPlay,
+                style: FilledButton.styleFrom(padding: EdgeInsets.zero),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    HugeIcon('play', size: 18, color: AppTheme.onAccent),
+                    SizedBox(width: 10),
+                    Text('Play Coin Quest'),
                   ],
                 ),
               ),
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The little board on Coin Quest's card: nine of the game's own coins in
+/// their wells, on a tile turned a few degrees.
+class _BoardArt extends StatelessWidget {
+  final double size;
+  const _BoardArt({required this.size});
+
+  static const _coins = ['gold', 'blue', 'silver', 'copper', 'gold', 'green', 'red', 'silver', 'gold'];
+
+  @override
+  Widget build(BuildContext context) {
+    final cell = size / 3.3;
+    return ExcludeSemantics(
+      child: Transform.rotate(
+        angle: -0.105,
+        child: Container(
+          width: size,
+          height: size,
+          padding: EdgeInsets.all(size * 0.05),
+          decoration: BoxDecoration(
+            color: const Color(0xFF242424),
+            borderRadius: BorderRadius.circular(size * 0.16),
+            border: Border.all(color: AppTheme.border),
+            boxShadow: const [BoxShadow(color: Color(0x80000000), blurRadius: 18, offset: Offset(0, 8))],
+          ),
+          child: GridView.count(
+            crossAxisCount: 3,
+            physics: const NeverScrollableScrollPhysics(),
+            padding: EdgeInsets.zero,
+            mainAxisSpacing: size * 0.02,
+            crossAxisSpacing: size * 0.02,
+            children: [
+              for (final c in _coins)
+                Container(
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1F1F1F),
+                    borderRadius: BorderRadius.circular(cell * 0.28),
+                  ),
+                  padding: EdgeInsets.all(cell * 0.1),
+                  child: Image.asset('assets/images/piece_$c.png'),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// "Stars collected", with the count.
+class _StarsRow extends StatelessWidget {
+  final int stars, of;
+  const _StarsRow({required this.stars, required this.of});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+      decoration: BoxDecoration(
+        color: AppTheme.surface,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppTheme.border),
+      ),
+      child: Row(
+        children: [
+          const Expanded(child: Text('Stars collected', style: TextStyle(fontSize: 14, color: AppTheme.body))),
+          const HugeIcon('star', size: 20, color: AppTheme.accent),
+          const SizedBox(width: 16),
+          Text('$stars / $of',
+              style: const TextStyle(fontFamily: AppTheme.fontMono, fontSize: 17, color: AppTheme.text)),
         ],
       ),
     );
@@ -295,210 +382,8 @@ class _XpBar extends StatelessWidget {
   }
 }
 
-class _GameCard extends StatelessWidget {
-  final String title, kicker, blurb, asset;
-  final bool primary;
-  final VoidCallback onTap;
-  const _GameCard(
-      {required this.title,
-      required this.kicker,
-      required this.blurb,
-      required this.asset,
-      required this.onTap,
-      this.primary = false});
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(22),
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: AppTheme.glass(
-              radius: 22,
-              fill: AppTheme.card.withValues(alpha: 0.9),
-              outline: primary ? AppTheme.accent.withValues(alpha: 0.6) : AppTheme.border),
-          child: Row(children: [
-            Image.asset(asset, width: 64, height: 64),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(kicker,
-                    style: const TextStyle(fontFamily: AppTheme.fontMono, fontSize: 10, letterSpacing: 1, color: AppTheme.muted)),
-                const SizedBox(height: 3),
-                Text(title,
-                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600, letterSpacing: -0.5, color: AppTheme.text)),
-                const SizedBox(height: 3),
-                Text(blurb, style: const TextStyle(fontSize: 13, color: AppTheme.body, height: 1.35)),
-              ]),
-            ),
-            const SizedBox(width: 8),
-            Icon(Icons.arrow_forward_rounded, color: primary ? AppTheme.accent : AppTheme.muted),
-          ]),
-        ),
-      ),
-    );
-  }
-}
-
-/// The DGD coin: floating, glowing, with a specular sweep every few seconds.
-class _HeroCoin extends StatefulWidget {
-  final double size;
-  const _HeroCoin({required this.size});
-
-  @override
-  State<_HeroCoin> createState() => _HeroCoinState();
-}
-
-class _HeroCoinState extends State<_HeroCoin> with TickerProviderStateMixin {
-  late final AnimationController _float =
-      AnimationController(vsync: this, duration: const Duration(seconds: 4))..repeat(reverse: true);
-  late final AnimationController _sheen =
-      AnimationController(vsync: this, duration: const Duration(milliseconds: 3600))
-        ..addStatusListener((st) {
-          if (st == AnimationStatus.forward || st == AnimationStatus.completed) Audio.instance.ting();
-        })
-        ..repeat();
-
-  /// Tap response: the coin **flips**, end over end about its horizontal axis.
-  ///
-  /// The flip is the arcade's gesture and the spin is the DGD app's — the same
-  /// coin, told apart by how it moves, so a player who has just come through
-  /// from the ticker can feel they have arrived somewhere else. This used to
-  /// alternate spin/flip on each tap; the alternation is what was given up to
-  /// make the two surfaces distinguishable.
-  late final AnimationController _toss =
-      AnimationController(vsync: this, duration: const Duration(milliseconds: 900));
-
-  void _tap() {
-    // Ignore taps mid-toss rather than restarting: a coin that resets halfway
-    // reads as a glitch, and the sound would retrigger on every jab.
-    if (_toss.isAnimating) return;
-    Audio.instance.coinFlip();
-    _toss.forward(from: 0).then((_) {
-      // A sparkle of sound on landing, at a gentle level — this is idle play,
-      // not an achievement.
-      if (mounted) Audio.instance.ting();
-    });
-  }
-
-  @override
-  void dispose() {
-    _float.dispose();
-    _sheen.dispose();
-    _toss.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final s = widget.size;
-    return AnimatedBuilder(
-      animation: Listenable.merge([_float, _sheen, _toss]),
-      builder: (_, __) {
-        final f = Curves.easeInOut.transform(_float.value);
-        final dy = -8 + 16 * f;
-        final t = (_sheen.value / 0.3).clamp(0.0, 1.0);
-        final x = -1.6 + 3.2 * t;
-
-        // Two full turns, decelerating, so it settles face-on rather than
-        // stopping edge-on where the coin would be invisible.
-        final flip = Curves.easeOutCubic.transform(_toss.value) * pi * 4;
-        // A small hop, peaking mid-toss.
-        final hop = sin(_toss.value * pi) * s * 0.10;
-
-        return Transform.translate(
-          offset: Offset(0, dy - hop),
-          child: GestureDetector(
-            onTap: _tap,
-            // The glow extends past the artwork, so without this only the
-            // opaque pixels would take the tap.
-            behavior: HitTestBehavior.opaque,
-            child: Transform(
-              alignment: Alignment.center,
-              transform: Matrix4.identity()
-                // Perspective, or the rotation reads as a flat squash.
-                ..setEntry(3, 2, 0.0012)
-                ..rotateX(flip),
-              child: SizedBox(
-            width: s * 1.3,
-            height: s * 1.3,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Container(
-                  width: s * (1.1 + 0.08 * f),
-                  height: s * (1.1 + 0.08 * f),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                          color: AppTheme.accent.withValues(alpha: 0.35 + 0.15 * f), blurRadius: 50, spreadRadius: 4),
-                    ],
-                  ),
-                ),
-                // The polished gold and its glint, the same as When Pigs
-                // Fly's coins (tools/gen_shiny_gold_coin.py, and _glint in
-                // passage_render.dart): two narrow streaks of light, a broad
-                // one and a thin one just behind it, where this used to be a
-                // single soft band.
-                ShaderMask(
-                  blendMode: BlendMode.srcATop,
-                  shaderCallback: (rect) => LinearGradient(
-                    begin: Alignment(x - 0.9, -0.35),
-                    end: Alignment(x + 0.9, 0.35),
-                    colors: const [
-                      Color(0x00FFF4D0),
-                      Color(0x00FFF4D0),
-                      Color(0xB3FFF4D0),
-                      Color(0x00FFF4D0),
-                      Color(0x00FFF4D0),
-                      Color(0x55FFF4D0),
-                      Color(0x00FFF4D0),
-                      Color(0x00FFF4D0),
-                    ],
-                    stops: const [0.0, 0.40, 0.47, 0.54, 0.58, 0.62, 0.66, 1.0],
-                  ).createShader(rect),
-                      child: Image.asset('assets/images/coin_gold_shiny.png', width: s, height: s),
-                    ),
-                // The star at the rim, strongest as the streaks cross the
-                // middle of the coin.
-                if (t > 0 && t < 1)
-                  IgnorePointer(
-                    child: CustomPaint(
-                      size: Size(s, s),
-                      painter: _FlarePainter((1 - (t - 0.5).abs() * 2).clamp(0.0, 1.0)),
-                    ),
-                  ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-}
-
-/// The glint's flare at the upper right of the coin (see arcade/sparkle.dart).
-class _FlarePainter extends CustomPainter {
-  final double f;
-  _FlarePainter(this.f);
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final r = size.width / 2;
-    paintSparkle(canvas, size.center(Offset.zero).translate(r * 0.42, -r * 0.46), r * 0.62, f, spin: (1 - f) * 0.25);
-  }
-
-  @override
-  bool shouldRepaint(_FlarePainter old) => old.f != f;
-}
-
-/// Sound / music toggles as small glass buttons.
+/// Sound and music, as the header's two square buttons. Off is the icon in
+/// the dimmest grey; the button stays where it is.
 class _AudioToggles extends StatelessWidget {
   const _AudioToggles();
 
@@ -510,53 +395,29 @@ class _AudioToggles extends StatelessWidget {
       builder: (_, __) => Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _toggle(a.sfx ? Icons.volume_up_rounded : Icons.volume_off_rounded, a.sfx, () {
-            a.setSfx(!a.sfx);
-            a.tap();
-          }),
-          const SizedBox(width: 8),
-          _toggle(a.music ? Icons.music_note_rounded : Icons.music_off_rounded, a.music, () {
-            a.setMusic(!a.music);
-            a.tap();
-          }),
+          SquareIconButton(
+            icon: 'volume_high',
+            label: a.sfx ? 'Sound effects on' : 'Sound effects off',
+            selected: a.sfx,
+            iconColor: a.sfx ? AppTheme.body : AppTheme.dim,
+            onTap: () {
+              a.setSfx(!a.sfx);
+              a.tap();
+            },
+          ),
+          const SizedBox(width: 12),
+          SquareIconButton(
+            icon: 'music_note1',
+            label: a.music ? 'Music on' : 'Music off',
+            selected: a.music,
+            iconColor: a.music ? AppTheme.body : AppTheme.dim,
+            onTap: () {
+              a.setMusic(!a.music);
+              a.tap();
+            },
+          ),
         ],
       ),
     );
-  }
-
-  Widget _toggle(IconData icon, bool on, VoidCallback onTap) => Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(999),
-          onTap: onTap,
-          child: Container(
-            width: 40,
-            height: 40,
-            decoration: AppTheme.glass(radius: 999, outline: on ? AppTheme.accent.withValues(alpha: 0.6) : AppTheme.border),
-            child: Icon(icon, size: 20, color: on ? AppTheme.accent : AppTheme.dim),
-          ),
-        ),
-      );
-}
-
-/// Site-style pill label: DGD mark + small mono uppercase.
-class _Kicker extends StatelessWidget {
-  final String text;
-  const _Kicker(this.text);
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(children: [
-      Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: AppTheme.glass(radius: 999, outline: AppTheme.borderStrong),
-        child: Row(mainAxisSize: MainAxisSize.min, children: [
-          Image.asset('assets/images/logo_orange.png', width: 12, height: 12),
-          const SizedBox(width: 8),
-          Text(text,
-              style: const TextStyle(fontFamily: AppTheme.fontMono, fontSize: 11, letterSpacing: 1.2, color: AppTheme.text)),
-        ]),
-      ),
-    ]);
   }
 }

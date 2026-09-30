@@ -44,36 +44,45 @@ class Coach {
     }
   }
 
-  static const _cards = {
+  /// Title, the instruction, the detail under it, and the art: a row of
+  /// tiles, each a stack of images drawn on top of each other (a seal is a
+  /// translucent overlay on its coin, as the game draws it).
+  static const _cards = <String, (String, String, String, List<List<String>>)>{
     'basics': (
-      'SWAP TO MATCH',
-      'Drag a coin onto a neighbour to line up three or more. Four in a row mints a striped coin; five mints a bomb.',
-      'piece_gold.png',
+      'Swap to match',
+      'Drag a coin onto a neighbour to match three or more.',
+      'Match four in a row for a striped coin. Match five for a bomb.',
+      [['piece_gold.png'], ['piece_gold.png'], ['piece_gold.png']],
     ),
     'collect': (
-      'COLLECT',
-      'Clear coins of the named kind until you have enough. Cascades count, so set up chains rather than chasing singles.',
-      'piece_blue.png',
+      'Collect',
+      'Clear coins of the named kind until you have enough.',
+      'Cascades count, so set up chains rather than chasing singles.',
+      [['piece_blue.png'], ['piece_blue.png'], ['piece_blue.png']],
     ),
     'seals': (
-      'LEDGER SEALS',
-      'A seal sits under the board. Clear a coin on top of it to strip one layer. Some seals take two.',
-      'seal_1.png',
+      'Ledger seals',
+      'A seal sits under the board. Clear a coin on top of it to strip one layer.',
+      'Some seals take two.',
+      [['piece_gold.png', 'seal_1.png'], ['piece_silver.png', 'seal_2.png']],
     ),
     'vaults': (
-      'SEALED VAULTS',
-      'Vaults cannot be swapped. Clear a match right next to one and it breaks open.',
-      'piece_vault.png',
+      'Sealed vaults',
+      'Clear a match right next to a vault and it breaks open.',
+      'Vaults cannot be swapped.',
+      [['piece_vault.png']],
     ),
     'vaults_armored': (
-      'REINFORCED VAULTS',
-      'These take two hits. The first cracks them, the second breaks them open.',
-      'piece_vault.png',
+      'Reinforced vaults',
+      'These take two hits: the first cracks them, the second breaks them open.',
+      'Reinforced vaults cannot be swapped either.',
+      [['piece_vault_armored.png']],
     ),
     'ingots': (
-      'BRING IT DOWN',
-      'Ingots cannot be swapped or destroyed. Clear the coins beneath one so it falls, and get it to the bottom row.',
-      'piece_ingot.png',
+      'Bring it down',
+      'Clear the coins beneath an ingot so it falls, and get it to the bottom row.',
+      'Ingots cannot be swapped or destroyed.',
+      [['piece_ingot.png']],
     ),
   };
 
@@ -86,56 +95,88 @@ class Coach {
     await _mark(id);
     if (!context.mounted) return;
     Audio.instance.ting();
-    await showDialog<void>(
+    // A sheet, as drawn, but one that has to be answered: it is the only
+    // time this is said, so a stray swipe must not throw it away.
+    await showModalBottomSheet<void>(
       context: context,
-      barrierColor: Colors.black87,
-      builder: (ctx) => _CoachCard(title: card.$1, body: card.$2, asset: card.$3),
+      isDismissible: false,
+      enableDrag: false,
+      isScrollControlled: true,
+      barrierColor: Colors.black.withValues(alpha: 0.7),
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => _CoachCard(title: card.$1, lead: card.$2, detail: card.$3, art: card.$4),
     );
   }
 }
 
 class _CoachCard extends StatelessWidget {
-  final String title, body, asset;
-  const _CoachCard({required this.title, required this.body, required this.asset});
+  final String title, lead, detail;
+  final List<List<String>> art;
+  const _CoachCard({required this.title, required this.lead, required this.detail, required this.art});
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      insetPadding: const EdgeInsets.all(24),
-      child: Container(
-        padding: const EdgeInsets.all(24),
-        decoration: AppTheme.glass(radius: 24, fill: AppTheme.card, outline: AppTheme.accent),
+    return Container(
+      margin: AppTheme.sheetMargin(context),
+      padding: const EdgeInsets.fromLTRB(24, 10, 24, 24),
+      decoration: BoxDecoration(
+        color: AppTheme.card,
+        borderRadius: BorderRadius.circular(28),
+        border: Border.all(color: AppTheme.border),
+      ),
+      // Scrolls only if a small screen with large text cannot fit it.
+      child: SingleChildScrollView(
         child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(children: [
-              Image.asset('assets/images/$asset', width: 46, height: 46),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Text(title,
-                    style: const TextStyle(
-                        fontFamily: AppTheme.fontMono,
-                        fontSize: 12,
-                        letterSpacing: 1.3,
-                        color: AppTheme.accent)),
-              ),
-            ]),
-            const SizedBox(height: 14),
-            Text(body, style: const TextStyle(fontSize: 15, height: 1.45, color: AppTheme.text)),
-            const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton(
-                onPressed: () {
-                  Audio.instance.tap();
-                  Navigator.pop(context);
-                },
-                child: const Text('Got it'),
-              ),
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Center(
+            child: Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(color: AppTheme.borderStrong, borderRadius: BorderRadius.circular(2)),
             ),
-          ],
+          ),
+          const SizedBox(height: 30),
+          Text(title,
+              style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w600, letterSpacing: -0.6, color: AppTheme.text)),
+          const SizedBox(height: 26),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 18),
+            decoration: BoxDecoration(color: AppTheme.surface, borderRadius: BorderRadius.circular(20)),
+            child: ExcludeSemantics(
+              child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                for (var i = 0; i < art.length; i++) ...[
+                  if (i > 0) const SizedBox(width: 18),
+                  SizedBox(
+                    width: 48,
+                    height: 48,
+                    child: Stack(children: [
+                      for (final layer in art[i]) Positioned.fill(child: Image.asset('assets/images/$layer')),
+                    ]),
+                  ),
+                ],
+              ]),
+            ),
+          ),
+          const SizedBox(height: 26),
+          Text(lead, style: const TextStyle(fontSize: 18, height: 1.45, color: AppTheme.text)),
+          const SizedBox(height: 18),
+          Text(detail, style: const TextStyle(fontSize: 15, height: 1.45, color: AppTheme.body)),
+          const SizedBox(height: 26),
+          SizedBox(
+            width: double.infinity,
+            height: 52,
+            child: FilledButton(
+              onPressed: () {
+                Audio.instance.tap();
+                Navigator.pop(context);
+              },
+              child: const Text('Got it'),
+            ),
+          ),
+        ],
         ),
       ),
     );

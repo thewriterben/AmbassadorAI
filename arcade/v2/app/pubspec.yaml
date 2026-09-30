@@ -34,22 +34,22 @@ flutter:
     # Drawn backdrops (lib/arcade/passage/backdrop.dart): a folder is not
     # included by its parent's entry.
     - assets/images/backdrop/
+    # UI icons: Hugeicons (MIT, LICENSE-hugeicons.md), one colour each, tinted in code.
+    - assets/images/icons/
     - assets/audio/
+    # The fonts' licences travel with them (SIL OFL 1.1); main.dart also
+    # registers them with LicenseRegistry.
+    - assets/fonts/Inter-OFL.txt
+    - assets/fonts/GeistMono-OFL.txt
     # The question bank ships only with the server (arcade/server/data),
     # never in the client (plan §5.1).
   fonts:
-    - family: InstrumentSans
+    # The 2026-09-30 design return: Inter for the interface, Geist Mono for
+    # numbers and short labels, both variable (the engine applies FontWeight
+    # to their weight axis), registered under the names the designer gave.
+    - family: Inter
       fonts:
-        - asset: assets/fonts/InstrumentSans.ttf
-    - family: GeistMono
+        - asset: assets/fonts/InterVariable.ttf
+    - family: Geist Mono
       fonts:
-        - asset: assets/fonts/GeistMono-Medium.ttf
-          weight: 500
-        - asset: assets/fonts/GeistMono-Bold.ttf
-          weight: 700
-    - family: PTSerif
-      fonts:
-        # Only the bold italic accent face is used (site's serif accent).
-        - asset: assets/fonts/PTSerif-BoldItalic.ttf
-          style: italic
-          weight: 700
+        - asset: assets/fonts/GeistMono-Variable.ttf

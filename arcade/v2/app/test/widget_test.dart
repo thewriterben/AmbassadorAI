@@ -33,9 +33,8 @@ void main() {
     await tester.pumpWidget(const ArcadeApp());
     await tester.pump();
 
-    await tester.scrollUntilVisible(
-        find.text('Coin Quest: Digital Gold'), 150, scrollable: find.byType(Scrollable).first);
-    expect(find.text('Coin Quest: Digital Gold'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('Coin Quest'), 150, scrollable: find.byType(Scrollable).first);
+    expect(find.text('Coin Quest'), findsOneWidget);
     expect(find.text('When Pigs Fly'), findsOneWidget);
 
     for (final t in removed) {
@@ -144,8 +143,12 @@ void main() {
     await tester.tap(entry);
     await tester.pumpAndSettle();
 
-    expect(find.text('Delete my play record'), findsOneWidget);
-    expect(find.text('Erase progress on this device'), findsOneWidget);
+    // Reachable means scrolled to, not necessarily on the first screen: the
+    // redesigned settings (2026-09-30) put the data section below the fold.
+    for (final label in ['Delete my play record', 'Erase progress on this device']) {
+      await tester.scrollUntilVisible(find.text(label), 150, scrollable: find.byType(Scrollable).first);
+      expect(find.text(label), findsOneWidget);
+    }
   });
 
   testWidgets('home still promises the games to come', (tester) async {

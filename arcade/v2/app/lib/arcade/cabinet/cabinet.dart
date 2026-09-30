@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import '../../audio.dart';
 import '../../dev.dart';
 import '../../theme.dart';
+import '../../ui_kit.dart';
 import '../progress.dart';
 
 /// The shared arcade cabinet: the frame every game in the catalogue sits in.
@@ -130,6 +131,10 @@ class CabinetScreen extends StatefulWidget {
   /// The body of the results sheet. The buttons around it are the cabinet's.
   final Widget Function(BuildContext context, RunResult result) resultBuilder;
 
+  /// A line kept in the results sheet's footer, above the buttons, so it is
+  /// read without scrolling: a game's own no-monetary-value notice.
+  final String? resultNotice;
+
   /// Drawn over the game, under the HUD — era banners, countdowns and the
   /// like. Rebuilt on [CabinetRun.tick].
   final Widget Function(BuildContext context, CabinetRun run)? overlayBuilder;
@@ -157,6 +162,7 @@ class CabinetScreen extends StatefulWidget {
     required this.builder,
     required this.hudBuilder,
     required this.resultBuilder,
+    this.resultNotice,
     this.overlayBuilder,
     this.controlsBuilder,
     this.musicTrack = Audio.trackLevel,
@@ -269,7 +275,7 @@ class CabinetScreenState extends State<CabinetScreen> with WidgetsBindingObserve
       // Passage summary loses its buttons off the bottom.
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => _ResultSheet(body: widget.resultBuilder(context, result)),
+      builder: (_) => _ResultSheet(body: widget.resultBuilder(context, result), notice: widget.resultNotice),
     );
     if (!mounted) return;
     if (action == 'again') {
@@ -441,21 +447,43 @@ class _PauseSheet extends StatelessWidget {
 /// in `TEN-GAMES.md` §1 on why a run that ends is not a run that failed.
 class _ResultSheet extends StatelessWidget {
   final Widget body;
-  const _ResultSheet({required this.body});
+  final String? notice;
+  const _ResultSheet({required this.body, this.notice});
 
   @override
   Widget build(BuildContext context) {
     return _SheetFrame(
       footer: [
-        const SizedBox(height: 18),
-        FilledButton(
-          onPressed: () => Navigator.pop(context, 'again'),
-          child: const Text('Fly again'),
+        if (notice != null) ...[
+          const SizedBox(height: 16),
+          InfoNotice(notice!),
+        ],
+        const SizedBox(height: 20),
+        SizedBox(
+          width: double.infinity,
+          height: 52,
+          child: FilledButton(
+            onPressed: () => Navigator.pop(context, 'again'),
+            child: const Text('Fly again'),
+          ),
         ),
-        const SizedBox(height: 4),
-        TextButton(
-          onPressed: () => Navigator.pop(context, 'done'),
-          child: const Text('Done', style: TextStyle(color: AppTheme.muted)),
+        const SizedBox(height: 12),
+        // The secondary button as the design return draws it (Coin Quest's
+        // "Levels"): the surface colour, a hairline edge.
+        SizedBox(
+          width: double.infinity,
+          height: 48,
+          child: OutlinedButton(
+            style: OutlinedButton.styleFrom(
+              backgroundColor: AppTheme.surface,
+              foregroundColor: AppTheme.text,
+              side: const BorderSide(color: AppTheme.border),
+              shape: const StadiumBorder(),
+              textStyle: const TextStyle(fontFamily: AppTheme.fontSans, fontSize: 16, fontWeight: FontWeight.w500),
+            ),
+            onPressed: () => Navigator.pop(context, 'done'),
+            child: const Text('Done'),
+          ),
         ),
       ],
       children: [body],
@@ -481,17 +509,25 @@ class _SheetFrame extends StatelessWidget {
       top: false,
       child: Container(
         width: double.infinity,
-        margin: const EdgeInsets.all(12),
-        padding: const EdgeInsets.fromLTRB(22, 24, 22, 16),
-        constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(context).height * 0.86),
+        margin: const EdgeInsets.all(16),
+        padding: const EdgeInsets.fromLTRB(24, 10, 24, 24),
+        constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(context).height * 0.88),
         decoration: BoxDecoration(
           color: AppTheme.card,
-          borderRadius: BorderRadius.circular(22),
-          border: Border.all(color: AppTheme.borderStrong, width: 0.5),
+          borderRadius: BorderRadius.circular(28),
+          border: Border.all(color: AppTheme.border),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            // The sheet's handle, as drawn; these sheets are answered with a
+            // button, not dragged away.
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.only(bottom: 22),
+              decoration: BoxDecoration(color: AppTheme.borderStrong, borderRadius: BorderRadius.circular(2)),
+            ),
             Flexible(
               child: SingleChildScrollView(
                 child: Column(mainAxisSize: MainAxisSize.min, children: children),
@@ -516,14 +552,13 @@ class CabinetStars extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
+        // Outlines, the earned ones larger and in orange, as Coin Quest's
+        // result draws them (the 2026-09-30 design return).
         for (var i = 1; i <= 3; i++)
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 3),
-            child: Icon(
-              i <= stars ? Icons.star_rounded : Icons.star_outline_rounded,
-              size: size,
-              color: i <= stars ? AppTheme.accent : AppTheme.dim,
-            ),
+            padding: EdgeInsets.symmetric(horizontal: size * 0.3),
+            child: HugeIcon('star',
+                size: i <= stars ? size * 1.2 : size, color: i <= stars ? AppTheme.accent : AppTheme.body),
           ),
       ],
     );

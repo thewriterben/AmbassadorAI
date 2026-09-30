@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 import '../../audio.dart';
 import '../../dev.dart';
 import '../../theme.dart';
+import '../../ui_kit.dart';
 import '../progress.dart';
 import 'abilities.dart';
 import 'boar.dart';
 import 'passage_screen.dart';
 import 'pigs_dev.dart';
 import 'pigs_onboarding.dart';
+import '../entry.dart';
 
 /// When Pigs Fly's front room: the boar you have grown, the abilities you
 /// have unlocked and the two you are taking up, and the button that flies.
@@ -135,12 +137,9 @@ class _PigsHomeScreenState extends State<PigsHomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.bg,
-      appBar: AppBar(
-        backgroundColor: AppTheme.bg,
-        foregroundColor: AppTheme.text,
-        title: const Text('When Pigs Fly'),
-      ),
-      body: ListenableBuilder(
+      body: SafeArea(
+        bottom: false,
+        child: ListenableBuilder(
         listenable: _p,
         builder: (context, _) {
           final shop = !ArcadeProgress.noBackend;
@@ -148,8 +147,14 @@ class _PigsHomeScreenState extends State<PigsHomeScreen> {
             children: [
               Expanded(
                 child: ListView(
-                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+                  padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
                   children: [
+                    ScreenHeader(
+                      title: 'When Pigs Fly',
+                      subtitle: 'Nine eras of money, one winged piggy bank.',
+                      onBack: () => leaveScreen(context),
+                    ),
+                    const SizedBox(height: 22),
                     _BoarCard(p: _p, showProgress: shop),
                     if (Dev.enabled) ...[
                       const SizedBox(height: 10),
@@ -161,6 +166,11 @@ class _PigsHomeScreenState extends State<PigsHomeScreen> {
                       const SizedBox(height: 14),
                       const _HowToFly(),
                     ],
+                    const SizedBox(height: 18),
+                    // The arcade's own notice speaks of XP and badges, verbatim
+                    // as the design return requires; this game says it of its
+                    // points and coins (the owner's call, 2026-09-30).
+                    const InfoNotice('Points and coins have no monetary value.'),
                     if (shop) ...[
                       const SizedBox(height: 18),
                       _Loadout(ids: _p.passageLoadout),
@@ -213,7 +223,7 @@ class _PigsHomeScreenState extends State<PigsHomeScreen> {
               SafeArea(
                 top: false,
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                  padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
                   child: SizedBox(
                     width: double.infinity,
                     height: 52,
@@ -227,6 +237,7 @@ class _PigsHomeScreenState extends State<PigsHomeScreen> {
             ],
           );
         },
+        ),
       ),
     );
   }

@@ -9,11 +9,13 @@ import '../../arcade/progress.dart';
 import '../../audio.dart';
 import '../../dev.dart';
 import '../../theme.dart';
+import '../../ui_kit.dart';
 import '../game/match3_game.dart';
 import '../model/levels.dart';
 import '../model/session.dart';
 import 'coach.dart';
 import '../progress.dart';
+import '../../arcade/entry.dart';
 
 /// Plays one level: Flame board + Flutter HUD + end-of-level sheet.
 class Match3Screen extends StatefulWidget {
@@ -81,6 +83,9 @@ class _Match3ScreenState extends State<Match3Screen> {
 
   Future<void> _onEnd(SessionState state) async {
     if (!mounted) return;
+    // Read before record(): the result says what this clear added.
+    final starsBefore = Progress.instance.stars(widget.level.id);
+    final clearedBefore = Progress.instance.best(widget.level.id) > 0;
     if (state == SessionState.won) {
       // The win sting is fired by celebrate(); firing it here as well restarted
       // the same sample 450 ms later and cut the first one off.
@@ -117,8 +122,11 @@ class _Match3ScreenState extends State<Match3Screen> {
       context: context,
       isDismissible: false,
       enableDrag: false,
+      // Not capped at 9/16 of the screen: with larger system text the sheet
+      // is taller than that, and its buttons were cut off on a Pixel.
+      isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => _EndSheet(session: session),
+      builder: (_) => _EndSheet(session: session, starsBefore: starsBefore, clearedBefore: clearedBefore),
     );
     if (!mounted) return;
     switch (action) {
@@ -147,113 +155,93 @@ class _Match3ScreenState extends State<Match3Screen> {
           SafeArea(
             child: Column(
               children: [
-                // HUD
+                // Header, as drawn: back, the vault, and the game under it.
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
-                  child: ValueListenableBuilder<int>(
-                    valueListenable: game.notifier,
-                    builder: (_, __, ___) => Row(
-                      children: [
-                        IconButton(
-                          onPressed: () => Navigator.pop(context),
-                          icon: const Icon(Icons.arrow_back, color: AppTheme.text),
+                  padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+                  child: ScreenHeader(
+                    title: 'Vault ${lv.id.toString().padLeft(2, '0')}',
+                    subtitle: 'Coin Quest',
+                    subtitleUnderTitle: true,
+                    onBack: () => leaveScreen(context),
+                    actions: [
+                      // Guarded at the call site, not only inside DevMenu —
+                      // see the note in level_map.dart. Without this the
+                      // action closures keep devCombo and the finale show
+                      // alive in a store build.
+                      if (Dev.enabled)
+                        DevMenu(
+                          title: 'LEVEL ${lv.id} · ${lv.goalShort}',
+                          actions: {
+                            'Combo x4 — standard praise': () => game.devCombo(4),
+                            'Combo x6 — big praise': () => game.devCombo(6),
+                            'Combo x9': () => game.devCombo(9),
+                            'Win — 3 stars': () => _devEnd(SessionState.won, stars: 3),
+                            'Win — 1 star': () => _devEnd(SessionState.won, stars: 1),
+                            'Win — 0 stars (under par)': () => _devEnd(SessionState.won, stars: 0),
+                            // The grand show only fires on the last level, so
+                            // without this the only way to see it is to clear
+                            // all sixty.
+                            'Win — GRAND FINALE show': () => unawaited(
+                                  game.celebrate(finale: true).then((_) {
+                                    if (mounted) _devEnd(SessionState.won, stars: 3);
+                                  }),
+                                ),
+                            'Lose — encouragement line': () => _devEnd(SessionState.lost),
+                          },
                         ),
-                        Image.asset('assets/images/logo_orange.png', width: 22, height: 22),
-                        const SizedBox(width: 8),
-                        _pill('VAULT', '${lv.id}'),
-                        const SizedBox(width: 8),
-                        _pill('MOVES', '${session.movesLeft}', warn: session.movesLeft <= 5),
-                        const Spacer(),
-                        // Guarded at the call site, not only inside DevMenu —
-                        // see the note in level_map.dart. Without this the
-                        // action closures keep devCombo and the finale show
-                        // alive in a store build.
-                        if (Dev.enabled)
-                          DevMenu(
-                            title: 'LEVEL ${lv.id} · ${lv.goalShort}',
-                            actions: {
-                              'Combo x4 — standard praise': () => game.devCombo(4),
-                              'Combo x6 — big praise': () => game.devCombo(6),
-                              'Combo x9': () => game.devCombo(9),
-                              'Win — 3 stars': () => _devEnd(SessionState.won, stars: 3),
-                              'Win — 1 star': () => _devEnd(SessionState.won, stars: 1),
-                              'Win — 0 stars (under par)': () => _devEnd(SessionState.won, stars: 0),
-                              // The grand show only fires on the last level, so
-                              // without this the only way to see it is to clear
-                              // all sixty.
-                              'Win — GRAND FINALE show': () => unawaited(
-                                    game.celebrate(finale: true).then((_) {
-                                      if (mounted) _devEnd(SessionState.won, stars: 3);
-                                    }),
-                                  ),
-                              'Lose — encouragement line': () => _devEnd(SessionState.lost),
-                            },
-                          ),
-                        const SizedBox(width: 8),
-                        TweenAnimationBuilder<double>(
-                          tween: Tween(end: session.score.toDouble()),
-                          duration: const Duration(milliseconds: 500),
-                          curve: Curves.easeOutCubic,
-                          builder: (_, v, __) => _pill('SCORE', '${v.round()}', accent: true),
-                        ),
-                      ],
-                    ),
+                    ],
                   ),
                 ),
-                // Goal bar
+                const SizedBox(height: 22),
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 6, 20, 10),
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: ValueListenableBuilder<int>(
                     valueListenable: game.notifier,
                     builder: (_, __, ___) => Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        _MovesScore(
+                          moves: session.movesLeft,
+                          score: session.score,
+                          par: lv.targetScore,
+                        ),
+                        const SizedBox(height: 22),
                         // The goal and its counter share one Expanded, with the
-                        // stars pinned right.
-                        //
-                        // This used to be Flexible(text), counter, Spacer(),
-                        // stars — and a Spacer *is* an Expanded, so it competed
-                        // with the Flexible for the slack and took half of it.
-                        // The goal text was left with about a third of the row
-                        // and ellipsised on its second line however short the
-                        // wording got: "BREAK 12 REINFORCED VAU…". Shortening
-                        // the strings treated the symptom; this is the cause.
+                        // stars pinned right. (A Spacer beside a Flexible once
+                        // took half the slack and ellipsised the goal: "BREAK
+                        // 12 REINFORCED VAU…".)
                         Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Expanded(
-                              child: Row(
-                                children: [
-                                  Flexible(
-                                    child: Text(lv.goalText.toUpperCase(),
-                                        // Two lines before it gives up: the
-                                        // goal is the one thing on screen the
-                                        // player must be able to read in full.
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: const TextStyle(
-                                            fontFamily: AppTheme.fontMono,
-                                            fontSize: 11,
-                                            letterSpacing: 1.2,
-                                            color: AppTheme.muted)),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  // Objective levels are won by the counter,
-                                  // not the score, so it gets the accent.
+                              child: Row(children: [
+                                Flexible(
+                                  child: Text(_withCommas(lv.goalText),
+                                      // Two lines before it gives up: the goal
+                                      // is the one thing on screen the player
+                                      // must be able to read in full.
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                          fontSize: 16, fontWeight: FontWeight.w500, color: AppTheme.text)),
+                                ),
+                                // Objective levels are won by the counter, not
+                                // the score, so they show it; a score level's
+                                // counter is the card above.
+                                if (lv.goal != GoalType.score) ...[
+                                  const SizedBox(width: 10),
                                   Text(session.goalCounter,
                                       style: TextStyle(
                                           fontFamily: AppTheme.fontMono,
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w700,
+                                          fontSize: 15,
                                           color: session.goalMet ? AppTheme.success : AppTheme.accent)),
                                 ],
-                              ),
+                              ]),
                             ),
                             const SizedBox(width: 10),
                             _stars(session.stars),
                           ],
                         ),
-                        const SizedBox(height: 6),
+                        const SizedBox(height: 14),
                         ClipRRect(
                           borderRadius: BorderRadius.circular(999),
                           child: TweenAnimationBuilder<double>(
@@ -262,7 +250,7 @@ class _Match3ScreenState extends State<Match3Screen> {
                             curve: Curves.easeOut,
                             builder: (_, v, __) => LinearProgressIndicator(
                               value: v,
-                              minHeight: 6,
+                              minHeight: 8,
                               backgroundColor: AppTheme.surface,
                               color: AppTheme.accent,
                             ),
@@ -272,6 +260,7 @@ class _Match3ScreenState extends State<Match3Screen> {
                     ),
                   ),
                 ),
+                const SizedBox(height: 16),
                 // Board.
                 //
                 // The game surface is the whole area, not a board-shaped box.
@@ -295,7 +284,7 @@ class _Match3ScreenState extends State<Match3Screen> {
                 // grid with the 6px surround it always had.
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.all(8),
+                    padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
                     child: LayoutBuilder(
                       builder: (context, c) {
                         final cell = min(c.maxWidth / lv.cols, c.maxHeight / lv.rows);
@@ -309,10 +298,11 @@ class _Match3ScreenState extends State<Match3Screen> {
                               width: bw + surround * 2,
                               height: bh + surround * 2,
                               child: Container(
-                                decoration: AppTheme.glass(
-                                    radius: 20,
-                                    fill: const Color(0xCC050607),
-                                    outline: AppTheme.borderStrong),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.card,
+                                  borderRadius: BorderRadius.circular(24),
+                                  border: Border.all(color: AppTheme.border),
+                                ),
                               ),
                             ),
                             Positioned.fill(child: GameWidget(game: game)),
@@ -331,114 +321,169 @@ class _Match3ScreenState extends State<Match3Screen> {
     );
   }
 
-  Widget _pill(String k, String v, {bool accent = false, bool warn = false}) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-        decoration: AppTheme.glass(
-            radius: 999, outline: warn ? AppTheme.danger.withValues(alpha: 0.7) : AppTheme.borderStrong),
-        child: Row(children: [
-          Text('$k ',
-              style: const TextStyle(
-                  fontFamily: AppTheme.fontMono, fontSize: 10, letterSpacing: 1, color: AppTheme.muted)),
-          Text(v,
-              style: TextStyle(
-                  fontFamily: AppTheme.fontMono,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                  color: warn ? AppTheme.danger : (accent ? AppTheme.accent : AppTheme.text))),
-        ]),
-      );
-
   Widget _stars(int n) => Row(children: [
-        for (var s = 1; s <= 3; s++)
-          Icon(Icons.star_rounded, size: 18, color: s <= n ? AppTheme.accent : AppTheme.dim),
+        for (var s = 1; s <= 3; s++) ...[
+          if (s > 1) const SizedBox(width: 4),
+          HugeIcon('star', size: 20, color: s <= n ? AppTheme.accent : AppTheme.body),
+        ],
       ]);
 }
 
+/// "1050" as "1,050", inside a sentence.
+String _withCommas(String s) => s.replaceAllMapped(
+    RegExp(r'\d{4,}'), (m) => m[0]!.replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+$)'), (d) => '${d[1]},'));
+
+/// Moves left, and the score against par, in one card.
+class _MovesScore extends StatelessWidget {
+  final int moves, score, par;
+  const _MovesScore({required this.moves, required this.score, required this.par});
+
+  @override
+  Widget build(BuildContext context) {
+    const label = TextStyle(fontSize: 14, color: AppTheme.body);
+    const big = TextStyle(fontFamily: AppTheme.fontMono, fontSize: 40, height: 1.1);
+    return Container(
+      padding: const EdgeInsets.fromLTRB(24, 20, 24, 22),
+      decoration: BoxDecoration(
+        color: AppTheme.card,
+        borderRadius: BorderRadius.circular(28),
+        border: Border.all(color: AppTheme.border),
+      ),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Expanded(
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            const Text('Moves left', style: label),
+            const SizedBox(height: 12),
+            Text('$moves', style: big.copyWith(color: moves <= 5 ? AppTheme.danger : AppTheme.text)),
+          ]),
+        ),
+        Expanded(
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            const Text('Score', style: label),
+            const SizedBox(height: 12),
+            Row(crossAxisAlignment: CrossAxisAlignment.baseline, textBaseline: TextBaseline.alphabetic, children: [
+              TweenAnimationBuilder<double>(
+                tween: Tween(end: score.toDouble()),
+                duration: const Duration(milliseconds: 500),
+                curve: Curves.easeOutCubic,
+                builder: (_, v, __) => Text('${v.round()}', style: big.copyWith(color: AppTheme.accent)),
+              ),
+              const SizedBox(width: 10),
+              Flexible(
+                child: Text('/ $par',
+                    overflow: TextOverflow.fade,
+                    softWrap: false,
+                    style: const TextStyle(fontFamily: AppTheme.fontMono, fontSize: 17, color: AppTheme.body)),
+              ),
+            ]),
+          ]),
+        ),
+      ]),
+    );
+  }
+}
+
+/// The result, as a sheet: the outcome, the stars, the score set large, what
+/// this round added on this phone, and the two ways on.
+///
+/// Worded with care. The approved mockup says "1 star earned" and "Verified
+/// score"; "earn" is banned copy (RETURN-SPEC §6), and a demo build has no
+/// server to verify anything, so these read "1 of 3 stars" and "Score".
 class _EndSheet extends StatelessWidget {
   final LevelSession session;
-  const _EndSheet({required this.session});
+  final int starsBefore;
+  final bool clearedBefore;
+  const _EndSheet({required this.session, required this.starsBefore, required this.clearedBefore});
 
   @override
   Widget build(BuildContext context) {
     final won = session.state == SessionState.won;
     final isLast = session.level.id == levels.length;
+    final stars = won ? session.stars : 0;
+    final newStars = [for (var s = starsBefore + 1; s <= stars; s++) s];
+    final recorded = [
+      if (won && !clearedBefore) 'First completion recorded',
+      if (newStars.length == 1) 'Star ${newStars.first} recorded',
+      if (newStars.length > 1) 'Stars ${newStars.first} to ${newStars.last} recorded',
+    ];
     return Container(
       margin: AppTheme.sheetMargin(context),
-      padding: const EdgeInsets.all(24),
-      decoration: AppTheme.glass(radius: 24, fill: AppTheme.card, outline: AppTheme.borderStrong),
-      child: Column(
+      padding: const EdgeInsets.fromLTRB(24, 10, 24, 24),
+      decoration: BoxDecoration(
+        color: AppTheme.card,
+        borderRadius: BorderRadius.circular(28),
+        border: Border.all(color: AppTheme.border),
+      ),
+      // Scrolls only if a small screen with large text cannot fit it.
+      child: SingleChildScrollView(
+        child: Column(
         mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(won ? 'VAULT ${session.level.id} OPENED' : 'VAULT SEALED',
-              style: TextStyle(
-                  fontFamily: AppTheme.fontMono,
-                  fontSize: 11,
-                  letterSpacing: 1.2,
-                  color: won ? AppTheme.accent : AppTheme.danger)),
-          const SizedBox(height: 6),
-          RichText(
-            text: TextSpan(
-              style: const TextStyle(
-                  fontFamily: AppTheme.fontSans,
-                  fontSize: 30,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: -1,
-                  color: AppTheme.text),
-              children: [
-                TextSpan(text: won ? 'Cracked ' : 'Out of moves. '),
-                TextSpan(
-                    text: won ? 'it.' : 'Try again?',
-                    style: const TextStyle(
-                        fontFamily: AppTheme.fontSerif,
-                        fontStyle: FontStyle.italic,
-                        fontWeight: FontWeight.w700,
-                        color: AppTheme.accent)),
-              ],
+          Container(
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(color: AppTheme.borderStrong, borderRadius: BorderRadius.circular(2)),
+          ),
+          const SizedBox(height: 28),
+          Text(won ? 'Level complete' : 'Out of moves',
+              style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w600, letterSpacing: -0.6, color: AppTheme.text)),
+          const SizedBox(height: 20),
+          Row(mainAxisSize: MainAxisSize.min, children: [
+            for (var s = 1; s <= 3; s++) ...[
+              if (s > 1) const SizedBox(width: 18),
+              HugeIcon('star', size: s <= stars ? 36 : 30, color: s <= stars ? AppTheme.accent : AppTheme.body),
+            ],
+          ]),
+          const SizedBox(height: 10),
+          Text(won ? '$stars of 3 stars' : 'Goal not reached',
+              style: const TextStyle(fontSize: 15, color: AppTheme.body)),
+          const SizedBox(height: 26),
+          const Text('Score', style: TextStyle(fontSize: 15, color: AppTheme.body)),
+          Text('${session.score}',
+              style: const TextStyle(fontFamily: AppTheme.fontMono, fontSize: 60, color: AppTheme.text)),
+          Text('Coin Quest · level ${session.level.id}${Dev.demoBuild ? ' · demo' : ''}',
+              style: const TextStyle(fontSize: 14, color: AppTheme.body)),
+          if (recorded.isNotEmpty) ...[
+            const SizedBox(height: 14),
+            for (final r in recorded)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 3),
+                child: Text(r, style: const TextStyle(fontSize: 15, color: AppTheme.text)),
+              ),
+          ],
+          const SizedBox(height: 24),
+          SizedBox(
+            width: double.infinity,
+            height: 52,
+            child: FilledButton(
+              onPressed: () {
+                Audio.instance.tap();
+                Navigator.pop(context, won ? (isLast ? 'map' : 'next') : 'retry');
+              },
+              child: Text(won ? (isLast ? 'Done' : 'Next level') : 'Play again'),
             ),
           ),
-          const SizedBox(height: 14),
-          Row(children: [
-            for (var s = 1; s <= 3; s++)
-              Icon(Icons.star_rounded,
-                  size: 34, color: s <= session.stars && won ? AppTheme.accent : AppTheme.dim),
-            const Spacer(),
-            Text('${session.score}',
-                style: const TextStyle(
-                    fontFamily: AppTheme.fontMono,
-                    fontSize: 28,
-                    fontWeight: FontWeight.w700,
-                    color: AppTheme.text)),
-          ]),
-          const SizedBox(height: 20),
-          Row(children: [
-            Expanded(
-              child: OutlinedButton(
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: AppTheme.text,
-                  side: const BorderSide(color: AppTheme.borderStrong),
-                  shape: const StadiumBorder(),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-                onPressed: () {
-                  Audio.instance.tap();
-                  Navigator.pop(context, won ? 'map' : 'retry');
-                },
-                child: Text(won ? 'Map' : 'Retry'),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            height: 48,
+            child: OutlinedButton(
+              style: OutlinedButton.styleFrom(
+                backgroundColor: AppTheme.surface,
+                foregroundColor: AppTheme.text,
+                side: const BorderSide(color: AppTheme.border),
+                shape: const StadiumBorder(),
+                textStyle: const TextStyle(fontFamily: AppTheme.fontSans, fontSize: 16, fontWeight: FontWeight.w500),
               ),
+              onPressed: () {
+                Audio.instance.tap();
+                Navigator.pop(context, 'map');
+              },
+              child: const Text('Levels'),
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: FilledButton(
-                onPressed: () {
-                  Audio.instance.tap();
-                  Navigator.pop(context, won ? (isLast ? 'map' : 'next') : 'map');
-                },
-                child: Text(won ? (isLast ? 'Done' : 'Next level  →') : 'Map'),
-              ),
-            ),
-          ]),
+          ),
         ],
+        ),
       ),
     );
   }

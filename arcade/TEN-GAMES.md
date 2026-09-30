@@ -789,6 +789,49 @@ for the next in-between.
 
 All 167 tests pass.
 
+### DGD App 2.0: the arcade redesigned, and opened straight into a game — 2026-09-30
+
+The design return of 2026-09-30 ("Direction 03": `F:\Documents\dgdappso\DGD-Design-Return-2026-09-30`
+and its extras) is applied to the arcade that DGD App 2.0 embeds. It drew
+Coin Quest alone. When Pigs Fly was extended to the same rules, on the
+owner's call, for the designer to review.
+
+**What changed in the arcade** (v2 `50a8009`):
+- **Assets.** The 18 replacement images (background, logos, nodes,
+  pieces, vaults, seals). Inter and Geist Mono, variable, with their OFL
+  notices registered in the licence page. Hugeicons (MIT), tinted in code.
+  The old fonts are gone.
+- **Tokens.** Page `#09090B`, cards `#141414`, insets `#202020`, a
+  `#303030` hairline, secondary text `#A7A7A7`, danger `#FF6B6B`.
+- **Screens.** Arcade home, settings, the level map, the goal sheet, the
+  level screen, the result sheet and the first-play tips, as drawn.
+- **When Pigs Fly.** Its front room gets the header and the notice, and its
+  results are laid out like Coin Quest's.
+- **The notice.** The arcade's reads "Educational only. XP and badges have
+  no monetary value." verbatim, as the return requires. When Pigs Fly's own
+  screens carry "Points and coins have no monetary value." (the owner's
+  call). In the results it sits in the footer, so it is always visible.
+- **Wording kept honest.** The mockup's "1 star earned" is "1 of 3 stars"
+  ("earn" is banned copy). "Verified score" is "Score", because a demo build
+  verifies nothing. A won level keeps "Next level", since the return keeps
+  existing actions.
+- **Large text.** Checked at 115% with bold text on. Sheets grow instead of
+  clipping, and level numbers stay out of the node's coin.
+
+**Opened straight into a game** (v2 `7fc97da`). The redesigned DGD App has
+its own Arcade tab, with a card per game and a settings button. It opens
+the arcade with `open(coin_quest | pigs | settings | home)` on the
+`dgd/arcade` channel.
+- That screen becomes the whole stack. Its back button (`leaveScreen`), like
+  the back gesture, leaves the arcade and returns to the app.
+- A destination that arrives before the navigator exists is taken after the
+  first frame.
+- `arcade_entry_test` pins each destination.
+
+The native half (dgd-native `a0fba92`, `dgd-2.0`) has the bottom bar,
+Market, the Arcade and Account tabs, and the restyled Join, Log in and
+Invite. It is recorded in that repo's commit.
+
 ### Music only inside a game, merged into Arcade 2.0 — 2026-09-29
 
 `v2/music-in-games` (4050ed0) is merged into `v2/ten-games`. The arcade's

@@ -95,6 +95,16 @@ class Level {
         GoalType.ingots => 'Bring down $ingotCount ${ingotCount == 1 ? 'ingot' : 'ingots'}',
       };
 
+  /// The goal split for the level sheet, which sets the number large: the
+  /// verb above it, the thing counted below. Same words as [goalText].
+  (String, int, String) get goalParts => switch (goal) {
+        GoalType.score => ('Reach', targetScore, 'points'),
+        GoalType.collect => ('Collect', collectCount, _kindName(collectKind!)),
+        GoalType.seals => ('Strip', sealCount * sealLayers, 'ledger seals'),
+        GoalType.vaults => ('Break', vaultCount, vaultArmor > 1 ? 'reinforced vaults' : 'vaults'),
+        GoalType.ingots => ('Bring down', ingotCount, ingotCount == 1 ? 'ingot' : 'ingots'),
+      };
+
   /// Short form for the HUD chip.
   String get goalShort => switch (goal) {
         // "VALUE" on a rising counter, in an app for a gold-backed asset, sat

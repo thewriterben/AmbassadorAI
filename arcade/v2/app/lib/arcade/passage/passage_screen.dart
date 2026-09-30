@@ -88,6 +88,10 @@ class _PassageScreenState extends State<PassageScreen> {
       overlayBuilder: (context, run) => _Overlay(game: _game!),
       controlsBuilder: (context, run) => _Controls(game: _game!),
       resultBuilder: (context, result) => _Result(result: result, game: _game!),
+      // The arcade's own notice speaks of XP and badges, verbatim as the
+      // design return requires; this game says it of its points and coins
+      // (the owner's call, 2026-09-30). In the footer, so it is always seen.
+      resultNotice: 'Points and coins have no monetary value.',
       // Guarded here, not only inside DevMenu: a const-false check at the call
       // site is what drops these closures, and all they name, from a store
       // build (dev.dart; review E2, 2026-09-30).
@@ -645,48 +649,30 @@ class _ResultState extends State<_Result> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        CabinetStars(stars: result.stars),
-        const SizedBox(height: 16),
+        // Laid out as Coin Quest's result (the 2026-09-30 design return):
+        // the outcome, the stars, what happened, and the figure set large.
         Text(
           headline,
           textAlign: TextAlign.center,
-          style: const TextStyle(
-            fontSize: 21,
-            fontWeight: FontWeight.w600,
-            color: AppTheme.text,
-          ),
+          style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w600, letterSpacing: -0.6, color: AppTheme.text),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 20),
+        CabinetStars(stars: result.stars),
+        const SizedBox(height: 14),
         Text(
           detail,
           textAlign: TextAlign.center,
-          style: const TextStyle(fontSize: 13.5, height: 1.45, color: AppTheme.body),
+          style: const TextStyle(fontSize: 15, height: 1.45, color: AppTheme.body),
         ),
-        const SizedBox(height: 14),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.baseline,
-          textBaseline: TextBaseline.alphabetic,
-          children: [
-            Text(
-              '${result.score}',
-              style: const TextStyle(
-                fontFamily: AppTheme.fontMono,
-                fontSize: 22,
-                color: AppTheme.accent,
-              ),
-            ),
-            const SizedBox(width: 6),
-            Text(
-              result.score == 1 ? 'point' : 'points',
-              style: const TextStyle(fontSize: 13, color: AppTheme.body),
-            ),
-            const SizedBox(width: 12),
-            Text(
-              '${game.coinsTaken} ${game.coinsTaken == 1 ? 'coin' : 'coins'} taken',
-              style: const TextStyle(fontSize: 12.5, color: AppTheme.muted),
-            ),
-          ],
+        const SizedBox(height: 22),
+        const Text('Points', style: TextStyle(fontSize: 15, color: AppTheme.body)),
+        Text(
+          '${result.score}',
+          style: const TextStyle(fontFamily: AppTheme.fontMono, fontSize: 56, color: AppTheme.text),
+        ),
+        Text(
+          'When Pigs Fly · ${game.coinsTaken} ${game.coinsTaken == 1 ? 'coin' : 'coins'} taken',
+          style: const TextStyle(fontSize: 14, color: AppTheme.body),
         ),
         if (!ArcadeProgress.noBackend) ...[
           const SizedBox(height: 16),
@@ -729,7 +715,8 @@ class _ResultState extends State<_Result> {
           const SizedBox(height: 14),
           Container(
             padding: const EdgeInsets.all(14),
-            decoration: AppTheme.glass(radius: 14),
+            // Inset on the sheet, which is card-coloured itself now.
+            decoration: BoxDecoration(color: AppTheme.surface, borderRadius: BorderRadius.circular(18)),
             // Facts differ in length; ease the card between them.
             child: AnimatedSize(
               duration: const Duration(milliseconds: 180),
@@ -750,7 +737,7 @@ class _ResultState extends State<_Result> {
                   Text(
                     eras[shown].fact,
                     style: const TextStyle(
-                      fontSize: 13,
+                      fontSize: 14,
                       height: 1.45,
                       color: AppTheme.text,
                     ),

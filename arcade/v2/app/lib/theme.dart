@@ -1,35 +1,43 @@
 import 'package:flutter/material.dart';
 
 /// Single place to re-skin the whole app.
-/// Tokens mirror digitalgold.co's CSS variables.
+///
+/// Colours are the design return of 2026-09-30 (`phoneAppRedesign` in its
+/// design-tokens.json, "Direction 03"): a flat page, cards one step up with a
+/// hairline edge, insets one step further. The names are the ones the code
+/// already used, so every screen picks the new values up.
 class AppTheme {
   static const appName = 'DGD Arcade';
 
-  // --background / --bg-2 / --card / --section-alt
-  static const bg = Color(0xFF020203);
-  static const bg2 = Color(0xFF08090B);
-  static const card = Color(0xFF050607);
-  static const surface = Color(0xFF101010);
+  // v3-page / v3-inset (cards) / v3-surface (insets, secondary buttons)
+  static const bg = Color(0xFF09090B);
+  static const bg2 = Color(0xFF09090B);
+  static const card = Color(0xFF141414);
+  static const surface = Color(0xFF202020);
 
   // --primary / --primary-hover
   static const accent = Color(0xFFEA952D);
   static const accentHover = Color(0xFFFFAF4E);
 
-  // --foreground / --text-body / --text-muted / --text-dim
+  // v3-text / v3-secondary; muted and dim stay for the quietest labels and
+  // for what is not yet reached.
   static const text = Color(0xFFE8E8E8);
-  static const body = Color(0xFF9A9A9A);
-  static const muted = Color(0xFF7A7A7A);
+  static const body = Color(0xFFA7A7A7);
+  static const muted = Color(0xFF8A8A8A);
   static const dim = Color(0xFF4D4D4D);
 
-  // --border / --border-strong / --surface-elevated
-  static const border = Color(0x12FFFFFF);
-  static const borderStrong = Color(0x24FFFFFF);
-  static const glassFill = Color(0x0DFFFFFF);
+  // v3-edge. Cards are opaque now (v3-inset), not a tint over the page.
+  static const border = Color(0xFF303030);
+  static const borderStrong = Color(0xFF3C3C3C);
+  static const glassFill = card;
+
+  /// Text on the orange button (v3-on-orange).
+  static const onAccent = Color(0xFF09090B);
 
   // status
   static const info = Color(0xFF3080FF);
   static const success = Color(0xFF28C93F);
-  static const danger = Color(0xFFFF6568);
+  static const danger = Color(0xFFFF6B6B); // the return's red, as its icons
   static const warning = Color(0xFFEDB200);
 
   /// Piece palette for Match / Blocks (site accent + status colors).
@@ -43,9 +51,8 @@ class AppTheme {
     Color(0xFFB57BEE),
   ];
 
-  static const fontSans = 'InstrumentSans';
-  static const fontMono = 'GeistMono';
-  static const fontSerif = 'PTSerif';
+  static const fontSans = 'Inter';
+  static const fontMono = 'Geist Mono';
 
   static const glow = [
     BoxShadow(color: Color(0x4DEA952D), blurRadius: 15),
@@ -56,7 +63,7 @@ class AppTheme {
       BoxDecoration(
         color: fill ?? glassFill,
         borderRadius: BorderRadius.circular(radius),
-        border: Border.all(color: outline ?? border, width: 0.5),
+        border: Border.all(color: outline ?? border, width: 1),
       );
 
   /// Outer margin for a floating (card-style) modal bottom sheet.
@@ -82,7 +89,7 @@ class AppTheme {
         scaffoldBackgroundColor: bg,
         colorScheme: const ColorScheme.dark(
           primary: accent,
-          onPrimary: Color(0xFF030303),
+          onPrimary: onAccent,
           surface: card,
           onSurface: text,
         ),
@@ -101,8 +108,8 @@ class AppTheme {
         filledButtonTheme: FilledButtonThemeData(
           style: FilledButton.styleFrom(
             backgroundColor: accent,
-            foregroundColor: const Color(0xFF030303),
-            textStyle: const TextStyle(fontFamily: fontSans, fontWeight: FontWeight.w600),
+            foregroundColor: onAccent,
+            textStyle: const TextStyle(fontFamily: fontSans, fontWeight: FontWeight.w600, fontSize: 16),
             shape: const StadiumBorder(),
             padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
           ),
