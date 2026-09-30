@@ -166,7 +166,7 @@ class BoarSpec {
     // middle of the body, measured on a grid at the old padding of 1.08 and
     // rescaled with it; the boar is drawn the same size as before.
     BoarStage.piglet: BoarSpec(
-      file: 'boar_piglet.png',
+      file: 'boar_piglet.webp',
       sizeInRadii: 5.83,
       anchorU: 0.54,
       anchorV: 0.586,
@@ -180,7 +180,7 @@ class BoarSpec {
       glideBeat: 0.50,
     ),
     BoarStage.juvenile: BoarSpec(
-      file: 'boar_juvenile.png',
+      file: 'boar_juvenile.webp',
       sizeInRadii: 8.33,
       anchorU: 0.55,
       anchorV: 0.594,
@@ -193,7 +193,7 @@ class BoarSpec {
       glideBeat: 0.62,
     ),
     BoarStage.razorback: BoarSpec(
-      file: 'boar_razorback.png',
+      file: 'boar_razorback.webp',
       sizeInRadii: 9.17,
       anchorU: 0.55,
       anchorV: 0.597,

@@ -12,6 +12,26 @@ import 'package:puzzle_pack/arcade/passage/passage_game.dart';
 /// the exact numbers only matter for readability.
 final _size = Vector2(412, 892);
 
+/// Width and height from a PNG's or a WebP's header (the boar sheets are
+/// WebP since the backdrops made the app heavy; see import_boars.py).
+(int, int) _imageSize(Uint8List b) {
+  final d = ByteData.sublistView(b);
+  String tag(int at) => String.fromCharCodes(b.sublist(at, at + 4));
+  if (tag(0) == 'RIFF' && tag(8) == 'WEBP') {
+    int le24(int at) => b[at] | b[at + 1] << 8 | b[at + 2] << 16;
+    switch (tag(12)) {
+      case 'VP8X':
+        return (le24(24) + 1, le24(27) + 1);
+      case 'VP8 ':
+        return (d.getUint16(26, Endian.little) & 0x3fff, d.getUint16(28, Endian.little) & 0x3fff);
+      case 'VP8L':
+        final v = d.getUint32(21, Endian.little);
+        return ((v & 0x3fff) + 1, (v >> 14 & 0x3fff) + 1);
+    }
+  }
+  return (d.getUint32(16), d.getUint32(20));
+}
+
 PassageGame _game(CabinetRun run, {int seed = 7}) {
   final g = PassageGame(run: run, seed: seed);
   g.onGameResize(_size);
@@ -247,8 +267,7 @@ void main() {
       for (final spec in BoarSpec.all.values) {
         final f = File('assets/images/${spec.file}');
         expect(f.existsSync(), isTrue, reason: '${spec.file} is missing');
-        final head = ByteData.sublistView(f.readAsBytesSync(), 16, 24);
-        final w = head.getUint32(0), h = head.getUint32(4);
+        final (w, h) = _imageSize(f.readAsBytesSync());
         expect(w, h * spec.frames.count, reason: '${spec.file} is ${w}x$h');
       }
     });

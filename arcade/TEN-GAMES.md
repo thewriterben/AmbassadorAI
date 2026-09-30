@@ -681,6 +681,55 @@ the gap and no white patch, alongside the game's own speed streaks. (The
 first install attempt failed because the Pixel had dropped off adb; the
 check was redone once it was plugged back in.)
 
+### Smaller art, and a release-build pass — 2026-09-29
+
+**Size.** The universal APK had reached 82 MB. Most of that, about 51 MB,
+is the engine for three architectures, which the Play Store's app bundle
+splits so each phone downloads one. The part that matters on every phone:
+28.6 MB of assets, of which the drawn backdrops were 15.4 MB of PNG and the
+boar sheets 2.7 MB.
+- **Both importers write lossy WebP at quality 90.** Lossless only reached
+  12.3 MB for the same images. At four times zoom (fur, the capital's
+  leaves, lit windows) quality 90 couldn't be told from the PNG.
+- **Backdrops:** 15.4 → 2.2 MB. **Boar sheets:** 2.7 → 0.7 MB.
+- **What a phone downloads** (arm64 split APK): 30.5 MB, from about 48 MB.
+- **Housekeeping:** `BoarSpec` files are `.webp`; `import_boars.py` removes
+  a stage's old PNG; the backdrop importer's stale-file sweep covers both
+  extensions. The sheet-layout test reads WebP headers (VP8X, VP8 and VP8L)
+  as well as PNG.
+
+**The release build, on the Pixel.** No DEV, `ARCADE_API` pointed at the
+local server over `adb reverse`, per-architecture APK, installed clean:
+- **Front room:** no DEV row, the drawn piglet stand, "0 / 1,200 to
+  juvenile", and the shop with unlocks greyed at 0 points.
+- **A run:** the 1816 intro, flight over the WebP art, a short landing, and
+  the results with the growth panel.
+- **The server** recorded the round (`mini_rounds`: passage, claimed,
+  12 XP, score 0).
+- **Not reached:** a full nine-era flight and the win landing. Blind taps
+  can't fly one. Both, and every era's art, were checked in the DEV build.
+
+**Findings:**
+- **Auto-backup restores an old identity.** The "clean" install came up
+  with 12 XP and 30 Coin Quest stars. Android's auto-backup
+  (`allowBackup` defaults to true) had restored the earlier install's data,
+  including its token. The local server didn't know that token, so the
+  first launch was OFFLINE until the app was restarted: a 401 makes the
+  app forget the token, and the next cold start registers afresh.
+  - In normal use, a restored token belongs to the same server and keeps
+    the player's history, so restoring is right.
+  - An immediate retry was considered and not made. The existing tests
+    record auto-re-registration as a known identity-churn risk, and a
+    retry would make it faster.
+  - It shows only when the restored token is dead: after a data deletion,
+    or a server reset.
+- **Split APKs carry a higher version code** (arm64 is 2200; the universal
+  APK is 200), so after testing a split release APK, the DEV build installs
+  only after an uninstall.
+- **The dev server refuses to start with its published secret** unless
+  `ARCADE_ALLOW_DEV_SECRET=1`, as it should. It binds 0.0.0.0, so it was
+  stopped as soon as the test was done.
+
 ### Glad landings and the razorback's buck, from Nano Banana Pro — 2026-09-29
 
 The owner made the new poses from the prompts, each from their own drawings

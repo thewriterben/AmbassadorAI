@@ -42,7 +42,9 @@ Every part is optional. For each source this:
      (or row) to the next: a building's edge at the seam is fine, a jump
      rougher than nearly any step inside the art is flagged. A warning,
      not an error;
-  5. writes assets/images/backdrop/{year}_{part}.png, and lists everything
+  5. writes assets/images/backdrop/{year}_{part}.webp (lossy, quality 90:
+     the nine eras came to 15 MB as PNG and under 3 MB this way, with no
+     difference to see at four times zoom), and lists everything
      in manifest.json there with its band, base and parallax, which the game
      reads (lib/arcade/passage/backdrop.dart).
 
@@ -579,8 +581,8 @@ def main():
                          f"where the art's own steps are at most about {usual:.0f}): the seam will show")
         if part in ("far", "mid", "near") and img.width < img.height * REF_W / REF_H * 2 * PARTS[part]["band"]:
             note += "; narrow: it repeats within two screens, consider drawing it wider"
-        name = f"{year}_{part}.png"
-        img.save(os.path.join(OUT, name))
+        name = f"{year}_{part}.webp"
+        img.save(os.path.join(OUT, name), "WEBP", quality=90, method=6)
         written.add(name)
         spec = {"file": name, **PARTS[part], **({"lip": round(lip, 4)} if lip > 0.01 else {}),
                 **{k: v for k, v in tuning.get(str(year), {}).get(part, {}).items() if k not in ("shade", "tint")}}
@@ -590,7 +592,7 @@ def main():
             print(f"  note: {year} needs both capital and shaft for drawn columns; until then its columns stay code-drawn")
 
     for name in os.listdir(OUT):
-        if name.endswith(".png") and name not in written:
+        if name.endswith((".png", ".webp")) and name not in written:
             os.remove(os.path.join(OUT, name))
             print(f"removed stale backdrop/{name}")
     with open(os.path.join(OUT, "manifest.json"), "w", encoding="utf-8", newline="\n") as f:

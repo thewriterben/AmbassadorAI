@@ -365,6 +365,17 @@ def sheet(frame, stage):
     return out
 
 
+def save_sheet(img, stage):
+    """Writes a stage's sheet as lossy WebP, quality 90: the three sheets
+    came to 2.7 MB as PNG and a fraction of it this way, with the fur and
+    feathers unchanged at four times zoom. An old PNG of it is removed, so
+    the app does not ship both."""
+    img.save(os.path.join(OUT, f"boar_{stage}.webp"), "WEBP", quality=90, method=6)
+    old = os.path.join(OUT, f"boar_{stage}.png")
+    if os.path.exists(old):
+        os.remove(old)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("sources", nargs=3, help="piglet, juvenile, razorback images")
@@ -377,13 +388,13 @@ def main():
         if drawn:
             cycle, poses = drawn
             frames[stage] = cycle[0]
-            drawn_sheet(cycle, stage, poses).save(os.path.join(OUT, f"boar_{stage}.png"))
+            save_sheet(drawn_sheet(cycle, stage, poses), stage)
             made = ", ".join(n for n in POSES[:4] if n not in poses)
             repeated = [n for n in POSES[4:] if n not in poses]
             print(f"{stage}: drawn wingbeat (source/boar_{stage}_cycle_1..{len(cycle)}.png)"
                   f", drawn poses: {', '.join(poses) or 'none'}"
                   f"{f', made from the wingbeat: {made}' if made else ''}"
-                  f"{f', repeating land/stand for: {chr(44).join(repeated)}' if repeated else ''} -> boar_{stage}.png")
+                  f"{f', repeating land/stand for: {chr(44).join(repeated)}' if repeated else ''} -> boar_{stage}.webp")
             continue
         img = Image.open(src).convert("RGBA")
         if args.facing == "left":
@@ -391,8 +402,8 @@ def main():
         img, dropped = main_component(img)
         fr = to_frame(img)
         frames[stage] = fr
-        sheet(fr, stage).save(os.path.join(OUT, f"boar_{stage}.png"))
-        print(f"{stage}: {src} -> boar_{stage}.png, {dropped} detached specks dropped")
+        save_sheet(sheet(fr, stage), stage)
+        print(f"{stage}: {src} -> boar_{stage}.webp, {dropped} detached specks dropped")
     # Home card: the razorback, trimmed and squared.
     rb = frames["razorback"]
     rb = rb.crop(rb.getchannel("A").getbbox())

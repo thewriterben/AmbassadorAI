@@ -2,7 +2,7 @@
 lib/arcade/passage/boar.dart, and suggests the three placement numbers per
 stage (anchorU, anchorV, footV) from the art itself.
 
-    python tool/art/check_sheets.py            # checks assets/images/boar_*.png
+    python tool/art/check_sheets.py            # checks assets/images/boar_*.webp
     python tool/art/check_sheets.py path/to/delivery/
 
 Run it on final art before dropping it in. It exits non-zero on anything
@@ -113,7 +113,9 @@ def main():
     specs = current_specs()
     failed = False
     for stage in STAGES:
-        path = os.path.join(folder, f"boar_{stage}.png")
+        path = os.path.join(folder, f"boar_{stage}.webp")
+        if not os.path.exists(path):
+            path = os.path.join(folder, f"boar_{stage}.png")
         print(f"\n{stage}: {path}")
         if not os.path.exists(path):
             print("  ERROR missing")
