@@ -1,13 +1,24 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 import '../../audio.dart';
+import '../../dev.dart';
 import '../../theme.dart';
 import '../cabinet/cabinet.dart';
+import '../progress.dart';
+import 'abilities.dart';
+import 'boar.dart';
+import 'pigs_dev.dart';
+import 'pigs_onboarding.dart';
+import 'grow_up.dart';
 import 'eras.dart';
 import 'passage_game.dart';
+import 'sim/passage_sim.dart';
 
-/// Passage: the Flutter side. The cabinet supplies the frame, the pause sheet
-/// and the XP submit; everything here is the game's own chrome.
+/// When Pigs Fly (game id `passage`): the Flutter side. The cabinet supplies
+/// the frame, the pause sheet and the XP submit; everything here is the
+/// game's own chrome.
 class PassageScreen extends StatefulWidget {
   const PassageScreen({super.key});
 
@@ -20,24 +31,242 @@ class _PassageScreenState extends State<PassageScreen> {
   /// the three builders below are first called.
   PassageGame? _game;
 
+  /// DEV: fly the easier variant (PassageTuning.easy) from the next run, to
+  /// judge whether the standard passage is too hard. Kept across runs, like
+  /// the other DEV choices; off for everyone else.
+  static bool _devEasy = false;
+
+
+  /// DEV loadouts, cycled from the menu, for trying abilities without
+  /// unlocking them. Index 0 means the player's own loadout from the shop.
+  /// A DEV loadout the player does not own flies fine, but the server pays
+  /// the run nothing — it checks what a claim flew with.
+  static const _devLoadouts = [
+    <AbilityKind>[],
+    [AbilityKind.dash, AbilityKind.grapple],
+    [AbilityKind.teleport, AbilityKind.freeze],
+    [AbilityKind.tractor, AbilityKind.dash],
+  ];
+  static int _devLoadout = 0;
+  static int _devLevel = 1;
+
+  static List<EquippedAbility> get _loadout {
+    if (_devLoadout != 0) return [for (final k in _devLoadouts[_devLoadout]) EquippedAbility(k, _devLevel)];
+    // The player's own: what they chose in the shop, at the level they own.
+    final p = ArcadeProgress.instance;
+    return [
+      for (final id in p.passageLoadout)
+        for (final a in p.passageAbilities)
+          if (a.id == id && a.owned)
+            if (AbilityKind.fromId(id) case final k?) EquippedAbility(k, a.level),
+    ];
+  }
+
+  static String _loadoutLabel() {
+    final l = _devLoadouts[_devLoadout];
+    return l.isEmpty ? 'your own' : '${l.map((k) => k.label).join(' + ')}, level $_devLevel';
+  }
+
   @override
   Widget build(BuildContext context) {
     return CabinetScreen(
       gameId: 'passage',
-      title: 'Passage',
+      title: 'When Pigs Fly',
       kicker: 'ONE TAP',
-      musicTrack: Audio.trackLevel,
-      builder: (run) => _game = PassageGame(run: run),
+      musicTrack: Audio.trackPigs,
+      builder: (run) => _game = PassageGame(
+        run: run,
+        // The player's own boar, as the server last said (so a stage reached
+        // on one run's claim flies on the next), unless DEV has picked one.
+        stage: PigsDev.effective,
+        loadout: _loadout,
+        // A player's first runs ease in (pigs_onboarding.dart); the DEV
+        // toggle overrides with the full easy variant.
+        tuning: _devEasy ? PassageTuning.easy : PigsOnboarding.tuning,
+      ),
       hudBuilder: (context, run) => _Hud(game: _game!),
       overlayBuilder: (context, run) => _Overlay(game: _game!),
+      controlsBuilder: (context, run) => _Controls(game: _game!),
       resultBuilder: (context, result) => _Result(result: result, game: _game!),
       devActions: () => {
         'Skip to the landing': () => _game?.devSkipToLanding(),
+        'Next era (see its city)': () => _game?.devNextEra(),
+        // From the next run: it starts in the era shown; a tap steps it on.
+        'Start era (next run): ${eras[PassageGame.devStartEra].year}': () =>
+            PassageGame.devStartEra = (PassageGame.devStartEra + 1) % eras.length,
         'End short, here': () => _game?.devEndShort(),
         'Full momentum': () => _game?.devMaxMomentum(),
+        'Autopilot: ${PassageGame.devAutopilot ? 'off' : 'on'}': () =>
+            PassageGame.devAutopilot = !PassageGame.devAutopilot,
+        'Hitbox: ${PassageGame.devShowHitbox ? 'hide' : 'show'}': () =>
+            PassageGame.devShowHitbox = !PassageGame.devShowHitbox,
+        // Growing up only happens against a server, on a run that crosses
+        // a line; this shows the moment on its own, from the stage flying
+        // now to the next (or piglet to juvenile, from a razorback).
+        'Preview growing up': () {
+          final at = _game?.stage ?? BoarStage.piglet;
+          final to = at == BoarStage.razorback ? BoarStage.juvenile : BoarStage.values[at.index + 1];
+          showGrowUp(context, from: BoarStage.values[to.index - 1], to: to);
+        },
+        // Applies from the next run: a run's difficulty is fixed when it
+        // starts, like its abilities.
+        'Difficulty (next run): ${_devEasy ? 'standard' : 'easier'}': () => _devEasy = !_devEasy,
+        'Next boar stage': () {
+          final g = _game;
+          if (g != null) PigsDev.set(g.devStepStage(1));
+        },
+        'Previous boar stage': () {
+          final g = _game;
+          if (g != null) PigsDev.set(g.devStepStage(-1));
+        },
+        // Loadouts apply from the next run: a run's abilities are fixed when
+        // it starts, the way the shop's will be.
+        'Abilities (next run): ${_devLoadouts[(_devLoadout + 1) % _devLoadouts.length].map((k) => k.label).join(' + ').ifEmpty('your own')}':
+            () => _devLoadout = (_devLoadout + 1) % _devLoadouts.length,
+        'Ability level (next run): ${_devLevel % maxAbilityLevel + 1}': () => _devLevel = _devLevel % maxAbilityLevel + 1,
+        'Now equipped: ${_loadoutLabel()}': () {},
       },
     );
   }
+}
+
+extension on String {
+  String ifEmpty(String other) => isEmpty ? other : this;
+}
+
+/// The two ability buttons, in the bottom corners where thumbs already are.
+/// Nothing at all for a run without abilities, so the screen is exactly as
+/// it was for everyone until the shop exists.
+class _Controls extends StatelessWidget {
+  final PassageGame game;
+  const _Controls({required this.game});
+
+  @override
+  Widget build(BuildContext context) {
+    if (game.slots.isEmpty) return const SizedBox.shrink();
+    return Stack(
+      children: [
+        for (var i = 0; i < game.slots.length; i++)
+          Positioned(
+            left: i == 0 ? 22 : null,
+            right: i == 1 ? 22 : null,
+            bottom: 26,
+            child: AbilityButton(game: game, index: i),
+          ),
+      ],
+    );
+  }
+}
+
+/// One ability button: its icon, a ring that fills back in over the
+/// cooldown, and the charges left for an ability counted by use.
+///
+/// It fires on touch-down, like the flap does, because a button that waits
+/// for the finger to lift is a quarter-second late in a game this fast. It
+/// repaints every frame from the game's own clock, so the ring stops when
+/// the game is paused.
+class AbilityButton extends StatefulWidget {
+  final PassageGame game;
+  final int index;
+  const AbilityButton({super.key, required this.game, required this.index});
+
+  @override
+  State<AbilityButton> createState() => _AbilityButtonState();
+}
+
+class _AbilityButtonState extends State<AbilityButton> with SingleTickerProviderStateMixin {
+  late final AnimationController _frames =
+      AnimationController(vsync: this, duration: const Duration(seconds: 1))..repeat();
+
+  @override
+  void dispose() {
+    _frames.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final slot = widget.game.slots[widget.index];
+    final kind = slot.ability.kind;
+    return Semantics(
+      button: true,
+      label: kind.label,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTapDown: (_) => widget.game.useAbility(widget.index),
+        child: AnimatedBuilder(
+          animation: _frames,
+          builder: (context, _) {
+            final live = widget.game.canUseAbility(widget.index);
+            return SizedBox.square(
+              dimension: 68,
+              child: CustomPaint(
+                painter: _RingPainter(cooldown: slot.cooldownFrac, live: live),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Icon(kind.icon, size: 28, color: live ? AppTheme.accent : AppTheme.dim),
+                    if (slot.stats.charges > 0)
+                      Positioned(
+                        right: 6,
+                        bottom: 6,
+                        child: Text(
+                          '${slot.chargesLeft}',
+                          style: TextStyle(
+                            fontFamily: AppTheme.fontMono,
+                            fontSize: 12,
+                            color: slot.spent ? AppTheme.dim : AppTheme.text,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class _RingPainter extends CustomPainter {
+  final double cooldown;
+  final bool live;
+  _RingPainter({required this.cooldown, required this.live});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final c = size.center(Offset.zero);
+    final r = size.shortestSide / 2 - 3;
+    canvas.drawCircle(c, r, Paint()..color = AppTheme.bg.withValues(alpha: 0.62));
+    canvas.drawCircle(
+      c,
+      r,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 3
+        ..color = AppTheme.border,
+    );
+    // The recharged part of the ring, sweeping round clockwise from the top.
+    final ready = 1 - cooldown;
+    if (ready > 0) {
+      canvas.drawArc(
+        Rect.fromCircle(center: c, radius: r),
+        -pi / 2,
+        2 * pi * ready,
+        false,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 3
+          ..strokeCap = StrokeCap.round
+          ..color = live ? AppTheme.accent : AppTheme.muted,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(_RingPainter old) => old.cooldown != cooldown || old.live != live;
 }
 
 class _Hud extends StatelessWidget {
@@ -51,7 +280,7 @@ class _Hud extends StatelessWidget {
       children: [
         // Reserve. Not "lives" — nothing in this game dies, and the word
         // shapes what a player expects to happen when it runs out.
-        for (var i = 0; i < PassageGame.startingReserve; i++)
+        for (var i = 0; i < game.maxReserve; i++)
           Padding(
             padding: const EdgeInsets.only(right: 5),
             child: Container(
@@ -130,12 +359,61 @@ class _Overlay extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
+        // A shade behind the HUD row. The play area starts below it, but a
+        // razorback at the ceiling still reaches up under it with its wings,
+        // and without the shade that read as the sprite being cut off
+        // rather than flying behind the bar.
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          height: MediaQuery.paddingOf(context).top + 72,
+          child: const DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Color(0xE6020203), Color(0x00020203)],
+              ),
+            ),
+          ),
+        ),
         Positioned.fill(child: _EraBanner(key: ObjectKey(game), game: game)),
-        if (!game.started)
+        // So a DEV run on the easier variant can never be mistaken for the
+        // real game, in play or in a screenshot. Below the HUD rather than
+        // in it: with five reserve dots the row had no room, and the score
+        // ran into the year.
+        // The ease-in is the game and shows nothing; a DEV build labels it.
+        if (!game.tuning.fair || (Dev.enabled && game.tuning.id != 'standard'))
+          Positioned(
+            top: MediaQuery.paddingOf(context).top + 58,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                decoration: BoxDecoration(
+                  color: AppTheme.bg.withValues(alpha: 0.6),
+                  borderRadius: BorderRadius.circular(4),
+                  border: Border.all(color: AppTheme.success.withValues(alpha: 0.8)),
+                ),
+                child: Text(
+                  '${game.tuning.id.toUpperCase()} · DEV',
+                  style: const TextStyle(fontFamily: AppTheme.fontMono, fontSize: 10, color: AppTheme.success),
+                ),
+              ),
+            ),
+          ),
+        if (!game.started) ...[
+          Align(
+            alignment: const Alignment(0, 0.44),
+            child: _StageLine(stage: game.stage),
+          ),
           const Align(
             alignment: Alignment(0, 0.62),
             child: _Prompt('Tap to fly'),
           ),
+        ],
         if (game.phase == PassagePhase.landing)
           const Align(
             alignment: Alignment(0, 0.62),
@@ -149,6 +427,47 @@ class _Overlay extends StatelessWidget {
       ],
     );
   }
+}
+
+/// Which boar is about to fly, and how far it is from the next stage. Shown
+/// under the hovering boar until the first tap.
+class _StageLine extends StatelessWidget {
+  final BoarStage stage;
+  const _StageLine({required this.stage});
+
+  @override
+  Widget build(BuildContext context) {
+    final p = ArcadeProgress.instance;
+    // A DEV override, or a build with nothing to grow against, shows the
+    // name alone: a progress figure that can never move would be a lie.
+    final own = BoarStage.fromId(p.passageStage) == stage;
+    final next = BoarStage.fromId(p.passageNextStage);
+    final detail = ArcadeProgress.noBackend || !own
+        ? null
+        : next == null
+            ? 'fully grown'
+            : '${_n(p.passageLifetime)} / ${_n(p.passageNextAt ?? 0)} to ${next.label.toLowerCase()}';
+    return Text(
+      detail == null ? stage.label.toUpperCase() : '${stage.label.toUpperCase()}  ·  $detail',
+      style: const TextStyle(
+        fontFamily: AppTheme.fontMono,
+        fontSize: 11,
+        letterSpacing: 1.4,
+        color: AppTheme.muted,
+      ),
+    );
+  }
+}
+
+/// 12345 -> "12,345".
+String _n(int v) {
+  final s = v.toString();
+  final b = StringBuffer();
+  for (var i = 0; i < s.length; i++) {
+    if (i > 0 && (s.length - i) % 3 == 0) b.write(',');
+    b.write(s[i]);
+  }
+  return b.toString();
 }
 
 class _Prompt extends StatelessWidget {
@@ -176,10 +495,11 @@ class _Prompt extends StatelessWidget {
   }
 }
 
-/// Fades a year and a fact in as the coin enters each era, holds it, and
-/// clears. Deliberately near the top of the screen and deliberately short:
-/// the player is flying while it is up, and a banner that has to be read to
-/// survive is a banner that gets someone hit.
+/// Fades the year and the era's name in as the coin enters each era, holds
+/// them, and clears. A glance, not a read: the player is flying while it is
+/// up, and a banner that has to be read to survive is a banner that gets
+/// someone hit. So no fact here; the era's fact is on the results, where
+/// the player has time for it.
 ///
 /// Built with no listeners and no controller on purpose.
 ///
@@ -197,7 +517,7 @@ class _EraBanner extends StatelessWidget {
   final PassageGame game;
   const _EraBanner({super.key, required this.game});
 
-  /// In over the first 0.34 s, hold, out over the last 0.8 s.
+  /// In over the first 0.2 s, hold, out over the last 0.45 s.
   static double _opacity(double t) {
     if (t < 0.08) return t / 0.08;
     if (t > 0.81) return (1 - t) / 0.19;
@@ -219,7 +539,7 @@ class _EraBanner extends StatelessWidget {
     return TweenAnimationBuilder<double>(
       key: ValueKey(i),
       tween: Tween(begin: 0, end: 1),
-      duration: const Duration(milliseconds: 4200),
+      duration: const Duration(milliseconds: 2400),
       builder: (_, t, __) {
         final o = _opacity(t).clamp(0.0, 1.0);
         if (o <= 0) return const SizedBox.shrink();
@@ -253,16 +573,6 @@ class _EraBanner extends StatelessWidget {
                         color: AppTheme.text,
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      era.fact,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontSize: 12.5,
-                        height: 1.35,
-                        color: AppTheme.body,
-                      ),
-                    ),
                   ],
                 ),
               ),
@@ -280,16 +590,37 @@ class _EraBanner extends StatelessWidget {
 /// wording, because in this game there is no such event. A run that ends
 /// early ended in a landing too — a shorter journey, with fewer eras on it.
 /// The copy's whole job is to make the short landing read as an arrival.
-class _Result extends StatelessWidget {
+///
+/// The eras' facts are read here, not in flight: each era reached is a chip
+/// that shows its fact when tapped, the last one reached showing first.
+class _Result extends StatefulWidget {
   final RunResult result;
   final PassageGame game;
   const _Result({required this.result, required this.game});
 
   @override
+  State<_Result> createState() => _ResultState();
+}
+
+class _ResultState extends State<_Result> {
+  /// The era whose fact is showing, once the player has tapped one.
+  int? _picked;
+
+  @override
+  void didUpdateWidget(_Result old) {
+    super.didUpdateWidget(old);
+    // A new run's results open on its own last era.
+    if (!identical(old.result, widget.result)) _picked = null;
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final result = widget.result;
+    final game = widget.game;
     final full = result.ending == RunEnding.landed;
     final soft = game.softLanding;
     final lastYear = eras[(result.reached - 1).clamp(0, eras.length - 1)].year;
+    final shown = (_picked ?? result.reached - 1).clamp(0, eras.length - 1);
 
     final headline = switch ((full, soft)) {
       (true, true) => 'A clean landing.',
@@ -303,7 +634,7 @@ class _Result extends StatelessWidget {
       (true, false) => 'All ${eras.length} eras. The third star is for '
           'setting it down softly.',
       _ => '${result.reached} of ${eras.length} eras flown, and a landing to '
-          'show for it. The reserve ran out, so the coin glided in early.',
+          'show for it. The reserve ran out, so the pig glided in early.',
     };
 
     return Column(
@@ -352,70 +683,259 @@ class _Result extends StatelessWidget {
             ),
           ],
         ),
+        if (!ArcadeProgress.noBackend) ...[
+          const SizedBox(height: 16),
+          GrowthPanel(score: result.score, flew: game.stage),
+        ],
         const SizedBox(height: 18),
         // Every era, with the ones you reached lit. Seeing the unlit ones is
         // the invitation to fly again; it is doing the work that a score
-        // would do in an endless game.
+        // would do in an endless game. A lit one shows its fact below when
+        // tapped; an unlit one keeps its fact until it is flown to.
         Wrap(
           alignment: WrapAlignment.center,
           spacing: 6,
-          runSpacing: 6,
           children: [
             for (var i = 0; i < eras.length; i++)
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(6),
-                  color: i < result.reached
-                      ? AppTheme.accent.withValues(alpha: 0.16)
-                      : Colors.transparent,
-                  border: Border.all(
-                    color: i < result.reached ? AppTheme.accent : AppTheme.border,
-                    width: 0.8,
-                  ),
-                ),
-                child: Text(
-                  '${eras[i].year}',
-                  style: TextStyle(
-                    fontFamily: AppTheme.fontMono,
-                    fontSize: 11.5,
-                    color: i < result.reached ? AppTheme.accent : AppTheme.dim,
-                  ),
-                ),
+              _EraChip(
+                era: eras[i],
+                reached: i < result.reached,
+                showing: result.reached > 0 && i == shown,
+                onTap: i < result.reached && i != shown
+                    ? () => setState(() => _picked = i)
+                    : null,
               ),
           ],
         ),
+        // Fades once used, but keeps its line: the sheet is anchored at the
+        // bottom, so a line going away would jump everything above it.
+        if (result.reached > 1) ...[
+          const SizedBox(height: 4),
+          AnimatedOpacity(
+            opacity: _picked == null ? 1 : 0,
+            duration: const Duration(milliseconds: 200),
+            child: const Text(
+              'Tap a year you reached to read about it.',
+              style: TextStyle(fontSize: 11.5, color: AppTheme.muted),
+            ),
+          ),
+        ],
         if (result.reached > 0) ...[
-          const SizedBox(height: 18),
+          const SizedBox(height: 14),
           Container(
             padding: const EdgeInsets.all(14),
             decoration: AppTheme.glass(radius: 14),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '$lastYear · ${eras[(result.reached - 1).clamp(0, eras.length - 1)].name}',
-                  style: const TextStyle(
-                    fontFamily: AppTheme.fontMono,
-                    fontSize: 11,
-                    letterSpacing: 1.1,
-                    color: AppTheme.muted,
+            // Facts differ in length; ease the card between them.
+            child: AnimatedSize(
+              duration: const Duration(milliseconds: 180),
+              alignment: Alignment.topCenter,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '${eras[shown].year} · ${eras[shown].name}',
+                    style: const TextStyle(
+                      fontFamily: AppTheme.fontMono,
+                      fontSize: 11,
+                      letterSpacing: 1.1,
+                      color: AppTheme.muted,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  eras[(result.reached - 1).clamp(0, eras.length - 1)].fact,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    height: 1.45,
-                    color: AppTheme.text,
+                  const SizedBox(height: 6),
+                  Text(
+                    eras[shown].fact,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      height: 1.45,
+                      color: AppTheme.text,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],
       ],
     );
   }
+}
+
+/// One era's year on the results: lit if reached, filled if its fact is
+/// the one showing. Tall enough to tap, with the height made up of padding
+/// rather than a bigger chip.
+class _EraChip extends StatelessWidget {
+  final Era era;
+  final bool reached, showing;
+  final VoidCallback? onTap;
+  const _EraChip({
+    required this.era,
+    required this.reached,
+    required this.showing,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final Color fill, line, ink;
+    if (showing) {
+      (fill, line, ink) = (AppTheme.accent, AppTheme.accent, AppTheme.bg);
+    } else if (reached) {
+      (fill, line, ink) =
+          (AppTheme.accent.withValues(alpha: 0.16), AppTheme.accent, AppTheme.accent);
+    } else {
+      (fill, line, ink) = (Colors.transparent, AppTheme.border, AppTheme.dim);
+    }
+    return Semantics(
+      button: reached,
+      selected: showing,
+      label: reached ? '${era.year}, ${era.name}' : '${era.year}, not reached',
+      excludeSemantics: true,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 6),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 140),
+            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(6),
+              color: fill,
+              border: Border.all(color: line, width: 0.8),
+            ),
+            child: Text(
+              '${era.year}',
+              style: TextStyle(
+                fontFamily: AppTheme.fontMono,
+                fontSize: 11.5,
+                color: ink,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The boar's growth, on the results sheet: its stage, how far it is to the
+/// next, what this flight added, and — once, on the run that crosses a line —
+/// that it grew.
+///
+/// The claim is fire-and-forget (see the cabinet), so this listens rather
+/// than waiting: it can open on "counting" and fill in a moment later.
+class GrowthPanel extends StatelessWidget {
+  final int score;
+
+  /// The stage that flew this run, which is not always the player's own —
+  /// the DEV menu can override it.
+  final BoarStage flew;
+  const GrowthPanel({super.key, required this.score, required this.flew});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListenableBuilder(
+      listenable: ArcadeProgress.instance,
+      builder: (context, _) {
+        final p = ArcadeProgress.instance;
+        final stage = BoarStage.fromId(p.passageStage) ?? BoarStage.piglet;
+        final next = BoarStage.fromId(p.passageNextStage);
+        final claim = p.passageClaim;
+        final grew = BoarStage.fromId(claim?.grewInto);
+
+        final nextAt = p.passageNextAt;
+        final span = nextAt == null ? 1 : (nextAt - p.passageStageAt).clamp(1, 1 << 31);
+        final frac = nextAt == null ? 1.0 : ((p.passageLifetime - p.passageStageAt) / span).clamp(0.0, 1.0);
+
+        final caption = switch (claim) {
+          null when p.offline => 'Offline: this flight did not count toward growth.',
+          null => 'Adding up the flight…',
+          PassageClaim(credited: > 0) when next != null =>
+            '+${_n(claim.credited)} toward ${next.label.toLowerCase()}',
+          PassageClaim(credited: > 0) => '+${_n(claim.credited)}. Fully grown.',
+          _ when score > 0 => "Today's growing flights are used up; this one was practice.",
+          _ => null,
+        };
+
+        return Container(
+          padding: const EdgeInsets.fromLTRB(10, 10, 14, 12),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            color: grew != null ? AppTheme.accent.withValues(alpha: 0.10) : Colors.transparent,
+            border: Border.all(color: grew != null ? AppTheme.accent : AppTheme.border),
+          ),
+          child: Row(
+            children: [
+              BoarPortrait(stage: grew ?? stage, size: 58),
+              if (grew != null) _GrowUpOnce(to: grew),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      grew != null
+                          ? 'Your boar grew into a ${grew.label.toLowerCase()}.'
+                          : next == null
+                              ? '${stage.label} · fully grown'
+                              : '${stage.label} · ${_n(p.passageLifetime)} / ${_n(nextAt ?? 0)}',
+                      style: TextStyle(
+                        fontSize: grew != null ? 14.5 : 13,
+                        fontWeight: grew != null ? FontWeight.w600 : FontWeight.w500,
+                        color: grew != null ? AppTheme.accent : AppTheme.text,
+                      ),
+                    ),
+                    const SizedBox(height: 7),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(99),
+                      child: LinearProgressIndicator(
+                        value: frac,
+                        minHeight: 5,
+                        backgroundColor: AppTheme.border,
+                        valueColor: const AlwaysStoppedAnimation(AppTheme.accent),
+                      ),
+                    ),
+                    if (grew != null || caption != null) ...[
+                      const SizedBox(height: 6),
+                      Text(
+                        grew != null ? 'It flies as a ${grew.label.toLowerCase()} from your next run.' : caption!,
+                        style: const TextStyle(fontSize: 12, height: 1.35, color: AppTheme.body),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// Plays the growing-up moment (grow_up.dart) once, when the growth panel
+/// first shows that the boar grew. A widget rather than a call in the
+/// builder so it cannot replay on every rebuild of the panel; the moment
+/// plays the stage-up fanfare itself, at its reveal.
+class _GrowUpOnce extends StatefulWidget {
+  final BoarStage to;
+  const _GrowUpOnce({required this.to});
+
+  @override
+  State<_GrowUpOnce> createState() => _GrowUpOnceState();
+}
+
+class _GrowUpOnceState extends State<_GrowUpOnce> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final from = BoarStage.values[max(0, widget.to.index - 1)];
+      showGrowUp(context, from: from, to: widget.to);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) => const SizedBox.shrink();
 }

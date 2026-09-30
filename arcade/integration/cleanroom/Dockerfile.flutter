@@ -1,0 +1,19 @@
+# Second stage: the exact Flutter the embed is built with. The engine is what
+# decides the bytes of libapp.so, so the framework commit is pinned and
+# checked, not just the tag name.
+#
+#   docker build -t dgd-cleanroom-flutter:1 -f Dockerfile.flutter .
+#
+# The image this was first built as: sha256:966e6843be6c… (2026-09-29).
+FROM dgd-cleanroom:1
+USER builder
+ARG FLUTTER_TAG=3.47.2
+ARG FLUTTER_COMMIT=d3b14c876900e553bc736ca19295fc09e3853e8e
+ARG FLUTTER_ENGINE=1cf1c4773fb941c4c74a7f8bb144a8837596c0f4
+RUN git clone -q --depth 1 --branch $FLUTTER_TAG https://github.com/flutter/flutter.git /home/builder/flutter \
+ && test "$(git -C /home/builder/flutter rev-parse HEAD)" = "$FLUTTER_COMMIT"
+ENV PATH=$PATH:/home/builder/flutter/bin
+RUN flutter config --no-analytics >/dev/null 2>&1; dart --disable-analytics >/dev/null 2>&1; \
+    flutter precache --android --no-ios --no-web --no-linux --no-windows --no-macos --no-fuchsia >/dev/null 2>&1; \
+    flutter --version > /home/builder/flutter-version.txt 2>&1; cat /home/builder/flutter-version.txt; \
+    grep -q "$FLUTTER_ENGINE" /home/builder/flutter-version.txt

@@ -253,6 +253,28 @@ void main() {
       expect(ArcadeProgress.instance.offline, isFalse);
     });
 
+    test('a restored identity the server does not know recovers in the same launch, with one new player', () async {
+      // As after Android's auto-backup restores a token the server no longer
+      // has: /v1/me refuses it once; the refresh that saw that must register
+      // afresh and come up online, not sit OFFLINE until the next cold start.
+      server.seen.clear();
+      final known = <String?>{};
+      server.script = (s) {
+        if (s.path == '/v1/players') {
+          final r = server.happy(s);
+          known.add('Bearer tok${server.issued}');
+          return r;
+        }
+        if (s.path == '/v1/me' && !known.contains(s.auth)) return (401, '{"error":"unauthorized"}');
+        return server.happy(s);
+      };
+      await ArcadeProgress.instance.refresh();
+      expect(ArcadeProgress.instance.offline, isFalse, reason: 'online within this refresh');
+      expect(server.seen.where((s) => s.path == '/v1/players').length, 1, reason: 'exactly one new player');
+      expect(server.seen.where((s) => s.path == '/v1/me').length, 2, reason: 'refused once, then answered');
+      server.script = server.happy;
+    });
+
     test('a malformed or wrong-shaped body surfaces as ApiException, never TypeError', () async {
       server.script = (s) => s.path == '/v1/me' ? (200, '{not json') : server.happy(s);
       await expectLater(

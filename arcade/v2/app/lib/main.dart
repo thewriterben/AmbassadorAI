@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'arcade/leaderboard_screen.dart';
-import 'arcade/passage/passage_screen.dart';
+import 'arcade/passage/pigs_home_screen.dart';
+import 'arcade/sparkle.dart';
 import 'arcade/progress.dart';
 import 'arcade/settings_screen.dart';
 import 'audio.dart';
@@ -23,7 +24,8 @@ void main() {
   Audio.instance.init();
   Progress.instance.load();
   ArcadeProgress.instance.load();
-  Audio.instance.setTrack(Audio.trackMenu);
+  // No music here: the arcade's menus are silent, and each game claims its
+  // own track (Audio.claimMusic).
   runApp(const ArcadeApp());
 }
 
@@ -123,18 +125,18 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 10),
-                // Passage ships in the demo build as well as the dev one. It
+                // When Pigs Fly (id `passage`) ships in the demo build as well as the dev one. It
                 // needs no backend — `startMini` no-ops without a server and
                 // the run simply pays no XP — so the reason the old games were
                 // cut from the demo does not apply to it. If it should be held
                 // back from a tester build after all, wrap this card in
                 // `if (!Dev.demoBuild)`; nothing else has to change.
                 _GameCard(
-                  title: 'Passage',
+                  title: 'When Pigs Fly',
                   kicker: 'ONE TAP',
-                  blurb: 'Fly a coin through nine eras of money, and land it.',
-                  asset: 'assets/images/piece_gold.png',
-                  onTap: () => _open(context, const PassageScreen()),
+                  blurb: 'Fly a winged piggy bank through nine eras of money, and land it.',
+                  asset: 'assets/images/card_pigs.png',
+                  onTap: () => _open(context, const PigsHomeScreen()),
                 ),
                 const SizedBox(height: 18),
                 Center(
@@ -425,16 +427,39 @@ class _HeroCoinState extends State<_HeroCoin> with TickerProviderStateMixin {
                     ],
                   ),
                 ),
+                // The polished gold and its glint, the same as When Pigs
+                // Fly's coins (tools/gen_shiny_gold_coin.py, and _glint in
+                // passage_render.dart): two narrow streaks of light, a broad
+                // one and a thin one just behind it, where this used to be a
+                // single soft band.
                 ShaderMask(
                   blendMode: BlendMode.srcATop,
                   shaderCallback: (rect) => LinearGradient(
-                    begin: Alignment(x - 0.5, -1),
-                    end: Alignment(x + 0.5, 1),
-                    colors: const [Color(0x00FFFFFF), Color(0x80FFFFFF), Color(0x00FFFFFF)],
-                    stops: const [0.35, 0.5, 0.65],
+                    begin: Alignment(x - 0.9, -0.35),
+                    end: Alignment(x + 0.9, 0.35),
+                    colors: const [
+                      Color(0x00FFF4D0),
+                      Color(0x00FFF4D0),
+                      Color(0xB3FFF4D0),
+                      Color(0x00FFF4D0),
+                      Color(0x00FFF4D0),
+                      Color(0x55FFF4D0),
+                      Color(0x00FFF4D0),
+                      Color(0x00FFF4D0),
+                    ],
+                    stops: const [0.0, 0.40, 0.47, 0.54, 0.58, 0.62, 0.66, 1.0],
                   ).createShader(rect),
-                      child: Image.asset('assets/images/coin_gold.png', width: s, height: s),
+                      child: Image.asset('assets/images/coin_gold_shiny.png', width: s, height: s),
                     ),
+                // The star at the rim, strongest as the streaks cross the
+                // middle of the coin.
+                if (t > 0 && t < 1)
+                  IgnorePointer(
+                    child: CustomPaint(
+                      size: Size(s, s),
+                      painter: _FlarePainter((1 - (t - 0.5).abs() * 2).clamp(0.0, 1.0)),
+                    ),
+                  ),
                   ],
                 ),
               ),
@@ -444,6 +469,21 @@ class _HeroCoinState extends State<_HeroCoin> with TickerProviderStateMixin {
       },
     );
   }
+}
+
+/// The glint's flare at the upper right of the coin (see arcade/sparkle.dart).
+class _FlarePainter extends CustomPainter {
+  final double f;
+  _FlarePainter(this.f);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final r = size.width / 2;
+    paintSparkle(canvas, size.center(Offset.zero).translate(r * 0.42, -r * 0.46), r * 0.62, f, spin: (1 - f) * 0.25);
+  }
+
+  @override
+  bool shouldRepaint(_FlarePainter old) => old.f != f;
 }
 
 /// Sound / music toggles as small glass buttons.

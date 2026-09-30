@@ -1,12 +1,36 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:flame/game.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:puzzle_pack/arcade/cabinet/cabinet.dart';
+import 'package:puzzle_pack/arcade/passage/boar.dart';
 import 'package:puzzle_pack/arcade/passage/eras.dart';
 import 'package:puzzle_pack/arcade/passage/passage_game.dart';
 
 /// A tall phone. Every tuning value in the game is a fraction of these, so
 /// the exact numbers only matter for readability.
 final _size = Vector2(412, 892);
+
+/// Width and height from a PNG's or a WebP's header (the boar sheets are
+/// WebP since the backdrops made the app heavy; see import_boars.py).
+(int, int) _imageSize(Uint8List b) {
+  final d = ByteData.sublistView(b);
+  String tag(int at) => String.fromCharCodes(b.sublist(at, at + 4));
+  if (tag(0) == 'RIFF' && tag(8) == 'WEBP') {
+    int le24(int at) => b[at] | b[at + 1] << 8 | b[at + 2] << 16;
+    switch (tag(12)) {
+      case 'VP8X':
+        return (le24(24) + 1, le24(27) + 1);
+      case 'VP8 ':
+        return (d.getUint16(26, Endian.little) & 0x3fff, d.getUint16(28, Endian.little) & 0x3fff);
+      case 'VP8L':
+        final v = d.getUint32(21, Endian.little);
+        return ((v & 0x3fff) + 1, (v >> 14 & 0x3fff) + 1);
+    }
+  }
+  return (d.getUint32(16), d.getUint32(20));
+}
 
 PassageGame _game(CabinetRun run, {int seed = 7}) {
   final g = PassageGame(run: run, seed: seed);
@@ -39,7 +63,7 @@ void main() {
     test('every opening fits on screen', () {
       final g = _game(CabinetRun());
       for (final s in g.gateSpecs) {
-        expect(s.gapY - s.gapH / 2, greaterThanOrEqualTo(_size.y * 0.06 - 0.001));
+        expect(s.gapY - s.gapH / 2, greaterThanOrEqualTo(_size.y * PassageGame.playTop - 0.001));
         expect(s.gapY + s.gapH / 2, lessThanOrEqualTo(_size.y * 0.94 + 0.001));
       }
     });
@@ -230,6 +254,184 @@ void main() {
       g.devSkipToLanding();
       _fly(g, run, 25);
       expect(result!.score, expected);
+    });
+  });
+
+  group('the boar', () {
+    // The sheets are loaded by bare name, which assets_test.dart cannot see,
+    // and a sheet cut into the wrong number of frames would draw the wrong
+    // pose for every state. The renderer refuses such a sheet and falls back
+    // to the coin; this makes the same mistake fail here instead of quietly
+    // shipping the coin.
+    test('every stage has a sheet of square frames, as many as its layout says', () {
+      for (final spec in BoarSpec.all.values) {
+        final f = File('assets/images/${spec.file}');
+        expect(f.existsSync(), isTrue, reason: '${spec.file} is missing');
+        final (w, h) = _imageSize(f.readAsBytesSync());
+        expect(w, h * spec.frames.count, reason: '${spec.file} is ${w}x$h');
+      }
+    });
+
+    test('grows on screen but never grows the hitbox', () {
+      final specs = BoarStage.values.map((s) => BoarSpec.all[s]!).toList();
+      for (var i = 1; i < specs.length; i++) {
+        expect(specs[i].sizeInRadii, greaterThan(specs[i - 1].sizeInRadii));
+      }
+      final r = _game(CabinetRun()).coinRadius;
+      for (final stage in BoarStage.values) {
+        final g = PassageGame(run: CabinetRun(), seed: 7, stage: stage)..onGameResize(_size);
+        expect(g.coinRadius, r, reason: '$stage changed the hitbox');
+      }
+    });
+
+    test('flaps in flight, flinches on a strike, stands once landed', () {
+      final run = CabinetRun();
+      final g = _game(run);
+      g.flap();
+      final seen = <int>{};
+      _fly(g, run, 0.6, each: (_) => seen.add(g.boarFrame));
+      final f = BoarSpec.all[g.stage]!.frames;
+      expect(seen, containsAll(f.cycle), reason: 'the wings should beat');
+
+      g.strikeForTest();
+      g.update(1 / 60);
+      expect(g.boarFrame, f.hurt);
+
+      g.devSkipToLanding();
+      var stood = false;
+      _fly(g, run, 30, each: (_) {
+        if (g.phase == PassagePhase.down && g.boarFrame == f.stand) stood = true;
+      });
+      expect(stood, isTrue, reason: 'a landed boar should end standing');
+    });
+
+    test('a beat holds its extremes longer than its in-betweens', () {
+      for (final spec in BoarSpec.all.values) {
+        final f = spec.frames;
+        expect(f.holds.length, f.cycleLength, reason: '${spec.name}: one hold per drawing');
+        // Sample one beat finely: every drawing shows, in order, and
+        // wings-up (the first) holds longer than the one after it.
+        final shown = [for (var i = 0; i < 1000; i++) f.cycleFrameAt(i / 1000)];
+        expect(shown.toSet(), f.cycle.toSet(), reason: spec.name);
+        for (var i = 1; i < shown.length; i++) {
+          expect(shown[i], greaterThanOrEqualTo(shown[i - 1]), reason: '${spec.name} runs in order');
+        }
+        final up = shown.where((d) => d == 0).length, next = shown.where((d) => d == 1).length;
+        expect(up, greaterThan(next), reason: '${spec.name}: wings-up holds');
+        expect(spec.flapBeat, lessThan(spec.glideBeat), reason: '${spec.name}: a tap beats faster');
+      }
+      final beats = BoarStage.values.map((s) => BoarSpec.all[s]!.flapBeat).toList();
+      for (var i = 1; i < beats.length; i++) {
+        expect(beats[i], greaterThan(beats[i - 1]), reason: 'bigger boars beat slower');
+      }
+    });
+
+    test('a whole passage lands on the glad frame; a short run on the plain one; standing alternates', () {
+      for (final whole in [true, false]) {
+        final run = CabinetRun();
+        final g = _game(run);
+        final f = BoarSpec.all[g.stage]!.frames;
+        g.flap();
+        _fly(g, run, 0.3);
+        whole ? g.devSkipToLanding() : g.devEndShort();
+        final seen = <int>{};
+        _fly(g, run, 30, each: (_) {
+          if (g.phase != PassagePhase.flying) seen.add(g.boarFrame);
+        });
+        expect(seen, contains(whole ? f.landWin : f.land), reason: whole ? 'whole passage' : 'short run');
+        expect(seen, isNot(contains(whole ? f.land : f.landWin)));
+        expect(seen, containsAll([f.stand, f.standAlt]), reason: 'the standing idle alternates');
+      }
+    });
+
+    test('the razorback beats through all six of its drawings, and only those', () {
+      final run = CabinetRun();
+      final g = PassageGame(run: run, seed: 7, stage: BoarStage.razorback)..onGameResize(_size);
+      final f = BoarSpec.all[BoarStage.razorback]!.frames;
+      expect(f.cycleLength, 6);
+      g.flap();
+      final seen = <int>{};
+      _fly(g, run, 0.6, each: (_) => seen.add(g.boarFrame));
+      expect(seen, containsAll(f.cycle), reason: 'every drawing of the beat should show');
+      expect(seen.every((i) => i < f.count), isTrue, reason: 'no frame past the end of its sheet');
+
+      g.strikeForTest();
+      g.update(1 / 60);
+      expect(g.boarFrame, f.hurt);
+    });
+  });
+
+  group('feel fixes', () {
+    test('nothing to see or reach sits under the HUD, and the boar cannot fly there', () {
+      final run = CabinetRun();
+      final g = _game(run);
+      final top = _size.y * PassageGame.playTop;
+      for (final p in g.pickups) {
+        expect(p.y - p.amp, greaterThanOrEqualTo(top - 0.001), reason: 'the top of its drift');
+      }
+      // Tap as fast as a thumb can for a second: the body stops at the line.
+      var highest = double.infinity;
+      _fly(g, run, 1.0, each: (t) {
+        g.flap();
+        highest = highest < g.boarY ? highest : g.boarY;
+      });
+      expect(highest - g.bodyRadius, greaterThanOrEqualTo(top - 0.5));
+    });
+
+    test('no stage is harder to fit through a gap than the coin was', () {
+      for (final stage in BoarStage.values) {
+        final g = PassageGame(run: CabinetRun(), seed: 7, stage: stage)..onGameResize(_size);
+        expect(g.bodyRadius, lessThanOrEqualTo(g.coinRadius), reason: '$stage');
+      }
+    });
+
+    test('a snout that meets a pillar is a strike', () {
+      final g = PassageGame(run: CabinetRun(), seed: 7, stage: BoarStage.razorback)..onGameResize(_size);
+      final gate = g.gateSpecs[2];
+      g.flap();
+      // The pillar's face just inside the capsule's front, but clear of where
+      // the old coin circle reached; the boar level with the top pillar.
+      g.scrollX = gate.worldX - g.gateWidth / 2 - g.bodyHalfLength - g.bodyRadius * 0.6;
+      g.boarYForTest = gate.gapY - gate.gapH / 2 - g.bodyRadius * 2;
+      g.update(1 / 120);
+      expect(g.reserve, PassageGame.startingReserve - 1);
+    });
+
+    test('an untapped landing touches down on screen', () {
+      final run = CabinetRun();
+      final g = _game(run);
+      g.flap();
+      g.devSkipToLanding();
+      var lowest = 0.0;
+      _fly(g, run, 20, each: (_) => lowest = lowest > g.boarY ? lowest : g.boarY);
+      expect(run.ended, isTrue);
+      expect(lowest + g.bodyRadius, lessThanOrEqualTo(_size.y * 0.94 + 0.5));
+    });
+
+    test('sitting on the floor as the ground arrives is not a soft landing', () {
+      final run = CabinetRun();
+      final g = _game(run);
+      g.flap();
+      g.devSkipToLanding();
+      // Parked on the floor line, still, as the landing begins.
+      g.boarYForTest = _size.y * 0.94 - g.bodyRadius;
+      g.update(1 / 60);
+      _fly(g, run, 20);
+      expect(g.touchdownScraped, isTrue);
+      expect(g.softLanding, isFalse);
+    });
+
+    test('a player tapping as fast as they can still touches down', () {
+      final run = CabinetRun();
+      final g = _game(run);
+      g.flap();
+      g.devSkipToLanding();
+      var n = 0;
+      final t = _fly(g, run, 30, each: (_) {
+        if (g.phase == PassagePhase.landing && n++ % 6 == 0) g.flap(); // ten taps a second
+      });
+      expect(run.ended, isTrue, reason: 'hovered out the clock');
+      expect(t, lessThan(20));
     });
   });
 

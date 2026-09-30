@@ -1,0 +1,413 @@
+--------- beginning of main
+09-29 21:51:53.046  1687  1701 E memtrack: Couldn't load memtrack module
+09-29 21:51:53.047  1687  1701 W android.os.Debug: failed to get memory consumption info: -1
+09-29 21:51:53.282  5901  6204 D ProfileInstaller: Skipping profile installation for com.digitalgold.ticker
+09-29 21:51:53.677  1419  1419 W audio_hw_generic: Not supplying enough data to HAL, expected position 1620356 , only wrote 1358640
+09-29 21:51:53.957  1793  5478 W cklr    : [{0}] Failed to resolve name. status={1}
+09-29 21:51:54.311  2188  5788 I Vision  : Requesting optional module download of ocr.
+09-29 21:51:54.317  2188  5788 I Vision  : Checking for download completion for 160266 -- ocr
+09-29 21:51:54.319  2188  6208 I ChimeraConfigurator: Starting update, reason: 4 urgentFeatures: vision.ocr:-1
+09-29 21:51:54.395  1793  2771 W aoqb    : Sync failed [CONTEXT service_id=51 ]
+09-29 21:51:54.465  1793  2771 E aoob    : Phenotype API error. Event # ccoz@51044fa, EventCode: 17 [CONTEXT service_id=51 ]
+09-29 21:51:54.465  1793  2771 E AsyncOperation: serviceID=51, operation=RegisterSyncOperationCall
+09-29 21:51:54.465  1793  2771 E AsyncOperation: OperationException[Status{statusCode=Network error, resolution=null}]
+09-29 21:51:54.465  1793  2771 E AsyncOperation: 	at aoob.a(:com.google.android.gms@202414023@20.24.14 (040800-319035315):93)
+09-29 21:51:54.465  1793  2771 E AsyncOperation: 	at aoob.a(:com.google.android.gms@202414023@20.24.14 (040800-319035315):86)
+09-29 21:51:54.465  1793  2771 E AsyncOperation: 	at aabt.run(:com.google.android.gms@202414023@20.24.14 (040800-319035315):9)
+09-29 21:51:54.465  1793  2771 E AsyncOperation: 	at bnin.run(:com.google.android.gms@202414023@20.24.14 (040800-319035315):2)
+09-29 21:51:54.465  1793  2771 E AsyncOperation: 	at soy.b(:com.google.android.gms@202414023@20.24.14 (040800-319035315):12)
+09-29 21:51:54.465  1793  2771 E AsyncOperation: 	at soy.run(:com.google.android.gms@202414023@20.24.14 (040800-319035315):7)
+09-29 21:51:54.465  1793  2771 E AsyncOperation: 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1162)
+09-29 21:51:54.465  1793  2771 E AsyncOperation: 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:636)
+09-29 21:51:54.465  1793  2771 E AsyncOperation: 	at sux.run(:com.google.android.gms@202414023@20.24.14 (040800-319035315):0)
+09-29 21:51:54.465  1793  2771 E AsyncOperation: 	at java.lang.Thread.run(Thread.java:764)
+09-29 21:51:54.465  2188  6208 W ChimeraConfigurator: Error syncing flags: qoq: SYNC_ERROR, java.util.concurrent.ExecutionException: rkq: 29504: Network error
+09-29 21:51:54.465  2188  6208 I ChmraDebugLogger: [79] SYNC_ERROR, java.util.concurrent.ExecutionException: rkq: 29504: Network error
+09-29 21:51:54.467  2188  6208 I ChmraDebugLogger: [52] null
+09-29 21:51:54.467  2188  6208 W ChimeraConfigService: Retry attempt was throttled.
+09-29 21:51:55.045  1687  1701 E memtrack: Couldn't load memtrack module
+09-29 21:51:55.045  1687  1701 W android.os.Debug: failed to get memory consumption info: -1
+09-29 21:51:55.049  1687  1701 E memtrack: Couldn't load memtrack module
+09-29 21:51:55.049  1687  1701 W android.os.Debug: failed to get memory consumption info: -1
+09-29 21:51:57.412  6212  6212 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+09-29 21:51:57.434  6212  6212 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+09-29 21:51:57.441  6212  6212 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+09-29 21:51:58.044  1687  1701 E memtrack: Couldn't load memtrack module
+09-29 21:51:58.044  1687  1701 W android.os.Debug: failed to get memory consumption info: -1
+09-29 21:51:58.469  5901  5906 I zygote64: Compiler allocated 8MB to compile p1.e E0.H.j(int)
+09-29 21:51:58.470  6212  6212 I app_process: Deoptimizing java.lang.String com.android.uiautomator.core.AccessibilityNodeInfoDumper.stripInvalidXMLChars(java.lang.CharSequence) due to JIT inline cache
+09-29 21:51:58.472  6212  6212 W AccessibilityNodeInfoDumper: Fetch time: 12ms
+--------- beginning of system
+09-29 21:51:58.473  1687  2037 W WindowManager: removeWindowToken: Attempted to remove non-existing token: android.os.Binder@e6e908e
+09-29 21:51:58.479  6212  6212 D AndroidRuntime: Shutting down VM
+09-29 21:51:58.717  6223  6223 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+09-29 21:51:58.740  6223  6223 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+09-29 21:51:58.749  6223  6223 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+09-29 21:51:58.752  6223  6223 I Input   : injectMotionEvent: MotionEvent { action=ACTION_DOWN, actionButton=0, id[0]=0, x[0]=955.0, y[0]=168.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=154699, downTime=154699, deviceId=0, source=0x1002 }
+09-29 21:51:58.754  5901  5901 I zygote64: Deoptimizing x2.h x2.b.s(x2.h) due to JIT inline cache
+09-29 21:51:58.754  5901  5901 I zygote64: Deoptimizing x2.h x2.b.h(x2.g) due to JIT inline cache
+09-29 21:51:58.754  5901  5901 I zygote64: Deoptimizing x2.h Q2.y.f(x2.h, x2.h, boolean) due to JIT same target
+09-29 21:51:58.755  5901  5901 I zygote64: Deoptimizing java.lang.Object x2.b.j(java.lang.Object, G2.e) due to JIT same target
+09-29 21:51:58.755  5901  5901 I zygote64: Deoptimizing java.lang.Object V2.a.k(x2.h) due to JIT same target
+09-29 21:51:58.756  5901  5901 I zygote64: Deoptimizing void Q2.a.<init>(x2.h, boolean) due to JIT inline cache
+09-29 21:51:58.756  5901  5901 I zygote64: Deoptimizing java.lang.Object Q2.q.invoke(java.lang.Object, java.lang.Object) due to JIT inline cache
+09-29 21:51:58.756  5901  5901 I zygote64: Deoptimizing Q2.j0 Q2.y.n(Q2.w, x2.a, G2.e, int) due to JIT inline cache
+09-29 21:51:58.756  5901  5901 I zygote64: Deoptimizing Q2.k Q2.b0.d(Q2.b0) due to JIT inline cache
+09-29 21:51:58.757  6223  6223 I Input   : injectMotionEvent: MotionEvent { action=ACTION_UP, actionButton=0, id[0]=0, x[0]=955.0, y[0]=168.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=154699, downTime=154699, deviceId=0, source=0x1002 }
+09-29 21:51:58.757  5901  5901 I zygote64: Deoptimizing V2.j V2.j.e() due to JIT inline cache
+09-29 21:51:58.758  5901  5901 I zygote64: Deoptimizing void Q2.D.run() due to JIT inline cache
+09-29 21:51:58.759  6223  6223 D AndroidRuntime: Shutting down VM
+09-29 21:51:58.759  5901  5901 I zygote64: Deoptimizing void Q2.b0.E(Q2.P, java.lang.Object) due to JIT inline cache
+09-29 21:51:58.799  5901  5906 I zygote64: Compiler allocated 5MB to compile void S.s.s(boolean)
+09-29 21:51:58.831  5901  5901 I zygote64: Deoptimizing void S.n0.<init>(java.lang.Object, S.P0) due to JIT inline cache
+09-29 21:51:58.833  5901  5901 I zygote64: Deoptimizing void c0.z.<init>() due to JIT inline cache
+09-29 21:51:58.849  1435  1435 D SurfaceFlinger: duplicate layer name: changing com.digitalgold.ticker/com.digitalgold.ticker.MainActivity to com.digitalgold.ticker/com.digitalgold.ticker.MainActivity#1
+09-29 21:51:58.852  5901  5906 I zygote64: Do partial code cache collection, code=250KB, data=177KB
+09-29 21:51:58.853  5901  5906 I zygote64: After code cache collection, code=226KB, data=169KB
+09-29 21:51:58.853  5901  5906 I zygote64: Increasing code cache capacity to 1024KB
+09-29 21:51:58.855  1425  1425 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+09-29 21:51:58.857  1425  1425 I chatty  : uid=1000(system) allocator@2.0-s identical 1 line
+09-29 21:51:58.859  1425  1425 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+09-29 21:51:58.874  5901  5901 I zygote64: Deoptimizing x2.f x2.b.t(x2.g) due to JIT same target
+09-29 21:51:58.875  5901  5901 I zygote64: Deoptimizing void Q2.X.dispose() due to JIT inline cache
+09-29 21:51:58.899  5901  5906 I zygote64: Compiler allocated 5MB to compile void U0.d.<init>(java.lang.String, M0.I, java.util.List, java.util.List, R0.d, Y0.b)
+09-29 21:51:58.900  5901  5922 D EGL_emulation: eglMakeCurrent: 0x7c174d03dea0: ver 2 0 (tinfo 0x7c174d00d860)
+09-29 21:51:58.994  5901  5922 I chatty  : uid=10077(u0_a77) RenderThread identical 5 lines
+09-29 21:51:58.997  1805  6237 I native  : neural_language_identifier.cc:337 Portable Language Identification module loaded successfully.
+09-29 21:51:58.997  5901  5922 D EGL_emulation: eglMakeCurrent: 0x7c174d03dea0: ver 2 0 (tinfo 0x7c174d00d860)
+09-29 21:51:59.006  1687  5896 D VoldConnector: SND -> {38 volume mkdirs /storage/emulated/0/Android/data/com.google.android.inputmethod.latin/cache/}
+09-29 21:51:59.010  1687  1751 D VoldConnector: RCV <- {200 38 Command succeeded}
+09-29 21:51:59.015  1805  1805 W InputConnectionWrapper: Fixing selection indices to 0, 0
+09-29 21:51:59.024  5901  5922 D EGL_emulation: eglMakeCurrent: 0x7c174d03dea0: ver 2 0 (tinfo 0x7c174d00d860)
+09-29 21:51:59.056  1687  5896 I ActivityManager: Killing 2285:com.google.android.deskclock/u0a66 (adj 906): empty #17
+09-29 21:51:59.092  5901  5922 I chatty  : uid=10077(u0_a77) RenderThread identical 5 lines
+09-29 21:51:59.108  5901  5922 D EGL_emulation: eglMakeCurrent: 0x7c174d03dea0: ver 2 0 (tinfo 0x7c174d00d860)
+09-29 21:51:59.115  5901  5906 I zygote64: Do full code cache collection, code=505KB, data=331KB
+09-29 21:51:59.118  5901  5906 I zygote64: After code cache collection, code=342KB, data=187KB
+09-29 21:51:59.125  5901  5922 D EGL_emulation: eglMakeCurrent: 0x7c174d03dea0: ver 2 0 (tinfo 0x7c174d00d860)
+09-29 21:51:59.139  5901  5922 D EGL_emulation: eglMakeCurrent: 0x7c174d03dea0: ver 2 0 (tinfo 0x7c174d00d860)
+09-29 21:51:59.142  1805  1805 E AndroidIME: bpw: View is not attached to window yet.
+09-29 21:51:59.145  1805  1805 I zygote64: Deoptimizing void com.google.android.apps.inputmethod.libs.framework.core.KeyData.<init>(int, com.google.android.apps.inputmethod.libs.framework.core.KeyData$a, java.lang.Object) due to JIT inline cache
+09-29 21:51:59.150  5901  5922 D EGL_emulation: eglMakeCurrent: 0x7c174d03dea0: ver 2 0 (tinfo 0x7c174d00d860)
+09-29 21:51:59.166  5901  5922 I chatty  : uid=10077(u0_a77) RenderThread identical 2 lines
+09-29 21:51:59.172  5901  5922 D EGL_emulation: eglMakeCurrent: 0x7c174d03dea0: ver 2 0 (tinfo 0x7c174d00d860)
+09-29 21:51:59.180  1805  6241 I zygote64: Deoptimizing int cht.a(android.content.Context, android.util.AttributeSet, int, int) due to JIT inline cache
+09-29 21:51:59.180  1805  6241 I zygote64: Deoptimizing int cht.a(android.content.Context, int) due to JIT inline cache
+09-29 21:51:59.183  5901  5922 D EGL_emulation: eglMakeCurrent: 0x7c174d03dea0: ver 2 0 (tinfo 0x7c174d00d860)
+09-29 21:51:59.191  5901  5922 D EGL_emulation: eglMakeCurrent: 0x7c174d03dea0: ver 2 0 (tinfo 0x7c174d00d860)
+09-29 21:51:59.199  1824  2163 D EGL_emulation: eglMakeCurrent: 0x7c174d03d680: ver 2 0 (tinfo 0x7c174d0841e0)
+09-29 21:51:59.200  5901  5922 D EGL_emulation: eglMakeCurrent: 0x7c174d03dea0: ver 2 0 (tinfo 0x7c174d00d860)
+09-29 21:51:59.206  5901  5922 D EGL_emulation: eglMakeCurrent: 0x7c174d03dea0: ver 2 0 (tinfo 0x7c174d00d860)
+09-29 21:51:59.207  1435  2005 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+09-29 21:51:59.208  1805  6243 D OpenGLRenderer: HWUI GL Pipeline
+09-29 21:51:59.218  5901  5922 D EGL_emulation: eglMakeCurrent: 0x7c174d03dea0: ver 2 0 (tinfo 0x7c174d00d860)
+09-29 21:51:59.220  5901  5901 I zygote64: Deoptimizing void Q2.D.run() due to JIT inline cache
+09-29 21:51:59.224  5901  5922 D EGL_emulation: eglMakeCurrent: 0x7c174d03dea0: ver 2 0 (tinfo 0x7c174d00d860)
+09-29 21:51:59.239  5901  5922 I chatty  : uid=10077(u0_a77) RenderThread identical 1 line
+09-29 21:51:59.255  5901  5922 D EGL_emulation: eglMakeCurrent: 0x7c174d03dea0: ver 2 0 (tinfo 0x7c174d00d860)
+09-29 21:51:59.318  1805  6239 I zygote64: Deoptimizing boolean com.google.android.apps.inputmethod.libs.framework.core.metadata.AbstractTemplateBuilder.a(android.content.Context, android.util.AttributeSet, java.lang.String, int, com.google.common.base.Splitter) due to JIT inline cache
+09-29 21:51:59.320  1425  1425 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8024064
+09-29 21:51:59.322  1425  1425 I chatty  : uid=1000(system) allocator@2.0-s identical 1 line
+09-29 21:51:59.325  1425  1425 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8024064
+09-29 21:51:59.336  1805  2879 I zygote64: Deoptimizing void bcp.a(int, java.lang.Object[]) due to JIT inline cache
+09-29 21:51:59.409  1805  6243 D         : HostConnection::get() New Host Connection established 0x7c174094e3c0, tid 6243
+09-29 21:51:59.411  1805  6243 I OpenGLRenderer: Initialized EGL, version 1.4
+09-29 21:51:59.411  1805  6243 D OpenGLRenderer: Swap behavior 1
+09-29 21:51:59.411  1805  6243 W OpenGLRenderer: Failed to choose config with EGL_SWAP_BEHAVIOR_PRESERVED, retrying without...
+09-29 21:51:59.412  1805  6243 D OpenGLRenderer: Swap behavior 0
+09-29 21:51:59.421  1805  6243 D EGL_emulation: eglCreateContext: 0x7c174a9f8b60: maj 2 min 0 rcv 2
+09-29 21:51:59.449  1805  6243 D EGL_emulation: eglMakeCurrent: 0x7c174a9f8b60: ver 2 0 (tinfo 0x7c174a7939e0)
+09-29 21:51:59.455  5901  5922 D EGL_emulation: eglMakeCurrent: 0x7c174d03dea0: ver 2 0 (tinfo 0x7c174d00d860)
+09-29 21:51:59.458  1805  1817 I zygote64: Background concurrent copying GC freed 46384(1970KB) AllocSpace objects, 2(40KB) LOS objects, 50% free, 3MB/7MB, paused 4.095ms total 123.267ms
+09-29 21:51:59.463  5901  5922 D EGL_emulation: eglMakeCurrent: 0x7c174d03dea0: ver 2 0 (tinfo 0x7c174d00d860)
+09-29 21:51:59.471  5901  5901 I zygote64: Deoptimizing void D0.g0.Y0(B0.v) due to JIT inline cache
+09-29 21:51:59.478  1805  1805 I zygote64: Deoptimizing int jf.a(java.lang.Object) due to JIT inline cache
+09-29 21:51:59.489  5901  5922 D EGL_emulation: eglMakeCurrent: 0x7c174d03dea0: ver 2 0 (tinfo 0x7c174d00d860)
+09-29 21:51:59.522  5901  5922 I chatty  : uid=10077(u0_a77) RenderThread identical 2 lines
+09-29 21:51:59.530  5901  5922 D EGL_emulation: eglMakeCurrent: 0x7c174d03dea0: ver 2 0 (tinfo 0x7c174d00d860)
+09-29 21:51:59.535  5901  5906 I zygote64: Do partial code cache collection, code=501KB, data=282KB
+09-29 21:51:59.535  5901  5906 I zygote64: After code cache collection, code=487KB, data=276KB
+09-29 21:51:59.535  5901  5906 I zygote64: Increasing code cache capacity to 2MB
+09-29 21:51:59.540  5901  5922 D EGL_emulation: eglMakeCurrent: 0x7c174d03dea0: ver 2 0 (tinfo 0x7c174d00d860)
+09-29 21:51:59.544  5901  5922 D EGL_emulation: eglMakeCurrent: 0x7c174d03dea0: ver 2 0 (tinfo 0x7c174d00d860)
+09-29 21:51:59.546  1805  6243 D EGL_emulation: eglMakeCurrent: 0x7c174a9f8b60: ver 2 0 (tinfo 0x7c174a7939e0)
+09-29 21:51:59.623  1805  1810 I zygote64: Do full code cache collection, code=239KB, data=147KB
+09-29 21:51:59.624  1805  1810 I zygote64: After code cache collection, code=227KB, data=126KB
+09-29 21:51:59.646  1805  6246 W BasicHttpFileDownloader: Exception while downloading: https://storage.googleapis.com/gboard-emoji/dulcitone/emoji_search_en_us.json
+09-29 21:51:59.646  1805  6246 W JSonCheckUpdateTask: fetchUpdateInfo() : Failed to download https://storage.googleapis.com/gboard-emoji/dulcitone/emoji_search_en_us.json
+09-29 21:51:59.784  1805  6233 I native  : language-utils-delegator.cc:33 Adding en to delegate.
+09-29 21:51:59.784  1805  6233 I native  : language-utils-delegator.cc:37 language en not found, so added it.
+09-29 21:51:59.836  1805  6233 E native  : keyboard.cc:22 Cannot create a keyboard with 0 valid keys
+09-29 21:51:59.836  1805  6233 W native  : neural_spatial_model.cc:392 Output symbol table doesn't contain symbol: &
+09-29 21:51:59.852  1805  1810 I zygote64: Do partial code cache collection, code=251KB, data=137KB
+09-29 21:51:59.853  1805  1810 I zygote64: After code cache collection, code=251KB, data=137KB
+09-29 21:51:59.853  1805  1810 I zygote64: Increasing code cache capacity to 1024KB
+09-29 21:51:59.861  1805  6233 I native  : fst-model.cc:323 Created LM accumulator /data/user/0/com.google.android.inputmethod.latin/files/cache/en_US_d3.dict.20170404.lm.acc
+09-29 21:51:59.863  1805  6233 I native  : proto-store.cc:43 File not found: '/data/user/0/com.google.android.inputmethod.latin/files/personal/adapt_state.en.dat'.
+09-29 21:51:59.863  1805  6233 I native  : (This might be OK for example when a language is being loaded for the first time.)
+09-29 21:51:59.865  1805  6233 I native  : blacklist-assembly.cc:112 LoadBlacklist en
+09-29 21:51:59.865  1805  6233 I native  : blacklist.cc:212 No blacklist file for a language. (This is OK if the language is loaded for the first time.) /data/user/0/com.google.android.inputmethod.latin/files/personal/blacklist.en_us.list
+09-29 21:51:59.868  1805  6239 I zygote64: Deoptimizing boolean com.google.android.apps.inputmethod.libs.framework.core.metadata.AbstractTemplateBuilder.a(android.content.Context, android.util.AttributeSet, java.lang.String, int, com.google.common.base.Splitter) due to JIT inline cache
+09-29 21:51:59.932  5901  5922 D EGL_emulation: eglMakeCurrent: 0x7c174d03dea0: ver 2 0 (tinfo 0x7c174d00d860)
+09-29 21:52:00.017  1824  2163 D EGL_emulation: eglMakeCurrent: 0x7c174d03d680: ver 2 0 (tinfo 0x7c174d0841e0)
+09-29 21:52:01.356  1433  1433 I boot-pipe: done populating /dev/random
+09-29 21:52:01.963  6253  6253 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+09-29 21:52:02.006  6253  6253 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+09-29 21:52:02.027  6253  6253 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+09-29 21:52:02.036  5901  5901 I zygote64: Deoptimizing B0.o h3.d.z(B0.o) due to JIT inline cache
+09-29 21:52:02.036  5901  5901 I zygote64: Deoptimizing B0.o D0.g0.k() due to JIT inline cache
+09-29 21:52:02.036  5901  5901 I zygote64: Deoptimizing k0.d D0.g0.n(B0.o, boolean) due to JIT inline cache
+09-29 21:52:03.157  5901  5906 I zygote64: Compiler allocated 8MB to compile p1.e E0.H.j(int)
+09-29 21:52:03.167  6253  6253 W AccessibilityNodeInfoDumper: Fetch time: 3ms
+09-29 21:52:03.168  1687  2462 W WindowManager: removeWindowToken: Attempted to remove non-existing token: android.os.Binder@c8dbd8
+09-29 21:52:03.175  6253  6253 D AndroidRuntime: Shutting down VM
+09-29 21:52:03.484  6264  6264 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+09-29 21:52:03.505  6264  6264 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+09-29 21:52:03.514  6264  6264 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+09-29 21:52:03.516  6264  6264 I Input   : injectMotionEvent: MotionEvent { action=ACTION_DOWN, actionButton=0, id[0]=0, x[0]=540.0, y[0]=634.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=159463, downTime=159463, deviceId=0, source=0x1002 }
+09-29 21:52:03.518  5901  5901 I zygote64: Deoptimizing Q2.F Q2.h.r() due to JIT inline cache
+09-29 21:52:03.519  6264  6264 I Input   : injectMotionEvent: MotionEvent { action=ACTION_UP, actionButton=0, id[0]=0, x[0]=540.0, y[0]=634.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=159463, downTime=159463, deviceId=0, source=0x1002 }
+09-29 21:52:03.521  6264  6264 D AndroidRuntime: Shutting down VM
+09-29 21:52:03.799  2639  2789 W GmsLocationProvider: Error removing location updates: 16
+09-29 21:52:03.806  1687  1999 I GnssLocationProvider: WakeLock acquired by sendMessage(SET_REQUEST, 0, com.android.server.location.GnssLocationProvider$GpsRequest@92e3216)
+09-29 21:52:03.808  1687  1701 I GnssLocationProvider: WakeLock released by handleMessage(SET_REQUEST, 0, com.android.server.location.GnssLocationProvider$GpsRequest@92e3216)
+09-29 21:52:04.180  1687  1702 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.DROPBOX_ENTRY_ADDED flg=0x10 (has extras) } to com.google.android.gms/.stats.service.DropBoxEntryAddedReceiver
+09-29 21:52:04.180  1687  1702 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.DROPBOX_ENTRY_ADDED flg=0x10 (has extras) } to com.google.android.gms/.chimera.GmsIntentOperationService$PersistentTrustedReceiver
+09-29 21:52:04.320  2188  6277 I Vision  : Requesting optional module download of ocr.
+09-29 21:52:04.320  2188  6277 I Vision  : Checking for download completion for 170270 -- ocr
+09-29 21:52:04.666  6279  6279 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+09-29 21:52:04.685  6279  6279 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+09-29 21:52:04.692  6279  6279 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+09-29 21:52:04.695  6279  6279 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_A, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=160644, downTime=160644, deviceId=-1, source=0x101 }
+09-29 21:52:04.700  6279  6279 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_A, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=160644, downTime=160644, deviceId=-1, source=0x101 }
+09-29 21:52:04.702  6279  6279 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_P, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=160644, downTime=160644, deviceId=-1, source=0x101 }
+09-29 21:52:04.704  6279  6279 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_P, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=160644, downTime=160644, deviceId=-1, source=0x101 }
+09-29 21:52:04.705  6279  6279 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_I, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=160644, downTime=160644, deviceId=-1, source=0x101 }
+09-29 21:52:04.708  6279  6279 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_I, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=160644, downTime=160644, deviceId=-1, source=0x101 }
+09-29 21:52:04.710  6279  6279 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_2, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=160644, downTime=160644, deviceId=-1, source=0x101 }
+09-29 21:52:04.713  6279  6279 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_2, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=160644, downTime=160644, deviceId=-1, source=0x101 }
+09-29 21:52:04.715  5901  5901 I zygote64: Deoptimizing void c0.d.n(c0.x) due to JIT inline cache
+09-29 21:52:04.717  5901  5901 I zygote64: Deoptimizing boolean r.A.j(java.lang.Object) due to JIT inline cache
+09-29 21:52:04.720  6279  6279 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_6, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=160644, downTime=160644, deviceId=-1, source=0x101 }
+09-29 21:52:04.723  6279  6279 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_6, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=160644, downTime=160644, deviceId=-1, source=0x101 }
+09-29 21:52:04.725  6279  6279 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_SHIFT_LEFT, scanCode=0, metaState=META_SHIFT_ON|META_SHIFT_LEFT_ON, flags=0x0, repeatCount=0, eventTime=160644, downTime=160644, deviceId=-1, source=0x101 }
+09-29 21:52:04.729  6279  6279 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_2, scanCode=0, metaState=META_SHIFT_ON|META_SHIFT_LEFT_ON, flags=0x0, repeatCount=0, eventTime=160644, downTime=160644, deviceId=-1, source=0x101 }
+09-29 21:52:04.740  6279  6279 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_2, scanCode=0, metaState=META_SHIFT_ON|META_SHIFT_LEFT_ON, flags=0x0, repeatCount=0, eventTime=160644, downTime=160644, deviceId=-1, source=0x101 }
+09-29 21:52:04.744  6279  6279 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_SHIFT_LEFT, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=160644, downTime=160644, deviceId=-1, source=0x101 }
+09-29 21:52:04.745  6279  6279 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_E, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=160644, downTime=160644, deviceId=-1, source=0x101 }
+09-29 21:52:04.747  6279  6279 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_E, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=160644, downTime=160644, deviceId=-1, source=0x101 }
+09-29 21:52:04.755  6279  6279 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_X, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=160644, downTime=160644, deviceId=-1, source=0x101 }
+09-29 21:52:04.757  6279  6279 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_X, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=160644, downTime=160644, deviceId=-1, source=0x101 }
+09-29 21:52:04.759  6279  6279 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_A, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=160644, downTime=160644, deviceId=-1, source=0x101 }
+09-29 21:52:04.762  6279  6279 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_A, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=160644, downTime=160644, deviceId=-1, source=0x101 }
+09-29 21:52:04.763  6279  6279 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_M, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=160644, downTime=160644, deviceId=-1, source=0x101 }
+09-29 21:52:04.764  6279  6279 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_M, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=160644, downTime=160644, deviceId=-1, source=0x101 }
+09-29 21:52:04.768  6279  6279 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_P, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=160644, downTime=160644, deviceId=-1, source=0x101 }
+09-29 21:52:04.774  6279  6279 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_P, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=160644, downTime=160644, deviceId=-1, source=0x101 }
+09-29 21:52:04.776  6279  6279 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_L, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=160644, downTime=160644, deviceId=-1, source=0x101 }
+09-29 21:52:04.779  6279  6279 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_L, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=160644, downTime=160644, deviceId=-1, source=0x101 }
+09-29 21:52:04.781  6279  6279 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_E, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=160644, downTime=160644, deviceId=-1, source=0x101 }
+09-29 21:52:04.789  6279  6279 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_E, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=160644, downTime=160644, deviceId=-1, source=0x101 }
+09-29 21:52:04.791  6279  6279 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_PERIOD, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=160644, downTime=160644, deviceId=-1, source=0x101 }
+09-29 21:52:04.793  6279  6279 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_PERIOD, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=160644, downTime=160644, deviceId=-1, source=0x101 }
+09-29 21:52:04.793  6279  6279 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_E, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=160644, downTime=160644, deviceId=-1, source=0x101 }
+09-29 21:52:04.796  6279  6279 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_E, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=160644, downTime=160644, deviceId=-1, source=0x101 }
+09-29 21:52:04.798  6279  6279 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_D, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=160644, downTime=160644, deviceId=-1, source=0x101 }
+09-29 21:52:04.802  6279  6279 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_D, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=160644, downTime=160644, deviceId=-1, source=0x101 }
+09-29 21:52:04.805  6279  6279 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_U, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=160644, downTime=160644, deviceId=-1, source=0x101 }
+09-29 21:52:04.807  6279  6279 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_U, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=160644, downTime=160644, deviceId=-1, source=0x101 }
+09-29 21:52:04.809  6279  6279 D AndroidRuntime: Shutting down VM
+09-29 21:52:05.947  6291  6291 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+09-29 21:52:05.965  6291  6291 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+09-29 21:52:05.973  6291  6291 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+09-29 21:52:05.974  6291  6291 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_BACK, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=161923, downTime=161923, deviceId=-1, source=0x101 }
+09-29 21:52:05.977  6291  6291 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_BACK, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=161923, downTime=161923, deviceId=-1, source=0x101 }
+09-29 21:52:05.977  1687  1703 D AutofillManagerService: onBackKeyPressed()
+09-29 21:52:05.980  6291  6291 D AndroidRuntime: Shutting down VM
+09-29 21:52:05.983  1824  2163 D EGL_emulation: eglMakeCurrent: 0x7c174d03d680: ver 2 0 (tinfo 0x7c174d0841e0)
+09-29 21:52:06.001  1805  6243 D EGL_emulation: eglMakeCurrent: 0x7c174a9f8b60: ver 2 0 (tinfo 0x7c174a7939e0)
+09-29 21:52:06.005  5901  5906 I zygote64: Compiler allocated 7MB to compile void F.w0.CoreTextField(S0.z, G2.c, e0.r, M0.I, S0.H, G2.c, A.o, l0.q, boolean, int, int, S0.m, F.I0, boolean, boolean, G2.f, S.o, int, int, int)
+09-29 21:52:06.011  1805  6301 W DynamicPruner: getPruneRequest() : Unexpected LM type: 4
+09-29 21:52:06.012  1805  2879 W Delight5Facilitator: requestLanguageModelResource() : PERSONAL_DICTIONARY : UPDATING
+09-29 21:52:06.012  1805  2879 W DynamicLm: perform() : PERSONAL_DICTIONARY : bqk : Failed to acquire LM
+09-29 21:52:06.015  1805  6301 I zygote64: Deoptimizing int jf.a(java.lang.Object, int) due to JIT inline cache
+09-29 21:52:06.023  5901  5922 D EGL_emulation: eglMakeCurrent: 0x7c174d03dea0: ver 2 0 (tinfo 0x7c174d00d860)
+09-29 21:52:06.035  2188  2975 I Icing   : IndexChimeraService.getServiceInterface callingPackage=com.google.android.inputmethod.latin componentName=null serviceId=66
+09-29 21:52:06.047  5901  5922 D EGL_emulation: eglMakeCurrent: 0x7c174d03dea0: ver 2 0 (tinfo 0x7c174d00d860)
+09-29 21:52:06.047  5901  5901 I zygote64: Deoptimizing int S.w.o(S.v0, java.lang.Object) due to JIT inline cache
+09-29 21:52:06.074  5901  5922 D EGL_emulation: eglMakeCurrent: 0x7c174d03dea0: ver 2 0 (tinfo 0x7c174d00d860)
+09-29 21:52:06.075  1805  6301 E IcingDataProcessor: getCorpusHandlesRegisteredForIME call failed: Status{statusCode=API Disabled, resolution=null}
+09-29 21:52:06.088  2188  4339 W Icing   : No valid account for uploading user actions
+09-29 21:52:06.091  5901  5922 D EGL_emulation: eglMakeCurrent: 0x7c174d03dea0: ver 2 0 (tinfo 0x7c174d00d860)
+09-29 21:52:06.172  5901  5922 I chatty  : uid=10077(u0_a77) RenderThread identical 9 lines
+09-29 21:52:06.176  5901  5922 D EGL_emulation: eglMakeCurrent: 0x7c174d03dea0: ver 2 0 (tinfo 0x7c174d00d860)
+09-29 21:52:06.183  2188  4339 I Icing   : Usage reports ok 2, Failed Usage reports 0, indexed 0, rejected 0
+09-29 21:52:06.189  5901  5922 D EGL_emulation: eglMakeCurrent: 0x7c174d03dea0: ver 2 0 (tinfo 0x7c174d00d860)
+09-29 21:52:06.204  5901  5922 I chatty  : uid=10077(u0_a77) RenderThread identical 2 lines
+09-29 21:52:06.207  5901  5922 D EGL_emulation: eglMakeCurrent: 0x7c174d03dea0: ver 2 0 (tinfo 0x7c174d00d860)
+09-29 21:52:06.222  5901  5906 I zygote64: Do full code cache collection, code=1007KB, data=585KB
+09-29 21:52:06.223  5901  5922 D EGL_emulation: eglMakeCurrent: 0x7c174d03dea0: ver 2 0 (tinfo 0x7c174d00d860)
+09-29 21:52:06.223  5901  5906 I zygote64: After code cache collection, code=988KB, data=539KB
+09-29 21:52:06.227  5901  5922 D EGL_emulation: eglMakeCurrent: 0x7c174d03dea0: ver 2 0 (tinfo 0x7c174d00d860)
+09-29 21:52:07.178  6305  6305 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+09-29 21:52:07.199  6305  6305 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+09-29 21:52:07.209  6305  6305 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+09-29 21:52:07.215  5901  5901 I zygote64: Deoptimizing S.H S.I.g(S.H, c0.i, boolean, G2.a) due to JIT inline cache
+09-29 21:52:08.232  6305  6305 I app_process: Deoptimizing java.lang.String com.android.uiautomator.core.AccessibilityNodeInfoDumper.stripInvalidXMLChars(java.lang.CharSequence) due to JIT inline cache
+09-29 21:52:08.234  6305  6305 W AccessibilityNodeInfoDumper: Fetch time: 4ms
+09-29 21:52:08.235  1687  3666 W WindowManager: removeWindowToken: Attempted to remove non-existing token: android.os.Binder@4c2d7dd
+09-29 21:52:08.239  6305  6305 D AndroidRuntime: Shutting down VM
+09-29 21:52:08.479  6317  6317 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+09-29 21:52:08.503  6317  6317 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+09-29 21:52:08.517  6317  6317 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+09-29 21:52:08.519  6317  6317 I Input   : injectMotionEvent: MotionEvent { action=ACTION_DOWN, actionButton=0, id[0]=0, x[0]=490.0, y[0]=1331.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=164467, downTime=164467, deviceId=0, source=0x1002 }
+09-29 21:52:08.521  6317  6317 I Input   : injectMotionEvent: MotionEvent { action=ACTION_UP, actionButton=0, id[0]=0, x[0]=490.0, y[0]=1331.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=164467, downTime=164467, deviceId=0, source=0x1002 }
+09-29 21:52:08.523  5901  5901 I zygote64: Deoptimizing D0.w0 D0.g.j(D0.m, java.lang.Object) due to JIT inline cache
+09-29 21:52:08.524  6317  6317 D AndroidRuntime: Shutting down VM
+09-29 21:52:08.561  1425  1425 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8024064
+09-29 21:52:08.563  1425  1425 I chatty  : uid=1000(system) allocator@2.0-s identical 1 line
+09-29 21:52:08.566  1425  1425 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8024064
+09-29 21:52:08.595  1805  6243 D EGL_emulation: eglMakeCurrent: 0x7c174a9f8b60: ver 2 0 (tinfo 0x7c174a7939e0)
+09-29 21:52:08.617  5901  5922 D EGL_emulation: eglMakeCurrent: 0x7c174d03dea0: ver 2 0 (tinfo 0x7c174d00d860)
+09-29 21:52:08.650  5901  5922 I chatty  : uid=10077(u0_a77) RenderThread identical 2 lines
+09-29 21:52:08.656  5901  5922 D EGL_emulation: eglMakeCurrent: 0x7c174d03dea0: ver 2 0 (tinfo 0x7c174d00d860)
+09-29 21:52:08.657  1805  1805 W InputConnectionWrapper: Fixing selection indices to 0, 0
+09-29 21:52:08.666  5901  5922 D EGL_emulation: eglMakeCurrent: 0x7c174d03dea0: ver 2 0 (tinfo 0x7c174d00d860)
+09-29 21:52:08.699  5901  5922 I chatty  : uid=10077(u0_a77) RenderThread identical 4 lines
+09-29 21:52:08.706  5901  5922 D EGL_emulation: eglMakeCurrent: 0x7c174d03dea0: ver 2 0 (tinfo 0x7c174d00d860)
+09-29 21:52:08.710  2298  3239 I Dialer  : OmtpVvmCarrierCfgHlpr - OmtpEvent:CONFIG_STATUS_SMS_TIME_OUT
+09-29 21:52:08.711  2298  2298 I Dialer  : RetryPolicy - discarding deferred status: configuration_state=4
+09-29 21:52:08.713  1687  1701 E memtrack: Couldn't load memtrack module
+09-29 21:52:08.713  1687  1701 W android.os.Debug: failed to get memory consumption info: -1
+09-29 21:52:08.713  2298  2298 I Dialer  : VvmTaskExecutor - no more tasks, stopping service if no task are added in 5000 millis
+09-29 21:52:08.719  5901  5906 I zygote64: Do partial code cache collection, code=1008KB, data=565KB
+09-29 21:52:08.720  5901  5906 I zygote64: After code cache collection, code=995KB, data=560KB
+09-29 21:52:08.720  5901  5906 I zygote64: Increasing code cache capacity to 3MB
+09-29 21:52:08.725  2298  2298 I Dialer  : VvmTaskReceiver - task received
+09-29 21:52:08.726  2298  2298 I Dialer  : VvmTaskReceiver - TaskExecutor already running
+09-29 21:52:08.727  2298  2298 I Dialer  : Task.createTask - create task:com.android.voicemail.impl.ActivationTask
+09-29 21:52:08.728  2298  2298 I Dialer  : RetryPolicy - retry #2 for com.android.voicemail.impl.ActivationTask@532dbdd queued, executing in 5000
+09-29 21:52:08.729  2298  2298 I Dialer  : VvmTaskExecutor - com.android.voicemail.impl.ActivationTask@532dbdd added
+09-29 21:52:08.729  2298  2298 I Dialer  : VvmTaskExecutor - minimal wait time:4999
+09-29 21:52:08.729  2298  2298 I Dialer  : VvmTaskExecutor - sleep for 4999 millis
+09-29 21:52:08.736  1687  1701 E memtrack: Couldn't load memtrack module
+09-29 21:52:08.736  1687  1701 W android.os.Debug: failed to get memory consumption info: -1
+09-29 21:52:08.750  5901  5901 I zygote64: Deoptimizing l0.M E.d.h(long, Y0.k, Y0.b) due to JIT inline cache
+09-29 21:52:08.756  5901  5922 D EGL_emulation: eglMakeCurrent: 0x7c174d03dea0: ver 2 0 (tinfo 0x7c174d00d860)
+09-29 21:52:08.839  5901  5922 I chatty  : uid=10077(u0_a77) RenderThread identical 10 lines
+09-29 21:52:09.050  5901  5922 D EGL_emulation: eglMakeCurrent: 0x7c174d03dea0: ver 2 0 (tinfo 0x7c174d00d860)
+09-29 21:52:09.699  6331  6331 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+09-29 21:52:09.716  6331  6331 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+09-29 21:52:09.724  6331  6331 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+09-29 21:52:09.726  6331  6331 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_SHIFT_LEFT, scanCode=0, metaState=META_SHIFT_ON|META_SHIFT_LEFT_ON, flags=0x0, repeatCount=0, eventTime=165675, downTime=165675, deviceId=-1, source=0x101 }
+09-29 21:52:09.728  6331  6331 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_A, scanCode=0, metaState=META_SHIFT_ON|META_SHIFT_LEFT_ON, flags=0x0, repeatCount=0, eventTime=165675, downTime=165675, deviceId=-1, source=0x101 }
+09-29 21:52:09.729  6331  6331 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_A, scanCode=0, metaState=META_SHIFT_ON|META_SHIFT_LEFT_ON, flags=0x0, repeatCount=0, eventTime=165675, downTime=165675, deviceId=-1, source=0x101 }
+09-29 21:52:09.731  6331  6331 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_SHIFT_LEFT, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=165675, downTime=165675, deviceId=-1, source=0x101 }
+09-29 21:52:09.732  5901  5901 I zygote64: Deoptimizing java.lang.Object a0.b.invoke(java.lang.Object, java.lang.Object) due to JIT inline cache
+09-29 21:52:09.735  6331  6331 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_P, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=165675, downTime=165675, deviceId=-1, source=0x101 }
+09-29 21:52:09.736  6331  6331 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_P, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=165675, downTime=165675, deviceId=-1, source=0x101 }
+09-29 21:52:09.738  6331  6331 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_I, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=165675, downTime=165675, deviceId=-1, source=0x101 }
+09-29 21:52:09.739  6331  6331 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_I, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=165675, downTime=165675, deviceId=-1, source=0x101 }
+09-29 21:52:09.739  6331  6331 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_2, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=165675, downTime=165675, deviceId=-1, source=0x101 }
+09-29 21:52:09.740  6331  6331 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_2, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=165675, downTime=165675, deviceId=-1, source=0x101 }
+09-29 21:52:09.742  6331  6331 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_6, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=165675, downTime=165675, deviceId=-1, source=0x101 }
+09-29 21:52:09.743  6331  6331 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_6, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=165675, downTime=165675, deviceId=-1, source=0x101 }
+09-29 21:52:09.744  6331  6331 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_SHIFT_LEFT, scanCode=0, metaState=META_SHIFT_ON|META_SHIFT_LEFT_ON, flags=0x0, repeatCount=0, eventTime=165675, downTime=165675, deviceId=-1, source=0x101 }
+09-29 21:52:09.745  6331  6331 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_S, scanCode=0, metaState=META_SHIFT_ON|META_SHIFT_LEFT_ON, flags=0x0, repeatCount=0, eventTime=165675, downTime=165675, deviceId=-1, source=0x101 }
+09-29 21:52:09.746  6331  6331 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_S, scanCode=0, metaState=META_SHIFT_ON|META_SHIFT_LEFT_ON, flags=0x0, repeatCount=0, eventTime=165675, downTime=165675, deviceId=-1, source=0x101 }
+09-29 21:52:09.747  6331  6331 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_SHIFT_LEFT, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=165675, downTime=165675, deviceId=-1, source=0x101 }
+09-29 21:52:09.752  6331  6331 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_E, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=165675, downTime=165675, deviceId=-1, source=0x101 }
+09-29 21:52:09.756  6331  6331 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_E, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=165675, downTime=165675, deviceId=-1, source=0x101 }
+09-29 21:52:09.757  6331  6331 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_C, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=165675, downTime=165675, deviceId=-1, source=0x101 }
+09-29 21:52:09.758  6331  6331 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_C, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=165675, downTime=165675, deviceId=-1, source=0x101 }
+09-29 21:52:09.759  6331  6331 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_R, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=165675, downTime=165675, deviceId=-1, source=0x101 }
+09-29 21:52:09.761  6331  6331 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_R, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=165675, downTime=165675, deviceId=-1, source=0x101 }
+09-29 21:52:09.763  6331  6331 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_E, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=165675, downTime=165675, deviceId=-1, source=0x101 }
+09-29 21:52:09.764  6331  6331 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_E, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=165675, downTime=165675, deviceId=-1, source=0x101 }
+09-29 21:52:09.770  6331  6331 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_T, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=165675, downTime=165675, deviceId=-1, source=0x101 }
+09-29 21:52:09.772  6331  6331 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_T, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=165675, downTime=165675, deviceId=-1, source=0x101 }
+09-29 21:52:09.774  6331  6331 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_SHIFT_LEFT, scanCode=0, metaState=META_SHIFT_ON|META_SHIFT_LEFT_ON, flags=0x0, repeatCount=0, eventTime=165675, downTime=165675, deviceId=-1, source=0x101 }
+09-29 21:52:09.776  6331  6331 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_1, scanCode=0, metaState=META_SHIFT_ON|META_SHIFT_LEFT_ON, flags=0x0, repeatCount=0, eventTime=165675, downTime=165675, deviceId=-1, source=0x101 }
+09-29 21:52:09.778  6331  6331 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_1, scanCode=0, metaState=META_SHIFT_ON|META_SHIFT_LEFT_ON, flags=0x0, repeatCount=0, eventTime=165675, downTime=165675, deviceId=-1, source=0x101 }
+09-29 21:52:09.780  6331  6331 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_SHIFT_LEFT, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=165675, downTime=165675, deviceId=-1, source=0x101 }
+09-29 21:52:09.787  6331  6331 D AndroidRuntime: Shutting down VM
+09-29 21:52:10.918  6341  6341 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+09-29 21:52:10.936  6341  6341 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+09-29 21:52:10.943  6341  6341 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+09-29 21:52:10.944  6341  6341 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_BACK, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=166893, downTime=166893, deviceId=-1, source=0x101 }
+09-29 21:52:10.945  6341  6341 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_BACK, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=166893, downTime=166893, deviceId=-1, source=0x101 }
+09-29 21:52:10.946  1687  1703 D AutofillManagerService: onBackKeyPressed()
+09-29 21:52:10.947  6341  6341 D AndroidRuntime: Shutting down VM
+09-29 21:52:10.968  1805  6243 D EGL_emulation: eglMakeCurrent: 0x7c174a9f8b60: ver 2 0 (tinfo 0x7c174a7939e0)
+09-29 21:52:10.985  5901  5922 D EGL_emulation: eglMakeCurrent: 0x7c174d03dea0: ver 2 0 (tinfo 0x7c174d00d860)
+09-29 21:52:10.990  5901  5922 D EGL_emulation: eglMakeCurrent: 0x7c174d03dea0: ver 2 0 (tinfo 0x7c174d00d860)
+09-29 21:52:10.998  5901  5901 I zygote64: Deoptimizing java.lang.Object S.b0.d(java.lang.Object) due to JIT inline cache
+09-29 21:52:11.000  5901  5922 D EGL_emulation: eglMakeCurrent: 0x7c174d03dea0: ver 2 0 (tinfo 0x7c174d00d860)
+09-29 21:52:11.176  5901  5922 I chatty  : uid=10077(u0_a77) RenderThread identical 20 lines
+09-29 21:52:11.184  5901  5922 D EGL_emulation: eglMakeCurrent: 0x7c174d03dea0: ver 2 0 (tinfo 0x7c174d00d860)
+09-29 21:52:12.096  1793  6354 E WakeLock: GCM_HB_ALARM release without a matched acquire!
+09-29 21:52:12.096  1793  6354 W WakeLock: GCM_HB_ALARM counter does not exist
+09-29 21:52:12.116  6353  6353 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+09-29 21:52:12.137  6353  6353 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+09-29 21:52:12.144  6353  6353 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+09-29 21:52:12.148  5901  5901 I zygote64: Deoptimizing boolean S.H.c(S.I, c0.i) due to JIT inline cache
+09-29 21:52:13.162  6353  6353 W AccessibilityNodeInfoDumper: Fetch time: 4ms
+09-29 21:52:13.162  1687  3666 W WindowManager: removeWindowToken: Attempted to remove non-existing token: android.os.Binder@35f2638
+09-29 21:52:13.165  6353  6353 D AndroidRuntime: Shutting down VM
+09-29 21:52:13.400  1793  5478 W cklr    : [{0}] Failed to resolve name. status={1}
+09-29 21:52:13.545  1687  1702 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.DROPBOX_ENTRY_ADDED flg=0x10 (has extras) } to com.google.android.gms/.stats.service.DropBoxEntryAddedReceiver
+09-29 21:52:13.545  1687  1702 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.DROPBOX_ENTRY_ADDED flg=0x10 (has extras) } to com.google.android.gms/.chimera.GmsIntentOperationService$PersistentTrustedReceiver
+09-29 21:52:13.735  2298  3239 I Dialer  : VvmTaskExecutor - executing task com.android.voicemail.impl.ActivationTask@532dbdd
+09-29 21:52:13.736  2298  3239 I Dialer  : PreOMigrationHandler - ComponentInfo{com.android.phone/com.android.services.telephony.TelephonyConnectionService}, [e2f7d48dd2b5ca523e7313cf4ba0f6ea830b6281], UserHandle{0} already migrated
+09-29 21:52:13.748  2298  3239 I Dialer  : VvmActivationTask - VVM content provider configured - vvm_type_cvvm
+09-29 21:52:13.748  2298  3239 I Dialer  : OmtpVvmCarrierCfgHlpr - OmtpEvent:CONFIG_ACTIVATING
+09-29 21:52:13.756  2298  3239 I Dialer  : TelephonyMangerCompat.setVisualVoicemailSmsFilterSettings - using TelephonyManager
+09-29 21:52:13.757  2298  3239 I Dialer  : TelephonyMangerCompat.sendVisualVoicemailSms - using TelephonyManager
+09-29 21:52:14.531  6373  6373 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+09-29 21:52:14.549  6373  6373 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+09-29 21:52:14.556  6373  6373 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+09-29 21:52:14.558  6373  6373 I Input   : injectMotionEvent: MotionEvent { action=ACTION_DOWN, actionButton=0, id[0]=0, x[0]=540.0, y[0]=1673.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=170506, downTime=170506, deviceId=0, source=0x1002 }
+09-29 21:52:14.559  5901  5901 I zygote64: Deoptimizing Q2.F Q2.h.r() due to JIT inline cache
+09-29 21:52:14.559  5901  5901 I zygote64: Deoptimizing Q2.k Q2.b0.d(Q2.b0) due to JIT inline cache
+09-29 21:52:14.559  6373  6373 I Input   : injectMotionEvent: MotionEvent { action=ACTION_UP, actionButton=0, id[0]=0, x[0]=540.0, y[0]=1673.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=170506, downTime=170506, deviceId=0, source=0x1002 }
+09-29 21:52:14.559  5901  5901 I zygote64: Deoptimizing c0.z c0.p.m(c0.z, c0.x) due to JIT inline cache
+09-29 21:52:14.559  5901  5901 I zygote64: Deoptimizing boolean c0.p.p(c0.x) due to JIT inline cache
+09-29 21:52:14.563  5901  5901 I zygote64: Deoptimizing Q2.l Q2.b0.S(V2.j) due to JIT inline cache
+09-29 21:52:14.563  6373  6373 D AndroidRuntime: Shutting down VM
+09-29 21:52:14.566  5901  5901 I zygote64: Deoptimizing Q2.F Q2.b0.O(boolean, Q2.X) due to JIT inline cache
+09-29 21:52:14.566  5901  5901 I zygote64: Deoptimizing void V2.j.f(V2.j) due to JIT inline cache
+09-29 21:52:14.566  5901  5901 I zygote64: Deoptimizing boolean E0.U0.r(java.lang.Object, java.lang.Object) due to JIT inline cache
+09-29 21:52:14.569  5901  5922 D EGL_emulation: eglMakeCurrent: 0x7c174d03dea0: ver 2 0 (tinfo 0x7c174d00d860)
+09-29 21:52:14.574  5901  5922 D EGL_emulation: eglMakeCurrent: 0x7c174d03dea0: ver 2 0 (tinfo 0x7c174d00d860)
+09-29 21:52:14.575  5901  5901 I zygote64: Deoptimizing V2.j V2.j.e() due to JIT inline cache
+09-29 21:52:14.600  5901  5901 I zygote64: Deoptimizing java.lang.Object Q2.b0.a0(java.lang.Object, java.lang.Object) due to JIT inline cache
+09-29 21:52:15.957  2188  6372 I Vision  : Requesting optional module download of ocr.
+09-29 21:52:15.958  2188  6372 I Vision  : Checking for download completion for 181907 -- ocr
+09-29 21:52:15.981  1805  6384 W DelightMetadataUpdater: flagUpdated() : delight_metadata_uri, delight_latest_metadata_version (2131755123, 2131689498)
+09-29 21:52:15.984  1805  6385 W BasicHttpFileDownloader: Exception while downloading: https://www.gstatic.com/android/keyboard/dictionarypack/ElectricPiano-normal/metadata.json
+09-29 21:52:15.984  1805  6385 W DelightMetadataUpdater: Failed to download: https://www.gstatic.com/android/keyboard/dictionarypack/ElectricPiano-normal/metadata.json
+09-29 21:52:18.846  6406  6406 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+09-29 21:52:18.871  6406  6406 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+09-29 21:52:18.882  6406  6406 D AndroidRuntime: Calling main entry com.android.commands.bmgr.Bmgr
+09-29 21:52:18.883  1687  3666 I BackupManagerService: Backup enabled => true
+09-29 21:52:18.884  6406  6406 D AndroidRuntime: Shutting down VM
+09-29 21:52:18.964  6415  6415 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+09-29 21:52:18.986  6415  6415 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+09-29 21:52:18.999  6415  6415 D AndroidRuntime: Calling main entry com.android.commands.bmgr.Bmgr
+09-29 21:52:19.001  1687  3666 V BackupManagerService: selectBackupTransport() set android/com.android.internal.backup.LocalTransport returning android/com.android.internal.backup.LocalTransport
+09-29 21:52:19.001  6415  6415 D AndroidRuntime: Shutting down VM
+09-29 21:52:19.083  6424  6424 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+09-29 21:52:19.104  6424  6424 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+09-29 21:52:19.114  6424  6424 D AndroidRuntime: Calling main entry com.android.commands.bmgr.Bmgr
+09-29 21:52:19.117  6424  6424 D AndroidRuntime: Shutting down VM
+09-29 21:52:19.250  6433  6433 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+09-29 21:52:19.276  6433  6433 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+09-29 21:52:19.286  6433  6433 D AndroidRuntime: Calling main entry com.android.commands.bmgr.Bmgr
+09-29 21:52:19.288  1687  3666 I BackupManagerService: Full backup requested but dataset not yet initialized
+09-29 21:52:19.289  1687  3666 I BackupManagerService: Full backup not currently possible -- key/value backup not yet run?
+09-29 21:52:19.289  1687  3666 D BackupManagerService: Done with full transport backup.
+09-29 21:52:19.289  6433  6433 D AndroidRuntime: Shutting down VM
+09-29 21:52:20.996  1687  1701 E memtrack: Couldn't load memtrack module
+09-29 21:52:20.996  1687  1701 W android.os.Debug: failed to get memory consumption info: -1
+09-29 21:52:20.999  1687  1701 E memtrack: Couldn't load memtrack module
+09-29 21:52:20.999  1687  1701 W android.os.Debug: failed to get memory consumption info: -1

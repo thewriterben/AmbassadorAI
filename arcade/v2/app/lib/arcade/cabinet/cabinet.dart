@@ -55,12 +55,17 @@ class RunResult {
   /// with no points.
   final int score;
 
+  /// The abilities the run flew with, in the shape the server's claim
+  /// checks (`{id, level}`). Empty for every game but When Pigs Fly.
+  final List<Map<String, Object>> loadout;
+
   const RunResult({
     required this.ending,
     required this.stars,
     required this.reached,
     required this.total,
     this.score = 0,
+    this.loadout = const [],
   });
 }
 
@@ -129,6 +134,12 @@ class CabinetScreen extends StatefulWidget {
   /// like. Rebuilt on [CabinetRun.tick].
   final Widget Function(BuildContext context, CabinetRun run)? overlayBuilder;
 
+  /// On-screen controls over the game — ability buttons. Unlike the overlay
+  /// this layer takes touches, but only where a control actually is: the
+  /// empty space between controls hit-tests through to the play area, so a
+  /// tap there is still the game's tap. Hidden while the run is settling.
+  final Widget Function(BuildContext context, CabinetRun run)? controlsBuilder;
+
   /// Music bed for the duration of the run.
   final String musicTrack;
 
@@ -146,6 +157,7 @@ class CabinetScreen extends StatefulWidget {
     required this.hudBuilder,
     required this.resultBuilder,
     this.overlayBuilder,
+    this.controlsBuilder,
     this.musicTrack = Audio.trackLevel,
     this.devActions,
   });
@@ -171,16 +183,22 @@ class CabinetScreenState extends State<CabinetScreen> with WidgetsBindingObserve
   /// view rather than leaving the finished run on screen.
   int _runCount = 0;
 
+  /// The game's music, held while the cabinet is on screen and given back
+  /// when it closes (to the game's own front room, or to a silent menu).
+  late final int _music;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _music = Audio.instance.claimMusic(widget.musicTrack);
     _start();
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    Audio.instance.releaseMusic(_music);
     run.dispose();
     super.dispose();
   }
@@ -192,7 +210,6 @@ class CabinetScreenState extends State<CabinetScreen> with WidgetsBindingObserve
     _paused = false;
     _settling = false;
     _round = ArcadeProgress.instance.startMini(widget.gameId);
-    Audio.instance.setTrack(widget.musicTrack);
   }
 
   /// Backgrounding pauses the run rather than letting it play on unseen.
@@ -232,6 +249,7 @@ class CabinetScreenState extends State<CabinetScreen> with WidgetsBindingObserve
               total: 3,
               extra: result.reached,
               score: result.score,
+              loadout: result.loadout,
             )));
       }
     }
@@ -327,6 +345,15 @@ class CabinetScreenState extends State<CabinetScreen> with WidgetsBindingObserve
                 child: ValueListenableBuilder<int>(
                   valueListenable: run.hud,
                   builder: (c, __, ___) => widget.overlayBuilder!(c, run),
+                ),
+              ),
+            ),
+          if (widget.controlsBuilder != null && !_settling)
+            Positioned.fill(
+              child: SafeArea(
+                child: ValueListenableBuilder<int>(
+                  valueListenable: run.hud,
+                  builder: (c, __, ___) => widget.controlsBuilder!(c, run),
                 ),
               ),
             ),

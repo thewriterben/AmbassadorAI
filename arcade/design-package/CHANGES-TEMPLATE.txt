@@ -1,0 +1,19 @@
+DGD design return — CHANGES.txt
+Copy this file into your return zip as CHANGES.txt. One line per file.
+
+Designer:
+Date:
+Figma / source files link (optional):
+
+REPLACED FILES  (same path and name as in the resources package)
+path | what changed | anything to know
+2-in-app-arcade/images/piece_gold.png | raised rim, warmer gold | same size, same margin
+3-web-arcade/images/piece_gold.png | same as above | (identical file in both arcades)
+
+NEW FILES  (in new/)
+path | where it goes | size
+new/web-icon-512.png | web arcade home-screen icon | 512 x 512
+
+MOCKUPS  (in mockups/, or a Figma link)
+screen | file or link | notes
+1-app-shell/screens/01-ticker-live | mockups/ticker.png | new spacing and type scale

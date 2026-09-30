@@ -1,0 +1,37 @@
+# Arcade AAR: checked-in (tag android-1.0.8-rc1) vs clean-room rebuilds
+
+## tag AAR vs clean-room build at /home/builder/dgd_arcade_module
+shipped entries 171, clean-room entries 171
+identical 166, differ 5, only in shipped 0, only in clean room 0
+  DIFFER           AndroidManifest.xml
+  DIFFER           assets/flutter_assets/NOTICES.Z
+  DIFFER           jni/arm64-v8a/libapp.so
+  DIFFER           jni/armeabi-v7a/libapp.so
+  DIFFER           jni/x86_64/libapp.so
+
+## determinism: clean-room build 1 vs build 2, same path
+shipped entries 171, clean-room entries 171
+identical 171, differ 0, only in shipped 0, only in clean room 0
+
+## path only: build 1 vs build 3 at another path
+shipped entries 171, clean-room entries 171
+identical 168, differ 3, only in shipped 0, only in clean room 0
+  DIFFER           jni/arm64-v8a/libapp.so
+  DIFFER           jni/armeabi-v7a/libapp.so
+  DIFFER           jni/x86_64/libapp.so
+
+## line endings only: build 1 (LF) vs build 5 (CRLF module + Flutter SDK), same path
+shipped entries 171, clean-room entries 171
+identical 168, differ 3, only in shipped 0, only in clean room 0
+  DIFFER           jni/arm64-v8a/libapp.so
+  DIFFER           jni/armeabi-v7a/libapp.so
+  DIFFER           jni/x86_64/libapp.so
+
+## tag AAR vs build 6 at /aj/3lf/dgd_arcade_module (same length and same registrant hash as C:/src/dgd_arcade_module)
+shipped entries 171, clean-room entries 171
+identical 166, differ 5, only in shipped 0, only in clean room 0
+  DIFFER           AndroidManifest.xml
+  DIFFER           assets/flutter_assets/NOTICES.Z
+  DIFFER           jni/arm64-v8a/libapp.so
+  DIFFER           jni/armeabi-v7a/libapp.so
+  DIFFER           jni/x86_64/libapp.so

@@ -1,0 +1,8 @@
+# Second stage of the clean room: the exact Flutter the embed was built with.
+FROM dgd-cleanroom:1
+USER builder
+RUN git clone -q --depth 1 --branch 3.47.2 https://github.com/flutter/flutter.git /home/builder/flutter
+ENV PATH=$PATH:/home/builder/flutter/bin
+RUN flutter config --no-analytics >/dev/null 2>&1; dart --disable-analytics >/dev/null 2>&1; \
+    flutter precache --android --no-ios --no-web --no-linux --no-windows --no-macos --no-fuchsia >/dev/null 2>&1; \
+    flutter --version > /home/builder/flutter-version.txt 2>&1; cat /home/builder/flutter-version.txt

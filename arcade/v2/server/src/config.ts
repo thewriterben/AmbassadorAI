@@ -97,6 +97,43 @@ export const config = {
     scoreXp: { passage: { perPoints: 50, cap: 12 } } as Record<string, { perPoints: number; cap: number }>,
   },
 
+  // When Pigs Fly (game id `passage`): the boar grows across runs from the
+  // points a player has ever scored in it. Only rewarded rounds count, so
+  // the daily cap above bounds growth the same way it bounds XP.
+  //
+  // The thresholds are provisional, set from a guess at casual play — about
+  // four runs a day at about 150 points. First pass was a week to the
+  // juvenile and a month to the razorback; lowered the same day (owner's
+  // call) to two or three days and about ten, at 1,500 and 6,000. Simulated
+  // players then put a casual player (median run 96, after the feel fixes)
+  // at 3.9 and 15.6 days, so they were lowered again to 1,200 and 4,000:
+  // about 3 and 10 (the app's passage_calibration_test.dart). They are
+  // meant to be reset from measured scores once real runs are on the server
+  // (npm run report:passage), which is why both can be overridden without a
+  // deploy.
+  passage: {
+    stages: [
+      { id: 'piglet', at: 0 },
+      { id: 'juvenile', at: num('PASSAGE_JUVENILE_AT', 1_200) },
+      { id: 'razorback', at: num('PASSAGE_RAZORBACK_AT', 4_000) },
+    ] as Array<{ id: string; at: number }>,
+    // The shop: what each level of each ability costs in points, the first
+    // entry unlocking it. The ids are the app's AbilityKind names. Priced
+    // against the growth thresholds above: a first ability arrives around
+    // the time the piglet becomes a juvenile, a full set of level 3s takes
+    // weeks. Blink is dearest because it is the strongest thing in the shop.
+    // Points have no monetary value and nothing here can be paid for with
+    // anything but play.
+    abilities: {
+      dash: [600, 1_500, 3_000],
+      grapple: [800, 1_800, 3_500],
+      teleport: [1_200, 2_500, 5_000],
+      freeze: [700, 1_600, 3_200],
+      tractor: [900, 2_000, 4_000],
+    } as Record<string, number[]>,
+    loadoutSlots: 2,
+  },
+
   rateLimit: {
     perMinute: num('RATE_PER_MINUTE', 120),
     // Anonymous player creation from one address, per hour. Registration is

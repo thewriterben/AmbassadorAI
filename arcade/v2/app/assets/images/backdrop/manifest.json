@@ -1,0 +1,312 @@
+{
+  "version": 1,
+  "eras": {
+    "1816": {
+      "capital": {
+        "file": "1816_capital.webp"
+      },
+      "far": {
+        "file": "1816_far.webp",
+        "band": 0.45,
+        "base": 0.86,
+        "parallax": 0.12
+      },
+      "ground": {
+        "file": "1816_ground.webp",
+        "band": 0.16
+      },
+      "mid": {
+        "file": "1816_mid.webp",
+        "band": 0.4,
+        "base": 1.0,
+        "parallax": 0.3
+      },
+      "near": {
+        "file": "1816_near.webp",
+        "band": 0.2,
+        "base": 1.0,
+        "parallax": 0.55
+      },
+      "sky": {
+        "file": "1816_sky.webp",
+        "band": 1.0
+      },
+      "shaft": {
+        "file": "1816_shaft.webp"
+      }
+    },
+    "1873": {
+      "capital": {
+        "file": "1873_capital.webp"
+      },
+      "far": {
+        "file": "1873_far.webp",
+        "band": 0.45,
+        "base": 0.86,
+        "parallax": 0.12
+      },
+      "ground": {
+        "file": "1873_ground.webp",
+        "band": 0.16
+      },
+      "mid": {
+        "file": "1873_mid.webp",
+        "band": 0.4,
+        "base": 1.0,
+        "parallax": 0.3
+      },
+      "near": {
+        "file": "1873_near.webp",
+        "band": 0.2,
+        "base": 1.0,
+        "parallax": 0.55
+      },
+      "sky": {
+        "file": "1873_sky.webp",
+        "band": 1.0
+      },
+      "shaft": {
+        "file": "1873_shaft.webp"
+      }
+    },
+    "1913": {
+      "capital": {
+        "file": "1913_capital.webp"
+      },
+      "far": {
+        "file": "1913_far.webp",
+        "band": 0.45,
+        "base": 0.86,
+        "parallax": 0.12
+      },
+      "ground": {
+        "file": "1913_ground.webp",
+        "band": 0.16
+      },
+      "mid": {
+        "file": "1913_mid.webp",
+        "band": 0.4,
+        "base": 1.0,
+        "parallax": 0.3
+      },
+      "near": {
+        "file": "1913_near.webp",
+        "band": 0.2,
+        "base": 1.0,
+        "parallax": 0.55
+      },
+      "sky": {
+        "file": "1913_sky.webp",
+        "band": 1.0
+      },
+      "shaft": {
+        "file": "1913_shaft.webp"
+      }
+    },
+    "1923": {
+      "capital": {
+        "file": "1923_capital.webp"
+      },
+      "far": {
+        "file": "1923_far.webp",
+        "band": 0.45,
+        "base": 0.86,
+        "parallax": 0.12
+      },
+      "ground": {
+        "file": "1923_ground.webp",
+        "band": 0.16
+      },
+      "mid": {
+        "file": "1923_mid.webp",
+        "band": 0.4,
+        "base": 1.0,
+        "parallax": 0.3
+      },
+      "near": {
+        "file": "1923_near.webp",
+        "band": 0.2,
+        "base": 1.0,
+        "parallax": 0.55
+      },
+      "sky": {
+        "file": "1923_sky.webp",
+        "band": 1.0
+      },
+      "shaft": {
+        "file": "1923_shaft.webp"
+      }
+    },
+    "1933": {
+      "capital": {
+        "file": "1933_capital.webp"
+      },
+      "far": {
+        "file": "1933_far.webp",
+        "band": 0.45,
+        "base": 0.86,
+        "parallax": 0.12
+      },
+      "ground": {
+        "file": "1933_ground.webp",
+        "band": 0.16
+      },
+      "mid": {
+        "file": "1933_mid.webp",
+        "band": 0.4,
+        "base": 1.0,
+        "parallax": 0.3
+      },
+      "near": {
+        "file": "1933_near.webp",
+        "band": 0.2,
+        "base": 1.0,
+        "parallax": 0.55
+      },
+      "sky": {
+        "file": "1933_sky.webp",
+        "band": 1.0
+      },
+      "shaft": {
+        "file": "1933_shaft.webp"
+      }
+    },
+    "1944": {
+      "capital": {
+        "file": "1944_capital.webp"
+      },
+      "far": {
+        "file": "1944_far.webp",
+        "band": 0.45,
+        "base": 0.86,
+        "parallax": 0.12
+      },
+      "ground": {
+        "file": "1944_ground.webp",
+        "band": 0.16,
+        "lip": 0.144
+      },
+      "mid": {
+        "file": "1944_mid.webp",
+        "band": 0.4,
+        "base": 1.0,
+        "parallax": 0.3
+      },
+      "near": {
+        "file": "1944_near.webp",
+        "band": 0.2,
+        "base": 1.0,
+        "parallax": 0.55
+      },
+      "sky": {
+        "file": "1944_sky.webp",
+        "band": 1.0
+      },
+      "shaft": {
+        "file": "1944_shaft.webp"
+      }
+    },
+    "1971": {
+      "capital": {
+        "file": "1971_capital.webp"
+      },
+      "far": {
+        "file": "1971_far.webp",
+        "band": 0.45,
+        "base": 0.86,
+        "parallax": 0.12
+      },
+      "ground": {
+        "file": "1971_ground.webp",
+        "band": 0.16
+      },
+      "mid": {
+        "file": "1971_mid.webp",
+        "band": 0.4,
+        "base": 1.0,
+        "parallax": 0.3
+      },
+      "near": {
+        "file": "1971_near.webp",
+        "band": 0.2,
+        "base": 1.0,
+        "parallax": 0.55
+      },
+      "sky": {
+        "file": "1971_sky.webp",
+        "band": 1.0
+      },
+      "shaft": {
+        "file": "1971_shaft.webp"
+      }
+    },
+    "1979": {
+      "capital": {
+        "file": "1979_capital.webp"
+      },
+      "far": {
+        "file": "1979_far.webp",
+        "band": 0.45,
+        "base": 0.86,
+        "parallax": 0.12
+      },
+      "ground": {
+        "file": "1979_ground.webp",
+        "band": 0.16
+      },
+      "mid": {
+        "file": "1979_mid.webp",
+        "band": 0.4,
+        "base": 1.0,
+        "parallax": 0.3
+      },
+      "near": {
+        "file": "1979_near.webp",
+        "band": 0.2,
+        "base": 1.0,
+        "parallax": 0.55
+      },
+      "sky": {
+        "file": "1979_sky.webp",
+        "band": 1.0
+      },
+      "shaft": {
+        "file": "1979_shaft.webp"
+      }
+    },
+    "2009": {
+      "capital": {
+        "file": "2009_capital.webp"
+      },
+      "far": {
+        "file": "2009_far.webp",
+        "band": 0.45,
+        "base": 0.86,
+        "parallax": 0.12
+      },
+      "ground": {
+        "file": "2009_ground.webp",
+        "band": 0.16
+      },
+      "mid": {
+        "file": "2009_mid.webp",
+        "band": 0.4,
+        "base": 1.0,
+        "parallax": 0.3
+      },
+      "near": {
+        "file": "2009_near.webp",
+        "band": 0.2,
+        "base": 1.0,
+        "parallax": 0.55
+      },
+      "sky": {
+        "file": "2009_sky.webp",
+        "band": 1.0
+      },
+      "shaft": {
+        "file": "2009_shaft.webp"
+      }
+    }
+  }
+}

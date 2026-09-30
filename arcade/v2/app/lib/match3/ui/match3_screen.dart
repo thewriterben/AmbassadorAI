@@ -28,11 +28,23 @@ class _Match3ScreenState extends State<Match3Screen> {
   late LevelSession session;
   late Match3Game game;
 
+  /// Coin Quest's tune, held for as long as the level is on screen. The
+  /// level map holds the same tune underneath, so moving between them does
+  /// not restart it.
+  late final int _music;
+
   @override
   void initState() {
     super.initState();
+    _music = Audio.instance.claimMusic(Audio.trackQuest);
     _start();
     WidgetsBinding.instance.addPostFrameCallback((_) => Coach.maybeShow(context, widget.level));
+  }
+
+  @override
+  void dispose() {
+    Audio.instance.releaseMusic(_music);
+    super.dispose();
   }
 
   /// Opened as the level starts, awaited when it is won. The server refuses to
@@ -44,7 +56,6 @@ class _Match3ScreenState extends State<Match3Screen> {
     session = LevelSession(widget.level);
     game = Match3Game(session: session, onEnd: _onEnd);
     _round = ArcadeProgress.instance.startMini('coin_quest');
-    Audio.instance.setTrack(Audio.trackLevel);
   }
 
   /// Ends the level now at a chosen star count. Test builds only.

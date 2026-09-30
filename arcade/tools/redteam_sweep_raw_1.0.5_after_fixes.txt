@@ -1,0 +1,214 @@
+
+==========================================================================
+1. IDENTITY
+==========================================================================
+  sha256   a3ac069d81788bd418bcf191eee0cabdfe6b2f99a1c53b92032ab458939d62ee
+  size     61,265,511 bytes
+  entries  635
+  package  com.digitalgold.ticker
+  version  1.0.5-review (5)
+  minSdk   26    targetSdk 36
+
+==========================================================================
+2. SIGNING
+==========================================================================
+  subject  OrderedDict([('common_name', 'Android Debug'), ('organization_name', 'Android'), ('country_name', 'US')])
+  issuer   OrderedDict([('common_name', 'Android Debug'), ('organization_name', 'Android'), ('country_name', 'US')])
+  serial   1
+  sha256   3870fc23df78981936fca49006056ab525dada81c987e46d6e9e05de2d8d4c14
+  v1(JAR)=False  v2=True  v3=False
+
+==========================================================================
+3. MANIFEST POSTURE
+==========================================================================
+  debuggable            None
+  allowBackup           true
+  usesCleartextTraffic  false
+  networkSecurityConfig None
+
+==========================================================================
+4. PERMISSIONS
+==========================================================================
+    android.permission.INTERNET
+    android.permission.VIBRATE
+    com.digitalgold.ticker.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+
+==========================================================================
+5. EXPORTED COMPONENTS
+==========================================================================
+  activity       com.digitalgold.ticker.MainActivity
+                 exported=true  NO PERMISSION GUARD
+                 actions: MAIN, VIEW
+  receiver       androidx.profileinstaller.ProfileInstallReceiver
+                 exported=true  permission=android.permission.DUMP
+                 actions: INSTALL_PROFILE, SKIP_FILE, SAVE_PROFILE, BENCHMARK_OPERATION
+
+  3 component(s) not exported.
+
+==========================================================================
+5b. APP LINKS
+==========================================================================
+  autoVerify on com.digitalgold.ticker.MainActivity
+    hosts ['digitalgold.co', 'www.digitalgold.co']
+    paths ['/app']
+
+==========================================================================
+6. NETWORK SURFACE  (every host the binary contains)
+==========================================================================
+  29 distinct hosts, 55 distinct URLs
+
+        9  github.com
+        4  digitalgold.co
+        4  issuetracker.google.com   <-- UNEXPECTED
+        4  docs.flutter.dev
+        3  www.w3.org
+        2  schemas.android.com
+        2  api.flutter.dev
+        2  youtrack.jetbrains.com   <-- UNEXPECTED
+        2  crl.verisign.com   <-- UNEXPECTED
+        2  developer.android.com
+        2  www.paratype.com   <-- UNEXPECTED
+        2  scripts.sil.org   <-- UNEXPECTED
+        1  cloud.google.com   <-- UNEXPECTED
+        1  ns.adobe.com   <-- UNEXPECTED
+        1  www.paratype.comhttp   <-- UNEXPECTED
+        1  cs-g2-crl.thawte.com   <-- UNEXPECTED
+        1  ocsp.verisign.com0   <-- UNEXPECTED
+        1  www.apache.org
+        1  android.googlesource.com
+        1  goo.gle
+        1  crl.thawte.com   <-- UNEXPECTED
+        1  pub.dev   <-- UNEXPECTED
+        1  llvm.googlesource.com   <-- UNEXPECTED
+        1  developers.google.com   <-- UNEXPECTED
+        1  publicsuffix.org   <-- UNEXPECTED
+        1  ocsp.thawte.com0   <-- UNEXPECTED
+        1  mozilla.org   <-- UNEXPECTED
+        1  www.unicode.org
+        1  dartbug.com   <-- UNEXPECTED
+
+  -- digitalgold.co URLs (the ones that matter for B1) --
+    https://digitalgold.co
+    https://digitalgold.co/api/forms/stats
+    https://digitalgold.co/app?ref=
+    https://digitalgold.co/signup?ref=
+
+==========================================================================
+7. KNOWN REGRESSIONS
+==========================================================================
+  RC1 - localhost:8787 arcade fallback
+    clean - no loopback arcade endpoint
+
+  RC4 - declared ABIs vs native libs actually present
+    arm64-v8a      5 libs   flutter=True app=True  ok
+    armeabi-v7a    5 libs   flutter=True app=True  ok
+    x86_64         5 libs   flutter=True app=True  ok
+
+==========================================================================
+8. ARCADE CONFIGURATION
+==========================================================================
+  voWinner         0  ok       the §4.3 winner-line suppression
+  fireworkShow     0  ok       the §4.3 firework suppression
+  voPraise         1  present  cascade praise (should survive)
+  voEncourage      1  present  loss encouragement (should survive)
+
+==========================================================================
+9. COMPLIANCE VOCABULARY
+==========================================================================
+  \bearn(ing|ed|s)?\b        clean
+  \bcash\b                   clean
+  \bdollars?\b               clean
+  \bjackpot\b                clean
+  \bcasino\b                 clean
+  \bpayout\b                 clean
+  \bwinnings\b               clean
+  \bprize\b                  clean
+  \bwager\b                  clean
+  \bbet\b                    {'libapp.so': 1}
+  \$\d+                      {'dex': 1733, 'libapp.so': 268}
+
+==========================================================================
+10. SECRETS
+==========================================================================
+  AWS access key       clean
+  Google API key       clean
+  Slack token          clean
+  Stripe key           clean
+  GitHub token         clean
+  JWT                  clean
+  PEM private key      clean
+  RSA private key      clean
+  Bearer literal       clean
+  password= literal    clean
+  secret= literal      clean
+
+  No credential patterns matched.
+
+==========================================================================
+11. THIRD-PARTY SDKs / TRACKERS
+==========================================================================
+  Firebase Analytics     absent
+  Google Analytics       absent
+  Crashlytics            absent
+  AdMob / GMA            absent
+  Facebook SDK           absent
+  AppsFlyer              absent
+  Adjust                 absent
+  Branch                 absent
+  Mixpanel               absent
+  Amplitude              absent
+  Sentry                 absent
+  Bugsnag                absent
+  OneSignal              absent
+  Segment                absent
+
+  No known analytics, ads or crash-reporting SDK found.
+
+==========================================================================
+12. ASSET SURFACE
+==========================================================================
+  170 asset entries; largest:
+       337,580  assets/flutter_assets/assets/fonts/PTSerif-BoldItalic.ttf
+       301,288  assets/flutter_assets/assets/audio/music_menu.mp3
+       301,288  assets/flutter_assets/assets/audio/music_map.mp3
+       277,150  assets/flutter_assets/assets/audio/music_level.mp3
+       275,256  assets/flutter_assets/assets/audio/vo_incredible.wav
+       229,190  assets/flutter_assets/assets/audio/music_tension.mp3
+       203,582  assets/flutter_assets/assets/audio/win_fill.wav
+       194,336  assets/flutter_assets/assets/fonts/InstrumentSans.ttf
+       185,264  assets/flutter_assets/assets/audio/fw_finale.wav
+       173,512  assets/flutter_assets/assets/audio/vo_level_complete.wav
+       151,260  assets/flutter_assets/assets/fonts/GeistMono-Bold.ttf
+       150,096  assets/flutter_assets/assets/fonts/GeistMono-Medium.ttf
+
+  No .pem/.jks/.keystore/.env/.db/.sql/.log files packaged.
+
+==========================================================================
+SUMMARY
+==========================================================================
+  REVIEW=20  NOTE=2  EXPECTED=2
+
+  [REVIEW  ] network      Unexpected host in the binary: issuetracker.google.com
+  [REVIEW  ] network      Unexpected host in the binary: youtrack.jetbrains.com
+  [REVIEW  ] network      Unexpected host in the binary: crl.verisign.com
+  [REVIEW  ] network      Unexpected host in the binary: www.paratype.com
+  [REVIEW  ] network      Unexpected host in the binary: scripts.sil.org
+  [REVIEW  ] network      Unexpected host in the binary: cloud.google.com
+  [REVIEW  ] network      Unexpected host in the binary: ns.adobe.com
+  [REVIEW  ] network      Unexpected host in the binary: www.paratype.comhttp
+  [REVIEW  ] network      Unexpected host in the binary: cs-g2-crl.thawte.com
+  [REVIEW  ] network      Unexpected host in the binary: ocsp.verisign.com0
+  [REVIEW  ] network      Unexpected host in the binary: crl.thawte.com
+  [REVIEW  ] network      Unexpected host in the binary: pub.dev
+  [REVIEW  ] network      Unexpected host in the binary: llvm.googlesource.com
+  [REVIEW  ] network      Unexpected host in the binary: developers.google.com
+  [REVIEW  ] network      Unexpected host in the binary: publicsuffix.org
+  [REVIEW  ] network      Unexpected host in the binary: ocsp.thawte.com0
+  [REVIEW  ] network      Unexpected host in the binary: mozilla.org
+  [REVIEW  ] network      Unexpected host in the binary: dartbug.com
+  [REVIEW  ] vocabulary   Banned-vocabulary pattern \bbet\b appears in ['libapp.so']. Check whether it is user-facing copy or library noise.
+  [REVIEW  ] vocabulary   Banned-vocabulary pattern \$\d+ appears in ['dex', 'libapp.so']. Check whether it is user-facing copy or library noise.
+  [NOTE    ] manifest     allowBackup=true. Check backup_rules.xml excludes credential prefs.
+  [NOTE    ] applinks     App Links claim ['digitalgold.co', 'www.digitalgold.co'] ['/app']. Verification needs assetlinks.json on the site and the release signing cert, so it cannot succeed for this debug-signed build.
+  [EXPECTED] signing      Signed with the Android debug key. Intended for this review build; Play will refuse it. NOT a shippable artefact.
+  [EXPECTED] exported     com.digitalgold.ticker.MainActivity is exported without a permission - it is the launcher and the app-link target, which must be reachable.

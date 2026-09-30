@@ -21,10 +21,14 @@ class LevelMapScreen extends StatefulWidget {
 class _LevelMapScreenState extends State<LevelMapScreen> {
   final _scroll = ScrollController();
 
+  /// Coin Quest's tune starts on the map and carries on into every level;
+  /// leaving the map for the arcade's menu fades it out.
+  late final int _music;
+
   @override
   void initState() {
     super.initState();
-    Audio.instance.setTrack(Audio.trackMap);
+    _music = Audio.instance.claimMusic(Audio.trackQuest);
     // A failure here must not go unreported: load() clears its maps before
     // reading, so a silent throw would leave the map showing level 1 only.
     Progress.instance.load().then(
@@ -35,6 +39,7 @@ class _LevelMapScreenState extends State<LevelMapScreen> {
 
   @override
   void dispose() {
+    Audio.instance.releaseMusic(_music);
     _scroll.dispose();
     super.dispose();
   }

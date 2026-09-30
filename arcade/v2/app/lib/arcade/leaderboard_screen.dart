@@ -209,7 +209,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
         child: Padding(
           padding: const EdgeInsets.all(32),
           child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Image.asset('assets/images/coin_gold.png', width: 56, height: 56),
+            Image.asset('assets/images/coin_gold_shiny.png', width: 56, height: 56),
             const SizedBox(height: 16),
             const Text('Nobody has scored this week yet.',
                 textAlign: TextAlign.center,
@@ -244,8 +244,10 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
   }
 
   /// Top three wear the precious-metal coins; everyone else gets a mono rank.
+  /// First place is the polished gold the home coin and When Pigs Fly use,
+  /// so the gold coin looks the same everywhere in the app.
   Widget _rank(int rank) {
-    const medals = {1: 'coin_gold.png', 2: 'coin_silver.png', 3: 'coin_rose.png'};
+    const medals = {1: 'coin_gold_shiny.png', 2: 'coin_silver.png', 3: 'coin_rose.png'};
     final medal = medals[rank];
     if (medal != null) {
       return SizedBox(
