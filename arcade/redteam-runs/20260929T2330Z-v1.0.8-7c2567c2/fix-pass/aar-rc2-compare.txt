@@ -1,0 +1,14 @@
+## rc2 arcade AAR (clean-room, embed-android-1.0.8) vs yesterday's independent clean build 1 (same commit, same path)
+shipped entries 171, clean-room entries 171
+identical 170, differ 1, only in shipped 0, only in clean room 0
+  DIFFER           assets/flutter_assets/NOTICES.Z
+  NOTICES.Z: 1616 -> 1617 licence blocks; the only additions are the lints and flutter_lints licences (flutter_lints now stays in the module so v1's lock can be enforced).
+
+## rc2 arcade AAR vs rc1's (Windows-built) AAR
+shipped entries 171, clean-room entries 171
+identical 166, differ 5, only in shipped 0, only in clean room 0
+  DIFFER           AndroidManifest.xml
+  DIFFER           assets/flutter_assets/NOTICES.Z
+  DIFFER           jni/arm64-v8a/libapp.so
+  DIFFER           jni/armeabi-v7a/libapp.so
+  DIFFER           jni/x86_64/libapp.so

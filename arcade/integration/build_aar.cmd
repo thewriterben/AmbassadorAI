@@ -1,6 +1,13 @@
 @echo off
 rem ===================== Build the arcade v1 embed artefact =====================
 rem
+rem FOR LOCAL TRYING-OUT ONLY. Do not ship what this builds. An AAR built on
+rem Windows cannot be reproduced by the clean room (AUDIT-v1.0.8-2026-09-29.md,
+rem P1: gen_snapshot lays out libapp.so differently per host OS, and the build
+rem path is compiled in), so the policy's ship gate refuses it. Release AARs
+rem come from cleanroom\build_aar_cleanroom.sh, which builds in the pinned
+rem Linux container. This script marks what it publishes as a host build.
+rem
 rem Regenerates the Flutter module from v1 and builds the AAR that the native
 rem DGD app depends on. Run this whenever v1 changes.
 rem
@@ -96,6 +103,13 @@ robocopy "%MODULE%\build\host\outputs\repo" "%NATIVE%\arcade-repo" /MIR /NFL /ND
 rem robocopy exit codes below 8 are success ("files copied", "extra files
 rem removed"); 8 and above are real failures.
 if %ERRORLEVEL% GEQ 8 (echo PUBLISH FAILED & endlocal & exit /b 1)
-echo published to %NATIVE%\arcade-repo
+(
+  echo # HOST BUILD - NOT FOR RELEASE
+  echo.
+  echo Built on Windows by build_aar.cmd from %MODULE%. The clean room cannot
+  echo reproduce this AAR ^(AUDIT-v1.0.8-2026-09-29.md, P1^). Rebuild with
+  echo arcade\integration\cleanroom\build_aar_cleanroom.sh before shipping.
+) > "%NATIVE%\arcade-repo\PROVENANCE.md"
+echo published to %NATIVE%\arcade-repo  ^(marked HOST BUILD - NOT FOR RELEASE^)
 
 endlocal & exit /b 0

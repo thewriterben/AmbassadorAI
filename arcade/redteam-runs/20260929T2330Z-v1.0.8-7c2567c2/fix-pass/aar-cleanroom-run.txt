@@ -1,0 +1,23 @@
+v1 embed-android-1.0.8 = 99a5c36b959bfce97b4155d1938fcf068a19c622
+== online: packages under the v1 lock, build A
+warning: remote HEAD refers to nonexistent ref, unable to checkout.
+
+v1 99a5c36b959bfce97b4155d1938fcf068a19c622 embed-android-1.0.8
+v1 check: 99a5c36b959bfce97b4155d1938fcf068a19c622 on main, clean, no v2 content
+pubspec: generated from v1
+pubspec.lock: copied from v1 (build with --enforce-lockfile)
+lib: mirrored, 19 files
+assets: mirrored, 182 files
+
+module is in sync with v1 99a5c36
+build A: 6 AARs
+== network cut
+== offline: build B, compare with A
+build B: 6 AARs
+A vs B: 180 files, 90 byte-identical, 90 differ only in build timestamps
+AARs identical: 6/6
+provenance written
+staged in C:/Users/Benji/AppData/Local/Temp/dgd-aar-20260930T000729
+5e0d5661af08cccb0e887de1b8d4f86f5c648d52bb240d0fbf4bb57934ba4a79  co/digitalgold/arcade/module/flutter_release/1.0/flutter_release-1.0.aar
+84c57c684ae9ad7af3abf0efebf7fcb88f0b2ffb685a0b20a146afd2410eed15  com/github/dart_lang/jni_flutter/jni_flutter_release/1.0/jni_flutter_release-1.0.aar
+exit 0

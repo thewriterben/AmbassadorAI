@@ -168,7 +168,41 @@ native half passes. Offline in the container: **unit tests 95/95**, and
 
 ## Findings
 
-### P1. MEDIUM — the embedded arcade binary cannot be reproduced by the clean room; the ship gate trips — OPEN
+### P1. MEDIUM — the embedded arcade binary cannot be reproduced by the clean room; the ship gate trips — FIXED 2026-09-30 (rc2)
+
+**Fix pass.** Fix commit: dgd-native `a22c194`, which becomes `android-1.0.8-rc2` once rc2 verifies.
+- **Container build.** The arcade AAR now comes from
+  `arcade/integration/cleanroom/build_aar_cleanroom.sh`:
+  - pinned image `dgd-cleanroom-flutter:1`, with Flutter's framework commit
+    and engine hash checked;
+  - puzzle-app v1 tag `embed-android-1.0.8` (`99a5c36`), sent in as a git
+    bundle;
+  - the fixed module path `/home/builder/dgd_arcade_module`;
+  - v1's lock enforced.
+- **Build A equals build B.** In each run, an online build A fills the
+  caches, the network is cut, and an offline build B is the artefact. B
+  must match A: all six AARs and every POM byte for byte. The javadoc jars,
+  `.module` files and `maven-metadata.xml` are compared with only their
+  timestamps removed.
+- **Evidence.** `redteam-runs/20260929T2330Z-v1.0.8-7c2567c2/fix-pass/` holds
+  `PROVENANCE.md`, the run log and `aar-rc2-compare.txt`. The rc2 AAR
+  equals the independent clean build from this audit (build 1, same
+  commit) in 170 of 171 entries, including `libapp.so` in all three ABIs.
+  The one difference is `NOTICES`, which gained the `lints` and
+  `flutter_lints` licences (see P2).
+- **Gate in the native build.** `verifyArcadeProvenance` runs before
+  every release build. It refuses a missing or host-built `PROVENANCE.md`,
+  and any file that no longer matches its hash. This was tested on the
+  host: a clean pass, a refusal for a corrupted hash, and a refusal for a
+  host-build header. `-PdgdAllowHostArcade` skips it, with a warning, for
+  local builds.
+- **Git settings.** `arcade-repo` is `-text` in `.gitattributes`, because
+  `core.autocrlf=true` would otherwise rewrite the POMs on checkout and
+  break the hashes.
+- **Local builds.** `build_aar.cmd` is kept for trying builds out locally.
+  What it publishes is stamped "HOST BUILD – NOT FOR RELEASE", which the
+  gate refuses.
+
 
 The checked-in `flutter_release-1.0.aar`, whose `libapp.so` is the one in the
 AAB, was compared with container rebuilds from `99a5c36`
@@ -219,7 +253,15 @@ artefact the clean room could not reproduce".
 The alternative is a signed waiver under the exemption gate, with two
 names.
 
-### P2. LOW — the embed's dependency lock is not versioned with the embed — OPEN
+### P2. LOW — the embed's dependency lock is not versioned with the embed — FIXED 2026-09-30
+
+`sync_module.py` now copies v1's `pubspec.lock` into the module, and the
+container build runs `pub get --enforce-lockfile`. It also checks that the
+module's lock equals v1's byte for byte. For that to hold, the module now
+keeps the `flutter_lints` dev dependency. It has no Dart code, and
+`libapp.so` was unchanged by it, but its licence now appears in the
+in-app `NOTICES`.
+
 
 `sync_module.py` generates the Flutter module but does not copy
 `pubspec.lock`. The versions compiled into the AAR are whatever `pub get`
@@ -227,7 +269,15 @@ resolved on the build machine that day. This time they matched v1's lock,
 minus two lint packages. Fix: copy v1's `pubspec.lock` into the module and
 build with `--enforce-lockfile`, as the clean room did.
 
-### P3. LOW — the AAR was built from the working tree, before its commit existed — OPEN
+### P3. LOW — the AAR was built from the working tree, before its commit existed — FIXED 2026-09-30
+
+`sync_module.py` refuses a v1 working tree with uncommitted changes, or a
+commit that is not on `main`. It writes the full commit hash to the
+module's `SOURCE_COMMIT` and `GENERATED.md`. The container build works
+from a git bundle of a tag, so there is no working tree at all, and
+`PROVENANCE.md` names the commit. rc2 itself was built on the host from
+committed dgd-native `a22c194`.
+
 
 Timeline:
 - The module was synced at 22:11.
@@ -238,7 +288,10 @@ The content matches, but the provenance is a working tree, not a commit.
 Fix: `sync_module.py` refuses a dirty tree and stamps the source commit
 next to the AAR's `.sha256`.
 
-### P4. LOW — `android/gradlew` is committed without the executable bit — OPEN
+### P4. LOW — `android/gradlew` is committed without the executable bit — FIXED 2026-09-30
+
+dgd-native `a22c194` commits it as `100755`.
+
 
 The file is mode `100644` in git, so `./gradlew` fails with "Permission
 denied" on any Linux or macOS checkout, including CI and the clean room.
@@ -249,8 +302,14 @@ The container used `bash ./gradlew` as a workaround. Fix:
 
 Windows builds carry CRLF into two AAB service files and the AAR manifest,
 and NOTICES orders one Flutter licence block differently. None of this
-affects behaviour. It goes away with P1's container build, or with a
-`.gitattributes` `eol=lf`.
+affects behaviour.
+
+**2026-09-30.** The AAR half is gone with P1: the container build writes LF
+manifests, in the plugin AARs too. The two AAB service files stay CRLF,
+because R8 generates them (their names are obfuscated) using the host's
+line separator. `.gitattributes` cannot reach them. They clear only if the
+Play bundle is also built in the container. Until then they remain an
+explained difference in every clean-room comparison of a Windows-built AAB.
 
 ### P6. INFO — no `FLAG_SECURE` on the login sheet
 
