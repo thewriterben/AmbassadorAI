@@ -130,7 +130,9 @@ DRAWN_FOLDED = {"piglet": 3, "juvenile": 2, "razorback": 3}
 # boar.dart were measured on the sheet those made; a later drawing that
 # reaches further (the piglet's fifth, 2026-09-29, a wing tip 60px past the
 # others) would otherwise widen the box and move every frame off them, as it
-# did by 14px on the first try. Later drawings fit inside, as poses do.
+# did by 14px on the first try. Later drawings fit inside, as poses do. (That
+# fifth drawing was taken out again on the owner's call; the guard stays for
+# the next in-between.)
 BOX_FROM = {"piglet": 4}
 
 # How far from the shoulder (fraction of the frame) the fan that fills the

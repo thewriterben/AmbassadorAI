@@ -758,6 +758,37 @@ fact, would win that back without putting text in flight.
 Checked on the Pixel (DEV build): the banner is up at 1 s and gone by 3.5 s.
 All 167 tests pass.
 
+### Every era's fact on the results, and the piglet back to four — 2026-09-29
+
+**The era chips on the results can be tapped.** This wins back what came
+out of the banner. Each era reached is a lit chip. The one whose fact is
+showing is filled, and that starts as the last era reached. Tapping another
+lit chip shows its fact.
+
+Eras not reached stay dim and can't be tapped. Their facts wait until
+they're flown to, which is part of the invitation to fly again.
+
+- **The hint.** "Tap a year you reached to read about it" shows when more
+  than one era was reached. It fades once used but keeps its line: the
+  sheet is anchored at the bottom, so a line going away made everything
+  above it jump on the phone.
+- **The card.** Facts differ in length, so the card eases between them
+  (`AnimatedSize`).
+- **Accessibility.** Chips are labelled for screen readers ("1873, Silver
+  steps back", or "not reached"). Each tap area is taller than the chip,
+  made up with padding.
+- **Checked on the Pixel.** On a full passage and on a run that set down in
+  1913: tapping an unreached era changes nothing, and tapping 1816 and 1873
+  shows theirs.
+
+**The piglet's in-between is out, on the owner's call.** The piglet is back
+to `BoarFrames(4, [1.3, 0.8, 1.2, 0.7])`, and its sheet is restored
+byte for byte from 64a5586. The fifth drawing's sources are deleted, and
+git history keeps them. `BOX_FROM` stays in `import_boars.py` as the guard
+for the next in-between.
+
+All 167 tests pass.
+
 ### A DEV autopilot, and a full passage on the phone — 2026-09-29
 
 The release-build pass couldn't reach a full nine-era flight, because

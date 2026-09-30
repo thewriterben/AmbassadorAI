@@ -590,16 +590,37 @@ class _EraBanner extends StatelessWidget {
 /// wording, because in this game there is no such event. A run that ends
 /// early ended in a landing too — a shorter journey, with fewer eras on it.
 /// The copy's whole job is to make the short landing read as an arrival.
-class _Result extends StatelessWidget {
+///
+/// The eras' facts are read here, not in flight: each era reached is a chip
+/// that shows its fact when tapped, the last one reached showing first.
+class _Result extends StatefulWidget {
   final RunResult result;
   final PassageGame game;
   const _Result({required this.result, required this.game});
 
   @override
+  State<_Result> createState() => _ResultState();
+}
+
+class _ResultState extends State<_Result> {
+  /// The era whose fact is showing, once the player has tapped one.
+  int? _picked;
+
+  @override
+  void didUpdateWidget(_Result old) {
+    super.didUpdateWidget(old);
+    // A new run's results open on its own last era.
+    if (!identical(old.result, widget.result)) _picked = null;
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final result = widget.result;
+    final game = widget.game;
     final full = result.ending == RunEnding.landed;
     final soft = game.softLanding;
     final lastYear = eras[(result.reached - 1).clamp(0, eras.length - 1)].year;
+    final shown = (_picked ?? result.reached - 1).clamp(0, eras.length - 1);
 
     final headline = switch ((full, soft)) {
       (true, true) => 'A clean landing.',
@@ -669,67 +690,130 @@ class _Result extends StatelessWidget {
         const SizedBox(height: 18),
         // Every era, with the ones you reached lit. Seeing the unlit ones is
         // the invitation to fly again; it is doing the work that a score
-        // would do in an endless game.
+        // would do in an endless game. A lit one shows its fact below when
+        // tapped; an unlit one keeps its fact until it is flown to.
         Wrap(
           alignment: WrapAlignment.center,
           spacing: 6,
-          runSpacing: 6,
           children: [
             for (var i = 0; i < eras.length; i++)
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(6),
-                  color: i < result.reached
-                      ? AppTheme.accent.withValues(alpha: 0.16)
-                      : Colors.transparent,
-                  border: Border.all(
-                    color: i < result.reached ? AppTheme.accent : AppTheme.border,
-                    width: 0.8,
-                  ),
-                ),
-                child: Text(
-                  '${eras[i].year}',
-                  style: TextStyle(
-                    fontFamily: AppTheme.fontMono,
-                    fontSize: 11.5,
-                    color: i < result.reached ? AppTheme.accent : AppTheme.dim,
-                  ),
-                ),
+              _EraChip(
+                era: eras[i],
+                reached: i < result.reached,
+                showing: result.reached > 0 && i == shown,
+                onTap: i < result.reached && i != shown
+                    ? () => setState(() => _picked = i)
+                    : null,
               ),
           ],
         ),
+        // Fades once used, but keeps its line: the sheet is anchored at the
+        // bottom, so a line going away would jump everything above it.
+        if (result.reached > 1) ...[
+          const SizedBox(height: 4),
+          AnimatedOpacity(
+            opacity: _picked == null ? 1 : 0,
+            duration: const Duration(milliseconds: 200),
+            child: const Text(
+              'Tap a year you reached to read about it.',
+              style: TextStyle(fontSize: 11.5, color: AppTheme.muted),
+            ),
+          ),
+        ],
         if (result.reached > 0) ...[
-          const SizedBox(height: 18),
+          const SizedBox(height: 14),
           Container(
             padding: const EdgeInsets.all(14),
             decoration: AppTheme.glass(radius: 14),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '$lastYear · ${eras[(result.reached - 1).clamp(0, eras.length - 1)].name}',
-                  style: const TextStyle(
-                    fontFamily: AppTheme.fontMono,
-                    fontSize: 11,
-                    letterSpacing: 1.1,
-                    color: AppTheme.muted,
+            // Facts differ in length; ease the card between them.
+            child: AnimatedSize(
+              duration: const Duration(milliseconds: 180),
+              alignment: Alignment.topCenter,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '${eras[shown].year} · ${eras[shown].name}',
+                    style: const TextStyle(
+                      fontFamily: AppTheme.fontMono,
+                      fontSize: 11,
+                      letterSpacing: 1.1,
+                      color: AppTheme.muted,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  eras[(result.reached - 1).clamp(0, eras.length - 1)].fact,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    height: 1.45,
-                    color: AppTheme.text,
+                  const SizedBox(height: 6),
+                  Text(
+                    eras[shown].fact,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      height: 1.45,
+                      color: AppTheme.text,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],
       ],
+    );
+  }
+}
+
+/// One era's year on the results: lit if reached, filled if its fact is
+/// the one showing. Tall enough to tap, with the height made up of padding
+/// rather than a bigger chip.
+class _EraChip extends StatelessWidget {
+  final Era era;
+  final bool reached, showing;
+  final VoidCallback? onTap;
+  const _EraChip({
+    required this.era,
+    required this.reached,
+    required this.showing,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final Color fill, line, ink;
+    if (showing) {
+      (fill, line, ink) = (AppTheme.accent, AppTheme.accent, AppTheme.bg);
+    } else if (reached) {
+      (fill, line, ink) =
+          (AppTheme.accent.withValues(alpha: 0.16), AppTheme.accent, AppTheme.accent);
+    } else {
+      (fill, line, ink) = (Colors.transparent, AppTheme.border, AppTheme.dim);
+    }
+    return Semantics(
+      button: reached,
+      selected: showing,
+      label: reached ? '${era.year}, ${era.name}' : '${era.year}, not reached',
+      excludeSemantics: true,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 6),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 140),
+            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(6),
+              color: fill,
+              border: Border.all(color: line, width: 0.8),
+            ),
+            child: Text(
+              '${era.year}',
+              style: TextStyle(
+                fontFamily: AppTheme.fontMono,
+                fontSize: 11.5,
+                color: ink,
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

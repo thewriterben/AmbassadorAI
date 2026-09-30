@@ -174,10 +174,8 @@ class BoarSpec {
       footV: 0.821,
       name: 'Piglet',
       bodyHalfLength: 0.35,
-      // Up, level, down, folding in, and lifting back up: the fifth is an
-      // in-between (2026-09-29) for the beat's biggest jump, from folded
-      // to wings high, so it passes quickest.
-      frames: BoarFrames(5, [1.3, 0.8, 1.2, 0.7, 0.55]),
+      // Up, level, down, folding in.
+      frames: BoarFrames(4, [1.3, 0.8, 1.2, 0.7]),
       flapBeat: 0.30,
       glideBeat: 0.50,
     ),
