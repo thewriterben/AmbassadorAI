@@ -3,12 +3,17 @@
 # (AUDIT-v1.0.8-2026-09-29.md, P1: an AAR built on Windows cannot be
 # reproduced by the clean room, and the policy's ship gate refuses it.)
 #
-#   build_aar_cleanroom.sh <v1-tag-or-commit> [--publish]
+#   build_aar_cleanroom.sh <tag-or-commit> [--publish]
+#   DGD_ARCADE=v2 build_aar_cleanroom.sh <v2-commit> [--publish]
+#
+# DGD_ARCADE picks the arcade line, as in sync_module.py: v1 (the default,
+# C:/src/puzzle-app on main) for DGD App 1.0.x, v2 (C:/src/puzzle-app-v2-wings
+# on v2/ten-games) for DGD App 2.0.
 #
 # Run from Git Bash on the Windows machine. Steps:
-#   1. bundle puzzle-app at that ref (it must be clean, and on main)
+#   1. bundle the arcade at that ref (it must be clean, and on its branch)
 #   2. container from dgd-cleanroom-flutter:1, sources in by `docker cp`, no mounts
-#   3. online: fetch packages under the v1 lockfile, build A
+#   3. online: fetch packages under the arcade's lockfile, build A
 #   4. network cut: clean, build B offline, require A == B
 #   5. copy B and PROVENANCE.md out; with --publish, mirror them into
 #      dgd-native/android/arcade-repo
@@ -16,28 +21,33 @@
 # builds, but only this script's output is fit to ship.
 set -euo pipefail
 export MSYS_NO_PATHCONV=1
-REF="${1:?usage: build_aar_cleanroom.sh <v1-tag-or-commit> [--publish]}"; PUBLISH="${2:-}"
+REF="${1:?usage: [DGD_ARCADE=v2] build_aar_cleanroom.sh <tag-or-commit> [--publish]}"; PUBLISH="${2:-}"
 HERE="$(cd "$(dirname "$0")" && pwd)"
-V1=C:/src/puzzle-app
+ARCADE="${DGD_ARCADE:-v1}"
+case "$ARCADE" in
+  v1) V1=C:/src/puzzle-app; BRANCH=main ;;
+  v2) V1=C:/src/puzzle-app-v2-wings; BRANCH=v2/ten-games ;;
+  *) echo "DGD_ARCADE=$ARCADE; it must be v1 or v2"; exit 1 ;;
+esac
 NATIVE_REPO=C:/src/dgd-native/android/arcade-repo
 IMAGE=dgd-cleanroom-flutter:1
 STAGE="$(cygpath -m "${TMP:-/tmp}")/dgd-aar-$(date +%Y%m%dT%H%M%S)"
 C=dgd-aar-$$
 
-[ -z "$(git -C $V1 status --porcelain)" ] || { echo "puzzle-app has uncommitted changes; commit first"; exit 1; }
+[ -z "$(git -C $V1 status --porcelain)" ] || { echo "$V1 has uncommitted changes; commit first"; exit 1; }
 COMMIT=$(git -C $V1 rev-parse "$REF^{commit}")
-git -C $V1 merge-base --is-ancestor "$COMMIT" main || { echo "$REF is not on puzzle-app main"; exit 1; }
-echo "v1 $REF = $COMMIT"
+git -C $V1 merge-base --is-ancestor "$COMMIT" "$BRANCH" || { echo "$REF is not on $BRANCH in $V1"; exit 1; }
+echo "$ARCADE $REF = $COMMIT"
 
 mkdir -p "$STAGE"
-git -C $V1 bundle create "$STAGE/puzzle-app.bundle" main $(git -C $V1 tag --points-at "$COMMIT") > /dev/null 2>&1
+git -C $V1 bundle create "$STAGE/puzzle-app.bundle" "$BRANCH" $(git -C $V1 tag --points-at "$COMMIT") > /dev/null 2>&1
 IMAGE_ID=$(docker image inspect $IMAGE --format '{{.Id}}')
 
 cleanup() { docker rm -f $C > /dev/null 2>&1 || true; }
 trap cleanup EXIT
 # 3.1 GB of RAM plus up to 1 GB of the VM's swap: a memory peak slows the
 # build instead of the kernel killing Gradle mid-build.
-docker create --name $C --memory 3100m --memory-swap 4100m -e DGD_IMAGE="$IMAGE $IMAGE_ID" \
+docker create --name $C --memory 3100m --memory-swap 4100m -e DGD_IMAGE="$IMAGE $IMAGE_ID" -e DGD_ARCADE="$ARCADE" \
   $IMAGE sleep infinity > /dev/null
 [ "$(docker inspect $C --format '{{len .Mounts}}')" = 0 ] || { echo "container has mounts; refusing"; exit 1; }
 docker start $C > /dev/null
@@ -47,7 +57,7 @@ for f in "$STAGE/puzzle-app.bundle" "$HERE/../sync_module.py" "$HERE/aar_in_cont
 done
 docker exec -u 0 $C chown -R builder /home/builder/in
 
-echo "== online: packages under the v1 lock, build A"
+echo "== online: packages under the $ARCADE lock, build A"
 docker exec $C bash /home/builder/in/aar_in_container.sh online "$COMMIT"
 
 echo "== network cut"

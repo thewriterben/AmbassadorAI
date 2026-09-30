@@ -32,9 +32,9 @@ class _LevelMapScreenState extends State<LevelMapScreen> {
     // A failure here must not go unreported: load() clears its maps before
     // reading, so a silent throw would leave the map showing level 1 only.
     Progress.instance.load().then(
-      (_) => _scrollToCurrent(),
-      onError: (Object e) => debugPrint('progress load: $e'),
-    );
+          (_) => _scrollToCurrent(),
+          onError: (Object e) => debugPrint('progress load: $e'),
+        );
   }
 
   @override
@@ -73,8 +73,7 @@ class _LevelMapScreenState extends State<LevelMapScreen> {
       // level counts from the end. The 200 leaves the current node a little
       // below the app bar rather than jammed under it.
       final idx = levels.length - Progress.instance.unlocked;
-      final target =
-          (idx * _nodeSpacing - 200).clamp(0.0, _scroll.position.maxScrollExtent);
+      final target = (idx * _nodeSpacing - 200).clamp(0.0, _scroll.position.maxScrollExtent);
       // Jump rather than animate. This is where the map should have opened, not
       // a place to travel to — animating means watching thirty levels fly past
       // before you can do anything, on every visit.
@@ -93,19 +92,31 @@ class _LevelMapScreenState extends State<LevelMapScreen> {
         backgroundColor: Colors.transparent,
         title: const Text('Coin Quest: Digital Gold', style: TextStyle(fontSize: 18)),
         actions: [
-          Center(
-            child: DevMenu(
-              title: 'COIN QUEST',
-              actions: {
-                for (final w in worlds)
-                  'Open ${w.name} — level ${w.firstLevel}': () =>
-                      Progress.instance.devUnlockThrough(w.firstLevel),
-                'Audio soak test': () => Navigator.push(context,
-                    MaterialPageRoute(builder: (_) => const DevSoakScreen())),
-                'Reset all progress': () => Progress.instance.eraseAll(),
-              },
+          // The `if (Dev.enabled)` is here, at the call site, and not only
+          // inside DevMenu. Dev.enabled is a const false in any build without
+          // --dart-define=DGD_DEV=true, so a collection-if folds away and the
+          // closures below — including the one naming DevSoakScreen — become
+          // unreachable and are tree-shaken.
+          //
+          // Relying on DevMenu's own internal check was not enough: the widget
+          // was still constructed, so its `actions` map was still built, so
+          // DevSoakScreen was still referenced and still compiled in. The
+          // 1.0.5 red-team sweep found dev_soak.dart in the shipped libapp.so
+          // for exactly that reason (REDTEAM-1.0.5-2026-09-21.md, F1).
+          if (Dev.enabled)
+            Center(
+              child: DevMenu(
+                title: 'COIN QUEST',
+                actions: {
+                  for (final w in worlds)
+                    'Open ${w.name} — level ${w.firstLevel}': () =>
+                        Progress.instance.devUnlockThrough(w.firstLevel),
+                  'Audio soak test': () =>
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => const DevSoakScreen())),
+                  'Reset all progress': () => Progress.instance.eraseAll(),
+                },
+              ),
             ),
-          ),
           const SizedBox(width: 10),
           ListenableBuilder(
             listenable: Progress.instance,
@@ -118,8 +129,8 @@ class _LevelMapScreenState extends State<LevelMapScreen> {
                   const Icon(Icons.star_rounded, size: 16, color: AppTheme.accent),
                   const SizedBox(width: 4),
                   Text('${Progress.instance.totalStars}/${levels.length * 3}',
-                      style: const TextStyle(
-                          fontFamily: AppTheme.fontMono, fontSize: 13, color: AppTheme.text)),
+                      style:
+                          const TextStyle(fontFamily: AppTheme.fontMono, fontSize: 13, color: AppTheme.text)),
                 ]),
               ),
             ),
@@ -247,8 +258,7 @@ class _Node extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               for (var s = 1; s <= 3; s++)
-                Icon(Icons.star_rounded,
-                    size: 16, color: s <= stars ? AppTheme.accent : AppTheme.dim),
+                Icon(Icons.star_rounded, size: 16, color: s <= stars ? AppTheme.accent : AppTheme.dim),
             ],
           ),
         ],
@@ -282,17 +292,11 @@ class _LevelSheet extends StatelessWidget {
         children: [
           Text('VAULT ${level.id}',
               style: const TextStyle(
-                  fontFamily: AppTheme.fontMono,
-                  fontSize: 11,
-                  letterSpacing: 1.2,
-                  color: AppTheme.muted)),
+                  fontFamily: AppTheme.fontMono, fontSize: 11, letterSpacing: 1.2, color: AppTheme.muted)),
           const SizedBox(height: 6),
           Text(level.goalText,
               style: const TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: -0.6,
-                  color: AppTheme.text)),
+                  fontSize: 26, fontWeight: FontWeight.w600, letterSpacing: -0.6, color: AppTheme.text)),
           const SizedBox(height: 12),
           Row(children: [
             _stat('MOVES', '${level.moves}'),
@@ -308,8 +312,7 @@ class _LevelSheet extends StatelessWidget {
               onPressed: () {
                 Audio.instance.tap();
                 Navigator.pop(context);
-                Navigator.push(
-                    context, MaterialPageRoute(builder: (_) => Match3Screen(level: level)));
+                Navigator.push(context, MaterialPageRoute(builder: (_) => Match3Screen(level: level)));
               },
               child: const Text('Play'),
             ),

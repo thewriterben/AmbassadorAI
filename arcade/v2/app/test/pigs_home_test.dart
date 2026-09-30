@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:puzzle_pack/arcade/api.dart';
 import 'package:puzzle_pack/audio.dart';
+import 'package:puzzle_pack/dev.dart';
 import 'package:puzzle_pack/arcade/cabinet/cabinet.dart';
 import 'package:puzzle_pack/arcade/passage/abilities.dart';
 import 'package:puzzle_pack/arcade/passage/passage_game.dart';
@@ -110,6 +111,10 @@ void main() {
   });
 
   group('the front room', () {
+    // A demo build has no shop whatever the server (ArcadeProgress.noBackend),
+    // so the shop's own tests skip there, and the last test checks it is gone.
+    const noShop = Dev.demoBuild;
+
     setUp(() => ArcadeApi.baseOverride = 'http://127.0.0.1:1'); // shop visible; nothing is called
     tearDown(() => ArcadeApi.baseOverride = null);
 
@@ -133,7 +138,8 @@ void main() {
       expect(button('Unlock · 700').onPressed, isNotNull, reason: 'freeze is affordable');
       expect(button('Unlock · 1,200').onPressed, isNull, reason: 'blink is not');
       expect(button('Level 2 · 1,500').onPressed, isNull, reason: 'dash level 2 is not');
-    });
+      expect(find.text('HOW TO FLY'), findsNothing, reason: 'the shop has the room');
+    }, skip: noShop);
 
     testWidgets('only an owned ability can be taken up, and never a third', (tester) async {
       p.apply(shop(owned: {'dash': 1, 'grapple': 1, 'freeze': 1}, loadout: ['dash', 'grapple']), persist: false);
@@ -144,7 +150,7 @@ void main() {
       await tester.pump();
       expect(find.text('Two at a time. Take one off first.'), findsOneWidget);
       expect(p.passageLoadout, ['dash', 'grapple']);
-    });
+    }, skip: noShop);
 
     testWidgets('the loadout shows as the two buttons a run will have', (tester) async {
       p.apply(shop(owned: {'teleport': 1}, loadout: ['teleport']), persist: false);
@@ -152,7 +158,7 @@ void main() {
       expect(find.text('LEFT BUTTON'), findsOneWidget);
       expect(find.text('Empty'), findsOneWidget);
       expect(find.text('Blink'), findsNWidgets(2), reason: 'in the loadout and in the shop');
-    });
+    }, skip: noShop);
 
     testWidgets('with no server there is no shop, only the boar and Fly', (tester) async {
       ArcadeApi.baseOverride = '';
@@ -161,6 +167,18 @@ void main() {
       expect(find.text('Fly'), findsOneWidget);
       expect(find.text('ABILITIES'), findsNothing);
       expect(find.textContaining('Unlock'), findsNothing);
+      expect(find.text('HOW TO FLY'), findsOneWidget, reason: 'the room says how to play instead');
     });
+
+    testWidgets('a demo build has no shop, even with a server to ask', (tester) async {
+      // The setUp's server stays set: what hides the shop is the build.
+      p.apply(shop(), persist: false);
+      await pump(tester);
+      expect(find.text('Fly'), findsOneWidget);
+      expect(find.text('ABILITIES'), findsNothing);
+      expect(find.textContaining('Unlock'), findsNothing);
+      expect(find.text('LEFT BUTTON'), findsNothing);
+      expect(find.text('HOW TO FLY'), findsOneWidget);
+    }, skip: !noShop);
   });
 }

@@ -155,6 +155,12 @@ class _PigsHomeScreenState extends State<PigsHomeScreen> {
                       const SizedBox(height: 10),
                       _DevStageRow(onStep: _devStep, onOwn: _devOwn),
                     ],
+                    // With no shop (a demo build, or no server) the room was
+                    // the boar card over empty space; say how to play instead.
+                    if (!shop) ...[
+                      const SizedBox(height: 14),
+                      const _HowToFly(),
+                    ],
                     if (shop) ...[
                       const SizedBox(height: 18),
                       _Loadout(ids: _p.passageLoadout),
@@ -236,6 +242,58 @@ String _fmt(int v) {
     b.write(s[i]);
   }
   return b.toString();
+}
+
+/// How the game plays, for the front room when there is no shop to show.
+/// Only what a first flight needs, in the order it comes up.
+class _HowToFly extends StatelessWidget {
+  const _HowToFly();
+
+  static const _steps = [
+    'Tap to flap, and thread the openings between the columns.',
+    'Every knock uses one of the dots at the top. When they run out, the pig '
+        'glides down wherever it is.',
+    'Coins are points, and each one speeds you up a little. The safe line '
+        'takes none.',
+    'Fly all nine eras, 1816 to 2009, and land it. A soft landing earns the '
+        'third star.',
+    'After a flight, tap any year you reached to read what happened then.',
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
+      decoration: AppTheme.glass(radius: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('HOW TO FLY', style: _kicker),
+          for (final s in _steps) ...[
+            const SizedBox(height: 10),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.only(top: 6, right: 10),
+                  child: SizedBox(
+                    width: 5,
+                    height: 5,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(color: AppTheme.accent, shape: BoxShape.circle),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Text(s, style: const TextStyle(fontSize: 13.5, height: 1.4, color: AppTheme.body)),
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
 }
 
 class _BoarCard extends StatelessWidget {

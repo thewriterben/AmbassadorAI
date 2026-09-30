@@ -69,6 +69,7 @@ class Match3Game extends FlameGame with DragCallbacks, TapCallbacks {
   late Vector2 origin;
   bool _busy = true; // true until the intro drop-in finishes
   bool _ended = false;
+
   /// Set once the game is torn down — the player left the level.
   ///
   /// The cascade loop is a chain of awaits on effect completers. Removing the
@@ -350,8 +351,11 @@ class Match3Game extends FlameGame with DragCallbacks, TapCallbacks {
       HapticFeedback.mediumImpact();
     }
     // Deep chains earn a spoken affirmation, rate-limited in Audio so it
-    // stays an event rather than a tic.
-    if (step.combo >= 4) a.voPraise(big: step.combo >= 6);
+    // stays an event rather than a tic. Thresholds live in Audio — they are
+    // read in two places and used to be two literals kept in step by a note.
+    if (step.combo >= Audio.praiseCombo) {
+      a.voPraise(big: step.combo >= Audio.praiseBigCombo);
+    }
 
     // Special fire visuals: beams and shockwaves at their former positions.
     for (final e in step.removed.entries) {
@@ -376,8 +380,7 @@ class Match3Game extends FlameGame with DragCallbacks, TapCallbacks {
       final pts = step.removed.keys.map(centerOf).toList();
       final centroid = pts.reduce((x, y) => x + y) / pts.length.toDouble();
       _root.add(_FloatText('+${step.score}', centroid,
-          size: step.combo > 1 ? 30 : 24,
-          color: step.combo > 1 ? AppTheme.accentHover : AppTheme.accent));
+          size: step.combo > 1 ? 30 : 24, color: step.combo > 1 ? AppTheme.accentHover : AppTheme.accent));
     }
     if (step.combo > 1) _comboBanner(step.combo);
 
@@ -501,8 +504,8 @@ class Match3Game extends FlameGame with DragCallbacks, TapCallbacks {
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6),
       priority: 40,
     );
-    beam.add(ScaleEffect.to(
-        horizontal ? Vector2(1, 0.15) : Vector2(0.15, 1), EffectController(duration: 0.35)));
+    beam.add(
+        ScaleEffect.to(horizontal ? Vector2(1, 0.15) : Vector2(0.15, 1), EffectController(duration: 0.35)));
     beam.add(OpacityEffect.fadeOut(EffectController(duration: 0.35), onComplete: beam.removeFromParent));
     _root.add(beam);
     // Sparks along the beam.
@@ -536,8 +539,8 @@ class Match3Game extends FlameGame with DragCallbacks, TapCallbacks {
       priority: 45,
     );
     final k = radius / (cell * 0.3);
-    ring.add(ScaleEffect.to(Vector2.all(k),
-        EffectController(duration: 0.4, startDelay: delay, curve: Curves.easeOut)));
+    ring.add(ScaleEffect.to(
+        Vector2.all(k), EffectController(duration: 0.4, startDelay: delay, curve: Curves.easeOut)));
     ring.add(OpacityEffect.fadeOut(EffectController(duration: 0.4, startDelay: delay),
         onComplete: ring.removeFromParent));
     _root.add(ring);
@@ -623,8 +626,11 @@ class Match3Game extends FlameGame with DragCallbacks, TapCallbacks {
         },
       ));
     }
-    // Same threshold the real cascade uses.
-    if (depth >= 4) a.voPraise(big: depth >= 6);
+    // Same thresholds the real cascade uses — now literally the same, rather
+    // than a copy of the numbers with a comment asserting it.
+    if (depth >= Audio.praiseCombo) {
+      a.voPraise(big: depth >= Audio.praiseBigCombo);
+    }
   }
 
   void _comboBanner(int combo) {
@@ -645,8 +651,7 @@ class Match3Game extends FlameGame with DragCallbacks, TapCallbacks {
             child: RotatingParticle(
               to: pi * 4,
               child: SpriteParticle(
-                  sprite: _sprites[GemKind.gold]!,
-                  size: Vector2.all(cell * (0.2 + _rng.nextDouble() * 0.2))),
+                  sprite: _sprites[GemKind.gold]!, size: Vector2.all(cell * (0.2 + _rng.nextDouble() * 0.2))),
             ),
           ),
         ),
@@ -702,8 +707,7 @@ class Match3Game extends FlameGame with DragCallbacks, TapCallbacks {
             head,
             radius * fade,
             Paint()
-              ..color = Color.lerp(color, Colors.white, 0.55 * fade)!
-                  .withValues(alpha: a)
+              ..color = Color.lerp(color, Colors.white, 0.55 * fade)!.withValues(alpha: a)
               ..blendMode = BlendMode.plus);
       },
     );
@@ -725,8 +729,7 @@ class Match3Game extends FlameGame with DragCallbacks, TapCallbacks {
                 ..shader = RadialGradient(colors: [
                   color.withValues(alpha: a),
                   color.withValues(alpha: 0),
-                ]).createShader(
-                    Rect.fromCircle(center: Offset.zero, radius: radius))
+                ]).createShader(Rect.fromCircle(center: Offset.zero, radius: radius))
                 ..blendMode = BlendMode.plus);
         },
       ),
@@ -909,8 +912,7 @@ class Match3Game extends FlameGame with DragCallbacks, TapCallbacks {
         size.x * (0.16 + _rng.nextDouble() * 0.68),
         size.y * (0.12 + _rng.nextDouble() * 0.36),
       );
-      _firework(at, colors[i % colors.length],
-          delay: t, scale: 0.85 + _rng.nextDouble() * 0.35);
+      _firework(at, colors[i % colors.length], delay: t, scale: 0.85 + _rng.nextDouble() * 0.35);
       t += 0.30 + _rng.nextDouble() * 0.16;
     }
     for (var i = 0; i < 3; i++) {
@@ -967,8 +969,7 @@ class Match3Game extends FlameGame with DragCallbacks, TapCallbacks {
         // Starts low, finishes high: 0.42 of the screen down to 0.10.
         size.y * (0.42 - k * 0.32 + (_rng.nextDouble() - 0.5) * 0.05),
       );
-      _firework(at, colors[i % colors.length],
-          delay: t, scale: 0.95 + k * 0.5 + _rng.nextDouble() * 0.2);
+      _firework(at, colors[i % colors.length], delay: t, scale: 0.95 + k * 0.5 + _rng.nextDouble() * 0.2);
       t += 0.26 - k * 0.10; // accelerando
     }
 
@@ -1050,8 +1051,10 @@ class Match3Game extends FlameGame with DragCallbacks, TapCallbacks {
     for (final g in _gems.values) {
       final d = (g.pos.r + g.pos.c) / max(1, diag);
       g.shine(delay: d * 0.9);
-      g.add(ScaleEffect.to(Vector2.all(1.18),
-          EffectController(duration: 0.14, reverseDuration: 0.22, startDelay: d * 0.9, curve: Curves.easeOut)));
+      g.add(ScaleEffect.to(
+          Vector2.all(1.18),
+          EffectController(
+              duration: 0.14, reverseDuration: 0.22, startDelay: d * 0.9, curve: Curves.easeOut)));
     }
     _root.add(ParticleSystemComponent(
       priority: 60,
@@ -1066,8 +1069,8 @@ class Match3Game extends FlameGame with DragCallbacks, TapCallbacks {
             speed: Vector2((_rng.nextDouble() - 0.5) * 30, -40 - _rng.nextDouble() * 70),
             child: ComputedParticle(renderer: (canvas, p) {
               final a = (1 - p.progress) * (0.5 + 0.5 * sin(p.progress * pi * 6));
-              canvas.drawCircle(
-                  Offset.zero, r * (1 + p.progress * 0.5), Paint()..color = AppTheme.accentHover.withValues(alpha: a));
+              canvas.drawCircle(Offset.zero, r * (1 + p.progress * 0.5),
+                  Paint()..color = AppTheme.accentHover.withValues(alpha: a));
             }),
           );
         },
@@ -1076,8 +1079,7 @@ class Match3Game extends FlameGame with DragCallbacks, TapCallbacks {
     await Future.delayed(const Duration(milliseconds: 450));
     if (_dead) return;
     Audio.instance.win();
-    _shockwave(Vector2(size.x / 2, size.y / 2), size.x * (finale ? 1.15 : 0.8),
-        AppTheme.accent);
+    _shockwave(Vector2(size.x / 2, size.y / 2), size.x * (finale ? 1.15 : 0.8), AppTheme.accent);
     if (finale) _flash(AppTheme.accentHover, 0.5);
     _fireworkShow(grand: finale);
     if (!Audio.inAppTab) {
@@ -1204,8 +1206,7 @@ class GemComponent extends SpriteComponent {
     super.onRemove();
   }
 
-  Future<void> moveTo(Vector2 target, double seconds,
-      {Curve curve = Curves.easeOut, double delay = 0}) {
+  Future<void> moveTo(Vector2 target, double seconds, {Curve curve = Curves.easeOut, double delay = 0}) {
     final c = _track();
     add(MoveToEffect(target, EffectController(duration: seconds, curve: curve, startDelay: delay),
         onComplete: () => _settle(c)));
@@ -1215,8 +1216,9 @@ class GemComponent extends SpriteComponent {
   Future<void> pop() {
     final c = _track();
     add(ScaleEffect.to(Vector2.all(1.3), EffectController(duration: 0.06)));
-    add(ScaleEffect.to(Vector2.zero(),
-        EffectController(duration: 0.14, startDelay: 0.06, curve: Curves.easeIn), onComplete: () {
+    add(ScaleEffect.to(
+        Vector2.zero(), EffectController(duration: 0.14, startDelay: 0.06, curve: Curves.easeIn),
+        onComplete: () {
       removeFromParent();
       _settle(c);
     }));
@@ -1225,15 +1227,15 @@ class GemComponent extends SpriteComponent {
 
   Future<void> pulse() {
     final c = _track();
-    add(ScaleEffect.to(Vector2.all(1.35),
-        EffectController(duration: 0.12, reverseDuration: 0.14, curve: Curves.easeOut),
+    add(ScaleEffect.to(
+        Vector2.all(1.35), EffectController(duration: 0.12, reverseDuration: 0.14, curve: Curves.easeOut),
         onComplete: () => _settle(c)));
     return c.future;
   }
 
   void squash() {
-    add(ScaleEffect.to(Vector2(1.12, 0.86),
-        EffectController(duration: 0.06, reverseDuration: 0.10, curve: Curves.easeOut)));
+    add(ScaleEffect.to(
+        Vector2(1.12, 0.86), EffectController(duration: 0.06, reverseDuration: 0.10, curve: Curves.easeOut)));
   }
 
   void wiggle() {
@@ -1308,9 +1310,15 @@ class GemComponent extends SpriteComponent {
         ..strokeCap = StrokeCap.round;
       canvas.drawLine(c - Offset(len, 0), c + Offset(len, 0), paint);
       canvas.drawLine(c - Offset(0, len), c + Offset(0, len), paint);
-      canvas.drawLine(c - Offset(len * 0.4, len * 0.4), c + Offset(len * 0.4, len * 0.4), paint..strokeWidth = s * 0.018);
+      canvas.drawLine(
+          c - Offset(len * 0.4, len * 0.4), c + Offset(len * 0.4, len * 0.4), paint..strokeWidth = s * 0.018);
       canvas.drawLine(c - Offset(len * 0.4, -len * 0.4), c + Offset(len * 0.4, -len * 0.4), paint);
-      canvas.drawCircle(c, s * 0.05 * k, Paint()..color = Colors.white.withValues(alpha: 0.9 * k)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4));
+      canvas.drawCircle(
+          c,
+          s * 0.05 * k,
+          Paint()
+            ..color = Colors.white.withValues(alpha: 0.9 * k)
+            ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4));
     }
   }
 
@@ -1378,8 +1386,8 @@ class GemComponent extends SpriteComponent {
       case Special.bomb:
         // Big pulsing DGD mark over the coin.
         final k = 0.5 + 0.5 * sin(_t * 6);
-        canvas.drawCircle(center, s * 0.46,
-            Paint()..color = const Color(0xFF030303).withValues(alpha: 0.35 + 0.15 * k));
+        canvas.drawCircle(
+            center, s * 0.46, Paint()..color = const Color(0xFF030303).withValues(alpha: 0.35 + 0.15 * k));
         badge(0.62 + 0.06 * k, 1.0);
         canvas.drawCircle(
             center,
@@ -1408,8 +1416,7 @@ class _BoardBackdrop extends Component {
           sprite.render(canvas, position: pos, size: Vector2.all(game.cell));
         } else {
           canvas.drawRRect(
-              RRect.fromRectAndRadius(
-                  Rect.fromLTWH(pos.x + 1.5, pos.y + 1.5, game.cell - 3, game.cell - 3),
+              RRect.fromRectAndRadius(Rect.fromLTWH(pos.x + 1.5, pos.y + 1.5, game.cell - 3, game.cell - 3),
                   Radius.circular(game.cell * 0.18)),
               Paint()..color = const Color(0x0AFFFFFF));
         }
@@ -1436,11 +1443,7 @@ class _FloatText extends PositionComponent {
   late final TextPainter _tp;
 
   _FloatText(this.text, Vector2 at,
-      {required double size,
-      required this.color,
-      this.rise = 26,
-      this.life = 0.7,
-      this.bounce = false})
+      {required double size, required this.color, this.rise = 26, this.life = 0.7, this.bounce = false})
       : fontSize = size,
         super(position: at, anchor: Anchor.center, priority: 70) {
     _tp = TextPainter(

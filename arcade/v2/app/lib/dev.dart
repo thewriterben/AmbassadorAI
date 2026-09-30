@@ -5,9 +5,24 @@ import 'theme.dart';
 /// Test-only shortcuts.
 ///
 /// [enabled] is a `const` read of the environment, so in a build without
-/// `--dart-define=DGD_DEV=true` every `if (Dev.enabled)` below folds to
-/// `if (false)` and the compiler drops the branch. The shortcuts are not
-/// hidden in a store build, they are absent from it.
+/// `--dart-define=DGD_DEV=true` every `if (Dev.enabled)` folds to
+/// `if (false)` and the compiler drops the branch.
+///
+/// That only removes the code if the check is at the **call site**. It is not
+/// enough for [DevMenu] to return an empty box from its own `build`: the
+/// widget is still constructed, so its `actions` map is still built, so every
+/// closure in it — and everything those closures name — stays reachable and
+/// stays compiled in.
+///
+/// The 1.0.5 red-team sweep found `dev_soak.dart` and `DevSoakScreen` in the
+/// shipped `libapp.so` for exactly that reason, while this comment claimed
+/// they could not be there (`REDTEAM-1.0.5-2026-09-21.md`, F1). Both call
+/// sites now guard with `if (Dev.enabled)` and the internal check is kept as a
+/// second line of defence.
+///
+/// So: with the call-site guards in place the shortcuts are absent from a
+/// store build. Without them they are merely invisible. If you add a new
+/// DevMenu, guard it at the call site.
 ///
 /// Build a test APK with:
 ///   flutter build apk --release --dart-define=DGD_DEV=true
@@ -89,8 +104,7 @@ class DevMenu extends StatelessWidget {
                       color: AppTheme.accent,
                     )),
                 const Spacer(),
-                const Text('not in store builds',
-                    style: TextStyle(fontSize: 11, color: AppTheme.muted)),
+                const Text('not in store builds', style: TextStyle(fontSize: 11, color: AppTheme.muted)),
               ],
             ),
             const SizedBox(height: 10),

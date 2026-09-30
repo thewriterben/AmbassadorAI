@@ -19,6 +19,8 @@ void main() {
     expect(a.track, Audio.trackQuest);
 
     final level1 = a.claimMusic(Audio.trackQuest);
+    expect(a.track, Audio.trackQuest);
+
     // "Next level" is a pushReplacement: the new level claims before the old
     // one is disposed. The tune must not drop out in between.
     final level2 = a.claimMusic(Audio.trackQuest);

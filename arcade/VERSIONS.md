@@ -5,7 +5,7 @@ Two versions exist and they do not touch each other.
 | | **v1** | **v2** |
 |---|---|---|
 | What | Coin Quest and the Explorer track | Coin Quest plus the new catalogue, starting with Passage |
-| Status | **Frozen.** Merge candidate for the main DGD app | In development |
+| Status | **Frozen.** Embedded in DGD App 1.0.x | **Embedded in DGD App 2.0** (demo, Android first), and still in development |
 | Version | `1.0.1+101` | `2.0.0+200` |
 | Branch | `main` | `v2/ten-games` |
 | App folder | `C:\src\puzzle-app` | `C:\src\puzzle-app-v2` |
@@ -14,6 +14,20 @@ Two versions exist and they do not touch each other.
 | Build scripts | `arcade/v1/*.cmd` | `arcade/v2/*.cmd` |
 | Artefacts | `arcade/v1/dist/` | `arcade/v2/dist/` |
 | Tag | `v1.0.1` (also `v1.0.0`) | untagged until it ships |
+| Worktree on its branch | `C:\src\puzzle-app` | `C:\src\puzzle-app-v2-wings` (`C:\src\puzzle-app-v2` holds side branches) |
+
+## DGD App 2.0 embeds v2 — decided 2026-09-30
+
+The owner's call: *"arcade ships in DGD 2.0"*, as a demo embed (no backend,
+zero requests) on Android first, iOS after. So from DGD App 2.0 the embed is
+built from v2, and v1 carries on only as the embed of the 1.0.x line.
+
+- `integration/sync_module.py`, `integration/build_aar.cmd` and the clean-room
+  scripts take `DGD_ARCADE=v2`; unset, they build v1 exactly as before. A v2
+  build refuses a source without Passage, and a v1 build one with it.
+- DGD App 2.0.0 is version code **200** (`dgd-native`, branch `dgd-2.0`), so
+  9–199 stay free for 1.0.x fixes while 2.0 is on a test track.
+- The rule below still holds for v1: nothing from v2 goes into it.
 
 ## The one rule
 

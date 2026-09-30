@@ -129,8 +129,7 @@ class _Match3ScreenState extends State<Match3Screen> {
         if (next == null) {
           Navigator.pop(context);
         } else {
-          Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (_) => Match3Screen(level: next)));
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => Match3Screen(level: next)));
         }
       default:
         Navigator.pop(context);
@@ -163,30 +162,33 @@ class _Match3ScreenState extends State<Match3Screen> {
                         const SizedBox(width: 8),
                         _pill('VAULT', '${lv.id}'),
                         const SizedBox(width: 8),
-                        _pill('MOVES', '${session.movesLeft}',
-                            warn: session.movesLeft <= 5),
+                        _pill('MOVES', '${session.movesLeft}', warn: session.movesLeft <= 5),
                         const Spacer(),
-                        DevMenu(
-                          title: 'LEVEL ${lv.id} · ${lv.goalShort}',
-                          actions: {
-                            'Combo x4 — standard praise': () => game.devCombo(4),
-                            'Combo x6 — big praise': () => game.devCombo(6),
-                            'Combo x9': () => game.devCombo(9),
-                            'Win — 3 stars': () => _devEnd(SessionState.won, stars: 3),
-                            'Win — 1 star': () => _devEnd(SessionState.won, stars: 1),
-                            'Win — 0 stars (under par)': () =>
-                                _devEnd(SessionState.won, stars: 0),
-                            // The grand show only fires on the last level, so
-                            // without this the only way to see it is to clear
-                            // all sixty.
-                            'Win — GRAND FINALE show': () => unawaited(
-                                  game.celebrate(finale: true).then((_) {
-                                    if (mounted) _devEnd(SessionState.won, stars: 3);
-                                  }),
-                                ),
-                            'Lose — encouragement line': () => _devEnd(SessionState.lost),
-                          },
-                        ),
+                        // Guarded at the call site, not only inside DevMenu —
+                        // see the note in level_map.dart. Without this the
+                        // action closures keep devCombo and the finale show
+                        // alive in a store build.
+                        if (Dev.enabled)
+                          DevMenu(
+                            title: 'LEVEL ${lv.id} · ${lv.goalShort}',
+                            actions: {
+                              'Combo x4 — standard praise': () => game.devCombo(4),
+                              'Combo x6 — big praise': () => game.devCombo(6),
+                              'Combo x9': () => game.devCombo(9),
+                              'Win — 3 stars': () => _devEnd(SessionState.won, stars: 3),
+                              'Win — 1 star': () => _devEnd(SessionState.won, stars: 1),
+                              'Win — 0 stars (under par)': () => _devEnd(SessionState.won, stars: 0),
+                              // The grand show only fires on the last level, so
+                              // without this the only way to see it is to clear
+                              // all sixty.
+                              'Win — GRAND FINALE show': () => unawaited(
+                                    game.celebrate(finale: true).then((_) {
+                                      if (mounted) _devEnd(SessionState.won, stars: 3);
+                                    }),
+                                  ),
+                              'Lose — encouragement line': () => _devEnd(SessionState.lost),
+                            },
+                          ),
                         const SizedBox(width: 8),
                         TweenAnimationBuilder<double>(
                           tween: Tween(end: session.score.toDouble()),
@@ -332,8 +334,7 @@ class _Match3ScreenState extends State<Match3Screen> {
   Widget _pill(String k, String v, {bool accent = false, bool warn = false}) => Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
         decoration: AppTheme.glass(
-            radius: 999,
-            outline: warn ? AppTheme.danger.withValues(alpha: 0.7) : AppTheme.borderStrong),
+            radius: 999, outline: warn ? AppTheme.danger.withValues(alpha: 0.7) : AppTheme.borderStrong),
         child: Row(children: [
           Text('$k ',
               style: const TextStyle(

@@ -320,6 +320,24 @@ class Audio extends ChangeNotifier with WidgetsBindingObserver {
   int _loseCursor = 0;
   int _lastPraise = 0;
 
+  /// Cascade depth that earns a spoken affirmation, and the depth that earns
+  /// the bigger one. The two call sites in `match3_game.dart` both read these
+  /// rather than repeating the number — they used to hold `4` and `6`
+  /// literally, kept in step by a comment.
+  ///
+  /// Loosened 2026-09-21, from 4/6 and a 7 s gap. The win line is suppressed
+  /// inside the DGD app (§4.3, see [voWinner]), and that is the line a player
+  /// would otherwise hear most — so the embed was close to silent on early
+  /// levels, where small boards rarely chain four deep.
+  ///
+  /// These are the tuning knobs. Raise them if praise starts to feel like a
+  /// tic; that failure mode is the reason the rate limit exists at all.
+  static const praiseCombo = 3;
+  static const praiseBigCombo = 5;
+
+  /// Minimum gap between spoken affirmations.
+  static const praiseGapMs = 4500;
+
   /// Spoken on a deep cascade. Rate-limited: an affirmation that fires on
   /// every chain stops being one.
   ///
@@ -329,7 +347,7 @@ class Audio extends ChangeNotifier with WidgetsBindingObserver {
   void voPraise({bool big = false}) {
     if (!_sfx || !_ready) return;
     final now = DateTime.now().millisecondsSinceEpoch;
-    if (now - _lastPraise < 7000) return;
+    if (now - _lastPraise < praiseGapMs) return;
     _lastPraise = now;
     play(
       big

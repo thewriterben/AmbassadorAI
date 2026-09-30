@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
 # Runs INSIDE a dgd-cleanroom-flutter container, driven by build_aar_cleanroom.sh.
 #
-#   aar_in_container.sh online  <v1-commit>   network on: fetch packages, build A
-#   aar_in_container.sh offline <v1-commit>   network cut: clean, build B, compare
+#   aar_in_container.sh online  <commit>   network on: fetch packages, build A
+#   aar_in_container.sh offline <commit>   network cut: clean, build B, compare
+#
+# DGD_ARCADE (v1 or v2, set on the container) says which arcade line the
+# bundle holds. The source is cloned to the same path either way; only the
+# module path is compiled into libapp.so.
 #
 # Build B is the release artefact. Build A exists to fill the caches, and
 # comparing it with B proves the build deterministic on every run.
@@ -11,7 +15,7 @@
 # URL into libapp.so (AUDIT-v1.0.8-2026-09-29.md, P1). Change it and every
 # earlier build stops reproducing.
 set -euo pipefail
-PHASE="$1"; COMMIT="$2"
+PHASE="$1"; COMMIT="$2"; ARCADE="${DGD_ARCADE:-v1}"
 H=/home/builder; IN=$H/in; OUT=$H/out; MODULE=$H/dgd_arcade_module; V1=$H/puzzle-app
 DEFINES="--dart-define=DGD_APP_TAB=true --dart-define=DGD_DEMO=true"
 REPO=build/host/outputs/repo
@@ -30,7 +34,7 @@ build() {  # $1 = label
   cd "$MODULE"
   flutter clean > /dev/null 2>&1
   flutter pub get --enforce-lockfile $2 > "$OUT/$1-pubget.log" 2>&1 || { echo "pub get --enforce-lockfile FAILED"; tail -5 "$OUT/$1-pubget.log"; exit 1; }
-  cmp -s "$V1/pubspec.lock" pubspec.lock || { echo "module lock differs from v1's"; diff "$V1/pubspec.lock" pubspec.lock | head; exit 1; }
+  cmp -s "$V1/pubspec.lock" pubspec.lock || { echo "module lock differs from $ARCADE's"; diff "$V1/pubspec.lock" pubspec.lock | head; exit 1; }
   flutter build aar --no-debug --no-profile $DEFINES > "$OUT/$1-aar.log" 2>&1 || { echo "build $1 FAILED"; tail -15 "$OUT/$1-aar.log"; return 1; }
   rm -rf "$OUT/$1"; cp -r "$REPO" "$OUT/$1"
   echo "build $1: $(find "$OUT/$1" -name '*.aar' | wc -l) AARs"
@@ -41,9 +45,9 @@ online)
   git clone -q "$IN/puzzle-app.bundle" "$V1"
   git -C "$V1" -c advice.detachedHead=false checkout -q "$COMMIT"
   test "$(git -C "$V1" rev-parse HEAD)" = "$COMMIT" || { echo "commit mismatch"; exit 1; }
-  echo "v1 $(git -C "$V1" rev-parse HEAD) $(git -C "$V1" describe --tags --always)"
+  echo "$ARCADE $(git -C "$V1" rev-parse HEAD) $(git -C "$V1" describe --tags --always)"
   flutter create -t module --org co.digitalgold.arcade dgd_arcade_module > "$OUT/module-create.log" 2>&1
-  DGD_V1="$V1" DGD_MODULE="$MODULE" python3 "$IN/sync_module.py"
+  DGD_ARCADE="$ARCADE" DGD_V1="$V1" DGD_V2="$V1" DGD_MODULE="$MODULE" python3 "$IN/sync_module.py"
   # Build A only fills caches, so one retry is allowed: a dropped download
   # from Maven Central killed it once, and Gradle keeps what it already has.
   build A "" || { echo "retrying build A once"; build A ""; }
@@ -100,10 +104,10 @@ EOF
   {
     echo "# Arcade embed, built in the DGD clean room"
     echo
-    echo "source   puzzle-app v1 $COMMIT ($(git -C "$V1" describe --tags --always))"
+    echo "source   puzzle-app $ARCADE $COMMIT ($(git -C "$V1" describe --tags --always))"
     echo "defines  $DEFINES"
     echo "module   $MODULE (fixed; it is compiled into libapp.so)"
-    echo "lock     v1 pubspec.lock, enforced; sha256 $(sha256sum "$V1/pubspec.lock" | cut -c1-64)"
+    echo "lock     $ARCADE pubspec.lock, enforced; sha256 $(sha256sum "$V1/pubspec.lock" | cut -c1-64)"
     echo "network  cut for this build (packages and Gradle caches filled by an identical earlier build)"
     echo "image    ${DGD_IMAGE:-unknown}"
     sed -n 1,4p $H/flutter-version.txt | sed 's/^/flutter  /'

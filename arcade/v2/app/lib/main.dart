@@ -59,137 +59,149 @@ class HomeScreen extends StatelessWidget {
         children: [
           Positioned.fill(child: Image.asset('assets/images/bg_dark.png', fit: BoxFit.cover)),
           SafeArea(
-            child: ListView(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 28),
-              children: [
-                Row(
+            // Same cap as the host app's ticker column, and for the same
+            // reason: embedded in the DGD app at targetSdk 36, Android hands
+            // this a ~1280dp-wide window on any tablet or unfolded foldable,
+            // whatever the manifest asks for. Uncapped, the game cards become
+            // metre-wide bars with their icon at one end and their arrow at
+            // the other. The game boards are unaffected — they size
+            // themselves from the shorter edge already.
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 520),
+                child: ListView(
+                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 28),
                   children: [
-                    Image.asset('assets/images/logo_orange.png', width: 28, height: 28),
-                    const SizedBox(width: 10),
-                    const Text('Digital Gold',
-                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppTheme.text)),
-                    const Text(' .CO', style: TextStyle(fontSize: 15, color: AppTheme.muted)),
-                    const Spacer(),
-                    const _AudioToggles(),
+                    Row(
+                      children: [
+                        Image.asset('assets/images/logo_orange.png', width: 28, height: 28),
+                        const SizedBox(width: 10),
+                        const Text('Digital Gold',
+                            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppTheme.text)),
+                        const Text(' .CO', style: TextStyle(fontSize: 15, color: AppTheme.muted)),
+                        const Spacer(),
+                        const _AudioToggles(),
+                      ],
+                    ),
+                    const SizedBox(height: 18),
+                    const Center(child: _HeroCoin(size: 150)),
+                    const SizedBox(height: 12),
+                    const _Kicker('PROOF OF PLAY'),
+                    const SizedBox(height: 10),
+                    RichText(
+                      text: const TextSpan(
+                        style: TextStyle(
+                            fontFamily: AppTheme.fontSans,
+                            fontSize: 34,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: -1.3,
+                            height: 1.05,
+                            color: AppTheme.text),
+                        children: [
+                          TextSpan(text: 'DGD '),
+                          TextSpan(
+                              text: 'Arcade',
+                              style: TextStyle(
+                                  fontFamily: AppTheme.fontSerif,
+                                  fontStyle: FontStyle.italic,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppTheme.accent)),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    const Text('Match the coins, or fly two centuries of monetary history.',
+                        style: TextStyle(fontSize: 14, color: AppTheme.body, height: 1.4)),
+                    const SizedBox(height: 16),
+                    // XP, level and the standings link all come from the server.
+                    // Without one the bar would sit at level 1 with an OFFLINE chip
+                    // and a leaderboard link that goes nowhere.
+                    if (!ArcadeProgress.noBackend) ...[
+                      const _XpBar(),
+                      const SizedBox(height: 18),
+                    ],
+                    // Two of the eventual catalogue. Still no section heading and
+                    // no leading numbers — those arrive when there are enough
+                    // games for the list to need navigating.
+                    ListenableBuilder(
+                      listenable: Progress.instance,
+                      builder: (_, __) => _GameCard(
+                        title: 'Coin Quest: Digital Gold',
+                        kicker: 'MATCH-3',
+                        blurb: 'Match the coins. ${Progress.instance.totalStars}/${levels.length * 3} stars.',
+                        asset: 'assets/images/piece_gold.png',
+                        primary: true,
+                        onTap: () => _open(context, const LevelMapScreen()),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    // When Pigs Fly (id `passage`) ships in the demo build as well as the dev one. It
+                    // needs no backend — `startMini` no-ops without a server and
+                    // the run simply pays no XP — so the reason the old games were
+                    // cut from the demo does not apply to it. If it should be held
+                    // back from a tester build after all, wrap this card in
+                    // `if (!Dev.demoBuild)`; nothing else has to change.
+                    _GameCard(
+                      title: 'When Pigs Fly',
+                      kicker: 'ONE TAP',
+                      blurb: 'Fly a winged piggy bank through nine eras of money, and land it.',
+                      asset: 'assets/images/card_pigs.png',
+                      onTap: () => _open(context, const PigsHomeScreen()),
+                    ),
+                    const SizedBox(height: 18),
+                    Center(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        decoration: AppTheme.glass(radius: 999, outline: AppTheme.border),
+                        child: const Text('More games coming soon',
+                            style: TextStyle(
+                                fontFamily: AppTheme.fontMono,
+                                fontSize: 11,
+                                letterSpacing: 1.1,
+                                color: AppTheme.muted)),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    // Settings carries the two data-deletion controls, which both
+                    // stores expect to be reachable from inside the app. It sits
+                    // by the disclaimer because that is where people look for
+                    // privacy and legal controls — and because the header row is
+                    // already full: a third button there overflows by 26px on a
+                    // 432pt-wide screen, which widget_test catches.
+                    //
+                    // Kept compact deliberately. A default TextButton's 48pt tap
+                    // target plus its own padding pushed the no-monetary-value
+                    // disclaimer off the bottom of the first screen, and that line
+                    // is a compliance statement — it has to be readable without
+                    // scrolling. The tap target is still 36pt, above the 24pt
+                    // minimum for a secondary text link.
+                    Center(
+                      child: TextButton(
+                        style: TextButton.styleFrom(
+                          minimumSize: const Size(0, 36),
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        onPressed: () {
+                          Audio.instance.tap();
+                          Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen()));
+                        },
+                        child: const Text('Settings and your data',
+                            style: TextStyle(
+                                fontFamily: AppTheme.fontMono,
+                                fontSize: 11,
+                                letterSpacing: 0.8,
+                                color: AppTheme.muted)),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    const Center(
+                      child: Text('Educational only. XP and badges have no monetary value.',
+                          style: TextStyle(fontFamily: AppTheme.fontMono, fontSize: 10, color: AppTheme.dim)),
+                    ),
                   ],
                 ),
-                const SizedBox(height: 18),
-                const Center(child: _HeroCoin(size: 150)),
-                const SizedBox(height: 12),
-                const _Kicker('PROOF OF PLAY'),
-                const SizedBox(height: 10),
-                RichText(
-                  text: const TextSpan(
-                    style: TextStyle(
-                        fontFamily: AppTheme.fontSans,
-                        fontSize: 34,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: -1.3,
-                        height: 1.05,
-                        color: AppTheme.text),
-                    children: [
-                      TextSpan(text: 'DGD '),
-                      TextSpan(
-                          text: 'Arcade',
-                          style: TextStyle(
-                              fontFamily: AppTheme.fontSerif,
-                              fontStyle: FontStyle.italic,
-                              fontWeight: FontWeight.w700,
-                              color: AppTheme.accent)),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 6),
-                const Text('Match the coins, or fly two centuries of monetary history.',
-                    style: TextStyle(fontSize: 14, color: AppTheme.body, height: 1.4)),
-                const SizedBox(height: 16),
-                // XP, level and the standings link all come from the server.
-                // Without one the bar would sit at level 1 with an OFFLINE chip
-                // and a leaderboard link that goes nowhere.
-                if (!ArcadeProgress.noBackend) ...[
-                  const _XpBar(),
-                  const SizedBox(height: 18),
-                ],
-                // Two of the eventual catalogue. Still no section heading and
-                // no leading numbers — those arrive when there are enough
-                // games for the list to need navigating.
-                ListenableBuilder(
-                  listenable: Progress.instance,
-                  builder: (_, __) => _GameCard(
-                    title: 'Coin Quest: Digital Gold',
-                    kicker: 'MATCH-3',
-                    blurb: 'Match the coins. ${Progress.instance.totalStars}/${levels.length * 3} stars.',
-                    asset: 'assets/images/piece_gold.png',
-                    primary: true,
-                    onTap: () => _open(context, const LevelMapScreen()),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                // When Pigs Fly (id `passage`) ships in the demo build as well as the dev one. It
-                // needs no backend — `startMini` no-ops without a server and
-                // the run simply pays no XP — so the reason the old games were
-                // cut from the demo does not apply to it. If it should be held
-                // back from a tester build after all, wrap this card in
-                // `if (!Dev.demoBuild)`; nothing else has to change.
-                _GameCard(
-                  title: 'When Pigs Fly',
-                  kicker: 'ONE TAP',
-                  blurb: 'Fly a winged piggy bank through nine eras of money, and land it.',
-                  asset: 'assets/images/card_pigs.png',
-                  onTap: () => _open(context, const PigsHomeScreen()),
-                ),
-                const SizedBox(height: 18),
-                Center(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                    decoration: AppTheme.glass(radius: 999, outline: AppTheme.border),
-                    child: const Text('More games coming soon',
-                        style: TextStyle(
-                            fontFamily: AppTheme.fontMono,
-                            fontSize: 11,
-                            letterSpacing: 1.1,
-                            color: AppTheme.muted)),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                // Settings carries the two data-deletion controls, which both
-                // stores expect to be reachable from inside the app. It sits
-                // by the disclaimer because that is where people look for
-                // privacy and legal controls — and because the header row is
-                // already full: a third button there overflows by 26px on a
-                // 432pt-wide screen, which widget_test catches.
-                //
-                // Kept compact deliberately. A default TextButton's 48pt tap
-                // target plus its own padding pushed the no-monetary-value
-                // disclaimer off the bottom of the first screen, and that line
-                // is a compliance statement — it has to be readable without
-                // scrolling. The tap target is still 36pt, above the 24pt
-                // minimum for a secondary text link.
-                Center(
-                  child: TextButton(
-                    style: TextButton.styleFrom(
-                      minimumSize: const Size(0, 36),
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    ),
-                    onPressed: () {
-                      Audio.instance.tap();
-                      Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen()));
-                    },
-                    child: const Text('Settings and your data',
-                        style: TextStyle(
-                            fontFamily: AppTheme.fontMono,
-                            fontSize: 11,
-                            letterSpacing: 0.8,
-                            color: AppTheme.muted)),
-                  ),
-                ),
-                const SizedBox(height: 6),
-                const Center(
-                  child: Text('Educational only. XP and badges have no monetary value.',
-                      style: TextStyle(fontFamily: AppTheme.fontMono, fontSize: 10, color: AppTheme.dim)),
-                ),
-              ],
+              ),
             ),
           ),
         ],
