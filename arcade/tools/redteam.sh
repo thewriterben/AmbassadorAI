@@ -145,12 +145,19 @@ run_flutter() {
     && pass "$m app analyze" "no issues" || fail "$m app analyze" "see $m-app.log.analyze"
   local p1 p2 s1 s2 s3
   p1=$(free_port); p2=$(free_port)
-  ( cd "$d" && flutter test >"$log.plain" 2>&1 ); s1=$?
+  # The plain run is only the baseline count for "network cases ran" below.
+  # gate_test.dart (v1 afb03ab, merged into v2) makes a run without the
+  # loopback define red on purpose, so this one asks for that visibly, with
+  # the waiver the gate documents. The two full runs below carry no waiver.
+  ( cd "$d" && flutter test --dart-define=DGD_ALLOW_PARTIAL=true >"$log.plain" 2>&1 ); s1=$?
   ( cd "$d" && flutter test --dart-define=ARCADE_API=http://127.0.0.1:$p1 >"$log.api" 2>&1 ); s2=$?
-  ( cd "$d" && flutter test --dart-define=ARCADE_API=http://127.0.0.1:$p2 --dart-define=DGD_DEMO=true test/arcade_api_test.dart >"$log.demo" 2>&1 ); s3=$?
+  # The whole suite as the demo build, not only the API file: the policy's CI
+  # gate asks for both suites with their defines, and a demo build changes
+  # more than the network layer (a front-room shop test failed only here).
+  ( cd "$d" && flutter test --dart-define=ARCADE_API=http://127.0.0.1:$p2 --dart-define=DGD_DEMO=true >"$log.demo" 2>&1 ); s3=$?
   [ $s1 -eq 0 ] && pass "$m app tests (plain)" "$(sum "$log.plain")" || fail "$m app tests (plain)" "$(sum "$log.plain")"
   [ $s2 -eq 0 ] && pass "$m app tests (ARCADE_API loopback)" "$(sum "$log.api")" || fail "$m app tests (ARCADE_API loopback)" "$(sum "$log.api")"
-  [ $s3 -eq 0 ] && pass "$m app demo zero-request group" "$(sum "$log.demo")" || fail "$m app demo zero-request group" "$(sum "$log.demo")"
+  [ $s3 -eq 0 ] && pass "$m app tests (demo, loopback)" "$(sum "$log.demo")" || fail "$m app tests (demo, loopback)" "$(sum "$log.demo")"
   # The network layer must actually have run: the loopback run must pass more cases than the plain one.
   local n1 n2
   n1=$(grep -o -E '\+[0-9]+' "$log.plain" | tail -1 | tr -d +); n2=$(grep -o -E '\+[0-9]+' "$log.api" | tail -1 | tr -d +)
