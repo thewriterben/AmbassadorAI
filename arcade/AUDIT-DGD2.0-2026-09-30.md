@@ -35,7 +35,11 @@ The failure was the plain run, a conflict between tools: v1's `gate_test`
 runner's plain baseline predated it. Fixed in `3e543ac`: the baseline takes
 the gate's waiver, and the demo run now covers the whole suite. **The
 author of the code made that tooling change, so it wants a second reader.**
-The runner is to be rerun at the final commit.
+
+**Rerun at `e896fa2` (the fix pass, mirrored): PASS, 11 of 11.** The
+server's 39 tests, plain baseline 179, loopback 188, demo 180, 9 more cases
+with the define, analyzer, and the host and secret scans. Report:
+`redteam-runs/20260930T210729Z-e896fa2/report.md`.
 
 ## Findings
 
@@ -64,7 +68,7 @@ The runner is to be rerun at the final commit.
 
 1. The clean-room AAR at the final commit (`DGD_ARCADE=v2
    build_aar_cleanroom.sh <commit> --publish`), once Docker is back.
-2. The runner at the final commit.
+2. ~~The runner at the final commit.~~ Done: PASS at `e896fa2`.
 3. DGD App 2.0: the unsigned bundle and a review APK, with the clean-room
    AAR, so the provenance gate passes without `-PdgdAllowHostArcade`. Then a
    check on the Pixel.
