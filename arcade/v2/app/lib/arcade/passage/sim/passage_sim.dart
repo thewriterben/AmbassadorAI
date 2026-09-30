@@ -201,14 +201,18 @@ abstract final class SimInput {
 
 /// The difficulty knobs: how wide the openings are at the first era and the
 /// last, how fast the passage scrolls and how much faster it gets, and the
-/// reserve. [standard] is the game; [easy] is a DEV-only variant for judging
-/// whether the standard passage is too hard (TEN-GAMES.md, "An easier
-/// variant"), and is never submitted anywhere (see [PassageSim.tainted]).
+/// reserve. [standard] is the game. A player's first runs ease in to it
+/// ([forRun]): those are the game too, and count. [easy] as chosen from the
+/// DEV menu is not ([fair] false), and taints its run (see
+/// [PassageSim.tainted]).
 class PassageTuning {
   final String id;
   final double gapFracStart, gapFracEnd;
   final double speedBase, speedRamp;
   final int reserve;
+
+  /// Whether a run at this tuning is the real game, and counts.
+  final bool fair;
 
   const PassageTuning({
     required this.id,
@@ -217,7 +221,40 @@ class PassageTuning {
     required this.speedBase,
     required this.speedRamp,
     required this.reserve,
+    this.fair = true,
   });
+
+  /// How many runs ease in.
+  static const introRuns = 3;
+
+  /// The tuning for a player's run after [finishedRuns] finished ones: the
+  /// first at [easy]'s numbers, then a third and two thirds of the way back
+  /// to [standard], then [standard]. Every knob moves together, so no run
+  /// is easy in one way and hard in another. Its [id] ("intro1".."intro3")
+  /// is enough to rebuild it, for a replay: see [byId].
+  static PassageTuning forRun(int finishedRuns) {
+    if (finishedRuns >= introRuns) return standard;
+    final k = 1 - finishedRuns / introRuns; // 1, 2/3, 1/3: how much of easy
+    double mix(double s, double e) => s + (e - s) * k;
+    return PassageTuning(
+      id: 'intro${finishedRuns + 1}',
+      gapFracStart: mix(standard.gapFracStart, easy.gapFracStart),
+      gapFracEnd: mix(standard.gapFracEnd, easy.gapFracEnd),
+      speedBase: mix(standard.speedBase, easy.speedBase),
+      speedRamp: mix(standard.speedRamp, easy.speedRamp),
+      reserve: mix(standard.reserve.toDouble(), easy.reserve.toDouble()).round(),
+    );
+  }
+
+  /// The tuning with this [id], or null for one the game does not know.
+  static PassageTuning? byId(String id) {
+    if (id == standard.id) return standard;
+    if (id == easy.id) return easy;
+    final m = RegExp(r'^intro(\d)$').firstMatch(id);
+    if (m == null) return null;
+    final n = int.parse(m.group(1)!);
+    return n >= 1 && n <= introRuns ? forRun(n - 1) : null;
+  }
 
   static const standard = PassageTuning(
     id: 'standard',
@@ -228,6 +265,9 @@ class PassageTuning {
     reserve: 3,
   );
 
+  /// The easier variant. The first intro run flies at its numbers (as a
+  /// fair tuning of its own, `intro1`); chosen from the DEV menu, this one
+  /// is for judging the standard passage, and is not fair.
   static const easy = PassageTuning(
     id: 'easy',
     gapFracStart: 0.40,
@@ -235,6 +275,7 @@ class PassageTuning {
     speedBase: 0.48,
     speedRamp: 0.06,
     reserve: 5,
+    fair: false,
   );
 }
 
@@ -292,8 +333,8 @@ class PassageSim {
   /// has to be given the same tuning to reach the same result.
   final PassageTuning tuning;
 
-  /// Set by any DEV or test shortcut that moves state directly, and by any
-  /// tuning but the standard one. A tainted run is not submitted by the web
+  /// Set by any DEV or test shortcut that moves state directly, and by a
+  /// tuning that is not [PassageTuning.fair]. A tainted run is not submitted by the web
   /// arcade; one moved by a shortcut cannot be replayed either.
   bool tainted;
 
@@ -309,7 +350,7 @@ class PassageSim {
   })  : slots = [for (final a in loadout.take(2)) AbilitySlot(a)],
         _spillRnd = Random(seed ^ 0x2545F491),
         reserve = tuning.reserve,
-        tainted = !identical(tuning, PassageTuning.standard) {
+        tainted = !tuning.fair {
     _layout();
     coinY = h * 0.45;
     groundY = _skyFloor;

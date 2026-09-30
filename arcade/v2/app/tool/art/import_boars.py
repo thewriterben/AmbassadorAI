@@ -125,6 +125,14 @@ WING_ANGLES = [-30, 0, 48, 14, 8, 18, -32, 0]
 # down and folding".
 DRAWN_FOLDED = {"piglet": 3, "juvenile": 2, "razorback": 3}
 
+# For a drawn wingbeat with in-betweens added later: how many of its first
+# drawings set the crop box (see to_frames). The placement numbers in
+# boar.dart were measured on the sheet those made; a later drawing that
+# reaches further (the piglet's fifth, 2026-09-29, a wing tip 60px past the
+# others) would otherwise widen the box and move every frame off them, as it
+# did by 14px on the first try. Later drawings fit inside, as poses do.
+BOX_FROM = {"piglet": 4}
+
 # How far from the shoulder (fraction of the frame) the fan that fills the
 # root of a turned wing reaches. See posed().
 ROOT_FAN = 0.10
@@ -298,7 +306,9 @@ def drawn_cycle(stage, facing):
         return main_component(im)[0]
 
     names = [n for n in POSES if os.path.exists(os.path.join(HERE, "source", f"boar_{stage}_{n}.png"))]
-    frames = to_frames([load(p) for p in paths], [load(os.path.join(HERE, "source", f"boar_{stage}_{n}.png")) for n in names])
+    k = BOX_FROM.get(stage, len(paths))
+    drawn = [load(p) for p in paths]
+    frames = to_frames(drawn[:k], drawn[k:] + [load(os.path.join(HERE, "source", f"boar_{stage}_{n}.png")) for n in names])
     return frames[:len(paths)], dict(zip(names, frames[len(paths):]))
 
 

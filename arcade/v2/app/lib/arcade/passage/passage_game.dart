@@ -16,6 +16,8 @@ import 'backdrop.dart';
 import 'boar.dart';
 import 'city.dart';
 import 'eras.dart';
+import 'pigs_onboarding.dart';
+import 'sim/autopilot.dart';
 import 'sim/passage_sim.dart';
 
 export 'sim/passage_sim.dart' show PassagePhase, PickupKind, Pickup, PassageSim, SimInput, PassageReplayResult;
@@ -181,6 +183,11 @@ class PassageGame extends FlameGame {
 
   /// DEV: draw the collision capsule over the boar.
   static bool devShowHitbox = false;
+
+  /// DEV: the boar flies itself (see `sim/autopilot.dart`), for watching a
+  /// whole run, every era and the landing after a passage flown, on a phone.
+  /// The runs it flies are tainted.
+  static bool devAutopilot = false;
 
   /// DEV: the era a run starts in, for looking at a later era's city
   /// without flying there. Stepping with "Next era" from the menu races the
@@ -527,6 +534,12 @@ class PassageGame extends FlameGame {
     // The tolerance absorbs float drift in the accumulator, so 1/60 of a
     // second is always exactly two ticks.
     while (_acc >= PassageSim.step - 1e-9 && !sim.finished && !run.ended) {
+      // Decided every tick, as a player's finger would be if it were that
+      // quick; it taps through the same flap() a player does.
+      if (devAutopilot && sim.started && Autopilot.wantsFlap(sim)) {
+        sim.tainted = true;
+        sim.flap();
+      }
       sim.advance();
       _acc -= PassageSim.step;
     }
@@ -640,6 +653,8 @@ class PassageGame extends FlameGame {
   }
 
   void _finish() {
+    // A run that ended, landed or short: a step on through the ease-in.
+    PigsOnboarding.recordRun();
     run.end(RunResult(
       ending: sim.erasCleared >= eras.length ? RunEnding.landed : RunEnding.short,
       stars: sim.stars,

@@ -8,6 +8,7 @@ import 'abilities.dart';
 import 'boar.dart';
 import 'passage_screen.dart';
 import 'pigs_dev.dart';
+import 'pigs_onboarding.dart';
 
 /// When Pigs Fly's front room: the boar you have grown, the abilities you
 /// have unlocked and the two you are taking up, and the button that flies.
@@ -42,6 +43,7 @@ class _PigsHomeScreenState extends State<PigsHomeScreen> {
     PigsDev.load().then((_) {
       if (mounted) setState(() {});
     });
+    PigsOnboarding.load();
   }
 
   Future<void> _devStep(int by) async {

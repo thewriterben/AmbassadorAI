@@ -132,14 +132,26 @@ class ArcadeProgress extends ChangeNotifier {
       notifyListeners();
       return;
     }
-    try {
-      await ArcadeApi.instance.init();
-      apply(await ArcadeApi.instance.me());
-      offline = false;
-    } on ApiException {
-      offline = true;
-    } catch (_) {
-      offline = true;
+    // Twice at most, and only after a 401. An identity the server does not
+    // know (a token Android's auto-backup restored after that player was
+    // deleted, or from another server) is forgotten by the 401 itself, and
+    // the next attempt registers afresh. Without the second attempt here that
+    // happened only at the next cold start, and the launch in between sat
+    // OFFLINE. It is the same one re-registration either way, just not a
+    // launch late: no extra churn (see the identity-churn test).
+    for (var attempt = 0; attempt < 2; attempt++) {
+      try {
+        await ArcadeApi.instance.init();
+        apply(await ArcadeApi.instance.me());
+        offline = false;
+        break;
+      } on ApiException catch (e) {
+        offline = true;
+        if (e.status != 401) break;
+      } catch (_) {
+        offline = true;
+        break;
+      }
     }
     notifyListeners();
   }

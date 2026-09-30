@@ -681,6 +681,119 @@ the gap and no white patch, alongside the game's own speed streaks. (The
 first install attempt failed because the Pixel had dropped off adb; the
 check was redone once it was plugged back in.)
 
+### Easier first runs, a login that recovers, and a piglet in-between — 2026-09-29
+
+The owner's calls on the three open questions.
+
+**1. A restored login recovers in the same launch.** When the server
+refuses the token with a 401 (Android's auto-backup restored one the
+server doesn't know), `ArcadeProgress.refresh()` now tries once more
+straight away. The 401 has already made the app forget the token, so the
+second attempt registers afresh and comes up online. Before, the app sat
+OFFLINE until the next cold start.
+
+An earlier note said a retry would make identity churn worse. It doesn't:
+it's the same one re-registration, a launch sooner. Backups stay on,
+because a new phone keeps its player that way. A loopback test covers it:
+refused once, one new player, online within the same refresh.
+
+**2. A player's first runs ease in.** The owner chose this in place of a
+playtest.
+- **The steps** (`PassageTuning.forRun`):
+  - run 1 flies at the easier numbers: openings 0.40 → 0.32, speed
+    0.48 + 0.06, five spare lives;
+  - runs 2 and 3 are two-thirds and one-third of the way back;
+  - run 4 onwards is the standard passage.
+
+  Every setting moves together, so no run is easy in one way and hard in
+  another.
+- **These runs count.** `PassageTuning` gained `fair`. The ease-in steps
+  are fair; the DEV easy variant isn't, and still taints its run.
+- **Replay:** the steps have ids (`intro1`–`intro3`), and `byId` rebuilds
+  them for a future replay.
+- **Counted on the device** (`PigsOnboarding`, SharedPreferences), as runs
+  that ended, landed or short, not quit. It's loaded in the front room and
+  stepped in `_finish`, so "Fly again" gets the next step at once.
+- **Visible only in DEV:** players see nothing. DEV builds label the run
+  "INTRO1 · DEV".
+- **Two bugs caught by the tests before shipping:**
+  - The save used `.then(onError: (_) {})`, whose handler has to return a
+    value; it would have thrown uncaught whenever saving failed.
+  - Saves started in a row could finish out of order and store a stale
+    count; each save now writes the current count.
+- **Tests:** `test/pigs_onboarding_test.dart` checks the steps are
+  monotonic and never harder than standard, the fair and taint rules, the
+  `byId` round trip, and the count.
+
+**3. The piglet's in-between** (image 110) is its fifth drawing, between
+folding in and wings high, `BoarFrames(5, [1.3, 0.8, 1.2, 0.7, 0.55])`. It
+has the shortest hold, and the tempo is unchanged.
+- **A near miss:** its wing reaches 60 px past the others, which widened
+  the shared crop box and shifted every piglet frame 14 px off the
+  measured hitbox. `BOX_FROM` in `import_boars.py` now keeps the box set by
+  the first four drawings, with later ones fitted inside as poses are.
+  Every existing frame came back pixel for pixel.
+- **The gain is modest.** The beat's biggest wing jump (overlap 0.57) is
+  now two steps, 0.66 and 0.60. The drawing sits nearer the folded frame
+  than halfway, so the step into wings-high is still the roughest.
+- **Recorded with the autopilot** before and after, for the owner to judge
+  on the phone. It comes out by removing `boar_piglet_cycle_5.png` and
+  returning the piglet to `BoarFrames(4, …)`.
+
+All 167 tests pass, plus the API tests run against a loopback server.
+
+### The era banner: a glance, not a read — 2026-09-29
+
+The owner didn't like the fact that floated up at each new era, and doubted
+anyone would read it mid-flight. The in-flight banner now shows only the
+year and the era's name (1816, THE POUND, BY WEIGHT). It lasts 2.4 s, down
+from 4.2 s: in for 0.2 s, out over 0.45 s. The facts stay on the results,
+where the player has time for them.
+
+This has a cost. The results card shows only the fact for the last era
+reached, so a run that ends in 1944 teaches one fact where it used to show
+five. Making the era chips on the results tappable, so each shows its own
+fact, would win that back without putting text in flight.
+
+Checked on the Pixel (DEV build): the banner is up at 1 s and gone by 3.5 s.
+All 167 tests pass.
+
+### A DEV autopilot, and a full passage on the phone — 2026-09-29
+
+The release-build pass couldn't reach a full nine-era flight, because
+blind taps don't get far, and stepping eras from the DEV menu raced the
+game running underneath. So there's now an autopilot
+(`sim/autopilot.dart`, DEV "Autopilot: on/off").
+
+**How it steers.** A flap sets the climb to `flapImpulse`, which gravity
+turns into a rise of about 7.7% of the screen. The autopilot holds a line
+2.6% below the next opening's middle, eased from the last opening toward it
+between gates, and taps whenever the boar has sunk past that line and isn't
+already climbing. It taps through the same `flap()` a player uses, decided
+every simulation tick. So it flies an ordinary, recorded run, marked
+tainted.
+
+**How well it flies.** A probe over 30 layouts (three boars, ten seeds)
+cleared all nine eras every time without a single strike, in about 52 s a
+passage. `test/autopilot_test.dart` flies 12 of those (each boar, four
+seeds). Each must clear every era, strike nothing, show `landWin` on
+touchdown, and be tainted. A strike fails the test, well before the rule
+would actually fail.
+
+**On the Pixel, recorded** (juvenile, autopilot, 70 s):
+- **The flight:** all nine eras in order, 1816 to 2009, each drawn
+  backdrop and crossfade, then touchdown on the circuit floor, the stand,
+  and "You flew the whole passage" (818 points, 97 coins).
+- **Memory** (sampled every ~9 s): total PSS 352–368 MB and graphics
+  243–252 MB throughout, with no climb as eras load and unload.
+
+**Two things from the run:**
+- **The home screen's layout changes** with what the player has (an XP card
+  or not), so DEV taps by fixed position missed twice. One muted the app's
+  sound, since switched back on.
+- **The phone's data came back from backup again.** The juvenile stage and
+  30 Coin Quest stars returned after the reinstall.
+
 ### Smaller art, and a release-build pass — 2026-09-29
 
 **Size.** The universal APK had reached 82 MB. Most of that, about 51 MB,

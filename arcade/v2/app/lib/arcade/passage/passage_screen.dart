@@ -3,12 +3,14 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 import '../../audio.dart';
+import '../../dev.dart';
 import '../../theme.dart';
 import '../cabinet/cabinet.dart';
 import '../progress.dart';
 import 'abilities.dart';
 import 'boar.dart';
 import 'pigs_dev.dart';
+import 'pigs_onboarding.dart';
 import 'grow_up.dart';
 import 'eras.dart';
 import 'passage_game.dart';
@@ -78,7 +80,9 @@ class _PassageScreenState extends State<PassageScreen> {
         // on one run's claim flies on the next), unless DEV has picked one.
         stage: PigsDev.effective,
         loadout: _loadout,
-        tuning: _devEasy ? PassageTuning.easy : PassageTuning.standard,
+        // A player's first runs ease in (pigs_onboarding.dart); the DEV
+        // toggle overrides with the full easy variant.
+        tuning: _devEasy ? PassageTuning.easy : PigsOnboarding.tuning,
       ),
       hudBuilder: (context, run) => _Hud(game: _game!),
       overlayBuilder: (context, run) => _Overlay(game: _game!),
@@ -92,6 +96,8 @@ class _PassageScreenState extends State<PassageScreen> {
             PassageGame.devStartEra = (PassageGame.devStartEra + 1) % eras.length,
         'End short, here': () => _game?.devEndShort(),
         'Full momentum': () => _game?.devMaxMomentum(),
+        'Autopilot: ${PassageGame.devAutopilot ? 'off' : 'on'}': () =>
+            PassageGame.devAutopilot = !PassageGame.devAutopilot,
         'Hitbox: ${PassageGame.devShowHitbox ? 'hide' : 'show'}': () =>
             PassageGame.devShowHitbox = !PassageGame.devShowHitbox,
         // Growing up only happens against a server, on a run that crosses
@@ -377,7 +383,8 @@ class _Overlay extends StatelessWidget {
         // real game, in play or in a screenshot. Below the HUD rather than
         // in it: with five reserve dots the row had no room, and the score
         // ran into the year.
-        if (game.tuning.id != 'standard')
+        // The ease-in is the game and shows nothing; a DEV build labels it.
+        if (!game.tuning.fair || (Dev.enabled && game.tuning.id != 'standard'))
           Positioned(
             top: MediaQuery.paddingOf(context).top + 58,
             left: 0,
@@ -488,10 +495,11 @@ class _Prompt extends StatelessWidget {
   }
 }
 
-/// Fades a year and a fact in as the coin enters each era, holds it, and
-/// clears. Deliberately near the top of the screen and deliberately short:
-/// the player is flying while it is up, and a banner that has to be read to
-/// survive is a banner that gets someone hit.
+/// Fades the year and the era's name in as the coin enters each era, holds
+/// them, and clears. A glance, not a read: the player is flying while it is
+/// up, and a banner that has to be read to survive is a banner that gets
+/// someone hit. So no fact here; the era's fact is on the results, where
+/// the player has time for it.
 ///
 /// Built with no listeners and no controller on purpose.
 ///
@@ -509,7 +517,7 @@ class _EraBanner extends StatelessWidget {
   final PassageGame game;
   const _EraBanner({super.key, required this.game});
 
-  /// In over the first 0.34 s, hold, out over the last 0.8 s.
+  /// In over the first 0.2 s, hold, out over the last 0.45 s.
   static double _opacity(double t) {
     if (t < 0.08) return t / 0.08;
     if (t > 0.81) return (1 - t) / 0.19;
@@ -531,7 +539,7 @@ class _EraBanner extends StatelessWidget {
     return TweenAnimationBuilder<double>(
       key: ValueKey(i),
       tween: Tween(begin: 0, end: 1),
-      duration: const Duration(milliseconds: 4200),
+      duration: const Duration(milliseconds: 2400),
       builder: (_, t, __) {
         final o = _opacity(t).clamp(0.0, 1.0);
         if (o <= 0) return const SizedBox.shrink();
@@ -563,16 +571,6 @@ class _EraBanner extends StatelessWidget {
                         fontSize: 11,
                         letterSpacing: 2.2,
                         color: AppTheme.text,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      era.fact,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontSize: 12.5,
-                        height: 1.35,
-                        color: AppTheme.body,
                       ),
                     ),
                   ],
