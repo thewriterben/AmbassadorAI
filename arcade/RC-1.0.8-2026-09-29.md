@@ -48,10 +48,28 @@ The rc1 bundle has 642 entries; 631 are unchanged in rc2, including
 | Lint (release) | 0 errors, 43 warnings (unchanged) |
 | Review APK vs the bundle | dex identical, 180 / 180 libraries and assets identical |
 
-**Not yet done:** a fresh clean-room reproduction of the rc2 bundle, and an
-emulator smoke test of the new binary. The audit's dynamic results carry
-over only as far as the program is the same, which the token comparison
-supports but does not prove.
+### Re-verification (2026-09-30), `redteam-runs/20260930T1540Z-v1.0.8-rc2-46573ffe/`
+
+- **The rc2 bundle reproduces** in a fresh, offline `dgd-cleanroom:1`
+  container:
+  - 638 of 642 entries are identical, including the dex, every library
+    and every asset;
+  - the four that differ are metadata, plus the two service files R8
+    writes with CRLF on Windows;
+  - the ship gate passed inside the container, and 95/95 unit tests pass.
+- **Android 16 emulator, verifiably offline** (airplane mode; no network
+  in 56 samples; the app opened no sockets):
+  - the arcade runs on the Linux-built binary;
+  - hostile intents crashed nothing;
+  - the login is stored encrypted only, and the web link is unchanged;
+  - there were no crashes and 0 requests.
+- **An unplanned stats fetch.** A first emulator attempt, discarded, let
+  the app's stats fetch reach `digitalgold.co` once, because mobile data
+  re-enabled itself after `svc data disable`. The run README records it.
+- **Not completed:** an independent second rebuild of the arcade AAR,
+  because the Docker VM hung while shared with another project's jobs.
+  The AAR still stands on the run's own A = B check and the audit's
+  independent build (identical `libapp.so`).
 
 ---
 

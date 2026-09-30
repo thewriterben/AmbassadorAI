@@ -1,0 +1,38 @@
+mounts: 0
+== warm (network on)
+Note: switching to 'a22c194dd7b2745705da40d018c088f40086a2ee'.
+
+You are in 'detached HEAD' state. You can look around, make experimental
+changes and commit them, and you can discard any commits you make in this
+state without impacting any branches by switching back to a branch.
+
+If you want to create a new branch to retain commits you create, you may
+do so (now or later) by using -c with the switch command. Example:
+
+  git switch -c <new-branch-name>
+
+Or undo this operation with:
+
+  git switch -
+
+Turn off this advice by setting config variable advice.detachedHead to false
+
+commit a22c194dd7b2745705da40d018c088f40086a2ee  tag android-1.0.8-rc2  clean=0
+warm exit 0
+BUILD SUCCESSFUL in 4m 39s
+== cut
+network cut: no DNS
+== offline
+commit a22c194dd7b2745705da40d018c088f40086a2ee  tag android-1.0.8-rc2  clean=0
+offline bundleRelease exit 0
+BUILD SUCCESSFUL in 2m 40s
+offline tests exit 0
+unit tests: 95, failures+errors: 0
+offline lintRelease exit 0
+-rw-r--r-- 1 builder builder 57175135 Sep 30 15:45 cleanroom-rc2-unsigned.aab
+Arcade embed: 36 files match the clean-room build (source   puzzle-app v1 99a5c36b959bfce97b4155d1938fcf068a19c622 (embed-android-1.0.8))
+Arcade embed: 36 files match the clean-room build (source   puzzle-app v1 99a5c36b959bfce97b4155d1938fcf068a19c622 (embed-android-1.0.8))
+gradlew mode -rwxr-xr-x
+./gradlew runs directly (P4)
+container removed
+exit 0

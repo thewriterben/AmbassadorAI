@@ -1,0 +1,10 @@
+shipped entries 642, clean-room entries 642
+identical 638, differ 4, only in shipped 0, only in clean room 0
+  DIFFER           BUNDLE-METADATA/com.android.tools.build.obfuscation/proguard.map
+  DIFFER           BUNDLE-METADATA/com.android.tools/r8.json
+  DIFFER           base/root/META-INF/services/Q2.u
+  DIFFER           base/root/META-INF/services/R2.a
+proguard.map: same lines, reordered: False
+r8.json keys that differ: ['compilation.buildTimeNs', 'compilation.numberOfThreads']
+Q2.u host b'R2.b\r\n' container b'R2.b\n' CRLF-only: True
+R2.a host b'R2.a\r\n' container b'R2.a\n' CRLF-only: True
