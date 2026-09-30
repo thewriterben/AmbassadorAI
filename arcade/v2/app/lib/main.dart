@@ -196,7 +196,7 @@ class HomeScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 6),
                     const Center(
-                      child: Text('Educational only. XP and badges have no monetary value.',
+                      child: Text('Educational only. XP, points, coins and badges have no monetary value.',
                           style: TextStyle(fontFamily: AppTheme.fontMono, fontSize: 10, color: AppTheme.dim)),
                     ),
                   ],

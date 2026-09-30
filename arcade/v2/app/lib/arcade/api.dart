@@ -4,6 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../dev.dart';
+
 /// Thin client for the Arcade backend (arcade/server). The server is the
 /// authority on XP, badges, streaks, which question is asked, and whether an
 /// answer counts; this class just moves JSON.
@@ -55,8 +57,13 @@ class ArcadeApi {
   /// Every request passes through here, so no caller — present or future —
   /// can reach a backend this build does not have. Callers already handle
   /// [ApiException]; this is the same contract with a code of its own.
+  ///
+  /// A demo build refuses as well, even if it was also given an ARCADE_API:
+  /// "a demo build makes zero requests" then holds at the transport, not only
+  /// at each caller (review E5, 2026-09-30).
   void _requireBackend() {
     if (!hasBackend) throw const ApiException('no_backend', 0, 'this build has no ARCADE_API');
+    if (Dev.demoBuild) throw const ApiException('no_backend', 0, 'a demo build has no backend');
   }
   static const _timeout = Duration(seconds: 8);
 

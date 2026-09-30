@@ -19,6 +19,7 @@ import 'eras.dart';
 import 'pigs_onboarding.dart';
 import 'sim/autopilot.dart';
 import 'sim/passage_sim.dart';
+import '../../dev.dart';
 
 export 'sim/passage_sim.dart' show PassagePhase, PickupKind, Pickup, PassageSim, SimInput, PassageReplayResult;
 
@@ -536,7 +537,7 @@ class PassageGame extends FlameGame {
     while (_acc >= PassageSim.step - 1e-9 && !sim.finished && !run.ended) {
       // Decided every tick, as a player's finger would be if it were that
       // quick; it taps through the same flap() a player does.
-      if (devAutopilot && sim.started && Autopilot.wantsFlap(sim)) {
+      if (Dev.enabled && devAutopilot && sim.started && Autopilot.wantsFlap(sim)) {
         sim.tainted = true;
         sim.flap();
       }
@@ -555,8 +556,10 @@ class PassageGame extends FlameGame {
     switch (e.kind) {
       case SimEventKind.started:
         run.tick();
-        for (var i = 0; i < devStartEra; i++) {
-          sim.devNextEra();
+        if (Dev.enabled) {
+          for (var i = 0; i < devStartEra; i++) {
+            sim.devNextEra();
+          }
         }
       case SimEventKind.flap:
         _flapAt = sim.t;

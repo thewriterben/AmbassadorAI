@@ -88,7 +88,12 @@ class _PassageScreenState extends State<PassageScreen> {
       overlayBuilder: (context, run) => _Overlay(game: _game!),
       controlsBuilder: (context, run) => _Controls(game: _game!),
       resultBuilder: (context, result) => _Result(result: result, game: _game!),
-      devActions: () => {
+      // Guarded here, not only inside DevMenu: a const-false check at the call
+      // site is what drops these closures, and all they name, from a store
+      // build (dev.dart; review E2, 2026-09-30).
+      devActions: !Dev.enabled
+          ? null
+          : () => {
         'Skip to the landing': () => _game?.devSkipToLanding(),
         'Next era (see its city)': () => _game?.devNextEra(),
         // From the next run: it starts in the era shown; a tap steps it on.

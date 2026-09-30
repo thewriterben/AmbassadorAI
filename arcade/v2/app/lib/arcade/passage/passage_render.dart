@@ -40,7 +40,7 @@ extension PassageRender on PassageGame {
     _abilityFx(canvas);
     _coin(canvas);
     _popLayer(canvas);
-    if (PassageGame.devShowHitbox) _hitbox(canvas);
+    if (Dev.enabled && PassageGame.devShowHitbox) _hitbox(canvas);
     _flash(canvas);
   }
 

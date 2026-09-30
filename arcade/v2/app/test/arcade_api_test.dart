@@ -119,6 +119,19 @@ void main() {
       expect(ArcadeApi.instance.ready, isFalse);
       expect(ArcadeProgress.instance.offline, isFalse, reason: 'no backend is not "offline"');
     });
+
+    // Review E5 (2026-09-30): the callers above all check noBackend, but the
+    // transport must refuse on its own too, even though this run has an
+    // ARCADE_API. Settings' delete and the leaderboard call it directly.
+    test('the transport itself refuses, even with ARCADE_API set', () async {
+      final noBackend = isA<ApiException>().having((e) => e.code, 'code', 'no_backend');
+      await expectLater(ArcadeApi.instance.init(), throwsA(noBackend));
+      await expectLater(ArcadeApi.instance.me(), throwsA(noBackend));
+      await expectLater(ArcadeApi.instance.leaderboard(), throwsA(noBackend));
+      await expectLater(ArcadeApi.instance.deleteMe(), throwsA(noBackend));
+      await Future<void>.delayed(const Duration(milliseconds: 300));
+      expect(server.seen, isEmpty, reason: 'a demo build reached the server');
+    });
   }, skip: needsDefine ?? (Dev.demoBuild ? false : 'run with --dart-define=DGD_DEMO=true'));
 
   // A build compiled without ARCADE_API has no backend (audit 2026-09-20,

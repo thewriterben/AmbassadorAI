@@ -130,7 +130,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                 if (rows != null) _youStrip(),
                 const Padding(
                   padding: EdgeInsets.fromLTRB(20, 6, 20, 12),
-                  child: Text('Recognition only. XP and badges have no monetary value and cannot be exchanged.',
+                  child: Text('Recognition only. XP, points and badges have no monetary value and cannot be exchanged.',
                       textAlign: TextAlign.center,
                       style: TextStyle(fontFamily: AppTheme.fontMono, fontSize: 10, height: 1.4, color: AppTheme.dim)),
                 ),

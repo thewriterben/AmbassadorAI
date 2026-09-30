@@ -255,7 +255,7 @@ class _HowToFly extends StatelessWidget {
         'glides down wherever it is.',
     'Coins are points, and each one speeds you up a little. The safe line '
         'takes none.',
-    'Fly all nine eras, 1816 to 2009, and land it. A soft landing earns the '
+    'Fly all nine eras, 1816 to 2009, and land it. A soft landing gets the '
         'third star.',
     'After a flight, tap any year you reached to read what happened then.',
   ];

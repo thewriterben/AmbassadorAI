@@ -38,6 +38,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _busy = false;
 
   Future<void> _deleteRecord() async {
+    if (ArcadeProgress.noBackend) {
+      // Nothing to confirm and nothing to send: this build has no server,
+      // so DGD holds no record for this player (review E4, 2026-09-30).
+      _say('This version of the arcade has no server, so DGD holds no play '
+          'record for you. There is nothing to delete.');
+      return;
+    }
     final ok = await _confirm(
       title: 'Delete your play record?',
       body: 'This erases the anonymous record DGD holds for you: your XP, '

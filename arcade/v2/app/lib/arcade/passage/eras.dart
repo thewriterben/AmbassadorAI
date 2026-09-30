@@ -163,9 +163,9 @@ const eras = <Era>[
   Era(
     year: 1979,
     name: 'Rates raised',
-    fact: 'The Federal Reserve raises its policy rate above nineteen per '
-        'cent. United States inflation falls from about fourteen per cent in '
-        '1980 to under four per cent by 1983.',
+    fact: 'The Federal Reserve tightens sharply, and the federal funds rate '
+        'passes nineteen per cent by 1981. United States inflation falls from '
+        'about fourteen per cent in 1980 to under four per cent by 1983.',
     source: 'Federal Reserve policy shift of 6 October 1979; effective fed '
         'funds rate peak June 1981; CPI-U annual change 1980 and 1983',
     tint: 0xFF5E4A33,

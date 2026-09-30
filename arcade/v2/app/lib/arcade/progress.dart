@@ -105,7 +105,10 @@ class ArcadeProgress extends ChangeNotifier {
   Future<void> load() async {
     _p ??= await SharedPreferences.getInstance();
     if (!_loaded) {
-      final cached = _p!.getString('ar.snapshot');
+      // Not in a build with no backend: a snapshot an earlier backend build
+      // left on this install would otherwise fly its grown boar and show its
+      // handle and XP here (review E4, 2026-09-30).
+      final cached = noBackend ? null : _p!.getString('ar.snapshot');
       if (cached != null) apply(jsonDecode(cached) as Map<String, dynamic>, persist: false);
       _loaded = true;
     }

@@ -144,8 +144,9 @@ class CabinetScreen extends StatefulWidget {
   final String musicTrack;
 
   /// DEV-build shortcuts, rebuilt each frame so they can close over live
-  /// state. [DevMenu] renders nothing outside a `DGD_DEV` build, so this
-  /// needs no caller-side guard and costs a store build nothing.
+  /// state. Pass null outside a DEV build (`Dev.enabled ? ... : null` at the
+  /// call site): [DevMenu] renders nothing there, but a non-null map still
+  /// keeps every closure in it compiled into a store build (dev.dart).
   final Map<String, VoidCallback> Function()? devActions;
 
   const CabinetScreen({
