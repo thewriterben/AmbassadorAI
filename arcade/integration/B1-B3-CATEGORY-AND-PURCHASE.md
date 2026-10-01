@@ -133,10 +133,10 @@ willing to sign their name under it.
 
 > **About DGD Arcade**
 >
-> This app includes DGD Arcade, an educational match-3 game about the history
-> of money. It is reached from a single entry point on the home screen and is
-> optional; the app's primary purpose is the informational price and network
-> ticker described above.
+> This app includes DGD Arcade: two educational games about the history of
+> money, Coin Quest (match-3) and When Pigs Fly. They are reached from the
+> Arcade tab and are optional; the app's primary purpose is the informational
+> price and network ticker on the Home tab.
 >
 > The arcade awards XP and badges for completing levels. **XP is not currency
 > and is not Digital Gold.** It cannot be exchanged, transferred, redeemed,
@@ -152,6 +152,11 @@ willing to sign their name under it.
 > It does not contain a wallet. [Purchases of Digital Gold happen on
 > digitalgold.co, outside the app.] Any Digital Gold a user holds is held in
 > self-custody in the desktop QT wallet, which is not part of this app.
+
+*Updated 2026-09-30 for the DGD App 2.0 layout (`RC-2.0.0-2026-09-30.md`).
+The XP paragraph applies once the arcade has a server. Until then, the
+arcade awards stars and points that stay on the phone, and the reviewer
+note in RC-2.0.0 says that instead.*
 
 The bracketed sentence is where the B3 question lands: keep it if the button
 links out, and be sure the referral answer above is settled before it goes in.

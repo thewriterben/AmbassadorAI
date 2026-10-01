@@ -169,7 +169,7 @@ embedding being approved.
 
 | Check | Result |
 |---|---|
-| Ticker still works, Arcade entry present | ✅ live price, entry top-left |
+| Ticker still works, Arcade entry present | ✅ live price, entry top-left (1.0.x layout; since 2.0 the entry is the Arcade tab) |
 | Arcade opens | ✅ **fully drawn in 235 ms** — the warm engine earns its keep |
 | Correct version embedded | ✅ Coin Quest only, v1 tagline, no Passage |
 | OFFLINE chip | ✅ as expected, no backend yet |

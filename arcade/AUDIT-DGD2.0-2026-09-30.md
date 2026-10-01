@@ -96,7 +96,7 @@ exception to the policy as above). The fix pass is dgd-native `f04b884`.
 | R3 | MEDIUM | fixed | The status detail and the market cap wrap instead of being cut off |
 | R4 | MEDIUM | fixed | A double tap started two arcade activities on one engine, one of them blank. Opening is now debounced (checked on the Pixel) |
 | R5 | MEDIUM | fixed | The Account card showed preview headers and step lines outside the preview. It now carries only what home had: the coin, the name and the locked button |
-| R6 | MEDIUM | **open, docs** | Review and store notes describe the old layout. They must be rewritten before any reviewed track (internal testing has no review): `RC-1.0.7-2026-09-29.md:17`, `RC-1.0.8-2026-09-29.md:121-123`, `integration/IOS-WEB-ARCADE-LINK.md` rule 4, the draft notes in `B1-B3-CATEGORY-AND-PURCHASE.md`, `INTEGRATION.md:172`, dgd-native `HANDOVER_FACTS.md:40` and `android/README.md:88` |
+| R6 | MEDIUM | **fixed 2026-09-30, docs** | Review and store notes describe the old layout. *Fix: `RC-2.0.0-2026-09-30.md` carries the 2.0 What's new, reviewer notes and screenshot set (`store/dgd-app-2.0/`); the iOS link guide, the B1-B3 draft notes, `INTEGRATION.md` and dgd-native's README and handover facts are updated; the 1.0.7 and 1.0.8 RC records are left as history.* Originally: They must be rewritten before any reviewed track (internal testing has no review): `RC-1.0.7-2026-09-29.md:17`, `RC-1.0.8-2026-09-29.md:121-123`, `integration/IOS-WEB-ARCADE-LINK.md` rule 4, the draft notes in `B1-B3-CATEGORY-AND-PURCHASE.md`, `INTEGRATION.md:172`, dgd-native `HANDOVER_FACTS.md:40` and `android/README.md:88` |
 | R7 | LOW | fixed | The CTA's accessibility hint is back on the button |
 | R8 | LOW | fixed | The Stats pill, step pills, address actions and the help button are 44 dp |
 | R9 | LOW | part-fixed | Back on a tab returns Home, and Back in the preview steps back. **Open:** a warm open briefly shows the last arcade screen and then a page transition. It is an arcade change, left for the next clean-room build |
@@ -151,4 +151,4 @@ passed with no override. The files are in
   - against the host bundle, **782 of 788 entries are byte-identical**. The
     six that differ are the same R8 and baseline-profile metadata as in the
     v1.0.8 pass. No dex, library, resource or asset differs.
-- **Still to do before a reviewed track:** R6.
+- **Still to do before a reviewed track:** nothing from this review. R6 is fixed in the docs (`RC-2.0.0-2026-09-30.md`).

@@ -5,6 +5,13 @@
 #
 #   build_aar_cleanroom.sh <tag-or-commit> [--publish]
 #   DGD_ARCADE=v2 build_aar_cleanroom.sh <v2-commit> [--publish]
+#   DGD_ARCADE=v2 ARCADE_API=https://arcade.example build_aar_cleanroom.sh <v2-commit> [--publish]
+#
+# Without ARCADE_API the embed is the demo build (DGD_DEMO: no server, progress
+# on the phone), which is what DGD App 2.0.0 ships. With it, the embed talks to
+# that server instead. It must be a bare https URL: no trailing slash (the
+# client appends /v1/...), no query, no credentials. PROVENANCE.md records the
+# defines either way, and the native build prints them.
 #
 # DGD_ARCADE picks the arcade line, as in sync_module.py: v1 (the default,
 # C:/src/puzzle-app on main) for DGD App 1.0.x, v2 (C:/src/puzzle-app-v2-wings
@@ -24,6 +31,12 @@ export MSYS_NO_PATHCONV=1
 REF="${1:?usage: [DGD_ARCADE=v2] build_aar_cleanroom.sh <tag-or-commit> [--publish]}"; PUBLISH="${2:-}"
 HERE="$(cd "$(dirname "$0")" && pwd)"
 ARCADE="${DGD_ARCADE:-v1}"
+API="${ARCADE_API:-}"
+if [ -n "$API" ]; then
+  [[ "$API" =~ ^https://[A-Za-z0-9.-]+(:[0-9]{1,5})?(/[A-Za-z0-9._~-]+)*$ ]] || {
+    echo "ARCADE_API=$API: it must be a bare https URL, with no trailing slash, query or credentials"; exit 1; }
+  [ "$ARCADE" = v2 ] || { echo "ARCADE_API is for the v2 arcade; set DGD_ARCADE=v2"; exit 1; }
+fi
 case "$ARCADE" in
   v1) V1=C:/src/puzzle-app; BRANCH=main ;;
   v2) V1=C:/src/puzzle-app-v2-wings; BRANCH=v2/ten-games ;;
@@ -38,6 +51,7 @@ C=dgd-aar-$$
 COMMIT=$(git -C $V1 rev-parse "$REF^{commit}")
 git -C $V1 merge-base --is-ancestor "$COMMIT" "$BRANCH" || { echo "$REF is not on $BRANCH in $V1"; exit 1; }
 echo "$ARCADE $REF = $COMMIT"
+if [ -n "$API" ]; then echo "embed config: ARCADE_API=$API"; else echo "embed config: demo (DGD_DEMO, no server)"; fi
 
 mkdir -p "$STAGE"
 git -C $V1 bundle create "$STAGE/puzzle-app.bundle" "$BRANCH" $(git -C $V1 tag --points-at "$COMMIT") > /dev/null 2>&1
@@ -47,7 +61,7 @@ cleanup() { docker rm -f $C > /dev/null 2>&1 || true; }
 trap cleanup EXIT
 # 3.1 GB of RAM plus up to 1 GB of the VM's swap: a memory peak slows the
 # build instead of the kernel killing Gradle mid-build.
-docker create --name $C --memory 3100m --memory-swap 4100m -e DGD_IMAGE="$IMAGE $IMAGE_ID" -e DGD_ARCADE="$ARCADE" \
+docker create --name $C --memory 3100m --memory-swap 4100m -e DGD_IMAGE="$IMAGE $IMAGE_ID" -e DGD_ARCADE="$ARCADE" -e ARCADE_API="$API" \
   $IMAGE sleep infinity > /dev/null
 [ "$(docker inspect $C --format '{{len .Mounts}}')" = 0 ] || { echo "container has mounts; refusing"; exit 1; }
 docker start $C > /dev/null

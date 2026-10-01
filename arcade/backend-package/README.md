@@ -46,8 +46,8 @@ Nothing secret is in this package, and it should stay that way when you forward 
 
 ## What we do once you send the URL
 
-- **Add an `ARCADE_API` option to the clean-room AAR build.** At present it builds demo mode only.
-- **Rebuild and re-verify the embed.** The provenance gate in the native build already checks that the embed came from the clean room.
+- **Rebuild the arcade in the clean room with `ARCADE_API=<url>`.** The option exists and was tested on 30 Sep with a placeholder URL. Builds A and B came out identical, the URL was compiled in, and the demo-only code was gone. The build accepts only a bare `https://` URL, so no trailing slash, query or credentials.
+- **Re-verify the embed.** The provenance gate in the native build already checks that the embed came from the clean room.
 - **Run the app against staging on a phone and on the emulator.** This covers registration, a Coin Quest level, a When Pigs Fly run, the shop, the standings and deletion from Settings.
 - **Update the privacy policy draft and the Play Data safety answers.** Going live means the app sends game data for the first time, so DGD has to approve both before release.
 

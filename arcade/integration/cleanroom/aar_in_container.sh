@@ -8,6 +8,12 @@
 # bundle holds. The source is cloned to the same path either way; only the
 # module path is compiled into libapp.so.
 #
+# ARCADE_API (set on the container, or unset) says which backend the embed
+# talks to. Unset is the demo build: no server, progress on the phone. Set, it
+# must be a bare https URL, and it replaces DGD_DEMO; build_aar_cleanroom.sh
+# has already checked it, and this checks it again because the value lands in
+# a command line.
+#
 # Build B is the release artefact. Build A exists to fill the caches, and
 # comparing it with B proves the build deterministic on every run.
 #
@@ -17,7 +23,14 @@
 set -euo pipefail
 PHASE="$1"; COMMIT="$2"; ARCADE="${DGD_ARCADE:-v1}"
 H=/home/builder; IN=$H/in; OUT=$H/out; MODULE=$H/dgd_arcade_module; V1=$H/puzzle-app
-DEFINES="--dart-define=DGD_APP_TAB=true --dart-define=DGD_DEMO=true"
+API="${ARCADE_API:-}"
+if [ -z "$API" ]; then
+  DEFINES="--dart-define=DGD_APP_TAB=true --dart-define=DGD_DEMO=true"
+elif [[ "$API" =~ ^https://[A-Za-z0-9.-]+(:[0-9]{1,5})?(/[A-Za-z0-9._~-]+)*$ ]]; then
+  DEFINES="--dart-define=DGD_APP_TAB=true --dart-define=ARCADE_API=$API"
+else
+  echo "ARCADE_API=$API is not a bare https URL without a trailing slash; refusing"; exit 1
+fi
 REPO=build/host/outputs/repo
 mkdir -p "$OUT"
 
