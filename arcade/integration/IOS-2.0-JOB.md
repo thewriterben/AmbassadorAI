@@ -188,6 +188,12 @@ A `TabView` with three tabs: Home, Arcade and Account.
   - On iOS it lives in `CredentialsSignupCopy.swift`, `InviteShareCopy.swift` and `HomeStatsPanel`'s `Copy` enum.
 - **Presentation:** push the flows inside the tab, or use a full-screen cover. Android moved from dialogs to in-window flows only because of an Android status-bar strip, so iOS sheets are acceptable if they look right.
 
+### Invite Friends logos (Android finding R11, decided 1 Oct)
+
+- Use the designer's official white Facebook and LinkedIn logos, `Facebook-Official-White.png` and `LinkedIn-Official-White.png` in the design return's extras.
+- For X, use **X's official logo in white**, never Hugeicons' outline `new-twitter`. The designer is supplying it, and the PC will pass it on.
+- Until it arrives, keep whatever iOS shows today. Don't redraw it.
+
 ### Status bar (Android finding S1)
 
 - iOS forces dark mode already (`UIUserInterfaceStyle: Dark` and `.preferredColorScheme(.dark)`), so the status bar should stay light.
