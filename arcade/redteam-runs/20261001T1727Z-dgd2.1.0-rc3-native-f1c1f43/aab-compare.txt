@@ -1,0 +1,6 @@
+shipped entries 789, clean-room entries 789
+identical 785, differ 4, only in shipped 0, only in clean room 0
+  DIFFER           BUNDLE-METADATA/com.android.tools.build.obfuscation/proguard.map
+  DIFFER           BUNDLE-METADATA/com.android.tools/r8.json
+  DIFFER           base/root/META-INF/services/Q2.u
+  DIFFER           base/root/META-INF/services/R2.a

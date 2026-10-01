@@ -228,7 +228,7 @@ dialog now says so (R12, arcade `7471447`).
 
 ### Draft text for the DGD App's policy
 
-> **DGD Arcade.** The app includes two educational games, Coin Quest and When
+> **DGD Arcade.** The app includes two educational games, Coin Quest: DGD and When
 > Pigs Fly. The first time you open them, the app creates an anonymous play
 > record on our arcade server (arcade-api.digitalgold.co). The record holds a
 > random identifier, the platform (Android), and your progress in the games:

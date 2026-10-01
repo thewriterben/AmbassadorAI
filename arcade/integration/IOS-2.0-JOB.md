@@ -18,7 +18,7 @@ That means:
 - no web link.
 
 **Where it must get to.** It must match Android 2.0.0 rc2 (dgd-native
-`dgd-2.0` at `ab23aef`):
+`dgd-2.0` at `16394ec`):
 
 - three tabs;
 - the 30 Sep design system;
@@ -43,19 +43,19 @@ comes back as a bundle.
 ```sh
 cd ~/src/dgd-native
 git fetch ~/Downloads/dgd-native-2.0.bundle 'refs/heads/*:refs/remotes/pc/*'
-git switch -c ios-2.0 pc/dgd-2.0          # ab23aef: Android 2.0.0 rc2
-git log --oneline -1                      # ab23aef DGD 2.0.0 rc2: …
+git switch -c ios-2.0 pc/dgd-2.0          # 16394ec: Android 2.0.0 rc3
+git log --oneline -1                      # 16394ec DGD 2.0.0 rc3: …
 ```
 
 The 2.0 bundle also carries `main` (`a22c194`, Android 1.0.8) and
-`dgd-2.1-live` (`2791096`, the live build, for later). `2948702`, the Mac's
+`dgd-2.1-live` (`f1c1f43`, the live build, for later). `2948702`, the Mac's
 last commit, is already in all of them.
 
 **The arcade source** comes from the bundle. There is nothing to check out by
 hand, because the build script clones it:
 
 ```sh
-git bundle verify ~/Downloads/puzzle-app-v2.bundle   # v2/ten-games d70534a, main 99a5c36
+git bundle verify ~/Downloads/puzzle-app-v2.bundle   # v2/ten-games 85e621c, main 99a5c36
 ```
 
 **The toolchain:**
@@ -169,9 +169,11 @@ A `TabView` with three tabs: Home, Arcade and Account.
   1. **Header:** "Arcade", with the subtitle "Discover through play.", and a settings square button on the right. Its accessibility label is "Arcade settings", and it opens the arcade at `settings`.
   2. **The Coin Quest card:**
      - the kicker "MATCH-3 · 60 LEVELS" (Geist Mono);
-     - "Coin Quest" (large), and "Match.\nLearn.\nExplore." (secondary);
+     - "Coin Quest: DGD" (large; it wraps to three lines, as on Android), and "Match.\nLearn.\nExplore." (secondary);
      - the 3×3 board art from `ios-2.0-assets/card-art/cq_piece_*.png`, in Android's order;
-     - the gold button "Play Coin Quest", which opens `coin_quest`.
+     - the gold button "Play Coin Quest: DGD", which opens `coin_quest`.
+
+     The game's name is **"Coin Quest: DGD"** in titles and on buttons (the owner's call, 1 Oct). Sentences keep the short "Coin Quest".
   3. **The When Pigs Fly row:** `pigs_card.png`, the title "When Pigs Fly", the subtitle "Fly a winged piggy bank through nine eras of money, and land it.", opening `pigs`.
   4. **"More ways to play"** section label, then the web link card (phase 4).
   5. **The notice, verbatim:** "Educational only. XP and badges have no monetary value."
@@ -208,10 +210,10 @@ been run. Its first run is its test.
 
 ```sh
 cd ios-2.0-scripts
-./build_ios_frameworks.sh ~/Downloads/puzzle-app-v2.bundle 3c4e42d demo ~/dgd-ios-frameworks
+./build_ios_frameworks.sh ~/Downloads/puzzle-app-v2.bundle 85e621c demo ~/dgd-ios-frameworks
 ```
 
-- **`3c4e42d`** is the arcade Android 2.0.0 rc2 embeds. Use exactly this commit.
+- **`85e621c`** is the arcade Android 2.0.0 rc3 and 2.1.0 rc3 embed. Use exactly this commit.
 - **The script:**
   - clones it to a fixed path;
   - generates the module (`sync_module.py`, never edited by hand);
@@ -314,10 +316,10 @@ for it.
 - **Rebuild the frameworks with the live URL:**
 
   ```sh
-  ./build_ios_frameworks.sh ~/Downloads/puzzle-app-v2.bundle d70534a https://arcade-api.digitalgold.co ~/dgd-ios-frameworks-live
+  ./build_ios_frameworks.sh ~/Downloads/puzzle-app-v2.bundle 85e621c https://arcade-api.digitalgold.co ~/dgd-ios-frameworks-live
   ```
 
-  `d70534a` is the arcade Android 2.1.0 rc2 embeds.
+  `85e621c` is the arcade Android 2.1.0 rc3 embeds, the same commit as 2.0.
 - **Add the "Weekly standings" row** under the When Pigs Fly row.
   - The title is "Weekly standings", the subtitle "This week's XP from Coin Quest and When Pigs Fly. Recognition only.", the icon `card-art/standings_podium.png`, and it opens `standings`.
   - **It shows only when the embedded frameworks were built with `ARCADE_API` and without `DGD_DEMO`.** Derive that from the frameworks' `PROVENANCE.md` at build time, as Android derives `BuildConfig.ARCADE_LIVE` from its own. Never use a hand-set flag.

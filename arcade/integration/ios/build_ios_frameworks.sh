@@ -15,8 +15,8 @@
 #   https://...  DGD_APP_TAB=true, ARCADE_API=<url>: the live build (2.1).
 #                Bare https only: no trailing slash, query or credentials.
 #
-# For DGD App 2.0 (iOS): commit 3c4e42d, demo. That is the arcade Android 2.0.0
-# rc2 embeds, so both phones run the same arcade.
+# For DGD App 2.0 (iOS): commit 85e621c, demo. That is the arcade Android 2.0.0
+# rc3 embeds, so both phones run the same arcade.
 #
 # The build directory is FIXED (/tmp/dgd-ios-build): Dart compiles the
 # module's path into the app snapshot, as it does on Android

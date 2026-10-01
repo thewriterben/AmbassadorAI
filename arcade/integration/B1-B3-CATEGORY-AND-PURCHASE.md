@@ -134,7 +134,7 @@ willing to sign their name under it.
 > **About DGD Arcade**
 >
 > This app includes DGD Arcade: two educational games about the history of
-> money, Coin Quest (match-3) and When Pigs Fly. They are reached from the
+> money, Coin Quest: DGD (match-3) and When Pigs Fly. They are reached from the
 > Arcade tab and are optional; the app's primary purpose is the informational
 > price and network ticker on the Home tab.
 >

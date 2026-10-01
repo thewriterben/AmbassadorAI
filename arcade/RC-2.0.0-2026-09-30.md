@@ -1,37 +1,57 @@
-# DGD App 2.0.0: Android release candidate (rc2)
+# DGD App 2.0.0: Android release candidate (rc3)
 
-**2026-09-30.** This is the release record for DGD to sign and upload. It
-replaces the Play Console text in `RC-1.0.7-2026-09-29.md` and
+**2026-09-30, rc3 on 2026-10-01.** This is the release record for DGD to sign
+and upload. It replaces the Play Console text in `RC-1.0.7-2026-09-29.md` and
 `RC-1.0.8-2026-09-29.md`, which describe the old layout: those two stay as the
 record of what shipped then.
 
 ## Artefacts
 
-**Upload rc2.** It is in `C:\src\dgd-native\android\dist-2.0.0-rc2\`, built from
-dgd-native `dgd-2.0` at `ab23aef`.
+**Upload rc3.** It is in `C:\src\dgd-native\android\dist-2.0.0-rc3\`, built from
+dgd-native `dgd-2.0` at `16394ec`.
 
 | File | Bytes | SHA-256 | For |
 |---|---|---|---|
-| `DigitalGold-2.0.0-unsigned.aab` | 64,736,687 | `954377CAC2D836BDCE840D7AAAA212EDD02BAF82E21F9CC7A3CD0DCCC4D8A685` | Play, once DGD signs it |
-| `DigitalGold-2.0.0-review.apk` | 72,260,461 | `74B74BB6A4FEDE528CF900CF39C22FEC756E52435BE57D7D0BF88CBCC517FA92` | Installing and looking. It is debug-signed and says `2.0.0-review` in the app; Play refuses it. |
+| `DigitalGold-2.0.0-unsigned.aab` | 64,800,042 | `98DF94D1BE4966A37DF205B673C67850D29F2496B7B2893E6CF1FBED49A2F2AA` | Play, once DGD signs it |
+| `DigitalGold-2.0.0-review.apk` | 72,440,605 | `C35EFF59074AC383A8B99AC8D087D66E6EBB9C43CBB0FF574584F5B815571B20` | Installing and looking. It is debug-signed and says `2.0.0-review` in the app; Play refuses it. |
 
-The release is still version 2.0.0, versionCode 200: rc1 never went to Play.
-rc1 (`dist-2.0.0\`, `f04b884`, AAB `FE22CAA1…9594`) is kept as the record. It
-has the three findings below that rc2 fixes, so do not upload it.
+The release is still version 2.0.0, versionCode 200: no rc has gone to Play.
+The earlier candidates are kept as the record. **Do not upload either of
+them.**
 
-**The arcade embed** is puzzle-app v2 at `3c4e42d`, built in the clean room in
+- **rc2** (`dist-2.0.0-rc2\`, `ab23aef`, AAB `954377CA…A685`) has the old name.
+- **rc1** (`dist-2.0.0\`, `f04b884`, AAB `FE22CAA1…9594`) also has the three findings below that rc2 fixed.
+
+**The arcade embed** is puzzle-app v2 at `85e621c`, built in the clean room in
 demo mode (`DGD_APP_TAB=true`, `DGD_DEMO=true`). Builds A and B came out
 identical in all 6 AARs. It has no server and makes no requests.
 `ARCADE-PROVENANCE.md` is next to the AAB.
 
-**The checks behind rc2:**
+**The checks behind rc3:**
 
-- **The native half reproduces in the clean room,** offline: 784 of 788 bundle entries are identical. The 4 that differ are R8's map and `r8.json`, which are build metadata, and two service files that differ only in line endings, CRLF on Windows against LF on Linux. Evidence: `redteam-runs/20261001T0346Z-dgd2.0-rc2-native-ab23aef/`.
+- **The native half reproduces in the clean room,** offline: 784 of 788 bundle entries are identical. The 4 that differ are R8's map and `r8.json`, which are build metadata, and two service files that differ only in line endings, CRLF on Windows against LF on Linux. Evidence: `redteam-runs/20261001T1659Z-dgd2.0-rc3-native-16394ec/`.
 - 95 unit tests pass, lint passes, and 4 of 4 instrumented tests pass on the API 36 emulator.
-- The red-team runner passes 11 of 11 at `fc0f3f1` (`redteam-runs/20261001T031548Z-fc0f3f1/`). That covers the server's 39 tests, 183 plain, 192 loopback and 184 demo arcade tests, the analyzer, and the host and secret scans.
+- The red-team runner passes 11 of 11 at `e65c347` (`redteam-runs/20261001T163422Z-e65c347/`). That covers the server's 39 tests, 190 plain, 201 loopback and 190 demo arcade tests, the analyzer, and the host and secret scans.
 - The rc1 review is in `AUDIT-DGD2.0-2026-09-30.md`.
 
-**What rc2 changes from rc1:**
+**What rc3 changes from rc2:**
+
+- **The game's name is "Coin Quest: DGD"** in titles and on buttons (the
+  owner's call, 1 Oct):
+  - the Arcade tab's card and its "Play Coin Quest: DGD" button;
+  - the arcade's home card and button;
+  - the level map's header, which drops its "Digital Gold" subtitle;
+  - the level screen;
+  - the result caption.
+
+  Sentences keep the short name. The card's title now wraps to three lines.
+- **The arcade embed moves from `3c4e42d` to `85e621c`,** the commit 2.1 and
+  iOS also use. The changes between them are:
+  - inert without a server: E6, L1, L2, L4 and the standings screen, which a
+    demo build cannot reach;
+  - one plain fix: `Progress.load()` now always completes asynchronously.
+
+**What rc2 changed from rc1,** all in rc3:
 
 - **S1:** light status-bar icons in light mode.
 - **S2:** the deep red coin, on the board and on the Arcade tab's card.
@@ -67,15 +87,15 @@ jarsigner -verify DigitalGold-2.0.0-unsigned.aab      :: "jar verified."
 ```
 
 Then go to Play Console → the app → internal testing → create release, and
-upload the signed `.aab` from `dist-2.0.0-rc2`. versionCode 200 is higher than
+upload the signed `.aab` from `dist-2.0.0-rc3`. versionCode 200 is higher than
 anything uploaded so far (1.0.8 is 8).
 
 ## Play Console text
 
-**What's new (en-US)**, 266 characters of the 500 allowed:
+**What's new (en-US)**, 271 characters of the 500 allowed:
 
 > A new look. Home, Arcade and Account now sit on a bar at the bottom of the
-> screen. The Arcade tab has Coin Quest and a new game, When Pigs Fly: fly a
+> screen. The Arcade tab has Coin Quest: DGD and a new game, When Pigs Fly: fly a
 > winged piggy bank through nine eras of monetary history and land it. DGD
 > Arcade for Web has moved to the Arcade tab.
 
@@ -94,7 +114,7 @@ are new.
 > visitors from the app apart from anyone else, and nothing done in the app
 > counts there.
 >
-> **The in-app arcade** (Coin Quest, When Pigs Fly) is educational and runs
+> **The in-app arcade** (Coin Quest: DGD, When Pigs Fly) is educational and runs
 > entirely on the phone in this version: it sends nothing and has no
 > accounts. Nothing in it has monetary value, and the Arcade tab and the
 > game screens say so.
@@ -108,7 +128,7 @@ page are still as described. They are DGD's facts, last confirmed on 28 Sep.
 ## Store listing graphics
 
 **The phone screenshots are in `store/dgd-app-2.0/`.** There are six, each
-1080 × 1920 (9:16, inside Play's 2:1 limit). They were taken from the rc2
+1080 × 1920 (9:16, inside Play's 2:1 limit). They were taken from the rc3
 review APK on the API 36 emulator in dark mode, with a clean status bar.
 
 | File | Screen |
@@ -130,7 +150,7 @@ review APK on the API 36 emulator in dark mode, with a clean status bar.
 which is over Play's 2:1 limit, and it shows the standalone DGD Arcade, not
 this app.
 
-**These screenshots show rc2 exactly.** Retake them for the build that
+**These screenshots show rc3 exactly,** with the new name. Retake them for the build that
 connects to the arcade server: the arcade screens gain an XP bar and the
 When Pigs Fly shop.
 

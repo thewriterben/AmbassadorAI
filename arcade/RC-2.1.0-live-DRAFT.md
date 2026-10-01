@@ -1,36 +1,42 @@
-# DGD App 2.1.0 (live arcade): release candidate rc2, NOT FOR UPLOAD YET
+# DGD App 2.1.0 (live arcade): release candidate rc3, NOT FOR UPLOAD YET
 
 **2026-09-30. Status: built and checked, waiting on the server.** This is
 the first DGD App whose arcade talks to a server, at
 `https://arcade-api.digitalgold.co`. That host does not exist yet. Until
-backend has it up and `smoke.mjs` passes against it, **2.0.0 rc2 (demo) is
+backend has it up and `smoke.mjs` passes against it, **2.0.0 rc3 (demo) is
 the build to ship** (`RC-2.0.0-2026-09-30.md`).
 
 ## Artefacts
 
-These are in `C:\src\dgd-native\android\dist-2.1.0-rc2\`, built from
-dgd-native `dgd-2.1-live` at `2791096`. That branch comes off `dgd-2.0` at
-`ab23aef` (2.0.0 rc2), so the demo line stays as it is. rc1
-(`dist-2.1.0-rc1`, `89d1e38`) is superseded: it has L3 and L4 below.
+These are in `C:\src\dgd-native\android\dist-2.1.0-rc3\`, built from
+dgd-native `dgd-2.1-live` at `f1c1f43`. That branch carries the live-only
+changes on top of the 2.0 line, so the demo line stays as it is. The earlier
+candidates are superseded:
+
+- **rc2** (`dist-2.1.0-rc2`, `2791096`) has the old name.
+- **rc1** (`dist-2.1.0-rc1`, `89d1e38`) also has L3 and L4 below.
 
 | File | Bytes | SHA-256 |
 |---|---|---|
-| `DigitalGold-2.1.0-unsigned.aab` | 64,866,080 | `E3199A154859104A2AD69EBD938AE900D4CEBA46FCD1EF8D75D6FF01123EDDD1` |
-| `DigitalGold-2.1.0-review.apk` | 72,492,005 | `9271B9645B13E7CCBB5B6920BBDDCCAD728CEEA365BDAD9624858FE117CEB85C` |
+| `DigitalGold-2.1.0-unsigned.aab` | 64,866,179 | `4F2D23E121E290D1D85B411F62D988F4AAD9BCF3063F5A32004B0EB9EF8B2F45` |
+| `DigitalGold-2.1.0-review.apk` | 72,492,005 | `B2804B139D2EBF92CCB2659C3986FBEF7F80C0747DD09C433CF62D3152E45617` |
+
+**rc3 changes one thing from rc2:** the game is "Coin Quest: DGD" in titles
+and on buttons, as in 2.0.0 rc3.
 
 The release is version 2.1.0, versionCode 210. That leaves 201–209 for any
 2.0.x demo fix.
 
-**The arcade embed** is puzzle-app v2 at `d70534a`, built in the clean room
+**The arcade embed** is puzzle-app v2 at `85e621c` (the same commit as 2.0.0 rc3), built in the clean room
 with `DGD_APP_TAB=true` and `ARCADE_API=https://arcade-api.digitalgold.co`,
 and no `DGD_DEMO`. Builds A and B came out identical. `ARCADE-PROVENANCE.md`
 is next to the AAB.
 
 **The checks behind it:**
 
-- **The native half reproduces in the clean room,** offline: 785 of 789 entries are identical. The 4 that differ are the same as in every earlier pass: R8 metadata, and two service files that differ only in line endings. Evidence: `redteam-runs/20261001T0602Z-dgd2.1.0-rc2-native-2791096/`.
+- **The native half reproduces in the clean room,** offline: 785 of 789 entries are identical. The 4 that differ are the same as in every earlier pass: R8 metadata, and two service files that differ only in line endings. Evidence: `redteam-runs/20261001T1727Z-dgd2.1.0-rc3-native-f1c1f43/`.
 - 97 unit tests and lint pass. `ArcadeLiveFlagTest` pins the standings row's flag to the embed.
-- The red-team runner passes 11 of 11 at AmbassadorAI `74513bb`: the server's 39 tests, plus 190 plain, 201 loopback and 190 demo arcade tests.
+- The red-team runner passes 11 of 11 at AmbassadorAI `e65c347`: the server's 39 tests, plus 190 plain, 201 loopback and 190 demo arcade tests.
 
 ## What changes from 2.0.0
 
@@ -99,14 +105,14 @@ is next to the AAB.
 **What's new (en-US).** It avoids "earn", "reward" and "win", as the arcade's
 own copy does:
 
-> Coin Quest and When Pigs Fly now save your progress online. Collect XP,
+> Coin Quest: DGD and When Pigs Fly now save your progress online. Collect XP,
 > see the weekly standings, and grow your boar to unlock abilities. XP and
 > points have no monetary value.
 
 **Notes for the reviewer.** Keep the 2.0.0 note about "DGD Arcade for Web",
 and replace the in-app arcade paragraph with this:
 
-> **The in-app arcade** (Coin Quest, When Pigs Fly) is educational. The first
+> **The in-app arcade** (Coin Quest: DGD, When Pigs Fly) is educational. The first
 > time it is opened, it creates an anonymous play record on DGD's arcade
 > server (arcade-api.digitalgold.co), with no name, email or login. XP,
 > points, badges and the weekly standings are recognition only: they have no
