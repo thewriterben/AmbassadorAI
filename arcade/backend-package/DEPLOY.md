@@ -53,7 +53,7 @@ docker run -d --name dgd-arcade --restart unless-stopped -p 127.0.0.1:8787:8787 
 - **The question bank sits inside the volume path.** The image copies it to `/app/data/bank`, under the volume.
   - **Named volume:** Docker seeds a new named volume from the image, so the bank arrives on first run. It is never refreshed after that, so a bank update in a later image does not reach an existing volume.
   - **Bind mount:** hides the bank entirely.
-  - **Does it matter for DGD App 2.0?** Not much, because the bank only feeds Tablet Run. But the server refuses to start if the bank parses to zero items, so a hidden bank fails loudly.
+  - **Does it matter for DGD App 2.1?** Not much, because the bank only feeds Tablet Run. But the server refuses to start if the bank parses to zero items, so a hidden bank fails loudly.
   - **The fix:** a one-line Dockerfile change, moving the bank to `/app/bank` and setting `ARCADE_BANK`. Say if you want it, and we will make it in the server repo.
 - **The process closes the database cleanly** on SIGTERM and SIGINT.
 
@@ -101,7 +101,7 @@ All of these are environment-overridable, so they can be retuned without a deplo
 | Variable | Default | What it bounds |
 |---|---|---|
 | `RATE_PER_MINUTE` | 120 | Requests per minute per token or address on `/v1/*` |
-| `PLAYERS_PER_HOUR` | 10 | New registrations per address per hour |
+| `PLAYERS_PER_HOUR` | 10 | New registrations per address per hour. Phones behind a carrier's shared address count as one, so watch for `429 signup_rate_limited` at launch and raise it if needed (README, "What traffic to expect") |
 | `MINI_REWARDED_ROUNDS_PER_DAY` | 10 | Rounds per game per player per UTC day that earn XP and growth; later rounds are practice |
 | `PASSAGE_JUVENILE_AT` | 1200 | Lifetime When Pigs Fly points for the second growth stage |
 | `PASSAGE_RAZORBACK_AT` | 4000 | Lifetime points for the third stage |
@@ -124,11 +124,11 @@ docker exec dgd-arcade npm run report:passage -- --since-days 14
 - Add `--json` for machine-readable output.
 - Send it to us after the first couple of weeks, and we will propose new values for the two `PASSAGE_*` variables.
 
-## Routes present but unused by DGD App 2.0
+## Routes present but unused by DGD App 2.1
 
 The server also carries Tablet Run (`/v1/expeditions/...`), the Daily Ledger (`/v1/ledger/...`), and three older mini games (`pillar_sort`, `design_or_myth`, `chain_builder`).
 
-- DGD App 2.0 calls none of them.
+- DGD App 2.1 calls none of them.
 - They need a registered token like everything else, and they are covered by the same tests.
 
 They can stay. If you would rather not expose them, block those path prefixes at the proxy.

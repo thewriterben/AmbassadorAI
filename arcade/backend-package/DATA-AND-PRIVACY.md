@@ -4,7 +4,9 @@
 
 The DGD App 2.0 arcade sends nothing. Its progress is stored on the phone, and **Settings → Erase progress on this device** clears it.
 
-## Once the server is live
+## Once the server is live (DGD App 2.1)
+
+Nothing is sent until a player first opens the arcade. Someone who only uses the ticker never reaches this server.
 
 ### What the server stores
 
@@ -15,7 +17,7 @@ The DGD App 2.0 arcade sends nothing. Its progress is stored on the phone, and *
 | `xp_events` | The dated XP ledger that the weekly board reads |
 | `badges` | Badge and the time it was earned |
 | `passage_profile`, `passage_abilities` | When Pigs Fly lifetime points, spendable points, and ability levels |
-| `expeditions`, `tablets`, `tablet_state`, `ledger_plays` | Tablet Run and Daily Ledger. DGD App 2.0 never writes these. |
+| `expeditions`, `tablets`, `tablet_state`, `ledger_plays` | Tablet Run and Daily Ledger. DGD App 2.x never writes these. |
 
 ### What the server does not store
 

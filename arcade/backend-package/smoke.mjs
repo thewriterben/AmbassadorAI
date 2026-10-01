@@ -2,7 +2,7 @@
 //
 //   node smoke.mjs https://arcade-api.digitalgold.co
 //
-// It registers one throwaway player, walks the calls DGD App 2.0 makes, checks
+// It registers one throwaway player, walks the calls DGD App 2.1 makes, checks
 // that the server refuses what it should refuse, and then deletes the player
 // with DELETE /v1/me. It leaves nothing behind except one entry in the
 // per-address signup bucket (10 an hour by default).

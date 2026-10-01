@@ -1,8 +1,8 @@
-node smoke.mjs against a local instance of 50b46d5, 2026-10-01T02:00Z
+node smoke.mjs against a local production-mode instance of 50b46d5, 2026-10-01T14:36Z
 ok    GET /healthz  (bank 170, day 273)
 ok    GET /v1/me without a token is refused
 ok    POST /v1/players  (status 201)
-ok    GET /v1/me  (handle Verified Cipher 146)
+ok    GET /v1/me  (handle Transparent Tablet 347)
 ok    snapshot carries the When Pigs Fly profile
 ok    GET /v1/leaderboard with a junk limit answers 200
 ok    POST /v1/mini/coin_quest/start

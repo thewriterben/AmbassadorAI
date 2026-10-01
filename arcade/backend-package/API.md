@@ -1,4 +1,4 @@
-# What DGD App 2.0 calls
+# What DGD App 2.1 calls
 
 ## Basics
 
