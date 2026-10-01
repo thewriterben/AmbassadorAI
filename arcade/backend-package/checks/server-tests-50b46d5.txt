@@ -1,0 +1,48 @@
+dgd-arcade-server 50b46d55489c5f1637200a5aeb4aaae536144a2c on v24.18.0, 2026-10-01T02:00Z
+✔ bank parses the seed (0.772ms)
+✔ anonymous player + me (17.105ms)
+✔ honest full expedition scores tablets + completion (7.1846ms)
+✔ answers faster than the tier minimum are scored wrong and flagged (3.08ms)
+✔ a question token cannot be replayed or answered after expiry (3.0032ms)
+✔ finishing a 100-second run in 9 seconds earns nothing (6.9184ms)
+✔ rewarded expeditions are capped per day; extra runs are practice (5.352ms)
+✔ daily ledger: answer hidden until over, fixed XP, streak (4.2352ms)
+✔ every player gets an assigned handle, never a typed one (4.2391ms)
+✔ weekly board ranks by XP earned this week and shows your own standing (6.8396ms)
+✔ XP earned before this week does not count toward the weekly board (3.7581ms)
+✔ banned accounts are excluded from the board (3.0614ms)
+✔ mini-game XP follows the formula and stops after the daily cap (18.7663ms)
+✔ passage pays for stars, the full passage, and a capped coin score (5.1658ms)
+✔ the boar grows from points scored on rewarded passage rounds, and only those (11.1961ms)
+✔ an account on the abuse ladder flies for practice and grows nothing (1.1037ms)
+✔ the shop lists every ability with its next price, and sells only for points (1.7808ms)
+✔ an upgrade pays from points and never shrinks the boar (1.991ms)
+✔ two upgrades landing together pay once (1.6538ms)
+✔ a loadout is at most two owned abilities (4.6623ms)
+✔ a run that flew with abilities it does not own pays nothing (3.8557ms)
+✔ a mini round cannot be claimed without a server-issued token (4.6594ms)
+✔ concurrent finishes pay exactly once (6.4243ms)
+✔ DELETE /v1/me erases the player from every table (5.7463ms)
+✔ deletion needs a valid token (0.2714ms)
+✔ junk in a request body is rejected, not 500 (3.0577ms)
+✔ HOLDS R1 the mini-game daily cap still binds when rounds straddle UTC midnight (37.5936ms)
+✔ ACCEPTED R2 a mini-game score is whatever the client says, bounded only by the per-round and per-day caps (18.9992ms)
+✔ HOLDS R3 anonymous player creation is throttled well below the generic limiter (7.009ms)
+✔ HOLDS R4 the rate limiter does not admit a double burst at the window boundary (21.0157ms)
+✔ HOLDS R5 X-Forwarded-For is ignored unless a proxy is trusted, and then only its last hop counts (13.7533ms)
+✔ HOLDS R6 a tablet cannot be answered once its expedition is finished (3.3328ms)
+✔ HOLDS R7 a bank question that disappears between issue and answer is a 4xx, not a 500 (11.2634ms)
+✔ ACCEPTED R8 status="xp_only" means zero XP, not "XP only", and is never set by the server (5.8113ms)
+✔ HOLDS R9 a corrupt server-written JSON column is a handled error, not a 500 (3.0794ms)
+✔ HOLDS R10 the board never carries ids or tokens, and handle rerolls stop at the daily cap (3.9028ms)
+✔ HOLDS R11 /healthz is the only unauthenticated read and says only that the bank is loaded (1.759ms)
+✔ ACCEPTED R12 CORS is a wildcard unless ARCADE_CORS is set, whatever NODE_ENV says (1.3336ms)
+✔ the passage report summarises real runs and suggests thresholds (7.1448ms)
+ℹ tests 39
+ℹ suites 0
+ℹ pass 39
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 428.7401

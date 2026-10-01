@@ -41,7 +41,7 @@ const _blockerAsset = {
 const _gemColor = {
   GemKind.gold: Color(0xFFFFD678),
   GemKind.silver: Color(0xFFD6DFE8),
-  GemKind.red: Color(0xFFF07E9C),
+  GemKind.red: Color(0xFFD02430),
   GemKind.copper: Color(0xFFECA878),
   GemKind.blue: Color(0xFF6C9CE0),
   GemKind.green: Color(0xFF94E8B4),
