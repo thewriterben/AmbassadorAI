@@ -139,9 +139,16 @@ passed with no override. The files are in
   `DGD_APP_TAB=true DGD_DEMO=true` (`ARCADE-PROVENANCE.md` beside the
   files).
 - **Native:** 95 unit tests pass.
-- **Not yet run:** the instrumented first-run test. It resets app data, so
-  it needs an emulator, not the test phone.
-- **Not reproduced:** the native half has not been rebuilt in the native
-  clean-room container, as the v1.0.8 audit did.
-- **Still to do before a reviewed track:** R6, and a clean-room reproduction
-  of the native half.
+- **Instrumented tests:** 4 of 4 pass, run on the `dgd_api36` emulator
+  only (`ANDROID_SERIAL`), never on the test phone. This includes the
+  first-run join flow.
+- **The native half, reproduced** (`redteam-runs/20260930T2304Z-dgd2.0-native-f04b884/`,
+  `integration/cleanroom/build_native_cleanroom.sh`):
+  - dgd-native `f04b884` rebuilt in `dgd-cleanroom:1` with no mounts and
+    the network cut;
+  - the offline `bundleRelease` passes the arcade gate, the 95 unit tests
+    pass, and lint passes;
+  - against the host bundle, **782 of 788 entries are byte-identical**. The
+    six that differ are the same R8 and baseline-profile metadata as in the
+    v1.0.8 pass. No dex, library, resource or asset differs.
+- **Still to do before a reviewed track:** R6.
