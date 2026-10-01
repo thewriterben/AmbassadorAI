@@ -49,11 +49,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
     final ok = await _confirm(
       title: 'Delete your play record?',
+      // Everything DELETE /v1/me removes that a player would notice, and
+      // the boar in particular: its growth and abilities live on the server,
+      // so deleting the record turns it back into a piglet (audit R12).
       body: 'This erases the anonymous record DGD holds for you: your XP, '
-          'badges, streak and play history. It cannot be undone.\n\n'
+          'badges, your boar\'s growth and abilities, and your play history. '
+          'It cannot be undone.\n\n'
           'Your Coin Quest progress on this phone is not affected.\n\n'
-          'If you keep playing, a new anonymous record is created and you '
-          'start from zero XP.',
+          'If you keep playing, a new anonymous record is created: you start '
+          'from zero XP, with a piglet.',
       action: 'Delete record',
     );
     if (!ok || !mounted) return;
@@ -184,8 +188,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const _Head('Your data'),
                 _Danger(
                   label: 'Delete my play record',
-                  blurb: 'Erases server XP, badges, streak and play history. '
-                      'Progress on this phone is kept.',
+                  blurb: 'Erases your XP, badges, boar\'s growth, abilities and play '
+                      'history from DGD\'s server. Progress on this phone is kept.',
                   onTap: _busy ? null : _deleteRecord,
                   busy: _busy,
                 ),

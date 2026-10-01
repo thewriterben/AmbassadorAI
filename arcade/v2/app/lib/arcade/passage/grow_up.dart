@@ -19,6 +19,13 @@ import 'boar.dart';
 ///     "Your boar grew into a …!".
 ///
 /// Tap anywhere to close; it closes itself a few seconds after the reveal.
+///
+/// Inside the DGD app ([Audio.inAppTab]) it is [GrowUpMoment.calm]: no white
+/// flash, no sparkle burst and no fanfare. The arcade plan keeps celebration
+/// out of the app's tab (the same gate as Coin Quest's fireworks and winner
+/// line), and growth arrives only from the server, so a live build would be
+/// the first to show it there (audit E6). The build-up, the new stage and its
+/// line stay: the player still needs to know the boar grew.
 Future<void> showGrowUp(BuildContext context, {required BoarStage from, required BoarStage to}) {
   return showGeneralDialog(
     context: context,
@@ -37,7 +44,11 @@ Future<void> showGrowUp(BuildContext context, {required BoarStage from, required
 
 class GrowUpMoment extends StatefulWidget {
   final BoarStage from, to;
-  const GrowUpMoment({super.key, required this.from, required this.to});
+
+  /// No flash, sparkles or fanfare. Defaults to the build's own setting;
+  /// tests set it, because [Audio.inAppTab] is a compile-time constant.
+  final bool calm;
+  const GrowUpMoment({super.key, required this.from, required this.to, this.calm = Audio.inAppTab});
 
   /// When the flash lands and the new stage is revealed, as a fraction of
   /// the whole animation.
@@ -58,7 +69,7 @@ class _GrowUpMomentState extends State<GrowUpMoment> with SingleTickerProviderSt
   void _onTick() {
     if (!_revealed && _c.value >= GrowUpMoment.revealAt) {
       _revealed = true;
-      Audio.instance.stageUp();
+      if (!widget.calm) Audio.instance.stageUp();
     }
     if (_c.isCompleted) _close();
   }
@@ -126,7 +137,7 @@ class _GrowUpMomentState extends State<GrowUpMoment> with SingleTickerProviderSt
                 ),
               ),
               boar,
-              if (revealed)
+              if (revealed && !widget.calm)
                 IgnorePointer(
                   child: CustomPaint(size: Size.square(size * 1.6), painter: _BurstPainter(after)),
                 ),
@@ -156,7 +167,7 @@ class _GrowUpMomentState extends State<GrowUpMoment> with SingleTickerProviderSt
                     ),
                   ),
                 ),
-              if (flash > 0)
+              if (flash > 0 && !widget.calm)
                 IgnorePointer(child: Container(color: Colors.white.withValues(alpha: flash * 0.9))),
             ],
           );

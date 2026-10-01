@@ -63,4 +63,46 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(GrowUpMoment), findsNothing);
   });
+
+  // Inside the DGD app the moment is calm (audit E6): the same build-up,
+  // stage and line, without the flash or the sparkle burst.
+  Future<void> openMoment(WidgetTester tester, {required bool calm}) async {
+    tester.view.physicalSize = const Size(1080, 2400);
+    tester.view.devicePixelRatio = 2.5;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(MaterialApp(
+      home: GrowUpMoment(from: BoarStage.piglet, to: BoarStage.juvenile, calm: calm),
+    ));
+  }
+
+  bool whiteFlash(WidgetTester tester) => tester
+      .widgetList<Container>(find.byType(Container))
+      .any((c) => c.color != null && c.color!.r == 1 && c.color!.g == 1 && c.color!.b == 1 && c.color!.a > 0);
+
+  bool burst(WidgetTester tester) => tester
+      .widgetList<CustomPaint>(find.byType(CustomPaint))
+      .any((p) => p.painter != null && p.painter.runtimeType.toString() == '_BurstPainter');
+
+  testWidgets('standalone: the reveal flashes white and bursts with sparkles', (tester) async {
+    await openMoment(tester, calm: false);
+    await tester.pump(Duration(milliseconds: revealMs + 50));
+    expect(whiteFlash(tester), isTrue);
+    expect(burst(tester), isTrue);
+  });
+
+  testWidgets('in the DGD app: no flash and no sparkles, but the stage and its line', (tester) async {
+    await openMoment(tester, calm: true);
+    var sawStage = false;
+    for (var at = 100; at < ms; at += 100) {
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(whiteFlash(tester), isFalse, reason: 'no white flash at $at ms');
+      expect(burst(tester), isFalse, reason: 'no sparkle burst at $at ms');
+      if (!sawStage && at >= revealMs + 400) {
+        expect(find.text('Your boar grew into a juvenile!'), findsOneWidget);
+        expect(tester.widget<BoarPortrait>(find.byType(BoarPortrait)).stage, BoarStage.juvenile);
+        sawStage = true;
+      }
+    }
+    expect(sawStage, isTrue);
+  });
 }
