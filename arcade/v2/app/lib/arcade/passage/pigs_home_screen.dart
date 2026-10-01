@@ -338,7 +338,14 @@ class _BoarCard extends StatelessWidget {
                   stage.label,
                   style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w600, color: AppTheme.text),
                 ),
-                if (showProgress) ...[
+                if (showProgress && !p.passageKnown) ...[
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Growth shows once the arcade server has been reached.',
+                    style: TextStyle(fontSize: 12, height: 1.35, color: AppTheme.body),
+                  ),
+                ],
+                if (showProgress && p.passageKnown) ...[
                   const SizedBox(height: 10),
                   ClipRRect(
                     borderRadius: BorderRadius.circular(99),

@@ -160,6 +160,24 @@ void main() {
       expect(find.text('Blink'), findsNWidgets(2), reason: 'in the loadout and in the shop');
     }, skip: noShop);
 
+    // L2: before any growth figure has arrived (a live build whose server
+    // has not answered yet), the card must not read "Fully grown".
+    testWidgets('growth waits for the server: never "Fully grown" before it has answered', (tester) async {
+      p.apply(shop(), persist: false);
+      p.passageKnown = false;
+      p.passageNextStage = null;
+      p.passageNextAt = null;
+      await pump(tester);
+      expect(find.text('Fully grown'), findsNothing);
+      expect(find.text('Growth shows once the arcade server has been reached.'), findsOneWidget);
+      expect(find.byType(LinearProgressIndicator), findsNothing);
+
+      p.apply(shop(), persist: false);
+      await tester.pump();
+      expect(find.text('Growth shows once the arcade server has been reached.'), findsNothing);
+      expect(find.textContaining('to razorback'), findsOneWidget);
+    }, skip: noShop);
+
     testWidgets('with no server there is no shop, only the boar and Fly', (tester) async {
       ArcadeApi.baseOverride = '';
       p.apply(shop(), persist: false);

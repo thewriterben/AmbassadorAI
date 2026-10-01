@@ -86,6 +86,12 @@ class ArcadeProgress extends ChangeNotifier {
   String? passageNextStage;
   int? passageNextAt;
 
+  /// True once a growth figure has arrived, from the server or from a cached
+  /// snapshot. Until then the fields above are defaults, and a null
+  /// [passageNextStage] means "not known yet", not "fully grown" (L2: a live
+  /// build with its server unreachable showed a new piglet as fully grown).
+  bool passageKnown = false;
+
   /// Every ability in the shop, with the level owned (0 = locked) and the
   /// price of the next level, as the server lists them.
   final List<PassageAbility> passageAbilities = [];
@@ -189,6 +195,7 @@ class ArcadeProgress extends ChangeNotifier {
     final pg = s['passage'];
     if (pg is Map) {
       int n(String k) => (pg[k] as num?)?.toInt() ?? 0;
+      passageKnown = true;
       passageLifetime = n('lifetime');
       passagePoints = n('points');
       passageStage = pg['stage'] as String? ?? 'piglet';
@@ -241,6 +248,7 @@ class ArcadeProgress extends ChangeNotifier {
     passageStage = 'piglet';
     passageNextStage = null;
     passageNextAt = null;
+    passageKnown = false;
     passageClaim = null;
     passageAbilities.clear();
     passageLoadout.clear();
