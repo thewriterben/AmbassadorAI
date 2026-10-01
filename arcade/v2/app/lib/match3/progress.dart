@@ -19,6 +19,12 @@ class Progress extends ChangeNotifier {
 
   Future<void> load() async {
     final p = _prefs ??= await SharedPreferences.getInstance();
+    // Always finish after the caller's frame. With the store already cached
+    // there was no await at all, so the level map's initState notified in
+    // the middle of a build and the arcade home's ListenableBuilder, still
+    // mounted under it, was marked dirty mid-frame. It became reachable once
+    // the app's warm open replaced the stack in a single frame (R9).
+    await Future<void>.value();
     // A reload, not a merge. main() and the level map both call this, and
     // leaving stale in-memory entries in place would let a cleared flag
     // outlive the store it came from.

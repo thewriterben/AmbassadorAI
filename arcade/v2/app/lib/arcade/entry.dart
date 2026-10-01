@@ -27,9 +27,36 @@ abstract final class ArcadeEntry {
   /// The arcade's home screen, set by main.dart (which defines it).
   static Widget Function()? home;
 
+  /// Run once, on the first `open`. Inside the DGD app, main.dart puts the
+  /// server load here instead of running it at startup.
+  ///
+  /// The app warms this engine just after its own first frame, on every
+  /// launch, so anything `main()` does happens to every DGD App user whether
+  /// or not they ever touch a game. With a server, loading progress at
+  /// startup registered an anonymous player for each of them and called the
+  /// server on each launch: data from people who never played, and on a
+  /// carrier's shared address the signup limit (10 an hour) turning real
+  /// players away. So the arcade talks to its server only once a player
+  /// opens it.
+  static void Function()? onFirstOpen;
+  static bool _opened = false;
+
+  @visibleForTesting
+  static void resetForTest() {
+    _opened = false;
+    onFirstOpen = null;
+    _pending = null;
+  }
+
   static void listen() {
     _channel.setMethodCallHandler((call) async {
-      if (call.method == 'open') _open(call.arguments as String? ?? 'home');
+      if (call.method == 'open') {
+        if (!_opened) {
+          _opened = true;
+          onFirstOpen?.call();
+        }
+        _open(call.arguments as String? ?? 'home');
+      }
       return null;
     });
   }

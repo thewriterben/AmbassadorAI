@@ -26,7 +26,14 @@ void main() {
   ));
   Audio.instance.init();
   Progress.instance.load();
-  ArcadeProgress.instance.load();
+  // Standalone, the arcade is open as soon as it starts. Inside the DGD app
+  // the engine starts at every app launch, so the server load waits for the
+  // first time a player opens the arcade (ArcadeEntry.onFirstOpen).
+  if (Audio.inAppTab) {
+    ArcadeEntry.onFirstOpen = ArcadeProgress.instance.load;
+  } else {
+    ArcadeProgress.instance.load();
+  }
   // No music here: the arcade's menus are silent, and each game claims its
   // own track (Audio.claimMusic).
   runApp(const ArcadeApp());

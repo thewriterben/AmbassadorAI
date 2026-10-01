@@ -11,7 +11,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// That screen must be the whole stack, so the back gesture leaves the arcade
 /// for the app rather than landing on an arcade home the app never showed.
 void main() {
-  setUp(() => SharedPreferences.setMockInitialValues({}));
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+    ArcadeEntry.resetForTest();
+  });
 
   Future<void> send(WidgetTester tester, String where) async {
     const codec = StandardMethodCodec();
@@ -56,5 +59,21 @@ void main() {
     await send(tester, 'pigs');
     await send(tester, 'home');
     expect(find.byType(HomeScreen), findsOneWidget);
+  });
+
+  // The server load waits for the first open, and runs once (see
+  // ArcadeEntry.onFirstOpen): a warmed engine that is never opened must not
+  // register anyone.
+  testWidgets('the first-open hook runs on the first open only, not at start', (tester) async {
+    var calls = 0;
+    await pumpApp(tester);
+    ArcadeEntry.onFirstOpen = () => calls++;
+    await tester.pump(const Duration(seconds: 2));
+    expect(calls, 0, reason: 'nothing before the app asks for a screen');
+    await send(tester, 'coin_quest');
+    expect(calls, 1);
+    await send(tester, 'pigs');
+    await send(tester, 'settings');
+    expect(calls, 1, reason: 'once per engine, not once per open');
   });
 }
