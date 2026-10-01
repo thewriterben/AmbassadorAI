@@ -66,6 +66,8 @@ class FakeServer {
       case '/v1/players':
         issued++;
         return (201, jsonEncode({'playerId': 'p_test$issued', 'token': 'tok$issued', 'progress': progress(10 * issued)}));
+      case '/v1/me' when s.method == 'DELETE':
+        return (200, jsonEncode({'deleted': true, 'rows': {}}));
       case '/v1/me':
         return (200, jsonEncode(progress(42)));
       case '/v1/mini/coin_quest/start':
@@ -309,6 +311,39 @@ void main() {
       expect(() => stringsField({'a': [1]}, 'a'), throwsA(isA<ApiException>()));
       expect(intField({'a': 2.9}, 'a'), 2);
       expect(stringsField({'a': ['x']}, 'a'), ['x']);
+    });
+
+    // L4, found rehearsing the live build: after "Delete my play record"
+    // the next round must register a fresh player and open, not go out
+    // without a token and be quietly treated as offline.
+    test('after deleting the record, the next round registers a fresh player and opens', () async {
+      server.script = server.happy;
+      await ArcadeProgress.instance.refresh();
+      await ArcadeProgress.instance.deleteAccount();
+      expect(ArcadeApi.instance.ready, isFalse, reason: 'the identity is gone with the record');
+      server.seen.clear();
+      final token = await ArcadeProgress.instance.startMini('coin_quest');
+      expect(token, isNotNull);
+      expect(server.seen.map((s) => s.path).toList(), ['/v1/players', '/v1/mini/coin_quest/start']);
+      expect(server.seen.last.auth, startsWith('Bearer tok'));
+      expect(ArcadeProgress.instance.offline, isFalse);
+    });
+
+    test('a round start refused with 401 registers afresh once and still opens', () async {
+      server.seen.clear();
+      var refused = false;
+      server.script = (s) {
+        if (s.path == '/v1/mini/coin_quest/start' && !refused) {
+          refused = true;
+          return (401, '{"error":"unauthorized"}');
+        }
+        return server.happy(s);
+      };
+      final token = await ArcadeProgress.instance.startMini('coin_quest');
+      expect(token, isNotNull);
+      expect(server.seen.where((s) => s.path == '/v1/players').length, 1, reason: 'exactly one new player');
+      expect(server.seen.where((s) => s.path == '/v1/mini/coin_quest/start').length, 2);
+      server.script = server.happy;
     });
 
     test('a server that never answers times out as offline and leaves the identity alone', () async {

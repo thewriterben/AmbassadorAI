@@ -169,12 +169,12 @@ void main() {
       p.passageNextAt = null;
       await pump(tester);
       expect(find.text('Fully grown'), findsNothing);
-      expect(find.text('Growth shows once the arcade server has been reached.'), findsOneWidget);
+      expect(find.text('Growth shows here after a flight with the arcade server reachable.'), findsOneWidget);
       expect(find.byType(LinearProgressIndicator), findsNothing);
 
       p.apply(shop(), persist: false);
       await tester.pump();
-      expect(find.text('Growth shows once the arcade server has been reached.'), findsNothing);
+      expect(find.text('Growth shows here after a flight with the arcade server reachable.'), findsNothing);
       expect(find.textContaining('to razorback'), findsOneWidget);
     }, skip: noShop);
 

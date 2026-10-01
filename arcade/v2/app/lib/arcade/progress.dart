@@ -261,16 +261,33 @@ class ArcadeProgress extends ChangeNotifier {
   /// Returns null when the server is unreachable; [recordMini] then no-ops
   /// rather than failing loudly, which is the same shape as before for an
   /// offline player.
+  ///
+  /// It registers first when there is no identity. Only [refresh] used to,
+  /// so after "Delete my play record" (or any 401) every round went out with
+  /// no token, was refused, and the run was quietly treated as offline: the
+  /// player kept playing with nothing recorded until the next cold start,
+  /// though the delete dialog promises a new record (L4, found rehearsing the
+  /// live build). A 401 here, a token the server no longer knows, gets one
+  /// retry with a fresh registration, as [refresh] does.
   Future<String?> startMini(String game) async {
     if (game == 'passage') passageClaim = null;
     if (noBackend) return null; // nothing to open a round on
-    try {
-      return await ArcadeApi.instance.miniStart(game);
-    } on ApiException {
-      offline = true;
-      notifyListeners();
-      return null;
+    for (var attempt = 0; attempt < 2; attempt++) {
+      try {
+        await ArcadeApi.instance.init();
+        return await ArcadeApi.instance.miniStart(game);
+      } on ApiException catch (e) {
+        if (e.status == 401 && attempt == 0) continue;
+        offline = true;
+        notifyListeners();
+        return null;
+      } catch (_) {
+        offline = true;
+        notifyListeners();
+        return null;
+      }
     }
+    return null;
   }
 
   /// Claims a round opened by [startMini]; the server applies the XP formula

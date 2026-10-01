@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:puzzle_pack/arcade/entry.dart';
+import 'package:puzzle_pack/arcade/leaderboard_screen.dart';
 import 'package:puzzle_pack/arcade/passage/pigs_home_screen.dart';
 import 'package:puzzle_pack/arcade/settings_screen.dart';
 import 'package:puzzle_pack/main.dart';
@@ -44,6 +45,7 @@ void main() {
     ('pigs', PigsHomeScreen),
     ('coin_quest', LevelMapScreen),
     ('settings', SettingsScreen),
+    ('standings', LeaderboardScreen),
   ]) {
     testWidgets('open($where) shows that screen, alone on the stack', (tester) async {
       await pumpApp(tester);

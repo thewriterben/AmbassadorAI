@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../match3/ui/level_map.dart';
+import 'leaderboard_screen.dart';
 import 'passage/pigs_home_screen.dart';
 import 'settings_screen.dart';
 
@@ -12,7 +13,10 @@ import 'settings_screen.dart';
 /// the app opens the arcade straight into a game, not at the arcade's home.
 /// It says where on the `dgd/arcade` channel before it shows the arcade:
 ///
-///   open(coin_quest | pigs | settings | home)
+///   open(coin_quest | pigs | settings | standings | home)
+///
+/// `standings` is DGD App 2.1's Arcade-tab row (audit L3); a demo build has
+/// no server, and the app does not show the row there.
 ///
 /// That screen becomes the whole stack, so backing out of it leaves the
 /// arcade and returns to the app ([leaveScreen]). Standalone, nothing calls
@@ -65,6 +69,7 @@ abstract final class ArcadeEntry {
         'coin_quest' => const LevelMapScreen(),
         'pigs' => const PigsHomeScreen(),
         'settings' => const SettingsScreen(),
+        'standings' => const LeaderboardScreen(),
         _ => home?.call(),
       };
 

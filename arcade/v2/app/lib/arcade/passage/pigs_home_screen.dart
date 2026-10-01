@@ -341,7 +341,7 @@ class _BoarCard extends StatelessWidget {
                 if (showProgress && !p.passageKnown) ...[
                   const SizedBox(height: 8),
                   const Text(
-                    'Growth shows once the arcade server has been reached.',
+                    'Growth shows here after a flight with the arcade server reachable.',
                     style: TextStyle(fontSize: 12, height: 1.35, color: AppTheme.body),
                   ),
                 ],
