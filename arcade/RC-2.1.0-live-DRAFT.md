@@ -1,4 +1,4 @@
-# DGD App 2.1.0 (live arcade): release candidate, NOT FOR UPLOAD YET
+# DGD App 2.1.0 (live arcade): release candidate rc2, NOT FOR UPLOAD YET
 
 **2026-09-30. Status: built and checked, waiting on the server.** This is
 the first DGD App whose arcade talks to a server, at
@@ -8,35 +8,40 @@ the build to ship** (`RC-2.0.0-2026-09-30.md`).
 
 ## Artefacts
 
-These are in `C:\src\dgd-native\android\dist-2.1.0-rc1\`, built from
-dgd-native `dgd-2.1-live` at `89d1e38`. That branch comes off `dgd-2.0`
-at `ab23aef` (2.0.0 rc2), so the demo line stays as it is.
+These are in `C:\src\dgd-native\android\dist-2.1.0-rc2\`, built from
+dgd-native `dgd-2.1-live` at `2791096`. That branch comes off `dgd-2.0` at
+`ab23aef` (2.0.0 rc2), so the demo line stays as it is. rc1
+(`dist-2.1.0-rc1`, `89d1e38`) is superseded: it has L3 and L4 below.
 
 | File | Bytes | SHA-256 |
 |---|---|---|
-| `DigitalGold-2.1.0-unsigned.aab` | 64,862,492 | `1D989C6F9753D9B0E3A81B497ED2E194DA2933FC3B99C6A39AA29EBBB75F1910` |
-| `DigitalGold-2.1.0-review.apk` | 72,489,833 | `12720E6AC6D18AD132480CE4DCA275824FD7DCD11500784B7B8F72602A1D6531` |
+| `DigitalGold-2.1.0-unsigned.aab` | 64,866,080 | `E3199A154859104A2AD69EBD938AE900D4CEBA46FCD1EF8D75D6FF01123EDDD1` |
+| `DigitalGold-2.1.0-review.apk` | 72,492,005 | `9271B9645B13E7CCBB5B6920BBDDCCAD728CEEA365BDAD9624858FE117CEB85C` |
 
 The release is version 2.1.0, versionCode 210. That leaves 201–209 for any
 2.0.x demo fix.
 
-**The arcade embed** is puzzle-app v2 at `ef16aa6`, built in the clean room
+**The arcade embed** is puzzle-app v2 at `d70534a`, built in the clean room
 with `DGD_APP_TAB=true` and `ARCADE_API=https://arcade-api.digitalgold.co`,
 and no `DGD_DEMO`. Builds A and B came out identical. `ARCADE-PROVENANCE.md`
 is next to the AAB.
 
 **The checks behind it:**
 
-- **The native half reproduces in the clean room,** offline: 784 of 788 entries are identical. The 4 that differ are the same as in 2.0.0 rc2: R8 metadata, and two service files that differ only in line endings. Evidence: `redteam-runs/20261001T0455Z-dgd2.1.0-rc1-native-89d1e38/`.
-- 95 unit tests and lint pass.
-- The red-team runner passes 11 of 11 at AmbassadorAI `7a0998d`: the server's 39 tests, plus 187 plain, 196 loopback and 187 demo arcade tests.
+- **The native half reproduces in the clean room,** offline: 785 of 789 entries are identical. The 4 that differ are the same as in every earlier pass: R8 metadata, and two service files that differ only in line endings. Evidence: `redteam-runs/20261001T0602Z-dgd2.1.0-rc2-native-2791096/`.
+- 97 unit tests and lint pass. `ArcadeLiveFlagTest` pins the standings row's flag to the embed.
+- The red-team runner passes 11 of 11 at AmbassadorAI `74513bb`: the server's 39 tests, plus 190 plain, 201 loopback and 190 demo arcade tests.
 
 ## What changes from 2.0.0
 
 **For the player:**
 
-- **XP and levels,** the weekly standings (recognition only), an assigned
-  leaderboard name, When Pigs Fly's growth and its ability shop.
+- **XP and levels,** an assigned leaderboard name, When Pigs Fly's growth and
+  its ability shop.
+- **The weekly standings** (recognition only), from a new "Weekly standings"
+  row on the Arcade tab, under the game cards. The row appears only when the
+  embedded arcade was built against a server, so the 2.0 demo tab is as
+  designed.
 - **Delete my play record** in the arcade's Settings.
 
 **Underneath:**
@@ -58,6 +63,8 @@ is next to the AAB.
 | E6 | The grow-up moment (white flash, sparkles, fanfare) wasn't gated for the app. Only a server makes it reachable. | It is calm inside the app (`cd52381`), with tests. |
 | R12 | Deleting the play record also resets the boar's growth and abilities, and the wording didn't say so. | The dialog and blurb now name them (`7471447`). |
 | — | `Progress.load()` notified mid-build when called again from the level map. | It always completes asynchronously (`8a613c1`). |
+| L3 | The app had no way to reach the weekly standings (see below). | A "Weekly standings" row on the Arcade tab, opening the redrawn standings screen (`d70534a`, `2791096`). |
+| L4 | After "Delete my play record", play was silently unrecorded until the next cold start (see below). | Rounds register when there is no identity (`d70534a`), with tests. |
 
 ## With the server not up (checked on the emulator)
 
@@ -108,3 +115,89 @@ and replace the in-app arcade paragraph with this:
 > the app counts there, and the web arcade's rewards are not offered,
 > described or tracked in the app. Players can delete their record in the
 > arcade's Settings.
+
+## Rehearsal against a local server (2026-09-30)
+
+This was a dress rehearsal of the go-live, before `arcade-api.digitalgold.co`
+exists. The setup:
+
+- **The server:** the arcade server ran on this machine in production mode,
+  with a throwaway secret held in memory only and a named `ARCADE_CORS`. For
+  the rehearsal its growth thresholds were 150 and 400, so one flight could
+  grow the boar. `smoke.mjs` passed against it.
+- **The app:** the standalone arcade, built in release mode with the dev menu
+  and `ARCADE_API=http://10.0.2.2:8787`, on the API 36 emulator.
+- **One difference from the shipping build:** the standalone arcade loads at
+  startup rather than on first open. The first-open path was checked
+  separately, with the network capture on the real 2.1.0 build.
+
+Every step was checked against the server's own database.
+
+| # | Step | Server saw | Result |
+|---|---|---|---|
+| 1 | First launch | one player, `device_hint` `android`, assigned handle | pass |
+| 2 | Coin Quest level 1, won with 3 stars after the 15 s minimum | round: 3 stars, level 1, claimed 34 s after opening; **80 XP** (3 × 20 + 20) | pass |
+| 3 | When Pigs Fly, a full passage on autopilot | 2 stars, 9 eras, score 692, **60 XP** (24 + 24 + capped 12); 693 points credited; the boar grew to razorback, shown on the result sheet | pass |
+| 4 | Shop: unlock Dash (600) | points 693 → 93; Dash level 1; loadout `["dash"]` (the app equips a first ability itself) | pass |
+| 5 | A flight carrying Dash | loadout accepted and recorded, paid in full (60 XP, 937 points) | pass |
+| 6 | Weekly standings, then a new name | rank 1, **236 XP**, which matches every round above; re-roll stored, 1 used | pass |
+| 7 | Settings → Delete my play record | every table emptied; the dialog names the boar's growth | pass |
+| 8 | Keep playing after deleting | **nothing recorded, no new player** | **fail → L4, fixed** |
+
+### L4: after a delete, play was silently unrecorded (fixed)
+
+**What happened:** `startMini`, which opens a round, never registered a
+player. Only the startup refresh did. So after a deletion, or any 401, every
+round went out with no token and was refused, and the run was quietly
+treated as offline. That lasted until the next cold start, which in the DGD
+App means the next launch plus opening the arcade. The delete dialog
+promises a new record.
+
+**The fix:** `startMini` now registers when there is no identity, and retries
+once with a fresh registration after a 401, as `refresh` does.
+
+**Tests:** two loopback tests, both of which fail against the old code. On
+the emulator, after a delete in the same session, the next flight registered
+a fresh player and its round was recorded at 12 XP. The When Pigs Fly line
+before any growth arrives now reads "Growth shows here after a flight with
+the arcade server reachable.", which is true in both cases: offline from the
+start, and just deleted.
+
+### L3: the standings were not reachable inside the DGD app (fixed in rc2)
+
+**What happened:** DGD App 2.x opens the arcade straight into Coin Quest,
+When Pigs Fly or Settings. The XP bar and the weekly standings lived on the
+arcade's own home screen, which the app never opens. So in rc1 the standings
+could not be reached at all.
+
+**The decision (owner, 30 Sep):** a row on the Arcade tab. The fix has three
+parts.
+
+**Native:**
+
+- A "Weekly standings" row under the game cards, styled like the other
+  rows, with a podium icon drawn in the same stroke style.
+- It opens a new `standings` destination.
+- It shows only when `BuildConfig.ARCADE_LIVE` is set. The build sets that
+  from the embed's own `PROVENANCE.md` (`ARCADE_API`, and no `DGD_DEMO`), so
+  the row can never appear over a demo embed, and a test pins the flag to it.
+
+**Arcade:**
+
+- The standings screen is redrawn in the 30 Sep design system: the header
+  with the reset countdown, your name and your week with "New name", and
+  plain ranks.
+- The gold, silver and rose coin medals for the top three are gone. They are
+  prize imagery, on a board that pays nothing.
+- The v1 copy (Expeditions, the Daily Ledger) is gone.
+- Back leaves to the app, because the screen is the whole stack when the app
+  opens it.
+
+**Checked:**
+
+- On the emulator, rc2's Arcade tab shows the row, and the row opens the
+  standings.
+- With the server not up, the standings say plainly that they are kept on
+  the server, and offer to try again.
+- Against the local production-mode server, with five players, the screen
+  ranks ties correctly and picks out your own row.
