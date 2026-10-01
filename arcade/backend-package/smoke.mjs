@@ -1,6 +1,6 @@
 // Smoke test for a deployed DGD Arcade server. Node 18+ (uses global fetch).
 //
-//   node smoke.mjs https://arcade.example.org
+//   node smoke.mjs https://arcade-api.digitalgold.co
 //
 // It registers one throwaway player, walks the calls DGD App 2.0 makes, checks
 // that the server refuses what it should refuse, and then deletes the player

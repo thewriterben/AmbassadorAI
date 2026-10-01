@@ -174,3 +174,104 @@ The only Android permission in the manifest is `INTERNET`.
 6. **Retention period.** The policy says records persist until deleted. If DGD
    wants a defined retention window, that is a policy decision and then a cron
    job.
+
+---
+
+## DGD App 2.1.0: the arcade inside the DGD app goes online
+
+**Added 2026-09-30. Still a draft for DGD's compliance owner.** Everything
+above was written for a standalone DGD Arcade app, which never shipped. The
+arcade now ships inside the DGD App. DGD App 2.0 runs it with no server. From
+2.1.0 it talks to its own server at `https://arcade-api.digitalgold.co`.
+
+So this is not a second policy. It is a section to add to the **DGD App's**
+privacy policy and Play listing.
+
+### What changes for the DGD App
+
+- **The app sends game data for the first time.** Until 2.1.0, its only
+  request is the ticker's `GET /api/forms/stats`.
+- **Only after a player opens the arcade.** The arcade registers and calls its
+  server on the first open of a game or of the arcade's settings, and not
+  before. Someone who only uses the ticker sends nothing. (This was fixed
+  before the live build shipped: finding L1, arcade `8a613c1`.)
+- **It is a separate service from the web arcade.**
+  `arcade-api.digitalgold.co` is not the rewards server behind
+  `digitalgold.co/arcade/`. It shares no players, tokens or standings with it,
+  and nothing done in the app counts there.
+
+### What the 2.1.0 arcade stores on the server
+
+This is the table above, narrowed to what DGD App 2.1.0 actually writes:
+
+| | |
+|---|---|
+| Identifier | random opaque id; a SHA-256 hash of the bearer token |
+| Platform | the string `android` |
+| Progress | XP, badges, the assigned leaderboard handle and its re-roll count |
+| Coin Quest rounds | per level played: stars, level number, round open and claim times, XP paid |
+| When Pigs Fly rounds | per flight: stars, eras reached, coin score, the abilities flown with, round open and claim times, XP paid |
+| When Pigs Fly growth | lifetime and spendable points, ability levels, the chosen loadout |
+| Moderation | a status flag: normal, XP-only, or blocked |
+
+**Not stored:**
+
+- IP addresses. The rate limiter holds them in memory only.
+- No name, email, phone, contacts, location, advertising ID or device identifier.
+
+**On the device:** Coin Quest's level progress, the sound settings, and the
+arcade's token and player id.
+
+**Deletion:** arcade Settings → **Delete my play record** (`DELETE /v1/me`,
+one transaction). It erases the boar's growth and abilities too, and the
+dialog now says so (R12, arcade `7471447`).
+
+### Draft text for the DGD App's policy
+
+> **DGD Arcade.** The app includes two educational games, Coin Quest and When
+> Pigs Fly. The first time you open them, the app creates an anonymous play
+> record on our arcade server (arcade-api.digitalgold.co). The record holds a
+> random identifier, the platform (Android), and your progress in the games:
+> experience points, badges, a leaderboard name we assign from a word list,
+> your boar's growth and abilities, and a record of each round you play
+> (stars, score and timing). It does not include your name, email address or
+> any other detail that identifies you. If you never open the arcade, nothing
+> is sent.
+>
+> Experience points, points, badges and standings have no monetary value,
+> cannot be exchanged for anything, and are separate from DGD Arcade for Web
+> and from any Digital Gold account.
+>
+> To erase your play record, open the arcade's Settings and choose **Delete
+> my play record**. This permanently erases it, including your boar's growth.
+> [RETENTION: records are kept until you delete them / deleted after N months
+> without play.]
+
+### Play Data safety: what changes from 2.0
+
+| Question | 2.0 (demo arcade) | 2.1.0 (live arcade) |
+|---|---|---|
+| Does the app collect or share user data? | As declared for 1.0.8 | **Yes**, collected, not shared |
+| App activity: in-app actions | — | **Collected**: game rounds, scores, timings |
+| App activity: other user-generated content | — | None (handles are assigned) |
+| Device or other IDs | — | **To decide** (see below) |
+| Encrypted in transit | — | Yes, HTTPS |
+| Deletion available | — | Yes, in the app |
+| Purpose | — | App functionality; fraud prevention (the round-timing checks) |
+| Optional or required | — | Collected only when the user opens the arcade |
+
+**Device or other IDs.** The draft above says None, because `deviceHint` is
+only the platform string. But the server issues a random player id that
+persists for the install, and Play's definition of this category includes
+identifiers that relate to an app. Declaring it ("collected, app
+functionality, not linked to identity") costs nothing. Leaving it out, if a
+reviewer reads it the other way, is a mismatch Play acts on. **My
+recommendation is to declare it.** It is compliance's call.
+
+### Still open for 2.1.0
+
+- **Retention:** the backend package proposes 12 months without play.
+  DGD and backend need to agree a rule.
+- **The legal entity and contact address** (open item 2 above).
+- **Where the DGD App's policy is hosted,** and whether it already covers the
+  ticker's stats request.

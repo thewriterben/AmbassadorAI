@@ -17,7 +17,7 @@ All variables are listed in `env.example`.
 |---|---|---|
 | `NODE_ENV` | `production` | Already set by the Dockerfile |
 | `ARCADE_SECRET` | 32+ random characters | Signs the round tokens. **Required.** The server refuses to start on the published development default. |
-| `ARCADE_CORS` | Comma-separated origins | **Must not be `*`** in production; the server refuses to start with it. The Android app sends no `Origin`, so this only matters for browsers. Name the web origins that may call the API, or just `https://digitalgold.co` if none do. |
+| `ARCADE_CORS` | `https://arcade-api.digitalgold.co` | **Must not be `*`** in production; the server refuses to start with it. The Android app sends no `Origin`, and no web page should call this API (the web arcade has its own server), so name only the host itself. |
 | `ARCADE_TRUST_PROXY` | `1` behind a reverse proxy | See "Behind a proxy" below |
 | `ARCADE_DB` | Default `data/arcade.sqlite` | Inside the volume |
 | `ARCADE_BANK` | Default `data/bank` | Baked into the image |
@@ -56,6 +56,14 @@ docker run -d --name dgd-arcade --restart unless-stopped -p 127.0.0.1:8787:8787 
   - **Does it matter for DGD App 2.0?** Not much, because the bank only feeds Tablet Run. But the server refuses to start if the bank parses to zero items, so a hidden bank fails loudly.
   - **The fix:** a one-line Dockerfile change, moving the bank to `/app/bank` and setting `ARCADE_BANK`. Say if you want it, and we will make it in the server repo.
 - **The process closes the database cleanly** on SIGTERM and SIGINT.
+
+## Host and TLS
+
+Production is `https://arcade-api.digitalgold.co`, which is compiled into DGD App 2.1.0.
+
+- **The host needs** a DNS record and a TLS certificate for it.
+- **Serve the API at the root:** `/healthz` and `/v1/...`, with no path prefix. The app calls `https://arcade-api.digitalgold.co/v1/players` and so on.
+- **Keep it off the web arcade's proxy and database.** README, "Separate from the web arcade", says why.
 
 ## Behind a proxy
 

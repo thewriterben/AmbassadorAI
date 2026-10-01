@@ -50,7 +50,7 @@ with the define, analyzer, and the host and secret scans. Report:
 | E3 | LOW | fixed `4e7c607` | "A soft landing earns the third star" used banned copy; now "gets". The 1979 fact said the Fed raised "its policy rate" above 19%, but it targeted reserves from 1979; it now says the funds rate passed 19% by 1981, as its source line does |
 | E4 | LOW | fixed `4e7c607` | A build with no backend applied a cached `ar.snapshot` that an earlier backend build could leave; it no longer reads it. Its "Delete my play record" said "The server refused the request"; it now says there is no server record. The control stays, because the stores' deletion answer rests on it (`widget_test`) |
 | E5 | INFO | fixed `4e7c607` | The transport's own gate ignored `DGD_DEMO`. It now refuses in a demo build even with `ARCADE_API` set, pinned by a demo-group test that counts zero arrivals |
-| E6 | INFO | open, not reachable in the demo | The grow-up flash, sparkles and `stageUp` aren't gated on `inAppTab`. It needs a backend, so it matters when a backend build ships inside the app |
+| E6 | INFO | **fixed for 2.1 live** (arcade `cd52381`: calm grow-up inside the app, with tests; `RC-2.1.0-live-DRAFT.md`) | The grow-up flash, sparkles and `stageUp` aren't gated on `inAppTab`. It needs a backend, so it matters when a backend build ships inside the app |
 | E7 | INFO | accepted as not prize-style (reviewer's judgement) | A soft landing plays `win()`, and a strike spills up to four coins with `coinsPour`. Coin Quest already plays both in the tab. The spoken winner line is gated. Worth rereading together with E1 |
 | E8 | INFO | as v1 | `url_launcher` has no Dart caller but still registers its activity in the host |
 
@@ -102,7 +102,7 @@ exception to the policy as above). The fix pass is dgd-native `f04b884`.
 | R9 | LOW | **fixed in rc2** (arcade `3c4e42d`: the open is a zero-duration route, so the requested screen is the first frame; checked by screen recording, `RC-2.0.0-2026-09-30.md`) | Back on a tab returns Home, and Back in the preview steps back. **Open:** a warm open briefly shows the last arcade screen and then a page transition. It is an arcade change, left for the next clean-room build |
 | R10 | LOW | fixed | Refresh is throttled to one request per ten seconds |
 | R11 | INFO | owner | The Facebook and LinkedIn logos are the return's white versions (Meta prefers Facebook Blue), and X uses Hugeicons' mark. Both are the design's choice; confirm |
-| R12 | INFO | open | The Settings record text is the designer's wording; check it against the Data safety answers. "Star N recorded" means recorded on the phone (now "saved", rc2). `registerDesignLicences` says the licences appear on a licence page the arcade does not show; the notices still ship as assets |
+| R12 | INFO | **part-fixed** (arcade `7471447`: the deletion dialog and blurb name the boar's growth and abilities; the live build's Data safety answers are drafted in `PRIVACY-DRAFT.md`, for DGD) | The Settings record text is the designer's wording; check it against the Data safety answers. "Star N recorded" means recorded on the phone (now "saved", rc2). `registerDesignLicences` says the licences appear on a licence page the arcade does not show; the notices still ship as assets |
 
 **What holds**, per the reviewer:
 - The channel can only be driven by the app's own code: the arcade

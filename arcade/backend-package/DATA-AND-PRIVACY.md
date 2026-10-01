@@ -51,7 +51,7 @@ Once you agree a rule, we will add a script for it, with tests, to the server re
 - **The privacy policy** (`arcade/PRIVACY-DRAFT.md`). It needs a section for the arcade server, giving:
   - what is stored, as listed above;
   - why: progress, standings and abuse limits;
-  - where the server is hosted;
+  - where the server is hosted (`arcade-api.digitalgold.co`, and the hosting provider);
   - the retention period;
   - deletion from Settings.
 - **Play Data safety.** It currently declares no data collected. A live build sends app activity (game results) and an app-generated identifier to a first-party server. Both are encrypted in transit, and both can be deleted from inside the app.

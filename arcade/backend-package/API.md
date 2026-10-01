@@ -2,7 +2,7 @@
 
 ## Basics
 
-- **Base URL:** whatever the arcade is built with as `ARCADE_API`.
+- **Base URL:** `https://arcade-api.digitalgold.co`, which is what DGD App 2.1.0 is built with (`ARCADE_API`).
 - **Format:** every body is JSON.
 - **Auth:** everything except registration and health sends `Authorization: Bearer <token>`.
 - **Errors:** the body is `{"error":"<code>"}` with the status shown in the tables below.
