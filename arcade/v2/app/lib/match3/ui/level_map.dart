@@ -111,9 +111,8 @@ class _LevelMapScreenState extends State<LevelMapScreen> {
                   padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
                   child: Column(children: [
                     ScreenHeader(
-                      title: 'Coin Quest',
-                      subtitle: 'Digital Gold',
-                      subtitleUnderTitle: true,
+                      // "DGD" is in the name now, so the old "Digital Gold" subtitle went.
+                      title: 'Coin Quest: DGD',
                       onBack: () => leaveScreen(context),
                       actions: [
                         // The `if (Dev.enabled)` is here, at the call site, and

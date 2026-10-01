@@ -188,7 +188,9 @@ class _CoinQuestCard extends StatelessWidget {
                           style: const TextStyle(
                               fontFamily: AppTheme.fontMono, fontSize: 12, letterSpacing: 1.1, color: AppTheme.body)),
                       const SizedBox(height: 16),
-                      const Text('Coin Quest',
+                      // The game's full name (the owner's call, 2026-10-01). It wraps
+                      // to three lines here, as "Coin Quest" wrapped to two.
+                      const Text('Coin Quest: DGD',
                           style: TextStyle(
                               fontSize: 40, fontWeight: FontWeight.w600, height: 1.08, letterSpacing: -1.2, color: AppTheme.text)),
                       const SizedBox(height: 22),
@@ -217,7 +219,9 @@ class _CoinQuestCard extends StatelessWidget {
                   children: [
                     HugeIcon('play', size: 18, color: AppTheme.onAccent),
                     SizedBox(width: 10),
-                    Text('Play Coin Quest'),
+                    // Flexible: the longer name must not overflow the button at large
+                    // text sizes (or in a widget test's square test font).
+                    Flexible(child: Text('Play Coin Quest: DGD', maxLines: 1, overflow: TextOverflow.ellipsis)),
                   ],
                 ),
               ),

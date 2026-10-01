@@ -33,8 +33,8 @@ void main() {
     await tester.pumpWidget(const ArcadeApp());
     await tester.pump();
 
-    await tester.scrollUntilVisible(find.text('Coin Quest'), 150, scrollable: find.byType(Scrollable).first);
-    expect(find.text('Coin Quest'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('Coin Quest: DGD'), 150, scrollable: find.byType(Scrollable).first);
+    expect(find.text('Coin Quest: DGD'), findsOneWidget);
     expect(find.text('When Pigs Fly'), findsOneWidget);
 
     for (final t in removed) {

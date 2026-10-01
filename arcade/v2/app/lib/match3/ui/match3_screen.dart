@@ -160,7 +160,7 @@ class _Match3ScreenState extends State<Match3Screen> {
                   padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
                   child: ScreenHeader(
                     title: 'Vault ${lv.id.toString().padLeft(2, '0')}',
-                    subtitle: 'Coin Quest',
+                    subtitle: 'Coin Quest: DGD',
                     subtitleUnderTitle: true,
                     onBack: () => leaveScreen(context),
                     actions: [
@@ -447,7 +447,7 @@ class _EndSheet extends StatelessWidget {
           const Text('Score', style: TextStyle(fontSize: 15, color: AppTheme.body)),
           Text('${session.score}',
               style: const TextStyle(fontFamily: AppTheme.fontMono, fontSize: 60, color: AppTheme.text)),
-          Text('Coin Quest · level ${session.level.id}${Dev.demoBuild ? ' · demo' : ''}',
+          Text('Coin Quest: DGD · level ${session.level.id}${Dev.demoBuild ? ' · demo' : ''}',
               style: const TextStyle(fontSize: 14, color: AppTheme.body)),
           if (recorded.isNotEmpty) ...[
             const SizedBox(height: 14),
