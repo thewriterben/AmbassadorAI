@@ -290,7 +290,13 @@ class _Match3ScreenState extends State<Match3Screen> {
                         final cell = min(c.maxWidth / lv.cols, c.maxHeight / lv.rows);
                         final bw = cell * lv.cols, bh = cell * lv.rows;
                         const surround = 6.0;
+                        // The plate is the grid plus `surround` on every side, so
+                        // when the board fills the height it reaches 6px past this
+                        // box. A Stack clips to its box by default, which cut the
+                        // plate's top and bottom edges on a 16:9 phone. The
+                        // padding above (8px) is there to draw it in.
                         return Stack(
+                          clipBehavior: Clip.none,
                           children: [
                             Positioned(
                               left: (c.maxWidth - bw) / 2 - surround,
@@ -402,9 +408,9 @@ class _EndSheet extends StatelessWidget {
     final stars = won ? session.stars : 0;
     final newStars = [for (var s = starsBefore + 1; s <= stars; s++) s];
     final recorded = [
-      if (won && !clearedBefore) 'First completion recorded',
-      if (newStars.length == 1) 'Star ${newStars.first} recorded',
-      if (newStars.length > 1) 'Stars ${newStars.first} to ${newStars.last} recorded',
+      if (won && !clearedBefore) 'First completion saved',
+      if (newStars.length == 1) 'Star ${newStars.first} saved',
+      if (newStars.length > 1) 'Stars ${newStars.first} to ${newStars.last} saved',
     ];
     return Container(
       margin: AppTheme.sheetMargin(context),

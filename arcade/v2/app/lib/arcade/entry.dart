@@ -49,7 +49,18 @@ abstract final class ArcadeEntry {
     }
     final screen = _screenFor(where);
     if (screen == null) return;
-    nav.pushAndRemoveUntil(MaterialPageRoute(builder: (_) => screen), (_) => false);
+    // No page transition. The app is already animating the arcade in, and a
+    // Material route would slide the new screen over whatever the cached
+    // engine showed last time, so a warm open briefly showed the previous
+    // game (audit R9). The new screen has to be the first frame.
+    nav.pushAndRemoveUntil(
+      PageRouteBuilder<void>(
+        pageBuilder: (_, __, ___) => screen,
+        transitionDuration: Duration.zero,
+        reverseTransitionDuration: Duration.zero,
+      ),
+      (_) => false,
+    );
   }
 
   /// Called once the app's navigator exists, for a destination that came in
