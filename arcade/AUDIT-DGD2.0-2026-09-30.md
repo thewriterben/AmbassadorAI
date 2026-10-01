@@ -99,10 +99,10 @@ exception to the policy as above). The fix pass is dgd-native `f04b884`.
 | R6 | MEDIUM | **fixed 2026-09-30, docs** | Review and store notes describe the old layout. *Fix: `RC-2.0.0-2026-09-30.md` carries the 2.0 What's new, reviewer notes and screenshot set (`store/dgd-app-2.0/`); the iOS link guide, the B1-B3 draft notes, `INTEGRATION.md` and dgd-native's README and handover facts are updated; the 1.0.7 and 1.0.8 RC records are left as history.* Originally: They must be rewritten before any reviewed track (internal testing has no review): `RC-1.0.7-2026-09-29.md:17`, `RC-1.0.8-2026-09-29.md:121-123`, `integration/IOS-WEB-ARCADE-LINK.md` rule 4, the draft notes in `B1-B3-CATEGORY-AND-PURCHASE.md`, `INTEGRATION.md:172`, dgd-native `HANDOVER_FACTS.md:40` and `android/README.md:88` |
 | R7 | LOW | fixed | The CTA's accessibility hint is back on the button |
 | R8 | LOW | fixed | The Stats pill, step pills, address actions and the help button are 44 dp |
-| R9 | LOW | part-fixed | Back on a tab returns Home, and Back in the preview steps back. **Open:** a warm open briefly shows the last arcade screen and then a page transition. It is an arcade change, left for the next clean-room build |
+| R9 | LOW | **fixed in rc2** (arcade `3c4e42d`: the open is a zero-duration route, so the requested screen is the first frame; checked by screen recording, `RC-2.0.0-2026-09-30.md`) | Back on a tab returns Home, and Back in the preview steps back. **Open:** a warm open briefly shows the last arcade screen and then a page transition. It is an arcade change, left for the next clean-room build |
 | R10 | LOW | fixed | Refresh is throttled to one request per ten seconds |
 | R11 | INFO | owner | The Facebook and LinkedIn logos are the return's white versions (Meta prefers Facebook Blue), and X uses Hugeicons' mark. Both are the design's choice; confirm |
-| R12 | INFO | open | The Settings record text is the designer's wording; check it against the Data safety answers. "Star N recorded" means recorded on the phone. `registerDesignLicences` says the licences appear on a licence page the arcade does not show; the notices still ship as assets |
+| R12 | INFO | open | The Settings record text is the designer's wording; check it against the Data safety answers. "Star N recorded" means recorded on the phone (now "saved", rc2). `registerDesignLicences` says the licences appear on a licence page the arcade does not show; the notices still ship as assets |
 
 **What holds**, per the reviewer:
 - The channel can only be driven by the app's own code: the arcade

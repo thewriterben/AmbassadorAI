@@ -1,4 +1,4 @@
-# DGD App 2.0.0: Android release candidate
+# DGD App 2.0.0: Android release candidate (rc2)
 
 **2026-09-30.** This is the release record for DGD to sign and upload. It
 replaces the Play Console text in `RC-1.0.7-2026-09-29.md` and
@@ -7,26 +7,37 @@ record of what shipped then.
 
 ## Artefacts
 
-`C:\src\dgd-native\android\dist-2.0.0\`, built from dgd-native `dgd-2.0` at
-`f04b884`.
+**Upload rc2.** It is in `C:\src\dgd-native\android\dist-2.0.0-rc2\`, built from
+dgd-native `dgd-2.0` at `ab23aef`.
 
 | File | Bytes | SHA-256 | For |
 |---|---|---|---|
-| `DigitalGold-2.0.0-unsigned.aab` | 64,752,897 | `FE22CAA16CDC8536E01EE9A0AF1AF964A6E32188FA9672303A6837827D009594` | Play, once DGD signs it |
-| `DigitalGold-2.0.0-review.apk` | 72,275,537 | `D253C3719F604A4D752AA2CF1C40B73F04E520526748B5BB5D6DC9CAA424B8E4` | Installing and looking. It is debug-signed and says `2.0.0-review` in the app; Play refuses it. |
+| `DigitalGold-2.0.0-unsigned.aab` | 64,736,687 | `954377CAC2D836BDCE840D7AAAA212EDD02BAF82E21F9CC7A3CD0DCCC4D8A685` | Play, once DGD signs it |
+| `DigitalGold-2.0.0-review.apk` | 72,260,461 | `74B74BB6A4FEDE528CF900CF39C22FEC756E52435BE57D7D0BF88CBCC517FA92` | Installing and looking. It is debug-signed and says `2.0.0-review` in the app; Play refuses it. |
 
-The release is version 2.0.0, versionCode 200.
+The release is still version 2.0.0, versionCode 200: rc1 never went to Play.
+rc1 (`dist-2.0.0\`, `f04b884`, AAB `FE22CAA1…9594`) is kept as the record. It
+has the three findings below that rc2 fixes, so do not upload it.
 
-**The arcade embed** is puzzle-app v2 at `7fc97da`, built in the clean room in
-demo mode (`DGD_APP_TAB=true`, `DGD_DEMO=true`). It has no server and makes no
-requests. `ARCADE-PROVENANCE.md` is next to the AAB.
+**The arcade embed** is puzzle-app v2 at `3c4e42d`, built in the clean room in
+demo mode (`DGD_APP_TAB=true`, `DGD_DEMO=true`). Builds A and B came out
+identical in all 6 AARs. It has no server and makes no requests.
+`ARCADE-PROVENANCE.md` is next to the AAB.
 
-**The checks behind it:**
+**The checks behind rc2:**
 
-- The native half was reproduced in the clean room: 782 of 788 bundle entries are identical. The six that differ are R8 and profile metadata.
-- 95 unit tests and 4 of 4 instrumented tests pass.
-- The red-team runner passes.
-- The details are in `AUDIT-DGD2.0-2026-09-30.md` and `redteam-runs/`.
+- **The native half reproduces in the clean room,** offline: 784 of 788 bundle entries are identical. The 4 that differ are R8's map and `r8.json`, which are build metadata, and two service files that differ only in line endings, CRLF on Windows against LF on Linux. Evidence: `redteam-runs/20261001T0346Z-dgd2.0-rc2-native-ab23aef/`.
+- 95 unit tests pass, lint passes, and 4 of 4 instrumented tests pass on the API 36 emulator.
+- The red-team runner passes 11 of 11 at `fc0f3f1` (`redteam-runs/20261001T031548Z-fc0f3f1/`). That covers the server's 39 tests, 183 plain, 192 loopback and 184 demo arcade tests, the analyzer, and the host and secret scans.
+- The rc1 review is in `AUDIT-DGD2.0-2026-09-30.md`.
+
+**What rc2 changes from rc1:**
+
+- **S1:** light status-bar icons in light mode.
+- **S2:** the deep red coin, on the board and on the Arcade tab's card.
+- **S3:** the board's frame is no longer clipped at 16:9.
+- **R9:** opening a game from the Arcade tab no longer shows the previous game first.
+- **Star wording:** "Star N saved" replaces "recorded".
 
 ## What changed since 1.0.8
 
@@ -56,8 +67,8 @@ jarsigner -verify DigitalGold-2.0.0-unsigned.aab      :: "jar verified."
 ```
 
 Then go to Play Console → the app → internal testing → create release, and
-upload the signed `.aab`. versionCode 200 is higher than anything uploaded so
-far (1.0.8 is 8).
+upload the signed `.aab` from `dist-2.0.0-rc2`. versionCode 200 is higher than
+anything uploaded so far (1.0.8 is 8).
 
 ## Play Console text
 
@@ -97,7 +108,7 @@ page are still as described. They are DGD's facts, last confirmed on 28 Sep.
 ## Store listing graphics
 
 **The phone screenshots are in `store/dgd-app-2.0/`.** There are six, each
-1080 × 1920 (9:16, inside Play's 2:1 limit). They were taken from the 2.0.0
+1080 × 1920 (9:16, inside Play's 2:1 limit). They were taken from the rc2
 review APK on the API 36 emulator in dark mode, with a clean status bar.
 
 | File | Screen |
@@ -119,8 +130,7 @@ review APK on the API 36 emulator in dark mode, with a clean status bar.
 which is over Play's 2:1 limit, and it shows the standalone DGD Arcade, not
 this app.
 
-**These screenshots show 2.0.0 exactly,** including Coin Quest's rose red
-coin, which is now deep red in source. Retake them for the build that
+**These screenshots show rc2 exactly.** Retake them for the build that
 connects to the arcade server: the arcade screens gain an XP bar and the
 When Pigs Fly shop.
 
@@ -137,13 +147,19 @@ The reading in `RC-1.0.7-2026-09-29.md` stands. The link is the same link in
 a new place. The new game has no prizes, purchases or wagering, and its
 points never leave the phone.
 
-## Found while taking the screenshots: fixed in source, not in this AAB
+## Found while taking the rc1 screenshots: all fixed in rc2
 
-| | What | State |
+| | What | Fix, and how it was checked |
 |---|---|---|
-| S1 | **Status bar icons were dark on the dark page** when the phone is in light mode, so the clock and battery were barely visible. `enableEdgeToEdge()` with no arguments follows the system theme and overrode `windowLightStatusBar=false`. The arcade's own screens were unaffected. | Fixed in dgd-native `MainActivity` (`83119d7`): the system bars are always dark-style. A review build of it showed light icons in light mode on the emulator, and the 95 unit tests pass. It is in the next build. |
-| S2 | **The Arcade tab's Coin Quest card** carries its own copy of the coin art, still in rose. | Replaced with the deep red sprite (arcade `faa63bf`), and checked in the same review build. It is in the next build. |
-| S3 | **The bottom edge of the Coin Quest board is clipped** by about 10 px on a 16:9 screen (1080 × 1920). The last row is whole, but the frame's lower edge is cut. | Open. This is a LOW in the arcade. |
+| S1 | **Status bar icons were dark on the dark page** when the phone is in light mode, so the clock and battery were barely visible. `enableEdgeToEdge()` with no arguments follows the system theme and overrode `windowLightStatusBar=false`. The arcade's own screens were unaffected. | dgd-native `MainActivity` (`83119d7`): the system bars are always dark-style. Light icons in light mode on the emulator. |
+| S2 | **The Coin Quest red coin was rose pink.** The Arcade tab's card carries its own copy of the art. | Deep red #C21F2C in the arcade (`faa63bf`) and on the card (`83119d7`). Visible in the rc2 screenshots. |
+| S3 | **The Coin Quest board's frame was clipped** top and bottom on a 16:9 screen (1080 × 1920). The board's `Stack` clipped the plate's 6 px surround. | Arcade `3c4e42d`: the stack no longer clips. The frame is whole in `05-coin-quest-board.png`. |
 
-**If DGD wants S1 in the first 2.0 release,** we rebuild. It is a one-file
-change, and the clean-room steps are the same.
+**From the rc1 review, also in rc2:**
+
+- **R9.** A warm open showed the last arcade screen sliding away. The screen
+  the app asks for is now the arcade's first frame (`3c4e42d`). A screen
+  recording of a warm open, with When Pigs Fly as the last screen, goes from
+  the Arcade tab straight to Coin Quest.
+- **"Star N recorded"** (noted under R12) is now "Star N saved", which is
+  accurate with or without a server.
