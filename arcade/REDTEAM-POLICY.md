@@ -44,6 +44,19 @@ does not find it; provenance, enumeration and diff-scoped review do.
    difference in the manifest, resources or assets fails the run; any
    difference in code is reviewed, and only D8's incremental-build checksum
    line is an accepted explanation.
+   **iOS (decided by the owner, 2026-10-01).** The Linux container cannot
+   build iOS frameworks, so on iOS rule 3 takes this form instead:
+   - The Mac builds the arcade's xcframeworks twice, at a fixed path, each
+     time from a fresh clone of the pinned commit: A with the network on,
+     B from scratch with `pub get --offline`.
+   - The two must be byte-identical, or every difference must be explained in
+     the frameworks' `PROVENANCE.md`. A difference inside `App.framework/App`
+     (the arcade's code) is not an accepted explanation.
+   - Build B is the one embedded. `build_ios_frameworks.sh` in the Mac
+     handoff does this.
+   - The iOS app's own binary is not rebuilt in a container. Its source is
+     pinned by the bundle the Mac returns, and it is reviewed like any other
+     source.
 4. **Enumerate, then account.** Every route, environment flag, host,
    permission, exported component and debug-only path is listed by the runner
    and must map to a line in the spec or become a finding.
